@@ -75,19 +75,18 @@ class LocationService extends ChangeNotifier {
     // Initial positioning
     refreshLocation();
 
-    if (_serviceStatusSub == null) {
-      _serviceStatusSub = Geolocator.getServiceStatusStream().listen((ServiceStatus status) {
-        _isServiceEnabled = (status == ServiceStatus.enabled);
-        if (!_isServiceEnabled) {
-          _status = GpsStatus.off;
-          _currentPosition = null;
-        } else {
-          _status = GpsStatus.searching;
-          refreshLocation();
-        }
-        notifyListeners();
-      });
-    }
+    _serviceStatusSub ??=
+        Geolocator.getServiceStatusStream().listen((ServiceStatus status) {
+      _isServiceEnabled = (status == ServiceStatus.enabled);
+      if (!_isServiceEnabled) {
+        _status = GpsStatus.off;
+        _currentPosition = null;
+      } else {
+        _status = GpsStatus.searching;
+        refreshLocation();
+      }
+      notifyListeners();
+    });
 
     _attachGpsStream();
   }

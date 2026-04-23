@@ -175,6 +175,27 @@ class _WebMapScreenState extends State<WebMapScreen> {
     );
   }
 
+  Future<void> _onImportFromWeb() async {
+    try {
+      await context.read<BoundaryService>().importFileFromWeb();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('✅ Fayl yuklandi!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Xatolik: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   // ─── Build Method ─────────────────────────────────────────────────────────
 
   @override
@@ -199,22 +220,7 @@ class _WebMapScreenState extends State<WebMapScreen> {
                     _buildMap(boundaries),
                     WebMapToolbar(
                       mapController: _mapController,
-                      onImport: () async {
-                        try {
-                          await context.read<BoundaryService>().importFileFromWeb();
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('✅ Fayl yuklandi!'), backgroundColor: Colors.green),
-                            );
-                          }
-                        } catch (e) {
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Xatolik: $e'), backgroundColor: Colors.red),
-                            );
-                          }
-                        }
-                      },
+                      onImport: _onImportFromWeb,
                     ),
                     if (_isDrawingMode) _buildDrawingHint(),
                   ],

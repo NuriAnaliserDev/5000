@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:io' show Directory, File, stdout;
 
 void main() {
   final dir = Directory('lib');
@@ -8,7 +8,7 @@ void main() {
     if (content.contains('GeoField Pro (N)')) {
       content = content.replaceAll('GeoField Pro (N)', 'GeoField Pro N');
       file.writeAsStringSync(content);
-      print('Updated ${file.path}');
+      stdout.writeln('Updated ${file.path}');
     }
   }
 }

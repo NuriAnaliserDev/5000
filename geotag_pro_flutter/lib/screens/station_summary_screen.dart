@@ -90,8 +90,9 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
 
     _strikeController.addListener(() {
       final s = double.tryParse(_strikeController.text);
-      if (s != null)
+      if (s != null) {
         _dipDirectionController.text = ((s + 90) % 360).toStringAsFixed(0);
+      }
     });
   }
 
@@ -204,21 +205,25 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
       measurements: _measurements,
     );
 
-    await repo.updateStation(_station!.key, updated,
-        author: context.read<SettingsController>().currentUserName);
+    final author = context.read<SettingsController>().currentUserName;
+    await repo.updateStation(_station!.key, updated, author: author);
     return true;
   }
 
   Future<void> _updateGps() async {
     try {
       final pos = await Geolocator.getCurrentPosition();
+      if (!mounted) return;
+      final successMsg = context.locRead('success_saved');
       setState(() {
         _latController.text = pos.latitude.toStringAsFixed(6);
         _lngController.text = pos.longitude.toStringAsFixed(6);
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.locRead('success_saved'))));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(successMsg)));
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('GPS xatosi: $e')));
     }
@@ -227,14 +232,15 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
   Future<void> _pickFromGallery() async {
     if (_station == null) return;
     final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (picked != null) {
-      final paths = (_station!.photoPaths ?? []).toList()..add(picked.path);
-      final updated = _station!.copyWith(photoPaths: paths);
-      await context.read<StationRepository>().updateStation(
-          _station!.key, updated,
-          author: context.read<SettingsController>().currentUserName);
-      setState(() => _station = updated);
-    }
+    if (picked == null) return;
+    if (!mounted) return;
+    final paths = (_station!.photoPaths ?? []).toList()..add(picked.path);
+    final updated = _station!.copyWith(photoPaths: paths);
+    final stationRepo = context.read<StationRepository>();
+    final author = context.read<SettingsController>().currentUserName;
+    await stationRepo.updateStation(_station!.key, updated, author: author);
+    if (!mounted) return;
+    setState(() => _station = updated);
   }
 
   Future<void> _deletePhoto(String path) async {
@@ -250,11 +256,13 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
                   child: Text(context.locRead('delete')))
             ]));
     if (ok != true) return;
+    if (!mounted) return;
     final paths = (_station!.photoPaths ?? []).toList()..remove(path);
     final updated = _station!.copyWith(photoPaths: paths);
-    await context.read<StationRepository>().updateStation(
-        _station!.key, updated,
-        author: context.read<SettingsController>().currentUserName);
+    final stationRepo = context.read<StationRepository>();
+    final author = context.read<SettingsController>().currentUserName;
+    await stationRepo.updateStation(_station!.key, updated, author: author);
+    if (!mounted) return;
     setState(() => _station = updated);
   }
 
@@ -317,10 +325,13 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
         station: _station,
         onSave: _save,
         onMenuAction: (val) {
-          if (val == 'pdf' && _station != null)
+          if (val == 'pdf' && _station != null) {
             PdfExportService.generateStationReport(_station!)
                 .then((file) => Share.shareXFiles([XFile(file.path)]));
-          if (val == 'delete' && _station != null) _confirmDelete();
+          }
+          if (val == 'delete' && _station != null) {
+            _confirmDelete();
+          }
         },
       ),
       body: Column(
@@ -395,9 +406,12 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
                   onPressed: () => Navigator.pop(ctx, true),
                   child: Text(context.locRead('delete')))
             ]));
+    if (!mounted) return;
     if (ok == true) {
-      await context.read<StationRepository>().deleteStation(_station!.key);
-      if (mounted) Navigator.pop(context);
+      final stationRepo = context.read<StationRepository>();
+      await stationRepo.deleteStation(_station!.key);
+      if (!mounted) return;
+      Navigator.of(context).pop();
     }
   }
 }
