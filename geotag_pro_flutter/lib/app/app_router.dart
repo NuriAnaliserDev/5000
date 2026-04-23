@@ -42,8 +42,8 @@ class AppRouter {
   static const String painter = '/painter';
   static const String station = '/station';
 
-  static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
-    switch (settings.name) {
+  static Route<dynamic>? onGenerateRoute(RouteSettings routeSettings) {
+    switch (routeSettings.name) {
       case home:
         if (kIsWeb) {
           return MaterialPageRoute<void>(
@@ -65,7 +65,7 @@ class AppRouter {
       case messages:
         return MaterialPageRoute<void>(builder: (_) => const MessagesScreen());
       case chat:
-        final a = settings.arguments;
+        final a = routeSettings.arguments;
         if (a is! String || a.isEmpty) {
           return _notFound();
         }
@@ -73,7 +73,7 @@ class AppRouter {
           builder: (_) => ChatScreen(groupId: a),
         );
       case autoTableReview:
-        final a = settings.arguments;
+        final a = routeSettings.arguments;
         if (a is! String || a.isEmpty) {
           return _notFound();
         }
@@ -81,16 +81,20 @@ class AppRouter {
           builder: (_) => AutoTableReviewScreen(imagePath: a),
         );
       case camera:
-        final id = settings.arguments;
+        final id = routeSettings.arguments;
+        int? sid;
+        if (id is int) {
+          sid = id;
+        } else if (id is num) {
+          sid = id.toInt();
+        }
         return MaterialPageRoute<void>(
-          builder: (_) => SmartCameraScreen(
-            stationId: id is int? ? id : null,
-          ),
+          builder: (_) => SmartCameraScreen(stationId: sid),
         );
       case map:
         return MaterialPageRoute<void>(
           builder: (_) {
-            final args = settings.arguments;
+            final args = routeSettings.arguments;
             return GlobalMapScreen(
               initLocation: args is Map<String, dynamic> ? args : null,
             );
@@ -100,15 +104,15 @@ class AppRouter {
         return MaterialPageRoute<void>(builder: (_) => const ArchiveScreen());
       case analysis:
         return MaterialPageRoute<void>(builder: (_) => const AnalysisScreen());
-      case admin:
-      case settings:
+      case AppRouter.admin:
+      case AppRouter.settings:
         return MaterialPageRoute<void>(builder: (_) => const AdminScreen());
       case scaleAssistant:
         return MaterialPageRoute<void>(
           builder: (_) => const ScaleAssistantScreen(),
         );
       case painter:
-        final a = settings.arguments;
+        final a = routeSettings.arguments;
         if (a is! String || a.isEmpty) {
           return _notFound();
         }
@@ -118,10 +122,14 @@ class AppRouter {
       case station:
         return MaterialPageRoute<void>(
           builder: (_) {
-            final id = settings.arguments;
-            return StationSummaryScreen(
-              stationId: id is int? ? id : null,
-            );
+            final id = routeSettings.arguments;
+            int? sid;
+            if (id is int) {
+              sid = id;
+            } else if (id is num) {
+              sid = id.toInt();
+            }
+            return StationSummaryScreen(stationId: sid);
           },
         );
       default:
