@@ -8,6 +8,7 @@
   "ai_lithology_error": "AI xatosi",
   "ai_lithology_minerals_prefix": "Minerallar:",
   "ai_lithology_need_photo": "AI tahlil uchun avval stansiyaga rasm qo‘shing (kamera yoki galereya).",
+  "ai_lithology_verify_type_prefix": "AI tavsiya qilgan tosh turi (tekshiring):",
   "actions_label": "Amallar",
   "active_point_label": "Faol geologik nuqta",
   "add_first_station": "Birinchi stansiyani yaratish",

@@ -35,6 +35,10 @@ class GeoFieldStringsEn extends GeoFieldStrings {
       'Add a station photo first (camera or gallery) for AI analysis.';
 
   @override
+  String get ai_lithology_verify_type_prefix =>
+      'AI suggested rock type (verify):';
+
+  @override
   String get actions_label => 'Actions';
 
   @override

@@ -18,6 +18,7 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'ai_lithology_error': return s.ai_lithology_error;
     case 'ai_lithology_minerals_prefix': return s.ai_lithology_minerals_prefix;
     case 'ai_lithology_need_photo': return s.ai_lithology_need_photo;
+    case 'ai_lithology_verify_type_prefix': return s.ai_lithology_verify_type_prefix;
     case 'all_projects': return s.all_projects;
     case 'all_stations': return s.all_stations;
     case 'altitude': return s.altitude;

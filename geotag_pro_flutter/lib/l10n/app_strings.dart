@@ -148,6 +148,12 @@ abstract class GeoFieldStrings {
   /// **'Add a station photo first (camera or gallery) for AI analysis.'**
   String get ai_lithology_need_photo;
 
+  /// No description provided for @ai_lithology_verify_type_prefix.
+  ///
+  /// In en, this message translates to:
+  /// **'AI suggested rock type (verify):'**
+  String get ai_lithology_verify_type_prefix;
+
   /// No description provided for @actions_label.
   ///
   /// In en, this message translates to:

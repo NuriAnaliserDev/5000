@@ -8,6 +8,7 @@
   "ai_lithology_error": "AI hatası",
   "ai_lithology_minerals_prefix": "Mineraller:",
   "ai_lithology_need_photo": "AI analizi için önce istasyona fotoğraf ekleyin (kamera veya galeri).",
+  "ai_lithology_verify_type_prefix": "AI önerilen kaya tipi (doğrulayın):",
   "actions_label": "İşlemler",
   "active_point_label": "Aktif jeolojik nokta",
   "add_first_station": "İlk İstasyonu Oluştur",

@@ -357,15 +357,17 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
           _rockType = matched.category;
           _subRockType = matched.sub;
           _rockTypeController.text = matched.sub;
-        } else {
-          _rockTypeController.text = result.rockType;
         }
 
         final prev = _descriptionController.text.trim();
         final desc = result.description.trim();
         final tail = mineralsLine.trim();
+        final unmatchedType = matched == null && result.rockType.trim().isNotEmpty
+            ? '${context.locRead('ai_lithology_verify_type_prefix')} ${result.rockType}'
+            : '';
         final parts = <String>[];
         if (prev.isNotEmpty) parts.add(prev);
+        if (unmatchedType.isNotEmpty) parts.add(unmatchedType);
         if (desc.isNotEmpty) parts.add(desc);
         if (tail.isNotEmpty) parts.add(tail);
         _descriptionController.text = parts.join('\n\n');

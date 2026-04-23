@@ -35,6 +35,10 @@ class GeoFieldStringsUz extends GeoFieldStrings {
       'AI tahlil uchun avval stansiyaga rasm qo‘shing (kamera yoki galereya).';
 
   @override
+  String get ai_lithology_verify_type_prefix =>
+      'AI tavsiya qilgan tosh turi (tekshiring):';
+
+  @override
   String get actions_label => 'Amallar';
 
   @override

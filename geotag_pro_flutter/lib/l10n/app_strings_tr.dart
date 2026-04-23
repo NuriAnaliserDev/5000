@@ -35,6 +35,10 @@ class GeoFieldStringsTr extends GeoFieldStrings {
       'AI analizi için önce istasyona fotoğraf ekleyin (kamera veya galeri).';
 
   @override
+  String get ai_lithology_verify_type_prefix =>
+      'AI önerilen kaya tipi (doğrulayın):';
+
+  @override
   String get actions_label => 'İşlemler';
 
   @override
