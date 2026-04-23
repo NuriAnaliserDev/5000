@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../screens/auth_screen.dart';
 import '../screens/dashboard_screen.dart';
 import '../screens/desktop/desktop_shell.dart';
 import '../screens/web/web_dashboard_main.dart';
@@ -27,7 +28,10 @@ class PlatformGate extends StatelessWidget {
     }
 
     if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
-      return const DesktopShell();
+      final auth = context.watch<AuthService>();
+      return auth.isAuthenticated
+          ? const DesktopShell()
+          : const AuthScreen();
     }
 
     return const DashboardScreen();

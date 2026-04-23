@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/auth_service.dart';
+import '../../services/settings_controller.dart';
 import 'web_dashboard_main.dart';
 
 class WebLoginScreen extends StatefulWidget {
@@ -13,6 +15,9 @@ class WebLoginScreen extends StatefulWidget {
 class _WebLoginScreenState extends State<WebLoginScreen> {
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
+  final _confirmCtrl = TextEditingController();
+  final _nameCtrl = TextEditingController();
+  bool _register = false;
   bool _isLoading = false;
   bool _obscurePassword = true;
   String? _errorMsg;
@@ -21,16 +26,28 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
   void dispose() {
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
+    _confirmCtrl.dispose();
+    _nameCtrl.dispose();
     super.dispose();
   }
 
-  void _login() async {
+  Future<void> _submit() async {
     final email = _emailCtrl.text.trim();
     final password = _passwordCtrl.text;
 
     if (email.isEmpty || password.isEmpty) {
       setState(() => _errorMsg = 'Email va parolni kiriting.');
       return;
+    }
+    if (_register) {
+      if (password.length < 6) {
+        setState(() => _errorMsg = 'Parol kamida 6 belgi.');
+        return;
+      }
+      if (password != _confirmCtrl.text) {
+        setState(() => _errorMsg = 'Parollar mos emas.');
+        return;
+      }
     }
 
     setState(() {
@@ -39,20 +56,34 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
     });
 
     final auth = context.read<AuthService>();
-    final error = await auth.login(email, password);
+    final settings = context.read<SettingsController>();
+    final error = _register
+        ? await auth.register(
+            email,
+            password,
+            displayName:
+                _nameCtrl.text.trim().isEmpty ? null : _nameCtrl.text.trim(),
+          )
+        : await auth.login(email, password);
 
-    if (mounted) {
-      if (error != null) {
-        setState(() {
-          _errorMsg = error;
-          _isLoading = false;
-        });
-      } else {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const WebDashboardMain()),
-        );
-      }
+    if (!mounted) return;
+
+    if (error != null) {
+      setState(() {
+        _errorMsg = error;
+        _isLoading = false;
+      });
+      return;
     }
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      settings.setLocalDisplayName(AuthService.displayNameFromUser(user));
+    }
+    setState(() => _isLoading = false);
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => const WebDashboardMain()),
+    );
   }
 
   @override
@@ -118,17 +149,33 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                   ),
                   const SizedBox(height: 6),
                   const Text(
-                    'Boshqaruv Markazi',
+                    'Dashboard',
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Color(0xFF42A5F5), fontSize: 13, fontWeight: FontWeight.w600),
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Faqat ruxsat etilgan ma\'muriyat uchun',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white24, fontSize: 11),
+                  const SizedBox(height: 12),
+                  ToggleButtons(
+                    isSelected: [!_register, _register],
+                    onPressed: (i) => setState(() {
+                      _register = i == 1;
+                      _errorMsg = null;
+                    }),
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white70,
+                    selectedColor: Colors.white,
+                    fillColor: const Color(0xFF1565C0).withValues(alpha: 0.4),
+                    children: const [
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        child: Text('Kirish'),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        child: Text('Ro\'yxat'),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
 
                   // Error banner
                   if (_errorMsg != null) ...[
@@ -155,22 +202,28 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                     ),
                   ],
 
-                  // Email field
+                  if (_register) ...[
+                    _buildField(
+                      controller: _nameCtrl,
+                      label: 'Ism (ixtiyoriy)',
+                      icon: Icons.person_outline,
+                    ),
+                    const SizedBox(height: 14),
+                  ],
                   _buildField(
                     controller: _emailCtrl,
-                    label: 'Korporativ Email',
+                    label: 'Email',
                     icon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
                   ),
                   const SizedBox(height: 14),
 
-                  // Password field
                   _buildField(
                     controller: _passwordCtrl,
-                    label: 'Maxfiy Parol',
+                    label: 'Parol',
                     icon: Icons.lock_outline,
                     obscure: _obscurePassword,
-                    onSubmitted: (_) => _login(),
+                    onSubmitted: (_) => _submit(),
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
@@ -180,13 +233,21 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                       onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                     ),
                   ),
+                  if (_register) ...[
+                    const SizedBox(height: 14),
+                    _buildField(
+                      controller: _confirmCtrl,
+                      label: 'Parolni tasdiqlang',
+                      icon: Icons.lock_outline,
+                      obscure: _obscurePassword,
+                    ),
+                  ],
                   const SizedBox(height: 28),
 
-                  // Login button
                   SizedBox(
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: _isLoading ? null : _login,
+                      onPressed: _isLoading ? null : _submit,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF1565C0),
                         foregroundColor: Colors.white,
@@ -200,9 +261,9 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                               height: 20,
                               child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                             )
-                          : const Text(
-                              'TIZIMGA KIRISH',
-                              style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 14),
+                          : Text(
+                              _register ? 'RO\'YXATDAN O\'TISH' : 'TIZIMGA KIRISH',
+                              style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 14),
                             ),
                     ),
                   ),

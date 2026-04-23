@@ -24,7 +24,6 @@ import '../widgets/dashboard/desktop/dashboard_desktop_header.dart';
 int _dashboardSettingsToken(SettingsController s) => Object.hash(
       s.currentProject,
       s.mapStyle,
-      s.currentUserRole,
       s.currentUserName,
       Object.hashAll(s.projects),
     );
@@ -188,13 +187,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
           ),
-          if (settings.currentUserRole != 'Sampler')
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              sliver: SliverToBoxAdapter(
-                child: DashboardProjectPicker(allStations: allStations),
-              ),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            sliver: SliverToBoxAdapter(
+              child: DashboardProjectPicker(allStations: allStations),
             ),
+          ),
           SliverPadding(
             padding: const EdgeInsets.all(16),
             sliver: SliverToBoxAdapter(

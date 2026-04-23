@@ -13,23 +13,21 @@ class SettingsController extends ChangeNotifier {
   static const _languageKey = 'language';
   static const _ecoModeKey = 'ecoMode';
   static const _expertModeKey = 'expertMode';
-  static const _userRoleKey = 'currentUserRole';
   static const _userNameKey = 'currentUserName';
   static const _isFirstRunKey = 'isFirstRun';
   static const _mapTutorialKey = 'hasSeenMapTutorial';
   static const _cameraTutorialKey = 'hasSeenCameraTutorial';
 
-  String? get currentUserRole => _box.get(_userRoleKey) as String?;
   String? get currentUserName => _box.get(_userNameKey) as String?;
 
-  void login(String role, String name) {
-    _box.put(_userRoleKey, role);
-    _box.put(_userNameKey, name);
+  /// Firebase profil (ism) bilan sinxronlash uchun mahalliy ko‘rsatish nomi.
+  void setLocalDisplayName(String name) {
+    final t = name.trim();
+    _box.put(_userNameKey, t.isEmpty ? 'User' : t);
     notifyListeners();
   }
 
-  void logout() {
-    _box.delete(_userRoleKey);
+  void clearLocalDisplayName() {
     _box.delete(_userNameKey);
     notifyListeners();
   }

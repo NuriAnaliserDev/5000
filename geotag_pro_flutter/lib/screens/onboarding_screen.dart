@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../app/app_router.dart';
 import '../services/settings_controller.dart';
 
 class OnboardingScreen extends StatelessWidget {
@@ -57,11 +58,11 @@ class OnboardingScreen extends StatelessWidget {
       ],
       onDone: () {
         settings.isFirstRun = false;
-        Navigator.of(context).pushReplacementNamed('/dashboard');
+        Navigator.of(context).pushReplacementNamed(AppRouter.auth);
       },
       onSkip: () {
         settings.isFirstRun = false;
-        Navigator.of(context).pushReplacementNamed('/dashboard');
+        Navigator.of(context).pushReplacementNamed(AppRouter.auth);
       },
       showSkipButton: true,
       skip: const Text("O'tkazib yuborish", style: TextStyle(fontWeight: FontWeight.w600)),

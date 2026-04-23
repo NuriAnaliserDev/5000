@@ -128,10 +128,6 @@ class ChatRepository extends ChangeNotifier {
     final currentProject = settingsController.currentProject;
     return _groupsBox.values.where((g) {
       if (g.project != null && g.project != currentProject) return false;
-      // Filter by role
-      if (g.allowedRoles != null && g.allowedRoles!.isNotEmpty) {
-        if (!g.allowedRoles!.contains(settingsController.currentUserRole)) return false;
-      }
       return true;
     }).toList();
   }

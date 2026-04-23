@@ -98,16 +98,15 @@ class _SplashScreenState extends State<SplashScreen> {
     final auth = context.read<AuthService>();
     final user = auth.currentUser;
     if (user != null) {
-      final name = user.email?.split('@').first ??
-          user.displayName ??
-          'User';
-      if (settings.currentUserName != name ||
-          settings.currentUserRole == null) {
-        settings.login('Geologist', name);
+      final name = AuthService.displayNameFromUser(user);
+      if (settings.currentUserName != name) {
+        settings.setLocalDisplayName(name);
       }
     }
     if (settings.isFirstRun) {
       Navigator.pushReplacementNamed(context, AppRouter.onboarding);
+    } else if (!auth.isAuthenticated) {
+      Navigator.pushReplacementNamed(context, AppRouter.auth);
     } else {
       Navigator.pushReplacementNamed(context, AppRouter.dashboard);
     }

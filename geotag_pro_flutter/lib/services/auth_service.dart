@@ -1,7 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:hive/hive.dart';
-import 'hive_db.dart';
 
 class AuthService extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -9,28 +7,33 @@ class AuthService extends ChangeNotifier {
 
   User? get currentUser => _currentUser;
 
-  /// Haqiqiy autentifikatsiya: faqat Firebase foydalanuvchisi bo'lganda true.
-  /// Dev bypass yo'q — bu production-safe.
   bool get isAuthenticated => _currentUser != null;
 
   AuthService() {
+    _currentUser = _auth.currentUser;
     _auth.authStateChanges().listen((user) {
       _currentUser = user;
       notifyListeners();
     });
   }
 
+  /// Ko‘rsatish uchun ism: avvalo [User.displayName], so‘ng email prefiksi.
+  static String displayNameFromUser(User user) {
+    final d = user.displayName?.trim();
+    if (d != null && d.isNotEmpty) return d;
+    final email = user.email?.trim();
+    if (email != null && email.contains('@')) {
+      return email.split('@').first;
+    }
+    return 'User';
+  }
+
   Future<String?> login(String email, String password) async {
     try {
-      final credential = await _auth.signInWithEmailAndPassword(
+      await _auth.signInWithEmailAndPassword(
         email: email.trim(),
         password: password,
       );
-      if (credential.user != null) {
-        final box = Hive.box(HiveDb.settingsBox);
-        box.put('currentUserName', credential.user!.email?.split('@').first ?? 'User');
-        box.put('currentUserRole', 'Geologist'); // Default role
-      }
       return null;
     } on FirebaseAuthException catch (e) {
       switch (e.code) {
@@ -51,11 +54,44 @@ class AuthService extends ChangeNotifier {
     }
   }
 
-  /// Parolni tiklash uchun email yuboradi.
+  Future<String?> register(
+    String email,
+    String password, {
+    String? displayName,
+  }) async {
+    try {
+      final cred = await _auth.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+      final name = displayName?.trim();
+      if (name != null && name.isNotEmpty && cred.user != null) {
+        await cred.user!.updateDisplayName(name);
+        await cred.user!.reload();
+      }
+      return null;
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'email-already-in-use':
+          return 'Bu email allaqachon ro\'yxatdan o\'tgan.';
+        case 'invalid-email':
+          return 'Email noto\'g\'ri.';
+        case 'weak-password':
+          return 'Parol juda zaif (kamida 6 belgi).';
+        case 'network-request-failed':
+          return 'Internet aloqasi yo\'q.';
+        default:
+          return e.message ?? 'Ro\'yxatdan o\'tishda xatolik.';
+      }
+    } catch (e) {
+      return e.toString();
+    }
+  }
+
   Future<String?> sendPasswordReset(String email) async {
     try {
       await _auth.sendPasswordResetEmail(email: email.trim());
-      return null; // muvaffaqiyat
+      return null;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         return 'Bu email ro\'yxatdan o\'tmagan.';
@@ -68,13 +104,9 @@ class AuthService extends ChangeNotifier {
 
   Future<void> logout() async {
     await _auth.signOut();
-    final box = Hive.box(HiveDb.settingsBox);
-    box.delete('currentUserName');
-    box.delete('currentUserRole');
     notifyListeners();
   }
 
-  /// Debug maqsadida faqat assert da ishlaydi — production'da compile out bo'ladi.
   void devLogin() {
     assert(() {
       debugPrint('[DEV] devLogin() chaqirildi — faqat debug mode');

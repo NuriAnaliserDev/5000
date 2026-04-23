@@ -2,15 +2,6 @@ rules_version = '2';
 
 // GeoField Pro — Firestore Security Rules.
 //
-// Tamoyillar:
-//   * Har bir foydalanuvchi faqat o‘zining kolleksiyasini ko‘radi/yozadi.
-//   * Presence — barcha autentifikatsiyadan o‘tganlarga ko‘rinadi, yozish —
-//     faqat o‘zi.
-//   * Emergency signals — barcha autentifikatsiyadan o‘tganlar ko‘radi
-//     (xavfsizlik uchun); yaratish — autentifikatsiyadan o‘tgan; update —
-//     faqat yuboruvchi.
-//   * Global boundaries va global_lines — faqat admin/senior_geologist.
-//
 // Deploy: cd geotag_pro_flutter && firebase deploy --only firestore:rules
 
 service cloud.firestore {
@@ -19,12 +10,20 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function userDocExists() {
+      return exists(/databases/$(db)/documents/users/$(request.auth.uid));
+    }
+
     function userRole() {
-      return get(/databases/$(db)/documents/users/$(request.auth.uid)).data.role;
+      return userDocExists()
+        ? get(/databases/$(db)/documents/users/$(request.auth.uid)).data.role
+        : '';
     }
 
     function isAdmin() {
-      return userRole() in ['admin', 'geologist_senior'];
+      return isAuthed()
+        && userDocExists()
+        && userRole() in ['admin', 'geologist_senior'];
     }
 
     match /users/{uid} {
@@ -64,10 +63,24 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // Ilova kodida kolleksiya nomi: chat_groups
+    // Kon hisobotlari: yaratish faqat o‘z UID bilan; o‘qish — dashboard (autentifikatsiyadan o‘tganlar).
+    match /daily_mine_reports/{doc} {
+      allow read: if isAuthed();
+      allow create: if isAuthed()
+        && request.resource.data.authorUid == request.auth.uid
+        && 'reportType' in request.resource.data
+        && 'authorName' in request.resource.data
+        && 'status' in request.resource.data
+        && 'parsedData' in request.resource.data;
+      allow update: if isAuthed();
+      // Rad etish / tozalash: kichik jamoa; kerak bo‘lsa keyinroq faqat muallif yoki admin qilib toraytirasiz.
+      allow delete: if isAuthed();
+    }
+
+    // Guruh hujjati — faqat konsoldan; ilova faqat messages yozadi.
     match /chat_groups/{groupId} {
       allow read: if isAuthed();
-      allow create, update, delete: if isAuthed();
+      allow create, update, delete: if false;
 
       match /messages/{msgId} {
         allow read: if isAuthed();
@@ -80,7 +93,7 @@ service cloud.firestore {
 
     match /groups/{groupId} {
       allow read: if isAuthed();
-      allow create, update, delete: if isAuthed();
+      allow create, update, delete: if false;
 
       match /messages/{msgId} {
         allow read: if isAuthed();
