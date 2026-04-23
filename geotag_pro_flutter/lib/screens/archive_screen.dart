@@ -147,9 +147,25 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
                 },
               ),
               ListTile(
+                leading: const Icon(Icons.layers_outlined, color: Colors.brown),
+                title: const Text('Shapefile (ZIP)'),
+                subtitle: const Text(
+                  'QGIS: stations.shp + WGS84 .prj. Yo‘llar alohida track_*.shp',
+                  style: TextStyle(fontSize: 11),
+                ),
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  final file = await ExportService.exportToShapefileZip(stations, const []);
+                  _shareFile(file);
+                },
+              ),
+              ListTile(
                 leading: const Icon(Icons.architecture, color: Colors.cyan),
                 title: const Text('Export DXF (AutoCAD)'),
-                subtitle: const Text('DXF Eslatmasi: Format metrik emas, asil GPS o\'qlarida saqlanadi', style: TextStyle(color: Colors.red, fontSize: 10, fontWeight: FontWeight.bold)),
+                subtitle: const Text(
+                  'UTM metr (zona) — AutoCAD o‘lchovi bilan ochiladi',
+                  style: TextStyle(fontSize: 11, color: Colors.black54),
+                ),
                 onTap: () async {
                   Navigator.pop(ctx);
                   final file = await ExportService.exportToDxf(stations, []);
@@ -205,9 +221,25 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
                 },
               ),
               ListTile(
+                leading: const Icon(Icons.layers_outlined, color: Colors.brown),
+                title: const Text('Shapefile (ZIP)'),
+                subtitle: const Text(
+                  'Har track — alohida polyline .shp, WGS84 .prj',
+                  style: TextStyle(fontSize: 11),
+                ),
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  final file = await ExportService.exportToShapefileZip(const [], tracks);
+                  _shareFile(file);
+                },
+              ),
+              ListTile(
                 leading: const Icon(Icons.architecture, color: Colors.cyan),
                 title: const Text('Export DXF (AutoCAD)'),
-                subtitle: const Text('DXF Eslatmasi: Format metrik emas, asil GPS o\'qlarida saqlanadi', style: TextStyle(color: Colors.red, fontSize: 10, fontWeight: FontWeight.bold)),
+                subtitle: const Text(
+                  'UTM metr (zona) — poliline va nuqtalar',
+                  style: TextStyle(fontSize: 11, color: Colors.black54),
+                ),
                 onTap: () async {
                   Navigator.pop(ctx);
                   final file = await ExportService.exportToDxf([], tracks);

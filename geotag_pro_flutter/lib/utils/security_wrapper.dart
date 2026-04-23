@@ -1,7 +1,10 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 import '../services/security_provider.dart';
+import '../services/sos_service.dart';
 import '../screens/lock_screen.dart';
 
 /// A wrapper widget that manages application lifecycle security.
@@ -21,6 +24,16 @@ class _SecurityWrapperState extends State<SecurityWrapper> with WidgetsBindingOb
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final sos = context.read<SosService>();
+      sos.smsHandler ??= (Uri u) async {
+        if (await canLaunchUrl(u)) {
+          await launchUrl(u);
+        }
+      };
+      sos.startAutoFlush();
+    });
   }
 
   @override

@@ -6,13 +6,17 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../models/station.dart';
+import 'pdf/pdf_fonts.dart';
 
 class PdfExportService {
   static Future<File> generateStationReport(Station station) async {
-    final pdf = pw.Document();
+    await PdfFonts.ensureLoaded();
+    final theme = PdfFonts.theme();
+    final pdf = pw.Document(theme: theme);
 
     pdf.addPage(
       pw.MultiPage(
+        theme: theme,
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.all(32),
         build: (pw.Context context) {
@@ -47,11 +51,14 @@ class PdfExportService {
   }
 
   static Future<File> generateProjectReport(List<Station> stations, String projectName) async {
-    final pdf = pw.Document();
+    await PdfFonts.ensureLoaded();
+    final theme = PdfFonts.theme();
+    final pdf = pw.Document(theme: theme);
 
     // Summary Page
     pdf.addPage(
       pw.MultiPage(
+        theme: theme,
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.all(32),
         build: (pw.Context context) {
@@ -83,6 +90,7 @@ class PdfExportService {
     for (final s in stations) {
       pdf.addPage(
         pw.MultiPage(
+          theme: theme,
           pageFormat: PdfPageFormat.a4,
           margin: const pw.EdgeInsets.all(32),
           build: (pw.Context context) {

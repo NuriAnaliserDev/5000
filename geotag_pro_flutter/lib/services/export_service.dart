@@ -8,11 +8,12 @@ import '../models/track_data.dart';
 import 'export/dxf_writer.dart';
 import 'export/shapefile_writer.dart';
 
-/// Yagona eksport fasadi: CSV/GeoJSON/KML/GPX/DXF.
+/// Yagona eksport fasadi: CSV/GeoJSON/KML/GPX/DXF/Shapefile.
 ///
-/// DXF — [DxfWriter] orqali (HEADER + LAYER + UTM).
-/// CSV — UTF-8 BOM bilan (Excel'da kirillcha to‘g‘ri ko‘rinadi).
-/// GPX — metadata (name/time/bounds) va waypoint'lar bilan.
+/// DXF — [DxfWriter] (HEADER + LAYER + UTM).
+/// Shapefile — [ShapefileWriter] (WGS84 .prj + ZIP).
+/// CSV — UTF-8 BOM (Excel).
+/// GPX — metadata (name/time/bounds) + waypoint'lar.
 class ExportService {
   static Future<File> exportToCsv(List<Station> stations) async {
     final buffer = StringBuffer();
@@ -224,7 +225,15 @@ class ExportService {
     b.writeln('  </metadata>');
   }
 
-  /// DXF eksport — to‘liq HEADER+TABLES+ENTITIES, UTM metrlarida.
+  /// Shapefile ZIP — `stations.*` + har track uchun `track_N_*.shp`.
+  static Future<File> exportToShapefileZip(
+    List<Station> stations,
+    List<TrackData> tracks,
+  ) {
+    return ShapefileWriter.writeZip(stations: stations, tracks: tracks);
+  }
+
+  /// DXF — HEADER+TABLES+ENTITIES, UTM metrlarida.
   static Future<File> exportToDxf(
     List<Station> stations,
     List<TrackData> tracks, {
