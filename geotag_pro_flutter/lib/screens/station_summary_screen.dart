@@ -1,7 +1,5 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -12,11 +10,10 @@ import '../models/station.dart';
 import '../models/measurement.dart';
 import '../services/station_repository.dart';
 import '../services/settings_controller.dart';
-import '../services/ai_lithology_service.dart';
 import '../services/pdf_export_service.dart';
-import '../utils/geology_utils.dart';
 import '../utils/app_localizations.dart';
-import '../utils/data/rock_data.dart';
+import '../utils/rocks_list.dart';
+import '../utils/munsell_data.dart';
 
 // Components
 import 'station/components/station_app_bar.dart';
@@ -242,17 +239,47 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
           width: double.maxFinite,
           child: GridView.builder(
             shrinkWrap: true,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 5),
-            itemCount: munsellColors.length,
-            itemBuilder: (c, i) => InkWell(
-              onTap: () => Navigator.pop(c, munsellColors[i]['code']),
-              child: Container(margin: const EdgeInsets.all(2), color: Color(int.parse(munsellColors[i]['hex']!.replaceAll('#', '0xFF'))), child: Center(child: Text(munsellColors[i]['code']!, style: const TextStyle(fontSize: 8, color: Colors.white)))),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 5,
+              childAspectRatio: 1.6,
             ),
+            itemCount: geologicalMunsellColors.length,
+            itemBuilder: (c, i) {
+              final m = geologicalMunsellColors[i];
+              return InkWell(
+                onTap: () => Navigator.pop(c, m.code),
+                child: Container(
+                  margin: const EdgeInsets.all(2),
+                  color: Color(m.hex),
+                  child: Center(
+                    child: Text(
+                      m.code,
+                      style: const TextStyle(fontSize: 8, color: Colors.white),
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ),
     );
     if (result != null) setState(() => _munsellColor = result);
+  }
+
+  Future<void> _playAudio() async {
+    final path = _station?.audioPath;
+    if (path == null) return;
+    if (_isPlaying) {
+      await _audioPlayer.pause();
+      setState(() => _isPlaying = false);
+    } else {
+      await _audioPlayer.play(DeviceFileSource(path));
+      setState(() => _isPlaying = true);
+      _audioPlayer.onPlayerComplete.first.then((_) {
+        if (mounted) setState(() => _isPlaying = false);
+      });
+    }
   }
 
   @override
@@ -281,6 +308,7 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
               strikeController: _strikeController,
               dipController: _dipController,
               dipDirectionController: _dipDirectionController,
+              azimuthController: _azimuthController,
               sampleIdController: _sampleIdController,
               sampleTypeController: _sampleTypeController,
               rockType: _rockType,
@@ -305,6 +333,8 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
               onAddGallery: _pickFromGallery,
               onDeletePhoto: _deletePhoto,
               onViewPhoto: (p) => Navigator.of(context).pushNamed('/painter', arguments: p),
+              onOpenPainter: (p) => Navigator.of(context).pushNamed('/painter', arguments: p),
+              onPlayAudio: _playAudio,
             ),
           ),
         ],

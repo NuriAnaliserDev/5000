@@ -1,14 +1,8 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
-import '../utils/app_localizations.dart';
-import '../utils/geology_utils.dart';
 import 'package:provider/provider.dart';
 
 import '../services/station_repository.dart';
-import '../models/station.dart';
-import '../widgets/dashboard/tiles/stereonet_painter.dart';
+import '../utils/app_localizations.dart';
 
 import 'analysis/tabs/statistics_tab.dart';
 import 'analysis/tabs/rose_tab.dart';

@@ -1,6 +1,5 @@
+import 'package:camera/camera.dart' show FlashMode;
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../../services/settings_controller.dart';
 import '../../../utils/app_localizations.dart';
 import '../../../utils/app_card.dart';
 import '../smart_camera_screen.dart';

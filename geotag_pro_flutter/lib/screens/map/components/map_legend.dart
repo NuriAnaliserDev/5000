@@ -63,9 +63,10 @@ class MapLegend extends StatelessWidget {
             const SizedBox(height: 8),
             GestureDetector(
               onTap: () {
-                if (currentPos == null) return;
+                final pos = currentPos;
+                if (pos == null) return;
                 mapController.move(
-                  LatLng(currentPos.latitude, currentPos.longitude),
+                  LatLng(pos.latitude, pos.longitude),
                   14,
                 );
               },

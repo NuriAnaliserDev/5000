@@ -1,6 +1,5 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../../../models/station.dart';
+import 'package:provider/provider.dart';
 import '../../../services/location_service.dart';
 import '../../../utils/app_localizations.dart';
 import '../../../utils/app_card.dart';
@@ -29,7 +28,7 @@ class CameraTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final locService = LocationService.of(context);
+    final locService = context.watch<LocationService>();
     final pos = locService.currentPosition;
     final isCompact = MediaQuery.of(context).size.width < 390;
 

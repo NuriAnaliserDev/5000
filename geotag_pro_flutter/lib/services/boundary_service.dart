@@ -145,7 +145,7 @@ class BoundaryService extends ChangeNotifier {
 
   Future<BoundaryImportResult?> importFileFromWeb() async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
+      FilePickerResult? result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['kml', 'dxf'],
         withData: true,

@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 
 import '../../models/station.dart';
 import '../../services/location_service.dart';
 import '../../services/settings_controller.dart';
 import '../../services/station_repository.dart';
 import '../../services/track_service.dart';
-import '../../services/cloud_sync_service.dart';
 import '../../utils/app_card.dart';
 import '../../utils/app_localizations.dart';
 import '../../utils/auto_scroll_text.dart';

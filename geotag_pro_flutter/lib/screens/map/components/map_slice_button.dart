@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../utils/app_localizations.dart';
 
 class MapSliceButton extends StatelessWidget {
   final bool isSliceMode;

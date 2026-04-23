@@ -1,14 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../station_tile.dart';
 import '../../models/station.dart';
+import '../../services/settings_controller.dart';
+import '../station_tile.dart';
 
+/// Pinned/sliver top bar for the mobile dashboard.
+///
+/// Shows the app name, welcome message (uses current user name from
+/// [SettingsController]), and today's date. Parameters are required so
+/// the consumer can pass already-read objects (no provider lookup here —
+/// keeps the widget cheap to rebuild).
 class DashboardSliverAppBar extends StatelessWidget {
-  const DashboardSliverAppBar({super.key});
+  final SettingsController settings;
+  final bool isDark;
+
+  const DashboardSliverAppBar({
+    super.key,
+    required this.settings,
+    required this.isDark,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final name = settings.currentUserName;
+    final greeting = name == null || name.isEmpty
+        ? 'GeoField Pro'
+        : 'Xush kelibsiz, $name';
+    final dateStr = DateFormat('EEEE, d MMMM').format(DateTime.now());
+
     return SliverAppBar(
       expandedHeight: 120,
       floating: false,
@@ -20,13 +40,30 @@ class DashboardSliverAppBar extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('GeoField Pro', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, letterSpacing: -0.5)),
-            Text(DateFormat('EEEE, d MMMM').format(DateTime.now()), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.normal, color: Colors.grey)),
+            Text(
+              greeting,
+              style: const TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 18,
+                letterSpacing: -0.5,
+              ),
+            ),
+            Text(
+              dateStr,
+              style: TextStyle(
+                fontSize: 10,
+                color: isDark ? Colors.white54 : Colors.grey,
+              ),
+            ),
           ],
         ),
       ),
       actions: [
-        IconButton(icon: const Icon(Icons.notifications_none), onPressed: () {}),
+        IconButton(
+          icon: const Icon(Icons.notifications_none),
+          tooltip: 'Xabarlar',
+          onPressed: () => Navigator.of(context).pushNamed('/messages'),
+        ),
         const SizedBox(width: 8),
       ],
     );
@@ -41,12 +78,21 @@ class DashboardGpsWarning extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: Colors.orange.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.orange.withValues(alpha: 0.3))),
+      decoration: BoxDecoration(
+        color: Colors.orange.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+      ),
       child: const Row(
         children: [
           Icon(Icons.warning_amber_rounded, color: Colors.orange),
           SizedBox(width: 12),
-          Expanded(child: Text('GPS aniqligi past (±12m). Ochiq joyga chiqing.', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600))),
+          Expanded(
+            child: Text(
+              'GPS aniqligi past (±12m). Ochiq joyga chiqing.',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+            ),
+          ),
         ],
       ),
     );
@@ -63,9 +109,15 @@ class DashboardRecentHeader extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
-          const Text('Recent Stations', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const Text(
+            'So\'nggi stansiyalar',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           const Spacer(),
-          TextButton(onPressed: () {}, child: Text('See All ($count)')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pushNamed('/archive'),
+            child: Text('Barchasi ($count)'),
+          ),
         ],
       ),
     );
@@ -78,14 +130,27 @@ class DashboardEmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.layers_clear_outlined, size: 64, color: Colors.grey.shade300),
-          const SizedBox(height: 16),
-          const Text('Hali stansiyalar yo\'q', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
-          const Text('Yangi nuqta qo\'shish uchun + tugmasini bosing', style: TextStyle(color: Colors.grey, fontSize: 12)),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.layers_clear_outlined,
+              size: 64,
+              color: Colors.grey.shade300,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Hali stansiyalar yo\'q',
+              style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
+            ),
+            const Text(
+              'Yangi nuqta qo\'shish uchun + tugmasini bosing',
+              style: TextStyle(color: Colors.grey, fontSize: 12),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -94,6 +159,7 @@ class DashboardEmptyState extends StatelessWidget {
 class DashboardStationTile extends StatelessWidget {
   final Station station;
   const DashboardStationTile({super.key, required this.station});
+
   @override
   Widget build(BuildContext context) {
     return Padding(

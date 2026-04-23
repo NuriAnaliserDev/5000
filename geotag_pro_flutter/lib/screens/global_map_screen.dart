@@ -202,14 +202,13 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
       (s) => s.mapStyle,
     );
     final settings = context.read<SettingsController>();
-    final boundaries = context.select<BoundaryService, List<dynamic>>(
+    final boundaries = context.select<BoundaryService, List<BoundaryPolygon>>(
       (svc) => svc.boundaries,
     );
     final boundarySvc = context.read<BoundaryService>();
-    final geoLines = context.select<GeologicalLineRepository, List<dynamic>>(
+    final geoLines = context.select<GeologicalLineRepository, List<GeologicalLine>>(
       (repo) => repo.getAllLines(),
     );
-    final lineRepo = context.read<GeologicalLineRepository>();
     final trackSvc = context.read<TrackService>();
     final locationSvc = context.read<LocationService>();
     final currentPos = locationSvc.currentPosition;

@@ -11,7 +11,6 @@ import 'package:sensors_plus/sensors_plus.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:record/record.dart';
 import 'package:path_provider/path_provider.dart';
-import '../../utils/app_card.dart';
 
 import '../../models/station.dart';
 import '../../services/settings_controller.dart';
@@ -23,8 +22,7 @@ import '../../services/track_service.dart';
 import '../../services/tutorial_service.dart';
 import '../../utils/status_semantics.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
-import 'components/ar_strike_dip_overlay.dart';
-import '../../widgets/common/status_badge.dart';
+import '../components/ar_strike_dip_overlay.dart';
 
 import 'components/camera_top_bar.dart';
 import 'components/camera_gps_hud.dart';
@@ -414,6 +412,7 @@ class _SmartCameraScreenState extends State<SmartCameraScreen> with WidgetsBindi
     if (_isBusy) return;
     try {
       setState(() => _isBusy = true);
+      final settings = context.read<SettingsController>();
       await _cameraInitFuture;
       XFile file = await _cameraController!.takePicture();
       
@@ -435,7 +434,6 @@ class _SmartCameraScreenState extends State<SmartCameraScreen> with WidgetsBindi
       
       if (!mounted) return;
       final repo = context.read<StationRepository>();
-      final settings = context.read<SettingsController>();
 
       if (widget.stationId != null) {
         final st = repo.getById(widget.stationId!);
@@ -446,7 +444,7 @@ class _SmartCameraScreenState extends State<SmartCameraScreen> with WidgetsBindi
         await repo.updateStation(
           widget.stationId!, 
           updated,
-          author: context.read<SettingsController>().currentUserName,
+          author: settings.currentUserName,
         );
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.locRead('photo_added')), behavior: SnackBarBehavior.floating));

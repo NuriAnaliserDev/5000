@@ -180,7 +180,6 @@ class _WebMapScreenState extends State<WebMapScreen> {
   @override
   Widget build(BuildContext context) {
     final boundaries = context.watch<BoundaryService>().boundaries;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final surfaceColor = Theme.of(context).colorScheme.surface;
 
     return Scaffold(

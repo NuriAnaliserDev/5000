@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:latlong2/latlong.dart';
 import '../models/station.dart';
+import '../utils/geo/geo_constants.dart';
 import '../utils/geology_utils.dart';
 
 class ProjectedTrace {
@@ -40,8 +41,11 @@ class GeologicalProjectionService {
   }
 
   /// Moves a LatLng point by a certain distance in a specific azimuth.
+  ///
+  /// Uses WGS84 semi-major axis for consistency with UTM and other
+  /// geodesic computations across the app.
   static LatLng _movePoint(LatLng start, double azimuthDeg, double distanceMeters) {
-    const double earthRadius = 6371000; // meters
+    const double earthRadius = GeoConstants.wgs84A;
     final double azRad = azimuthDeg * math.pi / 180;
     
     final double lat1 = start.latitude * math.pi / 180;

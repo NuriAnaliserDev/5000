@@ -146,7 +146,7 @@ class _StationCoordinateSectionState extends State<StationCoordinateSection> {
                 ),
               ),
               Text(
-                '±${widget.station?.accuracy.toStringAsFixed(1) ?? '0'} m',
+                '±${widget.station?.accuracy?.toStringAsFixed(1) ?? '0'} m',
                 style: const TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold),
               ),
             ],

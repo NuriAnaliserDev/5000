@@ -10,6 +10,7 @@ import '../services/track_service.dart';
 
 // Components
 import '../widgets/dashboard/dashboard_components.dart';
+import '../widgets/dashboard/dashboard_mini_map_box.dart';
 import '../widgets/dashboard/dashboard_session_box.dart';
 import '../widgets/dashboard/dashboard_widgets_2.dart';
 import '../widgets/dashboard/tiles/utm_tile.dart';

@@ -44,36 +44,30 @@ class StereonetPainter extends CustomPainter {
 
     // Extract all points (Primary + Measurements)
     final points = <ProjectedPoint>[];
-    final strikes = <double>[];
-    final dips = <double>[];
+    final poles = <({double dipDir, double dip})>[];
 
     for (final s in stations) {
+      final dipDir = s.dipDirection ?? ((s.strike + 90) % 360);
       final p1 = StereonetEngine.projectPole(
-        dipDirection: s.dipDirection ?? ((s.strike + 90) % 360),
+        dipDirection: dipDir,
         dip: s.dip,
         radius: r,
         proj: projection,
         data: s,
       );
       points.add(p1);
-      strikes.add(s.strike);
-      dips.add(s.dip);
+      poles.add((dipDir: dipDir, dip: s.dip));
 
       if (s.measurements != null) {
-        for (dynamic mD in s.measurements!) {
-          try {
-            final m = mD;
-            points.add(StereonetEngine.projectPole(
-              dipDirection: m.dipDirection,
-              dip: m.dip,
-              radius: r,
-              proj: projection,
-              data: s,
-            ));
-            // Note: In real stats, measurements should be treated independently
-          } catch (e) {
-            debugPrint('Failed to draw nested measurement pole: $e');
-          }
+        for (final m in s.measurements!) {
+          points.add(StereonetEngine.projectPole(
+            dipDirection: m.dipDirection,
+            dip: m.dip,
+            radius: r,
+            proj: projection,
+            data: s,
+          ));
+          poles.add((dipDir: m.dipDirection, dip: m.dip));
         }
       }
     }
@@ -200,36 +194,54 @@ class StereonetPainter extends CustomPainter {
           Paint()..color = (isDark ? Colors.white : Colors.black).withValues(alpha: 0.5)..style = PaintingStyle.stroke..strokeWidth = 0.5);
     }
 
-    // Mean Vector & Alpha 95
-    if (showMeanVector && strikes.isNotEmpty) {
-      final stats = GeologyUtils.fisherStats(strikes);
-      // We need a proper 3D vector mean for Dip/Strike, but using strike mean as a proxy for pole trend
-      // For this visualization, we'll use the circular mean of the projected points.
-      double meanX = 0, meanY = 0;
-      for (var p in points) {
-        meanX += p.x;
-        meanY += p.y;
-      }
-      meanX /= points.length;
-      meanY /= points.length;
+    // Mean Vector & α₉₅ (haqiqiy 3D Fisher — geologik to'g'ri)
+    if (showMeanVector && poles.isNotEmpty) {
+      final mean = StereonetEngine.meanPoleProjected(
+        poles: poles,
+        radius: r,
+        proj: projection,
+      );
+      if (mean != null) {
+        final mp = mean.projected;
+        final stats = mean.stats;
 
-      final meanPaint = Paint()
-        ..color = Colors.yellowAccent
-        ..style = PaintingStyle.fill;
-      
-      // Draw Mean Pole as a star or larger cross
-      canvas.drawCircle(Offset(cx + meanX, cy + meanY), 6, meanPaint..color = Colors.yellow.withValues(alpha: 0.4)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4));
-      canvas.drawCircle(Offset(cx + meanX, cy + meanY), 4, meanPaint..color = Colors.yellow);
-      
-      // Alpha 95 Circle
-      if (!stats.alpha95.isNaN && stats.alpha95 < 90) {
-         // This is a rough estimation of alpha95 radius in the projection
-         final a95Rad = (stats.alpha95 / 90.0) * r * 0.5; // Heuristic
-         canvas.drawCircle(
-           Offset(cx + meanX, cy + meanY),
-           a95Rad,
-           Paint()..color = Colors.yellow.withValues(alpha: 0.2)..style = PaintingStyle.stroke..strokeWidth = 1.5,
-         );
+        // Mean Pole yulduzi
+        canvas.drawCircle(
+          Offset(cx + mp.x, cy + mp.y),
+          6,
+          Paint()
+            ..color = Colors.yellow.withValues(alpha: 0.4)
+            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
+        );
+        canvas.drawCircle(
+          Offset(cx + mp.x, cy + mp.y),
+          4,
+          Paint()..color = Colors.yellow,
+        );
+
+        // α₉₅ konusi — great-circle sifatida mean pole atrofida (haqiqiy)
+        if (!stats.alpha95.isNaN && stats.alpha95 < 90) {
+          final ring = StereonetEngine.alpha95Circle(
+            meanDipDirection: stats.meanDipDir,
+            meanDip: stats.meanDip,
+            alpha95Deg: stats.alpha95,
+            radius: r,
+            proj: projection,
+          );
+          if (ring.isNotEmpty) {
+            final path = Path()..moveTo(cx + ring.first.dx, cy + ring.first.dy);
+            for (final pt in ring.skip(1)) {
+              path.lineTo(cx + pt.dx, cy + pt.dy);
+            }
+            canvas.drawPath(
+              path,
+              Paint()
+                ..color = Colors.yellow.withValues(alpha: 0.35)
+                ..style = PaintingStyle.stroke
+                ..strokeWidth = 1.5,
+            );
+          }
+        }
       }
     }
 

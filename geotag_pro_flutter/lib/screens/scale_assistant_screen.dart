@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/settings_controller.dart';
 import '../utils/app_localizations.dart';
+import '../utils/app_nav_bar.dart';
 
 import 'scale/components/scale_calculator_card.dart';
 import 'scale/components/scale_layout_card.dart';

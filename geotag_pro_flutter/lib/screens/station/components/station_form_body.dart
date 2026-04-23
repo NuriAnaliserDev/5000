@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../models/station.dart';
-import '../../../models/measurement.dart';
 import '../../../services/settings_controller.dart';
-import '../../../utils/app_localizations.dart';
 import 'station_coordinate_section.dart';
 import 'station_rock_section.dart';
 import 'station_sample_section.dart';
@@ -21,9 +19,10 @@ class StationFormBody extends StatelessWidget {
   final TextEditingController strikeController;
   final TextEditingController dipController;
   final TextEditingController dipDirectionController;
+  final TextEditingController azimuthController;
   final TextEditingController sampleIdController;
   final TextEditingController sampleTypeController;
-  
+
   final String rockType;
   final String measurementType;
   final String subMeasurementType;
@@ -47,6 +46,8 @@ class StationFormBody extends StatelessWidget {
   final VoidCallback onAddGallery;
   final Function(String) onDeletePhoto;
   final Function(String) onViewPhoto;
+  final Function(String) onOpenPainter;
+  final VoidCallback onPlayAudio;
 
   const StationFormBody({
     super.key,
@@ -60,6 +61,7 @@ class StationFormBody extends StatelessWidget {
     required this.strikeController,
     required this.dipController,
     required this.dipDirectionController,
+    required this.azimuthController,
     required this.sampleIdController,
     required this.sampleTypeController,
     required this.rockType,
@@ -84,6 +86,8 @@ class StationFormBody extends StatelessWidget {
     required this.onAddGallery,
     required this.onDeletePhoto,
     required this.onViewPhoto,
+    required this.onOpenPainter,
+    required this.onPlayAudio,
   });
 
   @override
@@ -132,7 +136,7 @@ class StationFormBody extends StatelessWidget {
               strikeController: strikeController,
               dipController: dipController,
               dipDirectionController: dipDirectionController,
-              azimuthController: TextEditingController(), // Placeholder
+              azimuthController: azimuthController,
               measurementType: measurementType,
               subMeasurementType: subMeasurementType,
               measurementTypes: measurementTypes,
@@ -149,6 +153,8 @@ class StationFormBody extends StatelessWidget {
             onAddGallery: onAddGallery,
             onDeletePhoto: onDeletePhoto,
             onViewPhoto: onViewPhoto,
+            onOpenPainter: onOpenPainter,
+            onPlayAudio: onPlayAudio,
           ),
         ],
       ),

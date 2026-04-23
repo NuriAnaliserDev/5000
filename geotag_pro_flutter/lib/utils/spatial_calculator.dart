@@ -1,13 +1,16 @@
 import 'dart:math' as math;
 import 'package:latlong2/latlong.dart';
 
+import 'geo/geo_constants.dart';
+
 /// Sferik geometriya asosidagi GIS hisob-kitoblar.
 ///
 /// Avvalgi `_polarTriangleArea` formulasi kichik poligonlarda (~0.3% xato)
 /// to'g'ri ishlasa-da, katta geologik maydonlar (>100 km²) uchun
 /// Spherical Excess metodi ishlatiladi — bu FieldMove va QGIS standartiga mos.
 class SpatialCalculator {
-  static const double earthRadius = 6378137.0; // WGS84 m
+  /// Earth radius (WGS84 semi-major axis, metr).
+  static const double earthRadius = GeoConstants.wgs84A;
 
   /// Sferik ko'pburchak maydonini kvadrat metrlarda hisoblash.
   ///

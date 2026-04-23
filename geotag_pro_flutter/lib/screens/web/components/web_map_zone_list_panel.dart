@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../models/boundary_polygon.dart';
-import '../../../services/boundary_service.dart';
 
 class WebMapZoneListPanel extends StatelessWidget {
   final List<BoundaryPolygon> boundaries;

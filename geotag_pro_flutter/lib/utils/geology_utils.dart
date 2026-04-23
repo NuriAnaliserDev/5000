@@ -1,90 +1,44 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'geo/circular_stats.dart';
+import 'geo/utm_coord.dart';
+
 class GeologyUtils {
-  /// Converts Decimal Degrees to DMS format
+  /// Converts Decimal Degrees to DMS format.
   static String toDMS(double degree, bool isLat) {
-    String direction = isLat 
-        ? (degree >= 0 ? 'N' : 'S') 
+    String direction = isLat
+        ? (degree >= 0 ? 'N' : 'S')
         : (degree >= 0 ? 'E' : 'W');
-    
+
     degree = degree.abs();
     int d = degree.floor();
     int m = ((degree - d) * 60).floor();
     double s = (degree - d - m / 60) * 3600;
-    
+
     return "$d°$m'${s.toStringAsFixed(1)}\"$direction";
   }
 
-  /// Calculates Dip Direction from Strike and Dip
-  /// Assuming Strike follows right-hand rule (Dip is 90 deg clockwise from Strike)
+  /// Calculates Dip Direction from Strike and Dip.
+  /// Assuming Strike follows right-hand rule (Dip is 90° clockwise from Strike).
   static double calculateDipDirection(double strike) {
     return (strike + 90) % 360;
   }
 
-  /// Scientifically accurate UTM conversion (Full Redfearn formula)
-  /// Accurate to ~0.001m within a UTM zone (WGS84)
+  /// UTM proyeksiya — strukturalangan natija [UtmCoord] qaytaradi.
+  ///
+  /// Aniqlik: ~0.001m bitta UTM zona ichida (Redfearn 5/6 darajali seriya,
+  /// WGS84 ellipsoidi). QField va FieldMove darajasi.
+  static UtmCoord toUtm(double lat, double lng) => UtmCoord.fromLatLng(lat, lng);
+
+  /// UTM proyeksiyasining matn ko'rinishi. Eski kod uchun qoldirilgan.
+  ///
+  /// Yangi kodda to'g'ridan-to'g'ri `GeologyUtils.toUtm(lat, lng).display`
+  /// yoki `UtmCoord.fromLatLng(lat, lng)` ishlatiladi.
   static String toUTM(double lat, double lng) {
-    if (lat < -80 || lat > 84) return "Out of UTM range";
-
-    final double latRad = lat * pi / 180;
-    final double lngRad = lng * pi / 180;
-
-    final int zone = ((lng + 180) / 6).floor() + 1;
-    final double lng0Rad = ((zone - 1) * 6 - 180 + 3) * pi / 180;
-
-    // WGS84 ellipsoid constants
-    const double a = 6378137.0;
-    const double f = 1.0 / 298.257223563;
-    const double k0 = 0.9996;
-    const double e2 = f * (2 - f);
-    const double ePrime2 = e2 / (1 - e2);
-
-    final double sinLat = sin(latRad);
-    final double cosLat = cos(latRad);
-    final double cosLat2 = cosLat * cosLat;
-    final double cosLat3 = cosLat2 * cosLat;
-    final double cosLat4 = cosLat2 * cosLat2;
-    final double cosLat5 = cosLat4 * cosLat;
-    final double cosLat6 = cosLat4 * cosLat2;
-
-    final double t = tan(latRad);
-    final double t2 = t * t;
-    final double t4 = t2 * t2;
-
-    final double N = a / sqrt(1 - e2 * sinLat * sinLat);
-
-    // Meridional arc
-    final double M = a * (
-      (1 - e2 / 4 - 3 * e2 * e2 / 64 - 5 * pow(e2, 3) / 256) * latRad -
-      (3 * e2 / 8 + 3 * e2 * e2 / 32 + 45 * pow(e2, 3) / 1024) * sin(2 * latRad) +
-      (15 * e2 * e2 / 256 + 45 * pow(e2, 3) / 1024) * sin(4 * latRad) -
-      (35 * pow(e2, 3) / 3072) * sin(6 * latRad)
-    );
-
-    final double dL = lngRad - lng0Rad;
-    final double dL2 = dL * dL;
-    final double dL3 = dL2 * dL;
-    final double dL4 = dL3 * dL;
-    final double dL5 = dL4 * dL;
-    final double dL6 = dL5 * dL;
-
-    // --- Full Easting (5th-order Redfearn) ---
-    final double easting = 500000.0 + k0 * N * (
-      dL * cosLat +
-      (dL3 * cosLat3 / 6.0) * (1 - t2 + ePrime2 * cosLat2) +
-      (dL5 * cosLat5 / 120.0) * (5 - 18 * t2 + t4 + 72 * ePrime2 * cosLat2 - 58 * ePrime2)
-    );
-
-    // --- Full Northing (6th-order Redfearn) ---
-    final double northingOffset = lat < 0 ? 10000000.0 : 0.0;
-    final double northing = northingOffset + k0 * (M + N * t * (
-      (dL2 * cosLat2 / 2.0) +
-      (dL4 * cosLat4 / 24.0) * (5 - t2 + 9 * ePrime2 * cosLat2 + 4 * ePrime2 * ePrime2 * cosLat4) +
-      (dL6 * cosLat6 / 720.0) * (61 - 58 * t2 + t4 + 600 * ePrime2 * cosLat2 - 330 * ePrime2)
-    ));
-
-    return "$zone${lat >= 0 ? 'N' : 'S'} E:${easting.toStringAsFixed(0)} N:${northing.toStringAsFixed(0)}";
+    final utm = UtmCoord.fromLatLng(lat, lng);
+    if (!utm.isValid) return 'Out of UTM range';
+    return utm.display;
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -246,7 +200,13 @@ class GeologyUtils {
     return {'strike': strike, 'dip': dip};
   }
 
-  /// Thickness (qalinlik) hisoblash: true thickness = apparent × sin(dip)
+  /// DEPRECATED: Faqat bitta holat (perpendikulyar gorizontal traverse)
+  /// uchun to'g'ri bo'lgan oddiy formula. Yangi kodda
+  /// [`ThicknessCalculator`](geo/thickness_calculator.dart) ishlatilsin —
+  /// u uch xil holatni to'g'ri hisoblaydi (perpendicular / horizontal /
+  /// dipping ground).
+  @Deprecated('Use ThicknessCalculator instead — provides correct Palmer '
+      '3-case formulas. Will be removed in v2.0.')
   static double trueThickness({
     required double apparentThickness,
     required double dip,
@@ -328,6 +288,96 @@ class StereonetEngine {
     final cy = -rOut * cos(trendRad);
 
     return ProjectedPoint(x: cx, y: cy, data: data);
+  }
+
+  /// 3D vektorial mean pole — poles ro'yxatidan Fisher stats'ning
+  /// haqiqiy mean pole'ini topib, stereonet'ga proyeksiya qiladi.
+  ///
+  /// Eski kod oddiy arifmetik o'rtacha ishlatardi (proyeksiya space'da)
+  /// — bu geologik jihatdan noto'g'ri. Haqiqiy usul — 3D unit vektorlar
+  /// yig'indisi, normalize va qaytadan dipDir/dip'ga o'tkazish.
+  ///
+  /// Returns null if list is empty.
+  static ({ProjectedPoint projected, FisherStats3D stats})? meanPoleProjected({
+    required List<({double dipDir, double dip})> poles,
+    required double radius,
+    required StereonetProjection proj,
+  }) {
+    if (poles.isEmpty) return null;
+    final stats = CircularStats.fisher3D(poles);
+    if (stats.meanDip.isNaN || stats.meanDipDir.isNaN) return null;
+    final projected = projectPole(
+      dipDirection: stats.meanDipDir,
+      dip: stats.meanDip,
+      radius: radius,
+      proj: proj,
+    );
+    return (projected: projected, stats: stats);
+  }
+
+  /// α₉₅ konusini great-circle sifatida mean pole atrofida chizish.
+  ///
+  /// Pole atrofidagi doira — aslida sferada small circle (aylanayotgan
+  /// 90°ga yaqin yoki uzoqroq bo'lgan konus). Stereonet proyeksiyada
+  /// ellips bo'lib ko'rinadi.
+  static List<Offset> alpha95Circle({
+    required double meanDipDirection,
+    required double meanDip,
+    required double alpha95Deg,
+    required double radius,
+    required StereonetProjection proj,
+  }) {
+    if (alpha95Deg.isNaN || alpha95Deg <= 0 || alpha95Deg >= 90) return const [];
+    // Pole vektori (Spherical → Cartesian, Z pastga musbat)
+    final trendRad = ((meanDipDirection + 180) % 360) * pi / 180.0;
+    final plungeRad = (90 - meanDip) * pi / 180.0;
+    final cosPl = cos(plungeRad);
+    final vx = cosPl * sin(trendRad);
+    final vy = cosPl * cos(trendRad);
+    final vz = sin(plungeRad);
+
+    // Ikki perpendikulyar unit vektor (tangent plane asosi)
+    // e1 = arbitrary ⊥ v; e2 = v × e1
+    final helper = (vz.abs() < 0.9) ? const [0.0, 0.0, 1.0] : const [1.0, 0.0, 0.0];
+    var ex = helper[1] * vz - helper[2] * vy;
+    var ey = helper[2] * vx - helper[0] * vz;
+    var ez = helper[0] * vy - helper[1] * vx;
+    final eNorm = sqrt(ex * ex + ey * ey + ez * ez);
+    ex /= eNorm; ey /= eNorm; ez /= eNorm;
+    final fx = vy * ez - vz * ey;
+    final fy = vz * ex - vx * ez;
+    final fz = vx * ey - vy * ex;
+
+    final cosA = cos(alpha95Deg * pi / 180.0);
+    final sinA = sin(alpha95Deg * pi / 180.0);
+
+    final points = <Offset>[];
+    for (int i = 0; i <= 72; i++) {
+      final phi = i * 5.0 * pi / 180.0;
+      final px = vx * cosA + (ex * cos(phi) + fx * sin(phi)) * sinA;
+      final py = vy * cosA + (ey * cos(phi) + fy * sin(phi)) * sinA;
+      final pz = vz * cosA + (ez * cos(phi) + fz * sin(phi)) * sinA;
+
+      // Lower hemisphere: agar yuqoriga qaragan bo'lsa, antipodal'ga o'tkazamiz.
+      double dx = px, dy = py, dz = pz;
+      if (dz < 0) { dx = -dx; dy = -dy; dz = -dz; }
+
+      // Cartesian → stereonet (x, y)
+      final theta = acos(dz.clamp(-1.0, 1.0));
+      double rOut;
+      if (proj == StereonetProjection.wulff) {
+        rOut = radius * tan(theta / 2);
+      } else {
+        rOut = radius * sqrt(2) * sin(theta / 2);
+      }
+      final mag = sqrt(dx * dx + dy * dy);
+      if (mag < 1e-9) {
+        points.add(Offset.zero);
+      } else {
+        points.add(Offset(dx / mag * rOut, -dy / mag * rOut));
+      }
+    }
+    return points;
   }
 
   /// Calculates a density grid (heat map) over the projection using a simple Gaussian kernel.

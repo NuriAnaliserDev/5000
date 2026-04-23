@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../../models/station.dart';
-import '../../../models/measurement.dart';
 import '../../../utils/app_localizations.dart';
 import '../../../utils/geology_utils.dart';
 import '../../../widgets/dashboard/tiles/stereonet_painter.dart';
@@ -171,8 +170,6 @@ class _StereonetTabState extends State<StereonetTab> {
 
       if (s.measurements != null) {
         for (final mD in s.measurements!) {
-          // TYPE SAFETY FIX: dynamic cast o'rniga to'g'ri tip tekshiruvi
-          if (mD is! Measurement) continue;
           points.add(StereonetEngine.projectPole(
             dipDirection: mD.dipDirection,
             dip: mD.dip,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../services/boundary_service.dart';
 import '../../../models/boundary_polygon.dart';
 
 class WebMapDrawingPanel extends StatelessWidget {

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../services/settings_controller.dart';
-import '../../../utils/app_localizations.dart';
 
 class DashboardDesktopProjectSection extends StatelessWidget {
   const DashboardDesktopProjectSection({super.key});

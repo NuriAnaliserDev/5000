@@ -1,7 +1,4 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
-// DUPLICATE FIX: stereonet_calculator.dart o'chirildi.
-// Endi to'g'ridan-to'g'ri StereonetEngine (geology_utils.dart) ishlatiladi.
 import '../utils/geology_utils.dart';
 
 class StereonetWidget extends StatelessWidget {

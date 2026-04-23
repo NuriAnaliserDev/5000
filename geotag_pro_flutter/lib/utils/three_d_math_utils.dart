@@ -3,11 +3,14 @@ import 'package:latlong2/latlong.dart';
 import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math_64.dart' as vmath;
 
+import 'geo/geo_constants.dart';
+
 class ThreeDMathUtils {
   /// Project a GPS point to a local 3D space relative to a center point.
-  /// Result is (x, y, z) in meters.
+  /// Result is (x, y, z) in meters. Uses WGS84 semi-major axis for
+  /// geodesic accuracy (previously used mean radius which gave ~0.1% bias).
   static Offset3D projectToLocal(LatLng point, double altitude, LatLng center, double centerAlt) {
-    const double earthRadius = 6371000.0; // meters
+    const double earthRadius = GeoConstants.wgs84A;
 
     final double latRad = point.latitude * pi / 180;
     final double lngRad = point.longitude * pi / 180;

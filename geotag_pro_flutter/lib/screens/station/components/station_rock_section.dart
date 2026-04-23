@@ -40,14 +40,13 @@ class StationRockSection extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _buildSectionHeader(context, context.loc('lithology')),
-            if (onAiAnalyze != null)
-              TextButton.icon(
-                onPressed: isAiLoading ? null : onAiAnalyze,
-                icon: isAiLoading 
-                    ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Icon(Icons.auto_awesome, size: 14),
-                label: Text(context.loc('ai_lithology_btn'), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
-              ),
+            TextButton.icon(
+              onPressed: isAiLoading ? null : onAiAnalyze,
+              icon: isAiLoading
+                  ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Icon(Icons.auto_awesome, size: 14),
+              label: Text(context.loc('ai_lithology_btn'), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+            ),
           ],
         ),
         const SizedBox(height: 12),
