@@ -201,7 +201,61 @@ class GeologyUtils {
     final tanApparent = tan(trueDip * pi / 180) * cos(beta).abs();
     return atan(tanApparent) * 180 / pi;
   }
+
+  /// O'lchov turining kichik turlarini qaytaradi.
+  /// [station_structural_section.dart] tomonidan chaqiriladi.
+  static List<String> getSubTypes(String measurementType) {
+    switch (measurementType) {
+      case 'bedding':
+        return ['inclined', 'horizontal', 'vertical', 'overturned'];
+      case 'cleavage':
+        return ['axial_planar', 'crenulation', 'pressure_solution', 'disjunctive'];
+      case 'lineation':
+        return ['stretching', 'mineral', 'intersection', 'crenulation'];
+      case 'joint':
+        return ['systematic', 'non_systematic', 'extension', 'shear'];
+      case 'contact':
+        return ['intrusive', 'sedimentary', 'tectonic', 'unconformity'];
+      case 'fault':
+        return ['normal', 'reverse', 'strike_slip', 'oblique'];
+      default:
+        return ['inclined', 'horizontal', 'vertical'];
+    }
+  }
+
+  /// Plunge va Trend dan Dip va Strike hisoblash (Lineatsiya uchun).
+  /// [plunge] — 0..90°, [trend] — 0..360°
+  /// Returns {strike, dip}
+  static Map<String, double> plungeTrendToDipStrike(double plunge, double trend) {
+    final plungeRad = plunge * pi / 180;
+    final trendRad = trend * pi / 180;
+
+    // Normal vektori
+    final nx = cos(plungeRad) * sin(trendRad);
+    final ny = cos(plungeRad) * cos(trendRad);
+    final nz = -sin(plungeRad);
+
+    // Strike = atan2(nx, ny) + 90
+    var strike = atan2(nx, ny) * 180 / pi + 90;
+    if (strike >= 360) strike -= 360;
+    if (strike < 0) strike += 360;
+
+    // Dip = arctan(nz / sqrt(nx²+ny²))
+    final dip = atan2(nz.abs(), sqrt(nx * nx + ny * ny)) * 180 / pi;
+
+    return {'strike': strike, 'dip': dip};
+  }
+
+  /// Thickness (qalinlik) hisoblash: true thickness = apparent × sin(dip)
+  static double trueThickness({
+    required double apparentThickness,
+    required double dip,
+  }) {
+    if (dip <= 0) return apparentThickness;
+    return apparentThickness * sin(dip * pi / 180);
+  }
 }
+
 
 /// Result of Fisher statistical analysis on directional data.
 class FisherStats {

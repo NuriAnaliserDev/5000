@@ -29,6 +29,16 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   // Timer and refresh logic is completely removed from the screen level.
   // It is now encapsulated in `DashboardSessionBox`.
+  
+  int _selectedIndex = 0;
+  
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+    // Add routing logic if needed for desktop sidebar
+  }
+
 
   @override
   Widget build(BuildContext context) {
