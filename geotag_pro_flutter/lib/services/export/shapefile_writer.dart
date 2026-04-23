@@ -94,7 +94,8 @@ class ShapefileWriter {
       if (q.lat < minY) minY = q.lat;
       if (q.lat > maxY) maxY = q.lat;
     }
-    final len = 4 + 32 + n * 16;
+    // Polyline: type(4) + MBR(32) + numParts(4) + numPoints(4) + parts(4) + n×(x,y).
+    final len = 48 + n * 16;
     final d = ByteData(len);
     d.setInt32(0, 3, Endian.little);
     d.setFloat64(4, minX, Endian.little);
