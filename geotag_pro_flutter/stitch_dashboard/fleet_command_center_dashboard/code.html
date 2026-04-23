@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary-container": "#00d2fd",
+                      "on-surface-variant": "#adaaab",
+                      "primary-fixed": "#00d2fd",
+                      "tertiary-fixed-dim": "#b190ff",
+                      "inverse-primary": "#00687e",
+                      "error-dim": "#d7383b",
+                      "secondary-fixed": "#69f6b8",
+                      "tertiary-fixed": "#bda1ff",
+                      "on-surface": "#ffffff",
+                      "error": "#ff716c",
+                      "on-tertiary-container": "#f8f1ff",
+                      "on-error-container": "#ffa8a3",
+                      "primary": "#6dddff",
+                      "on-secondary-fixed": "#00452d",
+                      "on-primary-container": "#004352",
+                      "inverse-on-surface": "#565556",
+                      "on-primary": "#004c5e",
+                      "surface-dim": "#0e0e0f",
+                      "surface-container-low": "#131314",
+                      "secondary-fixed-dim": "#58e7ab",
+                      "secondary-container": "#006c49",
+                      "tertiary": "#ac89ff",
+                      "on-primary-fixed": "#002c37",
+                      "on-secondary-fixed-variant": "#006544",
+                      "primary-dim": "#00c3eb",
+                      "secondary": "#69f6b8",
+                      "surface-container": "#1a191b",
+                      "surface-variant": "#262627",
+                      "surface-bright": "#2c2c2d",
+                      "on-tertiary-fixed-variant": "#4700a7",
+                      "on-tertiary": "#290067",
+                      "on-error": "#490006",
+                      "on-tertiary-fixed": "#1f0052",
+                      "surface-tint": "#6dddff",
+                      "inverse-surface": "#fcf8f9",
+                      "surface-container-highest": "#262627",
+                      "surface-container-high": "#201f21",
+                      "tertiary-container": "#7000ff",
+                      "error-container": "#9f0519",
+                      "primary-fixed-dim": "#00c3eb",
+                      "surface": "#0e0e0f",
+                      "outline": "#767576",
+                      "background": "#0e0e0f",
+                      "on-primary-fixed-variant": "#004c5d",
+                      "on-background": "#ffffff",
+                      "tertiary-dim": "#874cff",
+                      "surface-container-lowest": "#000000",
+                      "secondary-dim": "#58e7ab",
+                      "on-secondary": "#005a3c",
+                      "on-secondary-container": "#e1ffec",
+                      "outline-variant": "#484849"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "fontFamily": {
+                      "headline": ["Space Grotesk"],
+                      "body": ["Inter"],
+                      "label": ["Inter"]
+              }
+            },
+          }
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(38, 38, 39, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .status-pulse {
+            position: relative;
+        }
+        .status-pulse::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            border-radius: 50%;
+            background: inherit;
+            opacity: 0.5;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body overflow-hidden">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 w-full z-50 bg-[#0e0e0f]/40 backdrop-blur-xl shadow-[0_0_40px_rgba(0,212,255,0.08)] flex justify-between items-center px-8 h-20 w-full">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-black tracking-tighter text-cyan-400 italic font-headline">KINETIC OBSERVATORY</span>
+<nav class="hidden md:flex gap-8 font-['Space_Grotesk'] tracking-widest uppercase text-sm">
+<a class="text-slate-400 hover:text-white transition-colors" href="#">FLEET</a>
+<a class="text-slate-400 hover:text-white transition-colors" href="#">SENSORS</a>
+<a class="text-cyan-400 border-b-2 border-cyan-400 pb-1" href="#">TELEMETRY</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden lg:flex items-center bg-surface-container-highest px-4 py-2 rounded-lg gap-3">
+<span class="material-symbols-outlined text-primary text-sm">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-xs tracking-widest font-headline w-48 text-on-surface-variant" placeholder="QUERY ALPHA SECTOR..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-slate-400 hover:bg-white/5 transition-all p-2 rounded cursor-pointer" data-icon="notifications_active">notifications_active</span>
+<span class="material-symbols-outlined text-slate-400 hover:bg-white/5 transition-all p-2 rounded cursor-pointer" data-icon="database_sync">sync</span>
+<div class="h-8 w-8 rounded bg-primary/20 flex items-center justify-center border border-primary/30">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="person">person</span>
+</div>
+</div>
+</div>
+</header>
+<div class="fixed top-20 w-full h-[2px] bg-gradient-to-r from-transparent via-primary/20 to-transparent z-50"></div>
+<!-- Side Navigation -->
+<aside class="fixed left-0 top-20 h-[calc(100vh-5rem)] w-64 bg-[#0e0e0f] border-r border-[#1a1a1b] flex flex-col py-6 gap-2 font-['Inter'] text-sm tracking-[0.05em] z-40">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center overflow-hidden border border-outline-variant">
+<img alt="Operator" class="w-full h-full object-cover" data-alt="close up professional headshot of a male military commander wearing tactical communication headset and dark uniform" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJjITtbNINecQEyTy1nkBLWHt38--t8zUJ4LfDDj1DvCQen8l-wq__wRd57X0yli88XWQYn6OUrvRAww5IsmcvPHIRzMNp3ljc4bDGYg37HUDWRaIAvko4R9OdUCVRHIezUX007_f9-eOb-BEodH9cEI4MtUAq8MjPmu6Jy6XLndVGtRNwqx-QkKU-BqQvGgeSXgrIcs8EhPOZbPnl-sVuRv0tPOLS3yu7tLq00L-MgrSLHZGZeDB0TYKqk9u5W87stnM3-4BDmhc"/>
+</div>
+<div>
+<div class="text-xs font-bold text-white uppercase tracking-wider">Alpha Sector</div>
+<div class="text-[10px] text-on-surface-variant uppercase">Fleet Commander</div>
+</div>
+</div>
+</div>
+<nav class="flex-1">
+<a class="flex items-center gap-4 px-6 py-3 text-slate-500 hover:text-slate-200 hover:bg-[#262627] transition-all group" href="#">
+<span class="material-symbols-outlined text-xl group-hover:translate-x-1 duration-200">map</span>
+<span>Map</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 text-emerald-400 font-bold border-l-4 border-emerald-400 bg-emerald-400/5 transition-all group" href="#">
+<span class="material-symbols-outlined text-xl group-hover:translate-x-1 duration-200">layers</span>
+<span>Geology Reports</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 text-slate-500 hover:text-slate-200 hover:bg-[#262627] transition-all group" href="#">
+<span class="material-symbols-outlined text-xl group-hover:translate-x-1 duration-200">history_edu</span>
+<span>Audit Logs</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 text-slate-500 hover:text-slate-200 hover:bg-[#262627] transition-all group" href="#">
+<span class="material-symbols-outlined text-xl group-hover:translate-x-1 duration-200">chat_bubble</span>
+<span>Messenger</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 text-slate-500 hover:text-slate-200 hover:bg-[#262627] transition-all group" href="#">
+<span class="material-symbols-outlined text-xl group-hover:translate-x-1 duration-200">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="px-6 py-4">
+<button class="w-full py-3 bg-gradient-to-br from-primary to-primary-dim text-on-primary-container font-bold rounded-md text-xs tracking-[0.1em] shadow-[0_0_15px_rgba(0,210,253,0.3)] hover:shadow-[0_0_25px_rgba(0,210,253,0.5)] transition-all">
+                DEPLOY ASSET
+            </button>
+</div>
+<div class="mt-auto px-2 space-y-1">
+<a class="flex items-center gap-4 px-4 py-2 text-slate-500 hover:text-slate-200 hover:bg-[#262627] transition-all text-xs" href="#">
+<span class="material-symbols-outlined text-lg">help_center</span>
+<span>Support</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-2 text-slate-500 hover:text-slate-200 hover:bg-[#262627] transition-all text-xs" href="#">
+<span class="material-symbols-outlined text-lg">terminal</span>
+<span>Terminal</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 mt-20 p-6 h-[calc(100vh-5rem)] grid grid-cols-12 gap-6 bg-surface">
+<!-- Center Panel: 3D Map -->
+<section class="col-span-8 flex flex-col gap-6 h-full">
+<!-- KPI Widgets Row -->
+<div class="grid grid-cols-3 gap-6 h-32">
+<div class="bg-surface-container-high rounded-xl p-5 relative overflow-hidden border-l-2 border-primary">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-headline tracking-widest text-on-surface-variant uppercase">Active Field Workers</span>
+<span class="material-symbols-outlined text-primary text-xl">engineering</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-headline font-bold text-white">124</span>
+<span class="text-[10px] text-secondary font-bold uppercase tracking-tighter">+4 nominal</span>
+</div>
+<div class="absolute -bottom-2 -right-2 opacity-5">
+<span class="material-symbols-outlined text-8xl">group</span>
+</div>
+</div>
+<div class="bg-surface-container-high rounded-xl p-5 relative overflow-hidden border-l-2 border-error">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-headline tracking-widest text-on-surface-variant uppercase">Critical Alerts</span>
+<div class="w-2 h-2 rounded-full bg-error animate-pulse"></div>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-headline font-bold text-white">03</span>
+<span class="text-[10px] text-error font-bold uppercase tracking-tighter">Immediate Action</span>
+</div>
+<div class="absolute -bottom-2 -right-2 opacity-5">
+<span class="material-symbols-outlined text-8xl text-error">warning</span>
+</div>
+</div>
+<div class="bg-surface-container-high rounded-xl p-5 relative overflow-hidden border-l-2 border-secondary">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-headline tracking-widest text-on-surface-variant uppercase">Total Data Synced</span>
+<span class="material-symbols-outlined text-secondary text-xl">cloud_sync</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-headline font-bold text-white">4.2 TB</span>
+<span class="text-[10px] text-on-surface-variant uppercase tracking-tighter">Last 24h</span>
+</div>
+</div>
+</div>
+<!-- 3D Map View -->
+<div class="flex-1 bg-surface-container-low rounded-xl relative overflow-hidden group">
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover mix-blend-luminosity opacity-40" data-alt="ultra realistic 3D topographic terrain map of a mining site with glowing blue grid lines and neon tracking markers" data-location="Atacama Desert" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWiciTAKVzFBRmbjrE1VKOexoZB--NZPVib8hCYTbJmFpZ3UVlIu0fyz8rrY39KmRZDKU1Y_AiWGqUWMI-v9XmAPpJD00tNBYYWI7PFfd8-52ReeC7kb3YDx-6lQtJpSiW9DCL3VoHkmbPmLIxOQ0StdXbRgHf2pY5pq-N3HIPFB8lvyRMIWgmeRi4WjJpD3CxCBdaUNiYc_tnkU1_UYXc0Cvue_5OinFNzCmyLzJRJGtU0uRigd_a-P7NPgtMG1nELOK_J9N1-nQ"/>
+</div>
+<!-- Map Overlays -->
+<div class="absolute inset-0 pointer-events-none z-10 p-6 flex flex-col justify-between">
+<div class="flex justify-between">
+<div class="glass-panel p-4 rounded-lg border border-outline-variant/30 flex flex-col gap-2">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_8px_#69f6b8]"></div>
+<span class="text-[10px] font-headline tracking-[0.2em] text-white">SECTOR 7-G NOMINAL</span>
+</div>
+<div class="text-[10px] text-on-surface-variant font-mono">LAT: 23.5505° S | LONG: 70.0503° W</div>
+</div>
+<div class="flex flex-col gap-2">
+<button class="glass-panel w-10 h-10 flex items-center justify-center rounded-md border border-white/10 hover:bg-white/10 pointer-events-auto transition-all">
+<span class="material-symbols-outlined text-white text-lg">add</span>
+</button>
+<button class="glass-panel w-10 h-10 flex items-center justify-center rounded-md border border-white/10 hover:bg-white/10 pointer-events-auto transition-all">
+<span class="material-symbols-outlined text-white text-lg">remove</span>
+</button>
+<button class="glass-panel w-10 h-10 flex items-center justify-center rounded-md border border-white/10 hover:bg-white/10 pointer-events-auto transition-all">
+<span class="material-symbols-outlined text-white text-lg">layers</span>
+</button>
+</div>
+</div>
+<!-- Asset Tracking Nodes (Simulated) -->
+<div class="relative w-full h-full">
+<div class="absolute top-[30%] left-[40%] flex flex-col items-center gap-1 group/node pointer-events-auto cursor-pointer">
+<div class="w-3 h-3 rounded-full bg-primary shadow-[0_0_15px_#00d2fd] status-pulse"></div>
+<div class="glass-panel px-2 py-1 rounded text-[8px] text-white opacity-0 group-hover/node:opacity-100 transition-opacity">UNIT-042 [MOVING]</div>
+</div>
+<div class="absolute top-[60%] left-[25%] flex flex-col items-center gap-1 group/node pointer-events-auto cursor-pointer">
+<div class="w-3 h-3 rounded-full bg-secondary shadow-[0_0_15px_#69f6b8] status-pulse"></div>
+<div class="glass-panel px-2 py-1 rounded text-[8px] text-white opacity-0 group-hover/node:opacity-100 transition-opacity">EXCAVATOR-01 [STATIONARY]</div>
+</div>
+<div class="absolute bottom-[20%] right-[30%] flex flex-col items-center gap-1 group/node pointer-events-auto cursor-pointer">
+<div class="w-3 h-3 rounded-full bg-error shadow-[0_0_15px_#ff716c] status-pulse"></div>
+<div class="glass-panel px-2 py-1 rounded text-[8px] text-white opacity-0 group-hover/node:opacity-100 transition-opacity">SENSOR-F9 [ERROR]</div>
+</div>
+</div>
+<div class="flex justify-between items-end">
+<div class="glass-panel p-3 rounded-lg border border-outline-variant/30 text-[10px] uppercase font-headline tracking-widest text-on-surface-variant">
+                            Live Telemetry Stream // Sector 7-G
+                        </div>
+<div class="flex gap-2">
+<span class="glass-panel px-3 py-1 rounded-full text-[10px] text-primary border border-primary/30 uppercase tracking-widest">3D Projection Mode</span>
+<span class="glass-panel px-3 py-1 rounded-full text-[10px] text-on-surface-variant border border-outline-variant/30 uppercase tracking-widest">Heatmap: Density</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Panel: Data Verification -->
+<aside class="col-span-4 glass-panel border border-outline-variant/20 rounded-xl overflow-hidden flex flex-col h-full">
+<div class="bg-surface-container-highest px-6 py-4 flex items-center justify-between">
+<h2 class="font-headline font-bold text-sm tracking-[0.2em] text-white uppercase">Data Verification</h2>
+<div class="flex gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="w-2 h-2 rounded-full bg-surface-variant"></span>
+<span class="w-2 h-2 rounded-full bg-surface-variant"></span>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-6 space-y-6">
+<!-- Rock Sample High Res -->
+<div class="space-y-3">
+<div class="flex justify-between items-center">
+<label class="text-[10px] font-bold text-primary uppercase tracking-widest">Geological Sample #8821</label>
+<span class="text-[10px] text-on-surface-variant font-mono">14:22:05 UTC</span>
+</div>
+<div class="aspect-video rounded-lg overflow-hidden relative group border border-outline-variant/30">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="extreme close up high resolution macro photograph of a gold ore rock sample with visible crystal structure and mineral veins" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBoT9ql2-wEU5O1PEQqaorS-lLldf-Uq1L_lVwpacOxNigM0vyfiB6gyDk_kg1yaCr4-9Rg-syFoVG7MMjbRrS90GtfjkrNVRdRIcE_p9gA_AaAuOgyMIkK7NQYenfgs1rN6A9EcjgxzURfOeNLPeXYKVBM69SLbJy_J4HV312jq-kCUIvov2hBvEYi7bMKV34xBng3KOQzzwm3HDMeGqejPVgx8vUSrLimQ_BsbvTa4_34rDp4Mw_rFjrMbqQWEJmyw60U8Ut-c5E"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<div class="absolute bottom-3 left-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">magnification_small</span>
+<span class="text-[10px] font-bold text-white uppercase">Quartz-Gold Matrix</span>
+</div>
+</div>
+</div>
+<!-- AI Translation Notes -->
+<div class="bg-surface-container-low rounded-lg p-4 space-y-3 border-l-2 border-primary">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">psychology</span>
+<span class="text-[10px] font-bold text-on-surface uppercase tracking-widest">AI Analyst Notes</span>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed font-body">
+                        High probability of localized high-grade deposit. Visible strike-slip deformation in specimen suggesting tectonic contact zone. Recommend immediate core drilling at Grid X-44.
+                    </p>
+</div>
+<!-- Data Table -->
+<div class="space-y-3">
+<label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Structural Analysis</label>
+<div class="bg-surface-container-lowest rounded overflow-hidden">
+<table class="w-full text-left text-[10px] border-collapse">
+<thead>
+<tr class="bg-surface-container-high text-white">
+<th class="px-3 py-2 font-headline uppercase tracking-widest border-b border-outline-variant/10">Attribute</th>
+<th class="px-3 py-2 font-headline uppercase tracking-widest border-b border-outline-variant/10">Value</th>
+<th class="px-3 py-2 font-headline uppercase tracking-widest border-b border-outline-variant/10">Confidence</th>
+</tr>
+</thead>
+<tbody class="text-on-surface-variant">
+<tr class="hover:bg-white/5">
+<td class="px-3 py-3 border-b border-outline-variant/5">Strike</td>
+<td class="px-3 py-3 border-b border-outline-variant/5 text-secondary">N 45° E</td>
+<td class="px-3 py-3 border-b border-outline-variant/5">98%</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-3 py-3 border-b border-outline-variant/5">Dip</td>
+<td class="px-3 py-3 border-b border-outline-variant/5 text-secondary">30° SE</td>
+<td class="px-3 py-3 border-b border-outline-variant/5">92%</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-3 py-3">Rock Type</td>
+<td class="px-3 py-3 text-white">Schistose Ore</td>
+<td class="px-3 py-3">85%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Action Footer -->
+<div class="p-6 bg-surface-container-high grid grid-cols-2 gap-4">
+<button class="py-3 border border-error/50 text-error rounded font-bold text-[10px] tracking-widest uppercase hover:bg-error/10 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">close</span>
+                    Reject
+                </button>
+<button class="py-3 bg-secondary text-on-secondary-container rounded font-bold text-[10px] tracking-widest uppercase shadow-[0_0_20px_rgba(105,246,184,0.2)] hover:shadow-[0_0_30px_rgba(105,246,184,0.4)] transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+                    Approve
+                </button>
+</div>
+</aside>
+</main>
+<!-- Visual Polish: Corner Vignette and Scanline Effect -->
+<div class="fixed inset-0 pointer-events-none z-[100] bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.4)_100%)]"></div>
+<div class="fixed inset-0 pointer-events-none z-[101] opacity-[0.03]" style="background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); background-size: 100% 2px, 3px 100%;"></div>
+</body></html>

@@ -1,0 +1,99 @@
+import 'package:flutter/foundation.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:async';
+import '../models/geological_line.dart';
+
+/// Repository for geological linework features (faults, contacts, etc.)
+/// Backed by a Hive box for offline-first storage.
+class GeologicalLineRepository extends ChangeNotifier {
+  static const _boxName = 'geologicalLines';
+  Box<GeologicalLine>? _box;
+
+  List<GeologicalLine> _lines = [];
+  List<GeologicalLine> get lines => List.unmodifiable(_lines);
+
+  final _firestore = FirebaseFirestore.instance;
+  StreamSubscription? _remoteSubscription;
+
+  Future<void> init() async {
+    _box = await Hive.openBox<GeologicalLine>(_boxName);
+    _lines = _box!.values.toList();
+    notifyListeners();
+    
+    _initRemoteSync();
+  }
+
+  void _initRemoteSync() {
+    _remoteSubscription?.cancel();
+    _remoteSubscription = _firestore
+        .collection('geological_lines')
+        .snapshots()
+        .listen((snapshot) async {
+      bool changed = false;
+      for (var doc in snapshot.docs) {
+        final remoteLine = GeologicalLine.fromMap(doc.data());
+        if (!_box!.containsKey(remoteLine.id)) {
+          await _box!.put(remoteLine.id, remoteLine);
+          changed = true;
+        }
+      }
+      if (changed) {
+        _lines = _box!.values.toList();
+        notifyListeners();
+      }
+    });
+  }
+
+  /// Add a new geological line and persist it.
+  Future<void> addLine(GeologicalLine line) async {
+    await _box!.put(line.id, line);
+    _lines = _box!.values.toList();
+    notifyListeners();
+    _uploadLine(line);
+  }
+
+  /// Update an existing line by its id.
+  Future<void> updateLine(GeologicalLine line) async {
+    await _box!.put(line.id, line);
+    _lines = _box!.values.toList();
+    notifyListeners();
+    _uploadLine(line);
+  }
+
+  /// Delete a line by its id.
+  Future<void> deleteLine(String id) async {
+    await _box!.delete(id);
+    _lines = _box!.values.toList();
+    notifyListeners();
+  }
+
+  /// Get all lines for a given project.
+  List<GeologicalLine> getByProject(String project) {
+    return _lines.where((l) => l.project == project).toList();
+  }
+
+  /// Get all lines regardless of project.
+  List<GeologicalLine> getAllLines() => _lines;
+
+  /// Clear all lines (use with caution — irreversible).
+  Future<void> clearAll() async {
+    await _box!.clear();
+    _lines = [];
+    notifyListeners();
+  }
+
+  Future<void> _uploadLine(GeologicalLine line) async {
+    try {
+      await _firestore.collection('geological_lines').doc(line.id).set(line.toMap());
+    } catch (e) {
+      debugPrint('Error uploading line: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    _remoteSubscription?.cancel();
+    super.dispose();
+  }
+}

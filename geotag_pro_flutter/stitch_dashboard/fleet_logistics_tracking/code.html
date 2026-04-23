@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-low": "#131314",
+                    "secondary-fixed-dim": "#58e7ab",
+                    "surface-variant": "#262627",
+                    "on-tertiary-container": "#f8f1ff",
+                    "on-secondary-fixed-variant": "#006544",
+                    "surface-container-highest": "#262627",
+                    "on-surface": "#ffffff",
+                    "surface": "#0e0e0f",
+                    "on-secondary": "#005a3c",
+                    "surface-container": "#1a191b",
+                    "secondary": "#69f6b8",
+                    "primary-dim": "#00c3eb",
+                    "tertiary-container": "#7000ff",
+                    "primary-fixed-dim": "#00c3eb",
+                    "on-tertiary-fixed-variant": "#4700a7",
+                    "secondary-dim": "#58e7ab",
+                    "on-primary": "#004c5e",
+                    "inverse-surface": "#fcf8f9",
+                    "on-background": "#ffffff",
+                    "inverse-primary": "#00687e",
+                    "on-secondary-fixed": "#00452d",
+                    "primary": "#6dddff",
+                    "surface-container-lowest": "#000000",
+                    "on-tertiary": "#290067",
+                    "on-surface-variant": "#adaaab",
+                    "on-error": "#490006",
+                    "tertiary": "#ac89ff",
+                    "surface-tint": "#6dddff",
+                    "outline-variant": "#484849",
+                    "tertiary-fixed": "#bda1ff",
+                    "secondary-fixed": "#69f6b8",
+                    "inverse-on-surface": "#565556",
+                    "on-tertiary-fixed": "#1f0052",
+                    "on-primary-fixed": "#002c37",
+                    "on-secondary-container": "#e1ffec",
+                    "outline": "#767576",
+                    "on-primary-container": "#004352",
+                    "error": "#ff716c",
+                    "surface-bright": "#2c2c2d",
+                    "error-dim": "#d7383b",
+                    "background": "#0e0e0f",
+                    "surface-container-high": "#201f21",
+                    "on-error-container": "#ffa8a3",
+                    "tertiary-dim": "#874cff",
+                    "primary-fixed": "#00d2fd",
+                    "error-container": "#9f0519",
+                    "surface-dim": "#0e0e0f",
+                    "on-primary-fixed-variant": "#004c5d",
+                    "primary-container": "#00d2fd",
+                    "tertiary-fixed-dim": "#b190ff",
+                    "secondary-container": "#006c49"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Space Grotesk"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(38, 38, 39, 0.4);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(118, 117, 118, 0.15);
+        }
+        .status-pulse {
+            position: relative;
+        }
+        .status-pulse::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 50%;
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary/30">
+<!-- SideNavBar Shell -->
+<aside class="h-screen w-64 fixed left-0 top-0 z-50 bg-neutral-950/40 backdrop-blur-xl no-border tonal-layering bg-neutral-900/50 shadow-[20px_0_40px_rgba(0,212,255,0.05)] flex flex-col py-6">
+<div class="px-6 mb-10">
+<h1 class="text-xl font-bold tracking-tighter text-cyan-400">Fleet Command</h1>
+<p class="font-['Space_Grotesk'] tracking-wider uppercase text-xs text-neutral-500 mt-1">Sector 7G - Active</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center px-6 py-3 text-cyan-400 border-l-2 border-cyan-400 bg-cyan-400/10 transition-all duration-300" href="#">
+<span class="material-symbols-outlined mr-3">precision_manufacturing</span>
+<span class="font-['Space_Grotesk'] tracking-wider uppercase text-xs">Fleet</span>
+</a>
+<a class="flex items-center px-6 py-3 text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/50 transition-all duration-300" href="#">
+<span class="material-symbols-outlined mr-3">terrain</span>
+<span class="font-['Space_Grotesk'] tracking-wider uppercase text-xs">Geology</span>
+</a>
+<a class="flex items-center px-6 py-3 text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/50 transition-all duration-300" href="#">
+<span class="material-symbols-outlined mr-3">insights</span>
+<span class="font-['Space_Grotesk'] tracking-wider uppercase text-xs">Analytics</span>
+</a>
+<a class="flex items-center px-6 py-3 text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/50 transition-all duration-300" href="#">
+<span class="material-symbols-outlined mr-3">local_shipping</span>
+<span class="font-['Space_Grotesk'] tracking-wider uppercase text-xs">Logistics</span>
+</a>
+<a class="flex items-center px-6 py-3 text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/50 transition-all duration-300" href="#">
+<span class="material-symbols-outlined mr-3">database</span>
+<span class="font-['Space_Grotesk'] tracking-wider uppercase text-xs">Database</span>
+</a>
+<a class="flex items-center px-6 py-3 text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/50 transition-all duration-300" href="#">
+<span class="material-symbols-outlined mr-3">chat_bubble</span>
+<span class="font-['Space_Grotesk'] tracking-wider uppercase text-xs">Messages</span>
+</a>
+<a class="flex items-center px-6 py-3 text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/50 transition-all duration-300" href="#">
+<span class="material-symbols-outlined mr-3">settings</span>
+<span class="font-['Space_Grotesk'] tracking-wider uppercase text-xs">Settings</span>
+</a>
+</nav>
+<div class="px-6 mt-auto space-y-4">
+<button class="w-full py-2 bg-error/20 border border-error/50 text-error font-['Space_Grotesk'] tracking-wider uppercase text-[10px] hover:bg-error/30 transition-colors">
+                Emergency Protocol
+            </button>
+<div class="pt-4 border-t border-white/5 space-y-3">
+<div class="flex items-center text-neutral-500 hover:text-neutral-200 transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-sm mr-2">help</span>
+<span class="font-['Space_Grotesk'] tracking-wider uppercase text-[10px]">Support</span>
+</div>
+<div class="flex items-center text-neutral-500 hover:text-neutral-200 transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-sm mr-2">sensors</span>
+<span class="font-['Space_Grotesk'] tracking-wider uppercase text-[10px]">System Status</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- TopAppBar Shell -->
+<header class="fixed top-0 right-0 left-64 h-16 z-40 bg-neutral-950/20 backdrop-blur-md no-border bg-neutral-900/30 flex items-center justify-between px-8 w-full">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-black italic bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">Kinetic Observatory</span>
+<nav class="hidden lg:flex items-center gap-6">
+<a class="text-neutral-400 font-['Space_Grotesk'] font-medium hover:text-cyan-300 transition-colors cursor-pointer" href="#">Telemetry</a>
+<a class="text-emerald-400 font-['Space_Grotesk'] font-bold border-b border-emerald-400 transition-colors cursor-pointer" href="#">Map View</a>
+<a class="text-neutral-400 font-['Space_Grotesk'] font-medium hover:text-cyan-300 transition-colors cursor-pointer" href="#">Satellite</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative group">
+<span class="material-symbols-outlined text-neutral-400 group-hover:text-cyan-300 transition-colors cursor-pointer">notifications</span>
+<span class="absolute -top-1 -right-1 w-2 h-2 bg-error rounded-full"></span>
+</div>
+<div class="flex items-center gap-2 px-4 py-1.5 glass-panel rounded-full border-primary/20">
+<span class="material-symbols-outlined text-emerald-400 text-sm">emergency_home</span>
+<span class="text-[10px] font-headline uppercase tracking-widest text-emerald-400">Sector Secure</span>
+</div>
+<button class="bg-gradient-to-r from-primary to-primary-dim text-on-primary-fixed font-headline font-bold text-xs uppercase px-5 py-2 rounded-md hover:brightness-110 transition-all">
+                Deploy Drone
+            </button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-white/10">
+<img alt="Commander Avatar" class="w-full h-full object-cover" data-alt="Portrait of a military drone commander with tactical headset in low light high tech environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrN3pOWjJjXCvW09acwnnx1P8iayTKAnputpV770UfParVOm1IFdNy3zC7sHz0WfBadvkULX0_QazqpKVUUwWv5N4r8x_yqzDcC6S5Dd4lfjAKgkaeveurfsj_iqK7NpuietgaZgM16CSU3jmsMs7Fmlys0EOndIhsEmrtMRaLKsH-0mt0cQgrz0iqGgKWNWurkAYcUc7xnvNXnJ5xei6ozx_ds2ViyppneojCByvvxbGgy5ItluuUWeRmgdRuWmY3p_YFGQ18bYg"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-24 p-8 min-h-screen bg-surface">
+<div class="grid grid-cols-12 gap-6">
+<!-- Left Column: Fleet List -->
+<div class="col-span-12 xl:col-span-8 flex flex-col gap-6">
+<!-- Fleet Header Summary -->
+<div class="flex items-center justify-between">
+<div>
+<h2 class="text-3xl font-headline font-bold tracking-tight text-on-surface">Asset Telemetry</h2>
+<p class="text-on-surface-variant text-sm font-label mt-1">42 Operational Modules across Sector 7G</p>
+</div>
+<div class="flex gap-4">
+<div class="glass-panel p-4 flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary text-3xl">electric_bolt</span>
+<div>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant">Grid Power</p>
+<p class="text-xl font-headline font-bold text-secondary">98.4%</p>
+</div>
+</div>
+<div class="glass-panel p-4 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-3xl">dynamic_feed</span>
+<div>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant">Data Flux</p>
+<p class="text-xl font-headline font-bold text-primary">2.4 TB/s</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Live Fleet Table-Alternative (Bento Style) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Asset Card 1 -->
+<div class="glass-panel group hover:bg-surface-container-highest/60 transition-all duration-300">
+<div class="h-1 bg-secondary w-full"></div>
+<div class="p-5 flex flex-col h-full">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 glass-panel flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">precision_manufacturing</span>
+</div>
+<div>
+<h3 class="font-headline font-bold text-on-surface">RIG-ALFA-09</h3>
+<p class="text-[10px] text-on-surface-variant font-label uppercase">Deep-Core Drilling Unit</p>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<div class="flex items-center gap-1.5 mb-1">
+<span class="w-2 h-2 rounded-full bg-secondary status-pulse after:bg-secondary/40"></span>
+<span class="text-[10px] font-bold text-secondary uppercase tracking-widest">Active</span>
+</div>
+<p class="text-[10px] text-on-surface-variant">Uptime: 452h</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 py-4 border-y border-white/5">
+<div>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Coordinates</p>
+<p class="text-xs font-mono text-primary">45.892° N, 122.441° W</p>
+</div>
+<div>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Operator</p>
+<p class="text-xs text-on-surface">Cmdr. Vance Aris</p>
+</div>
+</div>
+<div class="mt-4">
+<div class="flex justify-between items-end mb-2">
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Energy Cell Charge</p>
+<p class="text-xs font-bold text-secondary">82%</p>
+</div>
+<div class="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-secondary shadow-[0_0_8px_rgba(105,246,184,0.5)]" style="width: 82%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Asset Card 2 -->
+<div class="glass-panel group hover:bg-surface-container-highest/60 transition-all duration-300">
+<div class="h-1 bg-primary w-full"></div>
+<div class="p-5 flex flex-col h-full">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 glass-panel flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">local_shipping</span>
+</div>
+<div>
+<h3 class="font-headline font-bold text-on-surface">HAULER-77</h3>
+<p class="text-[10px] text-on-surface-variant font-label uppercase">Heavy Freight Transport</p>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<div class="flex items-center gap-1.5 mb-1">
+<span class="w-2 h-2 rounded-full bg-primary/50"></span>
+<span class="text-[10px] font-bold text-primary/50 uppercase tracking-widest">Idle</span>
+</div>
+<p class="text-[10px] text-on-surface-variant">Staging: Sector B</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 py-4 border-y border-white/5">
+<div>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Coordinates</p>
+<p class="text-xs font-mono text-primary">45.890° N, 122.438° W</p>
+</div>
+<div>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Operator</p>
+<p class="text-xs text-on-surface">AI Autopilot v4.2</p>
+</div>
+</div>
+<div class="mt-4">
+<div class="flex justify-between items-end mb-2">
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Fuel Level</p>
+<p class="text-xs font-bold text-primary">41%</p>
+</div>
+<div class="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary shadow-[0_0_8px_rgba(109,221,255,0.5)]" style="width: 41%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Asset Card 3 -->
+<div class="glass-panel group hover:bg-surface-container-highest/60 transition-all duration-300">
+<div class="h-1 bg-error w-full"></div>
+<div class="p-5 flex flex-col h-full">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 glass-panel flex items-center justify-center text-error">
+<span class="material-symbols-outlined">drone</span>
+</div>
+<div>
+<h3 class="font-headline font-bold text-on-surface">WASP-DRONE-03</h3>
+<p class="text-[10px] text-on-surface-variant font-label uppercase">Tactical Surveillance</p>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<div class="flex items-center gap-1.5 mb-1">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span class="text-[10px] font-bold text-error uppercase tracking-widest">Maintenance</span>
+</div>
+<p class="text-[10px] text-on-surface-variant">Bay 4 Diagnostic</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 py-4 border-y border-white/5">
+<div>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Coordinates</p>
+<p class="text-xs font-mono text-primary">Internal Hangar</p>
+</div>
+<div>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Lead Tech</p>
+<p class="text-xs text-on-surface">Dr. Sarah Koven</p>
+</div>
+</div>
+<div class="mt-4">
+<div class="flex justify-between items-end mb-2">
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Battery Health</p>
+<p class="text-xs font-bold text-error">12%</p>
+</div>
+<div class="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-error" style="width: 12%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Asset Card 4 -->
+<div class="glass-panel group hover:bg-surface-container-highest/60 transition-all duration-300">
+<div class="h-1 bg-secondary w-full"></div>
+<div class="p-5 flex flex-col h-full">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 glass-panel flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">precision_manufacturing</span>
+</div>
+<div>
+<h3 class="font-headline font-bold text-on-surface">RIG-BETA-02</h3>
+<p class="text-[10px] text-on-surface-variant font-label uppercase">Deep-Core Drilling Unit</p>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<div class="flex items-center gap-1.5 mb-1">
+<span class="w-2 h-2 rounded-full bg-secondary status-pulse after:bg-secondary/40"></span>
+<span class="text-[10px] font-bold text-secondary uppercase tracking-widest">Active</span>
+</div>
+<p class="text-[10px] text-on-surface-variant">Uptime: 1204h</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 py-4 border-y border-white/5">
+<div>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Coordinates</p>
+<p class="text-xs font-mono text-primary">46.102° N, 121.992° W</p>
+</div>
+<div>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Operator</p>
+<p class="text-xs text-on-surface">Cmdr. Jax Teller</p>
+</div>
+</div>
+<div class="mt-4">
+<div class="flex justify-between items-end mb-2">
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Energy Cell Charge</p>
+<p class="text-xs font-bold text-secondary">95%</p>
+</div>
+<div class="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 95%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Map & Analytics -->
+<div class="col-span-12 xl:col-span-4 flex flex-col gap-6">
+<!-- Tactical Map -->
+<div class="glass-panel overflow-hidden h-[400px] flex flex-col">
+<div class="p-4 border-b border-white/5 flex items-center justify-between">
+<span class="font-headline font-bold uppercase tracking-widest text-[10px]">Sector Distribution</span>
+<div class="flex gap-2">
+<button class="w-6 h-6 flex items-center justify-center glass-panel text-primary text-xs">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+<button class="w-6 h-6 flex items-center justify-center glass-panel text-primary text-xs">
+<span class="material-symbols-outlined text-sm">remove</span>
+</button>
+</div>
+</div>
+<div class="flex-1 relative">
+<img alt="Sector Map" class="w-full h-full object-cover opacity-60" data-alt="High-resolution tactical topographic satellite map of a mountainous mining region with glowing neon blue and green overlay markers" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnlJW1c6GeTWbqgadeoI5CL4h9ov04gzs08_b2zKIBBq3s2qNi73qAYtS7ZGn5wDt-mP5O56-OGNeFk6_lqbkgy5fphGVQRYcxCEW1GhUz4VtQL7yGLoO9P1iRVHyzQ7sXKZ_v_jCaw2QTU9ixSTpA9w68gFfrrmnyQhpEhkmM6tw_18UGHmfI5njwhpp7u55LTcj5CBMDj_bk8Gzpn2CmyZprkKlNmUjuRkqPWMMFkLcwO77afusSogPqn3vMnk7vxF9Xdw3SXa0"/>
+<!-- Map HUD Elements -->
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+<div class="w-32 h-32 border-2 border-primary/20 rounded-full animate-pulse"></div>
+</div>
+<div class="absolute top-1/3 left-1/4 w-3 h-3 bg-secondary rounded-full status-pulse after:bg-secondary/40"></div>
+<div class="absolute top-1/2 left-2/3 w-3 h-3 bg-secondary rounded-full status-pulse after:bg-secondary/40"></div>
+<div class="absolute bottom-1/4 right-1/3 w-3 h-3 bg-primary rounded-full shadow-[0_0_10px_#6dddff]"></div>
+<div class="absolute bottom-4 left-4 glass-panel p-3">
+<p class="text-[10px] text-on-surface-variant uppercase mb-1">Focus Point</p>
+<p class="text-xs font-mono text-on-surface">LAT: 45.92 / LON: 122.12</p>
+</div>
+</div>
+</div>
+<!-- Secondary Data Feed -->
+<div class="glass-panel p-6">
+<h4 class="font-headline font-bold text-on-surface mb-6 uppercase tracking-widest text-xs">Logistics Queue</h4>
+<div class="space-y-4">
+<div class="flex items-center gap-4 p-3 hover:bg-white/5 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-tertiary">priority_high</span>
+<div class="flex-1">
+<p class="text-xs font-bold text-on-surface">Emergency Refuel: RIG-ALFA</p>
+<p class="text-[10px] text-on-surface-variant">Assigned to Drone Squadron 3</p>
+</div>
+<span class="text-[10px] text-on-surface-variant font-mono">14:02:11</span>
+</div>
+<div class="flex items-center gap-4 p-3 hover:bg-white/5 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-secondary">check_circle</span>
+<div class="flex-1">
+<p class="text-xs font-bold text-on-surface">Extraction Wave Complete</p>
+<p class="text-[10px] text-on-surface-variant">Sector 7G North Pocket</p>
+</div>
+<span class="text-[10px] text-on-surface-variant font-mono">13:58:45</span>
+</div>
+<div class="flex items-center gap-4 p-3 hover:bg-white/5 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-primary">hub</span>
+<div class="flex-1">
+<p class="text-xs font-bold text-on-surface">Telemetry Sync Success</p>
+<p class="text-[10px] text-on-surface-variant">All fleet units synchronized</p>
+</div>
+<span class="text-[10px] text-on-surface-variant font-mono">13:45:22</span>
+</div>
+</div>
+<button class="w-full mt-6 py-2 border border-white/10 hover:bg-white/5 text-on-surface-variant font-headline text-[10px] uppercase tracking-widest transition-all">
+                        View Full Command Logs
+                    </button>
+</div>
+<!-- Yield Analytics Mini -->
+<div class="glass-panel p-6 bg-secondary-container/10">
+<div class="flex items-center justify-between mb-4">
+<h4 class="font-headline font-bold text-secondary uppercase tracking-widest text-xs">Operational Yield</h4>
+<span class="material-symbols-outlined text-secondary">trending_up</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="text-4xl font-headline font-bold text-on-surface">84.2</span>
+<span class="text-sm text-secondary font-bold font-headline">KT/HR</span>
+</div>
+<p class="text-[10px] text-on-surface-variant mt-2 font-label">+12.4% from previous cycle</p>
+<div class="mt-4 flex items-end gap-1 h-12">
+<div class="flex-1 bg-secondary/20 h-[40%] rounded-t-sm"></div>
+<div class="flex-1 bg-secondary/20 h-[60%] rounded-t-sm"></div>
+<div class="flex-1 bg-secondary/20 h-[55%] rounded-t-sm"></div>
+<div class="flex-1 bg-secondary/20 h-[75%] rounded-t-sm"></div>
+<div class="flex-1 bg-secondary/20 h-[65%] rounded-t-sm"></div>
+<div class="flex-1 bg-secondary/40 h-[85%] rounded-t-sm shadow-[0_0_10px_rgba(105,246,184,0.3)]"></div>
+<div class="flex-1 bg-secondary/60 h-[95%] rounded-t-sm shadow-[0_0_15px_rgba(105,246,184,0.5)]"></div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- FAB Suppression: On Detail/Tracking screens, we keep focus on the data -->
+</body></html>

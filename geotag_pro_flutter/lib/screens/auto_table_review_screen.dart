@@ -1,0 +1,232 @@
+import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../services/ai_translator_service.dart';
+import '../services/settings_controller.dart';
+import '../services/auth_service.dart';
+import '../services/location_service.dart';
+import '../utils/app_card.dart';
+
+class AutoTableReviewScreen extends StatefulWidget {
+  final String imagePath;
+  const AutoTableReviewScreen({super.key, required this.imagePath});
+
+  @override
+  State<AutoTableReviewScreen> createState() => _AutoTableReviewScreenState();
+}
+
+class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
+  final AiTranslatorService _aiService = AiTranslatorService();
+  bool _isLoading = true;
+  Map<String, dynamic>? _parsedData;
+  List<Map<String, dynamic>> _tableRows = [];
+  
+  @override
+  void initState() {
+    super.initState();
+    _startAnalysis();
+  }
+
+  Future<void> _startAnalysis() async {
+    final result = await _aiService.analyzeReportImage(widget.imagePath);
+    if (mounted) {
+      setState(() {
+        _parsedData = result;
+        final type = result['report_type'] ?? 'unknown';
+        if (type == 'rc_drill' && result['holes'] != null) {
+          _tableRows = List<Map<String, dynamic>>.from(result['holes']);
+        } else if (type == 'ore_stockpile' && result['loaders'] != null) {
+          _tableRows = List<Map<String, dynamic>>.from(result['loaders']);
+        } else if (type == 'ore_block') {
+          // Flatten block data as it's a single entry
+          _tableRows = [Map<String, dynamic>.from(result)];
+        }
+              _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _submitReport() async {
+    if (_parsedData == null) return;
+    
+    setState(() => _isLoading = true);
+    
+    try {
+      final auth = context.read<AuthService>();
+      final settings = context.read<SettingsController>();
+      final loc = context.read<LocationService>().currentPosition;
+      
+      // 1. Prepare data
+      final updatedTable = List<Map<String, dynamic>>.from(_tableRows);
+      final reportType = _parsedData!['report_type'] ?? 'unknown';
+
+      // 2. Upload to Firestore
+      await FirebaseFirestore.instance.collection('daily_mine_reports').add({
+        'reportType': reportType,
+        'authorName': settings.currentUserName ?? auth.currentUser?.email ?? 'Noma\'lum',
+        'createdAt': FieldValue.serverTimestamp(),
+        'status': 'pending',
+        'imageUrl': '', 
+        'lat': loc?.latitude,
+        'lng': loc?.longitude,
+        'parsedData': {
+          'header': {
+            'date': _parsedData!['date'],
+            'shift': _parsedData!['shift'],
+            'driller': _parsedData!['driller'] ?? _parsedData!['spotter'] ?? _parsedData!['geologist'] ?? '—',
+            'location': _parsedData!['location'] ?? _parsedData!['pit'] ?? '—',
+          },
+          'table': updatedTable,
+        },
+      });
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Hisobot muvaffaqiyatli Dashboard\'ga yuborildi! ✅')),
+        );
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Xatolik yuz berdi: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('AI Hisobot Tahlili'),
+        actions: [
+          if (!_isLoading && _parsedData != null)
+            TextButton.icon(
+              onPressed: _submitReport,
+              icon: const Icon(Icons.send, color: Colors.blue),
+              label: const Text('YUBORISH', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)),
+            ),
+        ],
+      ),
+      body: _isLoading 
+        ? _buildLoadingState()
+        : _parsedData == null 
+          ? _buildErrorState()
+          : _buildReviewLayout(),
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const CircularProgressIndicator(),
+          const SizedBox(height: 24),
+          const Text('AI hujjatni o\'qimoqda...', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          Text('Bu bir necha soniya vaqt olishi mumkin', style: TextStyle(color: Colors.grey.shade600)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, size: 64, color: Colors.red),
+          const SizedBox(height: 16),
+          const Text('AI tahlil qila olmadi', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 24),
+          ElevatedButton(onPressed: _startAnalysis, child: const Text('Qayta urinish')),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReviewLayout() {
+    return Column(
+      children: [
+        // Top Summary Card
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: AppCard(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                _summaryItem('Turi', (_parsedData!['report_type'] ?? '—').toString().toUpperCase()),
+                _summaryItem('Sana', _parsedData!['date'] ?? '—'),
+                _summaryItem('Smena', _parsedData!['shift'] ?? '—'),
+              ],
+            ),
+          ),
+        ),
+        
+        // Split View or Scrollable Content
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            children: [
+              const Text('Hujjat nusxasi:', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.file(File(widget.imagePath), height: 200, fit: BoxFit.cover),
+              ),
+              const SizedBox(height: 24),
+              const Text('AI tomonidan o\'qilgan jadval:', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              _buildDataTable(),
+              const SizedBox(height: 100), // Spacing for bottom
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _summaryItem(String label, String value) {
+    return Expanded(
+      child: Column(
+        children: [
+          Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDataTable() {
+    if (_tableRows.isEmpty) return const Center(child: Text('Jadval ma\'lumotlari topilmadi'));
+    
+    final columns = _tableRows.first.keys.toList();
+    
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: DataTable(
+        border: TableBorder.all(color: Colors.grey.shade300, width: 1),
+        columns: columns.map((c) => DataColumn(label: Text(c, style: const TextStyle(fontWeight: FontWeight.bold)))).toList(),
+        rows: _tableRows.map((row) {
+          return DataRow(
+            cells: columns.map((col) {
+              return DataCell(
+                TextFormField(
+                  initialValue: row[col]?.toString() ?? '',
+                  style: const TextStyle(fontSize: 12),
+                  decoration: const InputDecoration(border: InputBorder.none),
+                  onChanged: (val) => row[col] = val,
+                ),
+              );
+            }).toList(),
+          );
+        }).toList(),
+      ),
+    );
+  }
+}

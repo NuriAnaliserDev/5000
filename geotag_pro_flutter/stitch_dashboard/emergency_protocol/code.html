@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            backdrop-filter: blur(16px);
+            background: rgba(38, 38, 39, 0.4);
+        }
+        .status-pulse {
+            position: relative;
+        }
+        .status-pulse::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.4;
+            animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(1); opacity: 0.4; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+        body {
+            background-color: #0e0e0f;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+        }
+        .font-headline { font-family: 'Space Grotesk', sans-serif; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-low": "#131314",
+                        "secondary-fixed-dim": "#58e7ab",
+                        "surface-variant": "#262627",
+                        "on-tertiary-container": "#f8f1ff",
+                        "on-secondary-fixed-variant": "#006544",
+                        "surface-container-highest": "#262627",
+                        "on-surface": "#ffffff",
+                        "surface": "#0e0e0f",
+                        "on-secondary": "#005a3c",
+                        "surface-container": "#1a191b",
+                        "secondary": "#69f6b8",
+                        "primary-dim": "#00c3eb",
+                        "tertiary-container": "#7000ff",
+                        "primary-fixed-dim": "#00c3eb",
+                        "on-tertiary-fixed-variant": "#4700a7",
+                        "secondary-dim": "#58e7ab",
+                        "on-primary": "#004c5e",
+                        "inverse-surface": "#fcf8f9",
+                        "on-background": "#ffffff",
+                        "inverse-primary": "#00687e",
+                        "on-secondary-fixed": "#00452d",
+                        "primary": "#6dddff",
+                        "surface-container-lowest": "#000000",
+                        "on-tertiary": "#290067",
+                        "on-surface-variant": "#adaaab",
+                        "on-error": "#490006",
+                        "tertiary": "#ac89ff",
+                        "surface-tint": "#6dddff",
+                        "outline-variant": "#484849",
+                        "tertiary-fixed": "#bda1ff",
+                        "secondary-fixed": "#69f6b8",
+                        "inverse-on-surface": "#565556",
+                        "on-tertiary-fixed": "#1f0052",
+                        "on-primary-fixed": "#002c37",
+                        "on-secondary-container": "#e1ffec",
+                        "outline": "#767576",
+                        "on-primary-container": "#004352",
+                        "error": "#ff716c",
+                        "surface-bright": "#2c2c2d",
+                        "error-dim": "#d7383b",
+                        "background": "#0e0e0f",
+                        "surface-container-high": "#201f21",
+                        "on-error-container": "#ffa8a3",
+                        "tertiary-dim": "#874cff",
+                        "primary-fixed": "#00d2fd",
+                        "error-container": "#9f0519",
+                        "surface-dim": "#0e0e0f",
+                        "on-primary-fixed-variant": "#004c5d",
+                        "primary-container": "#00d2fd",
+                        "tertiary-fixed-dim": "#b190ff",
+                        "secondary-container": "#006c49"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-surface selection:bg-primary/30">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-0 z-50 flex flex-col py-6 bg-neutral-950/40 backdrop-blur-xl no-border tonal-layering bg-neutral-900/50 shadow-[20px_0_40px_rgba(0,212,255,0.05)]">
+<div class="px-6 mb-10">
+<h1 class="text-xl font-bold tracking-tighter text-cyan-400">Fleet Command</h1>
+<p class="font-['Space_Grotesk'] tracking-wider uppercase text-[10px] text-neutral-500 mt-1">Sector 7G - Active</p>
+</div>
+<nav class="flex-1 space-y-1 px-4">
+<!-- Analytics as inactive example, Settings as inactive -->
+<a class="flex items-center px-4 py-3 rounded-lg font-['Space_Grotesk'] tracking-wider uppercase text-xs text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/50 transition-all duration-300 scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined mr-3">precision_manufacturing</span> Fleet
+            </a>
+<a class="flex items-center px-4 py-3 rounded-lg font-['Space_Grotesk'] tracking-wider uppercase text-xs text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/50 transition-all duration-300 scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined mr-3">terrain</span> Geology
+            </a>
+<a class="flex items-center px-4 py-3 rounded-lg font-['Space_Grotesk'] tracking-wider uppercase text-xs text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/50 transition-all duration-300 scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined mr-3">insights</span> Analytics
+            </a>
+<a class="flex items-center px-4 py-3 rounded-lg font-['Space_Grotesk'] tracking-wider uppercase text-xs text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/50 transition-all duration-300 scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined mr-3">local_shipping</span> Logistics
+            </a>
+<a class="flex items-center px-4 py-3 rounded-lg font-['Space_Grotesk'] tracking-wider uppercase text-xs text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/50 transition-all duration-300 scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined mr-3">database</span> Database
+            </a>
+<a class="flex items-center px-4 py-3 rounded-lg font-['Space_Grotesk'] tracking-wider uppercase text-xs text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/50 transition-all duration-300 scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined mr-3">chat_bubble</span> Messages
+            </a>
+<a class="flex items-center px-4 py-3 rounded-lg font-['Space_Grotesk'] tracking-wider uppercase text-xs text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/50 transition-all duration-300 scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined mr-3">settings</span> Settings
+            </a>
+</nav>
+<div class="px-4 mt-auto">
+<button class="w-full py-4 bg-error-container text-on-error-container font-headline font-bold uppercase text-xs tracking-widest rounded-lg mb-6 border border-error/20 flex items-center justify-center gap-2 group transition-all duration-300 hover:bg-error-container/80">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">warning</span>
+                Emergency Protocol
+            </button>
+<div class="space-y-4 px-2">
+<div class="flex items-center gap-3 text-neutral-500 hover:text-neutral-200 cursor-pointer">
+<span class="material-symbols-outlined text-sm">help</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-wider">Support</span>
+</div>
+<div class="flex items-center gap-3 text-neutral-500 hover:text-neutral-200 cursor-pointer">
+<span class="material-symbols-outlined text-sm">sensors</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-wider">System Status</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 left-64 h-16 z-40 bg-neutral-950/20 backdrop-blur-md flex items-center justify-between px-8 w-full no-border bg-neutral-900/30">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-black italic bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">Kinetic Observatory</span>
+<nav class="hidden lg:flex items-center gap-6 font-['Space_Grotesk'] font-medium text-neutral-400">
+<a class="hover:text-cyan-300 transition-colors" href="#">Telemetry</a>
+<a class="hover:text-cyan-300 transition-colors" href="#">Map View</a>
+<a class="hover:text-cyan-300 transition-colors" href="#">Satellite</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 mr-4 border-r border-outline-variant/20 pr-6">
+<span class="material-symbols-outlined text-neutral-400 hover:text-cyan-300 cursor-pointer transition-colors">notifications</span>
+<span class="material-symbols-outlined text-emerald-400 cursor-pointer transition-colors brightness-125">emergency_home</span>
+</div>
+<button class="bg-gradient-to-br from-primary to-primary-dim text-on-primary-container font-headline font-bold px-4 py-1.5 rounded-md text-sm hover:brightness-110 active:scale-95 transition-all">
+                Deploy Drone
+            </button>
+<div class="w-10 h-10 rounded-full border border-primary/20 overflow-hidden">
+<img alt="Commander Avatar" class="w-full h-full object-cover" data-alt="close-up portrait of a high-ranking military commander with futuristic tactical eyepiece in a dimly lit command center" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC624GRNzdz4eL0ldea9mwRl6KaAAxNmet1rCI2cXrFpY0o5gEM8nQx-jRvP6QsB4Sgm__fr5opBeXt9Mj1DtykIqtCweqLT0uW0do8HFOTEk0f8KjSTVRkXAdM0aVv-UHJkNXQrnJif9jk4gocnjbhOLy_5TZLBL3ZzsMHWiqdirtIe3J50VAMIN73FuLuw-vJ_4P-MRPH4jyOXeYnk5n1K5Ja8gxTNAFRIm1RGKGLJvvuTVWdsT7QzdXWAiBfAfGGhKlopD2bVnQ"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pl-64 pt-16 min-h-screen bg-surface">
+<div class="p-8 max-w-7xl mx-auto">
+<!-- ALERT BANNER: Seismic Alert -->
+<div class="mb-8 p-6 glass-panel border-l-4 border-error flex items-center justify-between rounded-xl shadow-[0_0_50px_rgba(255,113,108,0.1)]">
+<div class="flex items-center gap-6">
+<div class="w-16 h-16 rounded-lg bg-error-container/30 flex items-center justify-center text-error relative">
+<span class="material-symbols-outlined text-4xl status-pulse" style="font-variation-settings: 'FILL' 1;">tsunami</span>
+</div>
+<div>
+<h2 class="font-headline text-2xl font-bold tracking-tight text-on-error-container">SEISMIC ALERT: SECTOR 4B</h2>
+<p class="text-on-surface-variant font-medium">Magnitude 6.8 detected. Immediate structural verification required.</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="text-right px-6 border-r border-outline-variant/30">
+<p class="text-[10px] text-neutral-500 uppercase tracking-widest font-headline">Time to Impact</p>
+<p class="text-3xl font-headline font-bold text-error tracking-tighter">00:42:15</p>
+</div>
+<button class="px-8 bg-error text-on-error font-headline font-bold rounded-lg hover:bg-error-dim transition-colors uppercase tracking-widest text-xs">
+                        Acknowledge
+                    </button>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Left Column: Map & Routes -->
+<div class="col-span-12 lg:col-span-8 space-y-6">
+<div class="bg-surface-container-high rounded-xl overflow-hidden relative group">
+<div class="absolute top-0 left-0 w-full p-4 bg-gradient-to-b from-black/80 to-transparent z-10 flex justify-between items-center">
+<h3 class="font-headline font-bold text-lg tracking-wide uppercase flex items-center gap-2">
+<span class="w-1.5 h-6 bg-secondary rounded-full"></span>
+                                Evacuation Protocol: Map Delta
+                            </h3>
+<div class="flex gap-2">
+<span class="px-3 py-1 bg-secondary-container/30 text-secondary text-[10px] font-bold rounded border border-secondary/20 uppercase">Routes Clear</span>
+<span class="px-3 py-1 bg-surface-container-highest text-on-surface-variant text-[10px] font-bold rounded border border-outline-variant/20 uppercase">Interactive</span>
+</div>
+</div>
+<div class="h-[500px] w-full bg-neutral-900 flex items-center justify-center grayscale contrast-125 opacity-60">
+<img class="w-full h-full object-cover" data-alt="satellite view of a highly detailed futuristic city grid with illuminated infrastructure lines and glowing neon transport pathways at night" data-location="Tokyo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDryA494iRBr-9KNrpLwFsnQP2hqw35RZQ-YaeqHGnw4_O4hBClcRNE_5mtn4Az1kVaqmkZhzvpsdRPAyds_O8h8W0epcObS82S2FCTlZC2JVB3Dg_y8MEnA4SML7asOoZW69aO5fmi52VUWKKJyCvWHWsGJDpgeKyKNG-X8pcR8Lsjk28whYmC0bwxCR7hSYLBGVco-NOWeZ1a3C7S5iT2UAqGLKds1oH_GUkwB7N7KWtnMXLUYYtqklJp8iYJGwFCS0iaOM1wAlA"/>
+</div>
+<!-- Overlay Legend -->
+<div class="absolute bottom-6 left-6 flex gap-4">
+<div class="glass-panel p-4 rounded-lg border border-outline-variant/20">
+<div class="flex items-center gap-3 mb-3">
+<span class="w-3 h-3 rounded-full bg-secondary"></span>
+<span class="text-xs font-bold font-headline uppercase tracking-widest">Primary Route A</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="w-3 h-3 rounded-full bg-error"></span>
+<span class="text-xs font-bold font-headline uppercase tracking-widest">Contaminated Zone</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Comms Override Panel -->
+<div class="bg-surface-container-low rounded-xl p-8 border border-outline-variant/10">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h3 class="font-headline font-bold text-xl uppercase tracking-widest mb-1">Communications Override</h3>
+<p class="text-on-surface-variant text-sm italic">Direct satellite link established. Priority: Ultra-High.</p>
+</div>
+<span class="text-[10px] text-cyan-400 font-headline uppercase tracking-[0.2em]">Signal Strength: 100%</span>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="p-6 bg-surface-container-highest/50 rounded-lg flex items-center justify-between group cursor-pointer hover:bg-surface-container-highest transition-all border border-outline-variant/5">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">podcasts</span>
+<div>
+<p class="font-headline font-bold text-sm uppercase">Global Broadcast</p>
+<p class="text-xs text-neutral-500">All Sectors Active</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-neutral-600 group-hover:text-on-surface">chevron_right</span>
+</div>
+<div class="p-6 bg-surface-container-highest/50 rounded-lg flex items-center justify-between group cursor-pointer hover:bg-surface-container-highest transition-all border border-outline-variant/5">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">security</span>
+<div>
+<p class="font-headline font-bold text-sm uppercase">Secure Military Link</p>
+<p class="text-xs text-neutral-500">Encrypted AES-256</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-neutral-600 group-hover:text-on-surface">chevron_right</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Vitals & Actions -->
+<div class="col-span-12 lg:col-span-4 space-y-6">
+<!-- Vitals Section -->
+<div class="bg-surface-container rounded-xl p-6 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-5">
+<span class="material-symbols-outlined text-8xl">clinical_notes</span>
+</div>
+<h3 class="font-headline font-bold text-sm uppercase tracking-[0.3em] text-neutral-500 mb-8 flex items-center gap-3">
+                            System Vitals
+                            <span class="flex-1 h-px bg-outline-variant/20"></span>
+</h3>
+<div class="space-y-8">
+<!-- Oxygen -->
+<div class="space-y-3">
+<div class="flex justify-between items-end">
+<p class="text-xs font-headline uppercase font-bold tracking-widest">Oxygen Saturation</p>
+<p class="text-xl font-headline font-bold text-secondary">98.4%</p>
+</div>
+<div class="h-1 w-full bg-neutral-800 rounded-full overflow-hidden">
+<div class="h-full bg-secondary shadow-[0_0_10px_rgba(105,246,184,0.5)]" style="width: 98.4%"></div>
+</div>
+<div class="flex justify-between text-[10px] text-neutral-600 uppercase font-headline">
+<span>Nominal</span>
+<span>Pressure 1.2 ATM</span>
+</div>
+</div>
+<!-- Pressure -->
+<div class="space-y-3">
+<div class="flex justify-between items-end">
+<p class="text-xs font-headline uppercase font-bold tracking-widest">External Pressure</p>
+<p class="text-xl font-headline font-bold text-primary">14.2 PSI</p>
+</div>
+<div class="h-1 w-full bg-neutral-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary shadow-[0_0_10px_rgba(109,221,255,0.5)]" style="width: 72%"></div>
+</div>
+<div class="flex justify-between text-[10px] text-neutral-600 uppercase font-headline">
+<span>Stable</span>
+<span>Ambient Temp 22°C</span>
+</div>
+</div>
+<!-- Power -->
+<div class="space-y-3">
+<div class="flex justify-between items-end">
+<p class="text-xs font-headline uppercase font-bold tracking-widest">Auxiliary Reserves</p>
+<p class="text-xl font-headline font-bold text-tertiary">42%</p>
+</div>
+<div class="h-1 w-full bg-neutral-800 rounded-full overflow-hidden">
+<div class="h-full bg-tertiary shadow-[0_0_10px_rgba(172,137,255,0.5)]" style="width: 42%"></div>
+</div>
+<div class="flex justify-between text-[10px] text-neutral-600 uppercase font-headline">
+<span>Declining</span>
+<span>ETA 4h 12m</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Critical Actions -->
+<div class="space-y-4">
+<button class="w-full py-8 bg-gradient-to-br from-error to-error-dim text-white font-headline font-black text-xl uppercase tracking-[0.4em] rounded-xl shadow-[0_15px_35px_rgba(255,113,108,0.2)] hover:scale-[1.02] active:scale-95 transition-all flex flex-col items-center gap-2">
+<span>Initiate Lockdown</span>
+<span class="text-[10px] font-medium tracking-normal opacity-70">Requires Level 4 Clearance</span>
+</button>
+<div class="grid grid-cols-2 gap-4">
+<button class="bg-surface-container-highest p-6 rounded-xl border border-outline-variant/10 text-center hover:bg-surface-bright transition-all group">
+<span class="material-symbols-outlined text-3xl mb-2 text-neutral-400 group-hover:text-primary transition-colors">medical_services</span>
+<p class="text-[10px] font-headline font-bold uppercase tracking-widest text-neutral-300">Med-Evac</p>
+</button>
+<button class="bg-surface-container-highest p-6 rounded-xl border border-outline-variant/10 text-center hover:bg-surface-bright transition-all group">
+<span class="material-symbols-outlined text-3xl mb-2 text-neutral-400 group-hover:text-error transition-colors">fire_extinguisher</span>
+<p class="text-[10px] font-headline font-bold uppercase tracking-widest text-neutral-300">Suppression</p>
+</button>
+</div>
+<!-- Mini Logs -->
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/5">
+<h4 class="text-[10px] font-headline font-bold uppercase tracking-widest text-neutral-500 mb-4">Tactical Log</h4>
+<div class="space-y-3 font-mono text-[11px]">
+<div class="flex gap-3">
+<span class="text-neutral-600">12:44:01</span>
+<span class="text-secondary">SYSTEM</span>
+<span class="text-neutral-400">Shielding deployed in Sector 4.</span>
+</div>
+<div class="flex gap-3">
+<span class="text-neutral-600">12:44:05</span>
+<span class="text-error">SENSOR</span>
+<span class="text-neutral-400">Thermal peak detected (+40%).</span>
+</div>
+<div class="flex gap-3">
+<span class="text-neutral-600">12:44:12</span>
+<span class="text-cyan-400">USER</span>
+<span class="text-neutral-400">Override requested by Cmdr. K.</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>
