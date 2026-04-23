@@ -293,6 +293,7 @@ class CloudSyncService extends ChangeNotifier {
         'mediaUrl': remoteMediaUrl,
         'lat': msg.lat,
         'lng': msg.lng,
+        if (msg.editedAt != null) 'editedAt': msg.editedAt!.toIso8601String(),
       });
 
       msg.status = 'sent';

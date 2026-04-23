@@ -377,7 +377,7 @@ class GeoFieldStringsUz extends GeoFieldStrings {
   String get edit_project => 'Loyihani tahrirlash';
 
   @override
-  String get expert_mode => 'Ekspert rejimi';
+  String get expert_mode => 'Professional rejim';
 
   @override
   String get export_csv => 'CSV eksport';

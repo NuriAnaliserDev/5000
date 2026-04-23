@@ -28,13 +28,14 @@ class ChatMessageAdapter extends TypeAdapter<ChatMessage> {
       mediaPath: fields[8] as String?,
       lat: fields[9] as double?,
       lng: fields[10] as double?,
+      editedAt: fields[11] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ChatMessage obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -56,7 +57,9 @@ class ChatMessageAdapter extends TypeAdapter<ChatMessage> {
       ..writeByte(9)
       ..write(obj.lat)
       ..writeByte(10)
-      ..write(obj.lng);
+      ..write(obj.lng)
+      ..writeByte(11)
+      ..write(obj.editedAt);
   }
 
   @override

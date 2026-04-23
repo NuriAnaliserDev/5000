@@ -39,12 +39,24 @@ class ChatRepository extends ChangeNotifier {
         .snapshots()
         .listen((snapshot) async {
       bool changed = false;
-      for (final doc in snapshot.docs) {
-        final data = doc.data();
-        final id = data['id'] as String?;
-        if (id == null || id.isEmpty) continue;
+      for (final change in snapshot.docChanges) {
+        if (change.type == DocumentChangeType.removed) {
+          final docId = change.doc.id;
+          if (_messagesBox.containsKey(docId)) {
+            await _messagesBox.delete(docId);
+            changed = true;
+          }
+          continue;
+        }
 
-        final existing = _messagesBox.get(id);
+        final doc = change.doc;
+        if (!doc.exists) continue;
+        final data = doc.data();
+        if (data == null) continue;
+
+        final id = (data['id'] as String?)?.isNotEmpty == true ? data['id'] as String : doc.id;
+        if (id.isEmpty) continue;
+
         final senderName = (data['senderName'] as String?) ?? 'Noma\'lum';
         final senderId = (data['senderId'] as String?) ?? 'anon';
         final text = (data['text'] as String?) ?? '';
@@ -53,7 +65,13 @@ class ChatRepository extends ChangeNotifier {
         final lat = (data['lat'] as num?)?.toDouble();
         final lng = (data['lng'] as num?)?.toDouble();
         final ts = DateTime.tryParse((data['timestamp'] as String?) ?? '') ?? DateTime.now();
+        DateTime? editedAt;
+        final eaRaw = data['editedAt'];
+        if (eaRaw is String) {
+          editedAt = DateTime.tryParse(eaRaw);
+        }
 
+        final existing = _messagesBox.get(id);
         if (existing == null) {
           await _messagesBox.put(
             id,
@@ -69,14 +87,44 @@ class ChatRepository extends ChangeNotifier {
               mediaPath: mediaUrl,
               lat: lat,
               lng: lng,
+              editedAt: editedAt,
             ),
           );
           changed = true;
           continue;
         }
 
+        var needSave = false;
+        if (existing.text != text) {
+          existing.text = text;
+          needSave = true;
+        }
+        if (existing.senderName != senderName) {
+          existing.senderName = senderName;
+          needSave = true;
+        }
+        if (existing.mediaPath != mediaUrl) {
+          existing.mediaPath = mediaUrl;
+          needSave = true;
+        }
+        if (existing.lat != lat) {
+          existing.lat = lat;
+          needSave = true;
+        }
+        if (existing.lng != lng) {
+          existing.lng = lng;
+          needSave = true;
+        }
         if (existing.status != 'sent') {
           existing.status = 'sent';
+          needSave = true;
+        }
+        if (editedAt != null &&
+            (existing.editedAt == null || !editedAt.isAtSameMomentAs(existing.editedAt!))) {
+          existing.editedAt = editedAt;
+          needSave = true;
+        }
+        if (needSave) {
           await existing.save();
           changed = true;
         }
@@ -101,7 +149,7 @@ class ChatRepository extends ChangeNotifier {
         project: 'Default',
       );
       _groupsBox.put('general', generalGroup);
-      
+
       final sosGroup = ChatGroup(
         id: 'sos_channel',
         name: 'Favqulodda / SOS',
@@ -123,7 +171,6 @@ class ChatRepository extends ChangeNotifier {
     await group.save();
   }
 
-  /// Get groups filtered by current project
   List<ChatGroup> getChatGroups() {
     final currentProject = settingsController.currentProject;
     return _groupsBox.values.where((g) {
@@ -132,14 +179,81 @@ class ChatRepository extends ChangeNotifier {
     }).toList();
   }
 
-  /// Get offline messages for a specific group
   List<ChatMessage> getMessages(String groupId) {
     final msgs = _messagesBox.values.where((m) => m.groupId == groupId).toList();
     msgs.sort((a, b) => a.timestamp.compareTo(b.timestamp));
     return msgs;
   }
 
-  /// Send a message (saves locally as 'pending', then tries to sync)
+  bool _isMessageMine(ChatMessage m) {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return false;
+    return m.senderId == uid;
+  }
+
+  /// Matn xabarini tahrirlash. `null` — muvaffaqiyat; aks holda xato matni.
+  Future<String?> updateMessageText({
+    required String messageId,
+    required String newText,
+  }) async {
+    final t = newText.trim();
+    if (t.isEmpty) return 'Bo‘sh xabar yuborib bo‘lmaydi';
+    final msg = _messagesBox.get(messageId);
+    if (msg == null) return 'Xabar topilmadi';
+    if (!_isMessageMine(msg)) return 'Faqat o‘z xabaringizni tahrirlaysiz';
+    if (msg.messageType != 'text') return 'Faqat matn xabarlarini tahrirlash mumkin';
+
+    msg.text = t;
+    msg.editedAt = DateTime.now();
+    await msg.save();
+
+    if (msg.status == 'sent') {
+      try {
+        await _firestore
+            .collection('chat_groups')
+            .doc(msg.groupId)
+            .collection('messages')
+            .doc(msg.id)
+            .update({
+          'text': t,
+          'editedAt': msg.editedAt!.toIso8601String(),
+        });
+      } catch (e) {
+        debugPrint('updateMessageText firestore: $e');
+        return 'Bulutga yozilmadi: $e';
+      }
+    }
+
+    await _refreshGroupMetadata(msg.groupId);
+    notifyListeners();
+    return null;
+  }
+
+  /// Xabarni o‘chirish (mahalliy + yuborilgan bo‘lsa Firestore).
+  Future<String?> deleteMessage(String messageId) async {
+    final msg = _messagesBox.get(messageId);
+    if (msg == null) return null;
+    if (!_isMessageMine(msg)) return 'Faqat o‘z xabaringizni o‘chirasiz';
+
+    if (msg.status == 'sent') {
+      try {
+        await _firestore
+            .collection('chat_groups')
+            .doc(msg.groupId)
+            .collection('messages')
+            .doc(msg.id)
+            .delete();
+      } catch (e) {
+        return 'Bulutdan o‘chirilmadi: $e';
+      }
+    }
+
+    await msg.delete();
+    await _refreshGroupMetadata(msg.groupId);
+    notifyListeners();
+    return null;
+  }
+
   Future<void> sendMessage({
     required String groupId,
     required String text,
@@ -169,7 +283,6 @@ class ChatRepository extends ChangeNotifier {
     await _messagesBox.put(message.id, message);
     await _refreshGroupMetadata(groupId);
     notifyListeners();
-    // Kutish rejimida qoladi, uni markaziy CloudSyncService ilova qiladi.
   }
 
   @override

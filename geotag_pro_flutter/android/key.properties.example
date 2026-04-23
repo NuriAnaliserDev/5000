@@ -1,0 +1,7 @@
+# android/key.properties nomiga nusxa oling (gitda yo'q) va to'ldiring.
+# storeFile yo'li android/ papkasidan nisbiy bo'lishi mumkin, masalan: upload-keystore.jks
+
+storePassword=
+keyPassword=
+keyAlias=
+storeFile=

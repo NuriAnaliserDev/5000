@@ -107,7 +107,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 final myUid = FirebaseAuth.instance.currentUser?.uid;
                 final isMe = myUid != null && msg.senderId == myUid;
 
-                return _buildMessageBubble(msg, isMe, isDark, primary);
+                return _buildMessageBubble(context, chatRepo, msg, isMe, isDark, primary);
               },
             ),
           ),
@@ -117,14 +117,119 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildMessageBubble(ChatMessage msg, bool isMe, bool isDark, Color primary) {
+  Future<void> _showEditDialog(
+    BuildContext context,
+    ChatRepository repo,
+    ChatMessage msg,
+  ) async {
+    final ctrl = TextEditingController(text: msg.text);
+    final err = await showDialog<String?>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Xabarni tahrirlash'),
+        content: TextField(
+          controller: ctrl,
+          maxLines: 4,
+          autofocus: true,
+          decoration: const InputDecoration(border: OutlineInputBorder()),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Bekor')),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, ctrl.text),
+            child: const Text('Saqlash'),
+          ),
+        ],
+      ),
+    );
+    if (!context.mounted || err == null) return;
+    final syncErr = await repo.updateMessageText(messageId: msg.id, newText: err);
+    if (!context.mounted) return;
+    if (syncErr != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(syncErr)));
+    } else {
+      context.read<CloudSyncService>().triggerSync();
+    }
+  }
+
+  Future<void> _confirmDelete(
+    BuildContext context,
+    ChatRepository repo,
+    ChatMessage msg,
+  ) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Xabar o‘chirilsinmi?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Bekor')),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('O‘chirish'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !context.mounted) return;
+    final syncErr = await repo.deleteMessage(msg.id);
+    if (!context.mounted) return;
+    if (syncErr != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(syncErr)));
+    } else {
+      context.read<CloudSyncService>().triggerSync();
+    }
+  }
+
+  Widget _buildMessageBubble(
+    BuildContext context,
+    ChatRepository chatRepo,
+    ChatMessage msg,
+    bool isMe,
+    bool isDark,
+    Color primary,
+  ) {
     final mediaPath = msg.mediaPath;
     final hasRemoteMedia = mediaPath != null && mediaPath.startsWith('http');
     final hasLocalMedia = mediaPath != null && !hasRemoteMedia && File(mediaPath).existsSync();
+    final canEdit = isMe && msg.messageType == 'text';
+    final canDelete = isMe;
 
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
+      child: GestureDetector(
+        onLongPress: canDelete
+            ? () {
+                showModalBottomSheet<void>(
+                  context: context,
+                  showDragHandle: true,
+                  builder: (ctx) => SafeArea(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (canEdit)
+                          ListTile(
+                            leading: const Icon(Icons.edit_outlined),
+                            title: const Text('Tahrirlash'),
+                            onTap: () {
+                              Navigator.pop(ctx);
+                              _showEditDialog(context, chatRepo, msg);
+                            },
+                          ),
+                        ListTile(
+                          leading: Icon(Icons.delete_outline, color: Colors.red.shade700),
+                          title: Text('O‘chirish', style: TextStyle(color: Colors.red.shade700)),
+                          onTap: () {
+                            Navigator.pop(ctx);
+                            _confirmDelete(context, chatRepo, msg);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+            : null,
+        child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(12),
         constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
@@ -211,6 +316,17 @@ class _ChatScreenState extends State<ChatScreen> {
                     color: isMe ? Colors.white70 : Colors.grey,
                   ),
                 ),
+                if (msg.editedAt != null) ...[
+                  const SizedBox(width: 6),
+                  Text(
+                    'tahrirlandi',
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontStyle: FontStyle.italic,
+                      color: isMe ? Colors.white54 : Colors.grey,
+                    ),
+                  ),
+                ],
                 if (isMe) ...[
                   const SizedBox(width: 4),
                   if (msg.status == 'pending')
@@ -223,6 +339,7 @@ class _ChatScreenState extends State<ChatScreen> {
               ],
             ),
           ],
+        ),
         ),
       ),
     );

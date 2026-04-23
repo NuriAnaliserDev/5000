@@ -1,5 +1,6 @@
 package com.example.geofield_pro_flutter
 
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 
-class MainActivity : FlutterActivity()
+// Biometriya (local_auth) uchun FragmentActivity.
+class MainActivity : FlutterFragmentActivity()

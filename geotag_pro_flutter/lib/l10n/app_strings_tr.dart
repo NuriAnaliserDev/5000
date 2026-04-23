@@ -377,7 +377,7 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get edit_project => 'Projeyi Düzenle';
 
   @override
-  String get expert_mode => 'Uzman Modu';
+  String get expert_mode => 'Profesyonel mod';
 
   @override
   String get export_csv => 'CSV Dışa Aktar';

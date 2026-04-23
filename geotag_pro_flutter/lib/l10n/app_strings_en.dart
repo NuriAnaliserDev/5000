@@ -376,7 +376,7 @@ class GeoFieldStringsEn extends GeoFieldStrings {
   String get edit_project => 'Edit Project';
 
   @override
-  String get expert_mode => 'Expert Mode';
+  String get expert_mode => 'Professional mode';
 
   @override
   String get export_csv => 'Export CSV';

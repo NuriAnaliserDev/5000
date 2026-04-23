@@ -805,7 +805,7 @@ abstract class GeoFieldStrings {
   /// No description provided for @expert_mode.
   ///
   /// In en, this message translates to:
-  /// **'Expert Mode'**
+  /// **'Professional mode'**
   String get expert_mode;
 
   /// No description provided for @export_csv.

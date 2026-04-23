@@ -37,6 +37,10 @@ class ChatMessage extends HiveObject {
   @HiveField(10)
   double? lng;
 
+  /// So‘nggi tahrir vaqti (bulut bilan sinxron).
+  @HiveField(11)
+  DateTime? editedAt;
+
   ChatMessage({
     required this.id,
     required this.groupId,
@@ -49,5 +53,6 @@ class ChatMessage extends HiveObject {
     this.mediaPath,
     this.lat,
     this.lng,
+    this.editedAt,
   });
 }

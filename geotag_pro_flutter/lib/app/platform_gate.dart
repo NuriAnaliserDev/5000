@@ -1,6 +1,5 @@
-import 'dart:io' show Platform;
-
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, kIsWeb, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,10 +10,14 @@ import '../screens/web/web_dashboard_main.dart';
 import '../screens/web/web_login_screen.dart';
 import '../services/auth_service.dart';
 
-/// Platformaga qarab asosiy ekranni tanlaydi:
-/// * Web → [WebDashboardMain] (agar autentifikatsiyadan o‘tgan bo‘lsa).
-/// * Windows / macOS / Linux → [DesktopShell].
-/// * Android / iOS → [DashboardScreen] (mobil).
+bool _isDesktopExe() {
+  if (kIsWeb) return false;
+  return defaultTargetPlatform == TargetPlatform.windows ||
+      defaultTargetPlatform == TargetPlatform.macOS ||
+      defaultTargetPlatform == TargetPlatform.linux;
+}
+
+/// Web: dashboard login. Desktop (.exe): [DesktopShell]. Mobil: [DashboardScreen].
 class PlatformGate extends StatelessWidget {
   const PlatformGate({super.key});
 
@@ -27,7 +30,7 @@ class PlatformGate extends StatelessWidget {
           : const WebLoginScreen();
     }
 
-    if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+    if (_isDesktopExe()) {
       final auth = context.watch<AuthService>();
       return auth.isAuthenticated
           ? const DesktopShell()
