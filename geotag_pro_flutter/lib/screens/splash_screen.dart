@@ -5,6 +5,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../app/app_router.dart';
+import '../services/auth_service.dart';
 import '../services/hive_db.dart';
 import '../services/settings_controller.dart';
 import '../utils/wmm/wmm_model.dart';
@@ -94,8 +95,16 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void _goNext() {
     final settings = context.read<SettingsController>();
-    if (settings.currentUserRole == null) {
-      settings.login('Bosh Geolog', 'Admin User');
+    final auth = context.read<AuthService>();
+    final user = auth.currentUser;
+    if (user != null) {
+      final name = user.email?.split('@').first ??
+          user.displayName ??
+          'User';
+      if (settings.currentUserName != name ||
+          settings.currentUserRole == null) {
+        settings.login('Geologist', name);
+      }
     }
     if (settings.isFirstRun) {
       Navigator.pushReplacementNamed(context, AppRouter.onboarding);

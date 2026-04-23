@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
@@ -152,8 +153,9 @@ class ChatRepository extends ChangeNotifier {
     double? lng,
   }) async {
     final uuid = const Uuid().v4();
+    final uid = FirebaseAuth.instance.currentUser?.uid;
     final senderName = settingsController.currentUserName ?? 'Noma\'lum';
-    final senderId = settingsController.currentUserName ?? 'anon';
+    final senderId = uid ?? 'pending_auth';
     final message = ChatMessage(
       id: uuid,
       groupId: groupId,

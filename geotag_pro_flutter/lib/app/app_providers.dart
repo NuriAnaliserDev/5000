@@ -16,12 +16,12 @@ import '../services/station_repository.dart';
 import '../services/theme_controller.dart';
 import '../services/track_service.dart';
 
-/// [main.dart] dagi [MultiProvider] ro'yxati — reja: keraksiz
-/// sinflar dastur boshida yaratilmasin ([lazy]).
+/// [main.dart] dagi [MultiProvider]. [CloudSyncService] va boshqa og‘ir
+/// servislar [lazy: true] — faqat kerak bo‘lganda yuklanadi.
 List<SingleChildWidget> buildAppChangeNotifierProviders() {
   return [
     ChangeNotifierProvider<CloudSyncService>(
-      lazy: false,
+      lazy: true,
       create: (ctx) {
         final service = CloudSyncService();
         service.init();

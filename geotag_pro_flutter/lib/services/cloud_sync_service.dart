@@ -285,7 +285,7 @@ class CloudSyncService extends ChangeNotifier {
           .set({
         'id': msg.id,
         'groupId': msg.groupId,
-        'senderId': msg.senderId,
+        'senderId': uid,
         'senderName': msg.senderName,
         'text': msg.text,
         'timestamp': msg.timestamp.toIso8601String(),

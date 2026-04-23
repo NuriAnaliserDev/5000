@@ -32,8 +32,8 @@ jobs:
       - name: Analyze
         run: flutter analyze --no-fatal-infos
 
-      - name: Generate l10n (soft)
-        run: flutter gen-l10n || true
+      - name: Generate l10n
+        run: flutter gen-l10n
 
       - name: Run tests
         run: flutter test --coverage
@@ -68,4 +68,4 @@ jobs:
         run: flutter pub get
 
       - name: Build debug APK
-        run: flutter build apk --debug || true
+        run: flutter build apk --debug

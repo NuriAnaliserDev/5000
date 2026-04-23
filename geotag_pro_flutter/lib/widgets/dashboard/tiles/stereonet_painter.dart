@@ -171,11 +171,11 @@ class StereonetPainter extends CustomPainter {
     canvas.drawLine(Offset(cx - r, cy), Offset(cx + r, cy), gridPaint);
     canvas.drawLine(Offset(cx, cy - r), Offset(cx, cy + r), gridPaint);
 
-    // Angle Ticks (every 10 degrees, larger at 90)
+    // Azimut chiziqlari: har 5° (oldingi 2° — 180 ta chiziq, UI thread uchun og‘ir edi).
     final tickPaint = Paint()
       ..color = (isDark ? Colors.white : Colors.black).withValues(alpha: 0.3)
       ..strokeWidth = 1.0;
-    for (int i = 0; i < 360; i += 2) {
+    for (int i = 0; i < 360; i += 5) {
       final angle = (i - 90) * math.pi / 180;
       final outerX = cx + r * math.cos(angle);
       final outerY = cy + r * math.sin(angle);

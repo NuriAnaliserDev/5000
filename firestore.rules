@@ -62,13 +62,30 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    match /groups/{groupId} {
-      allow read, write: if isAuthed();
+    // Ilova kodida kolleksiya nomi: chat_groups
+    match /chat_groups/{groupId} {
+      allow read: if isAuthed();
+      allow create, update, delete: if isAuthed();
 
       match /messages/{msgId} {
-        allow read, create: if isAuthed();
+        allow read: if isAuthed();
+        allow create: if isAuthed()
+          && request.resource.data.senderId == request.auth.uid;
         allow update, delete: if isAuthed()
-          && resource.data.senderUid == request.auth.uid;
+          && resource.data.senderId == request.auth.uid;
+      }
+    }
+
+    match /groups/{groupId} {
+      allow read: if isAuthed();
+      allow create, update, delete: if isAuthed();
+
+      match /messages/{msgId} {
+        allow read: if isAuthed();
+        allow create: if isAuthed()
+          && request.resource.data.senderId == request.auth.uid;
+        allow update, delete: if isAuthed()
+          && resource.data.senderId == request.auth.uid;
       }
     }
 

@@ -68,6 +68,9 @@ class AuthService extends ChangeNotifier {
 
   Future<void> logout() async {
     await _auth.signOut();
+    final box = Hive.box(HiveDb.settingsBox);
+    box.delete('currentUserName');
+    box.delete('currentUserRole');
     notifyListeners();
   }
 
