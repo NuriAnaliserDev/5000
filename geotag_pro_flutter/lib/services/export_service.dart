@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import '../models/station.dart';
 import '../models/track_data.dart';
 import 'export/dxf_writer.dart';
+import 'export/shapefile_writer.dart';
 
 /// Yagona eksport fasadi: CSV/GeoJSON/KML/GPX/DXF.
 ///
