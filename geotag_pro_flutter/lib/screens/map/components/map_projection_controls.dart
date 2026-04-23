@@ -26,9 +26,11 @@ class MapProjectionControls extends StatelessWidget {
           child: FloatingActionButton(
             mini: true,
             heroTag: 'projToggle',
-            backgroundColor: showProjections ? Colors.green.shade700 : Colors.white,
-            child: Icon(Icons.layers_outlined, color: showProjections ? Colors.white : Colors.black87),
+            backgroundColor:
+                showProjections ? Colors.green.shade700 : Colors.white,
             onPressed: onToggleProjections,
+            child: Icon(Icons.layers_outlined,
+                color: showProjections ? Colors.white : Colors.black87),
           ),
         ),
         if (showProjections)
@@ -43,15 +45,20 @@ class MapProjectionControls extends StatelessWidget {
               borderRadius: 16,
               child: Row(
                 children: [
-                  const Icon(Icons.arrow_downward, color: Colors.greenAccent, size: 16),
+                  const Icon(Icons.arrow_downward,
+                      color: Colors.greenAccent, size: 16),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('${context.loc('projection_depth')}: ${projectionDepth.toInt()} m',
-                            style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                        Text(
+                            '${context.loc('projection_depth')}: ${projectionDepth.toInt()} m',
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold)),
                         Slider(
                           value: projectionDepth,
                           min: 0,

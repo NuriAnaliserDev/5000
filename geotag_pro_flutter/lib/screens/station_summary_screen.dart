@@ -36,7 +36,7 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
   String _subRockType = 'Granit';
   String _measurementType = 'bedding';
   String _subMeasurementType = 'inclined';
-  
+
   late final TextEditingController _descriptionController;
   late final TextEditingController _rockTypeController;
   final AudioPlayer _audioPlayer = AudioPlayer();
@@ -55,10 +55,17 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
   int _confidence = 5;
   String _munsellColor = 'N 8';
   List<Measurement> _measurements = [];
-  bool _isAiLoading = false;
+  final bool _isAiLoading = false;
   String _coordinateFormat = 'DD';
 
-  final List<String> _measurementTypes = ['bedding', 'cleavage', 'lineation', 'joint', 'contact', 'other'];
+  final List<String> _measurementTypes = [
+    'bedding',
+    'cleavage',
+    'lineation',
+    'joint',
+    'contact',
+    'other'
+  ];
 
   @override
   void initState() {
@@ -83,7 +90,8 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
 
     _strikeController.addListener(() {
       final s = double.tryParse(_strikeController.text);
-      if (s != null) _dipDirectionController.text = ((s + 90) % 360).toStringAsFixed(0);
+      if (s != null)
+        _dipDirectionController.text = ((s + 90) % 360).toStringAsFixed(0);
     });
   }
 
@@ -128,14 +136,16 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
       _strikeController.text = _station!.strike.toStringAsFixed(0);
       _dipController.text = _station!.dip.toStringAsFixed(0);
       _azimuthController.text = _station!.azimuth.toStringAsFixed(0);
-      _dipDirectionController.text = _station!.dipDirection?.toStringAsFixed(0) ?? '';
+      _dipDirectionController.text =
+          _station!.dipDirection?.toStringAsFixed(0) ?? '';
       _sampleIdController.text = _station!.sampleId ?? '';
       _sampleTypeController.text = _station!.sampleType ?? '';
       _confidence = _station!.confidence ?? 5;
       _munsellColor = _station!.munsellColor ?? 'N 8';
       _measurementType = _station!.measurementType ?? _measurementTypes.first;
       _subMeasurementType = _station!.subMeasurementType ?? 'inclined';
-      _measurements = (_station!.measurements ?? []).cast<Measurement>().toList();
+      _measurements =
+          (_station!.measurements ?? []).cast<Measurement>().toList();
     }
   }
 
@@ -167,9 +177,10 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
     final repo = context.read<StationRepository>();
     final parsedLat = double.tryParse(_latController.text.replaceAll(',', '.'));
     final parsedLng = double.tryParse(_lngController.text.replaceAll(',', '.'));
-    
+
     if (parsedLat == null || parsedLng == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.locRead('lat_lon_error'))));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.locRead('lat_lon_error'))));
       return false;
     }
 
@@ -193,7 +204,8 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
       measurements: _measurements,
     );
 
-    await repo.updateStation(_station!.key, updated, author: context.read<SettingsController>().currentUserName);
+    await repo.updateStation(_station!.key, updated,
+        author: context.read<SettingsController>().currentUserName);
     return true;
   }
 
@@ -204,9 +216,11 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
         _latController.text = pos.latitude.toStringAsFixed(6);
         _lngController.text = pos.longitude.toStringAsFixed(6);
       });
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.locRead('success_saved'))));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.locRead('success_saved'))));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('GPS xatosi: $e')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('GPS xatosi: $e')));
     }
   }
 
@@ -216,17 +230,31 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
     if (picked != null) {
       final paths = (_station!.photoPaths ?? []).toList()..add(picked.path);
       final updated = _station!.copyWith(photoPaths: paths);
-      await context.read<StationRepository>().updateStation(_station!.key, updated, author: context.read<SettingsController>().currentUserName);
+      await context.read<StationRepository>().updateStation(
+          _station!.key, updated,
+          author: context.read<SettingsController>().currentUserName);
       setState(() => _station = updated);
     }
   }
 
   Future<void> _deletePhoto(String path) async {
-    final ok = await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(title: Text(context.locRead('delete_photo')), actions: [TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(context.locRead('cancel'))), TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(context.locRead('delete')))]));
+    final ok = await showDialog<bool>(
+        context: context,
+        builder: (ctx) =>
+            AlertDialog(title: Text(context.locRead('delete_photo')), actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: Text(context.locRead('cancel'))),
+              TextButton(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  child: Text(context.locRead('delete')))
+            ]));
     if (ok != true) return;
     final paths = (_station!.photoPaths ?? []).toList()..remove(path);
     final updated = _station!.copyWith(photoPaths: paths);
-    await context.read<StationRepository>().updateStation(_station!.key, updated, author: context.read<SettingsController>().currentUserName);
+    await context.read<StationRepository>().updateStation(
+        _station!.key, updated,
+        author: context.read<SettingsController>().currentUserName);
     setState(() => _station = updated);
   }
 
@@ -289,13 +317,18 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
         station: _station,
         onSave: _save,
         onMenuAction: (val) {
-          if (val == 'pdf' && _station != null) PdfExportService.generateStationReport(_station!).then((file) => Share.shareXFiles([XFile(file.path)]));
+          if (val == 'pdf' && _station != null)
+            PdfExportService.generateStationReport(_station!)
+                .then((file) => Share.shareXFiles([XFile(file.path)]));
           if (val == 'delete' && _station != null) _confirmDelete();
         },
       ),
       body: Column(
         children: [
-          StationMapHeader(station: _station, currentStyle: context.watch<SettingsController>().mapStyle, tileProvider: _tileProvider),
+          StationMapHeader(
+              station: _station,
+              currentStyle: context.watch<SettingsController>().mapStyle,
+              tileProvider: _tileProvider),
           Expanded(
             child: StationFormBody(
               station: _station,
@@ -320,20 +353,28 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
               isAiLoading: _isAiLoading,
               isPlaying: _isPlaying,
               coordinateFormat: _coordinateFormat,
-              onRockTypeChanged: (v) => setState(() => _rockType = v ?? 'Magmatik'),
-              onSubRockTypeChanged: (v) => setState(() => _subRockType = v ?? ''),
+              onRockTypeChanged: (v) =>
+                  setState(() => _rockType = v ?? 'Magmatik'),
+              onSubRockTypeChanged: (v) =>
+                  setState(() => _subRockType = v ?? ''),
               onAiAnalyze: () {},
               onConfidenceChanged: (v) => setState(() => _confidence = v),
               onPickMunsell: _showMunsellPicker,
-              onMeasurementTypeChanged: (v) => setState(() => _measurementType = v ?? 'bedding'),
-              onSubMeasurementTypeChanged: (v) => setState(() => _subMeasurementType = v ?? 'inclined'),
+              onMeasurementTypeChanged: (v) =>
+                  setState(() => _measurementType = v ?? 'bedding'),
+              onSubMeasurementTypeChanged: (v) =>
+                  setState(() => _subMeasurementType = v ?? 'inclined'),
               onUpdateGps: _updateGps,
-              onCoordinateFormatChanged: (v) => setState(() => _coordinateFormat = v),
-              onAddCamera: () => Navigator.of(context).pushNamed('/camera', arguments: _station?.key),
+              onCoordinateFormatChanged: (v) =>
+                  setState(() => _coordinateFormat = v),
+              onAddCamera: () => Navigator.of(context)
+                  .pushNamed('/camera', arguments: _station?.key),
               onAddGallery: _pickFromGallery,
               onDeletePhoto: _deletePhoto,
-              onViewPhoto: (p) => Navigator.of(context).pushNamed('/painter', arguments: p),
-              onOpenPainter: (p) => Navigator.of(context).pushNamed('/painter', arguments: p),
+              onViewPhoto: (p) =>
+                  Navigator.of(context).pushNamed('/painter', arguments: p),
+              onOpenPainter: (p) =>
+                  Navigator.of(context).pushNamed('/painter', arguments: p),
               onPlayAudio: _playAudio,
             ),
           ),
@@ -343,7 +384,17 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
   }
 
   void _confirmDelete() async {
-    final ok = await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(title: Text(context.locRead('delete')), actions: [TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(context.locRead('cancel'))), TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(context.locRead('delete')))]));
+    final ok = await showDialog<bool>(
+        context: context,
+        builder: (ctx) =>
+            AlertDialog(title: Text(context.locRead('delete')), actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: Text(context.locRead('cancel'))),
+              TextButton(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  child: Text(context.locRead('delete')))
+            ]));
     if (ok == true) {
       await context.read<StationRepository>().deleteStation(_station!.key);
       if (mounted) Navigator.pop(context);

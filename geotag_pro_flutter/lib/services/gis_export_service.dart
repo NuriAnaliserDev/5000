@@ -188,7 +188,7 @@ class GisExportService {
         text: 'GeoField Pro N - Barcha geologik nuqta, chiziq va marshrutlar (DXF va GeoJSON formadida)',
       );
     } catch (e) {
-      debugPrint('GIS Export error: \$e');
+      debugPrint('GIS Export error: $e');
       rethrow;
     }
   }

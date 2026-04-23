@@ -25,12 +25,14 @@ class CloudSyncService extends ChangeNotifier {
 
   // Initialize background connectivity listener
   void init() {
-    _connectivitySubscription =
-        Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) async {
+    _connectivitySubscription = Connectivity()
+        .onConnectivityChanged
+        .listen((List<ConnectivityResult> results) async {
       if (results.contains(ConnectivityResult.mobile) ||
           results.contains(ConnectivityResult.wifi)) {
         if (await hasRealInternet()) {
-          debugPrint('Haqiqiy internet aniqlandi: Sinxronizatsiya boshlandi...');
+          debugPrint(
+              'Haqiqiy internet aniqlandi: Sinxronizatsiya boshlandi...');
           await _processSyncQueue();
         }
       }
@@ -73,7 +75,6 @@ class CloudSyncService extends ChangeNotifier {
     }
   }
 
-
   @override
   void dispose() {
     _connectivitySubscription?.cancel();
@@ -85,7 +86,8 @@ class CloudSyncService extends ChangeNotifier {
   Future<void> _processSyncQueue() async {
     // Auth bo'lmagan holda sinxronlash xavfli
     if (_currentUserId == null) {
-      debugPrint('SyncQueue: foydalanuvchi autentifikatsiya qilinmagan, o\'tkazib yuborildi.');
+      debugPrint(
+          'SyncQueue: foydalanuvchi autentifikatsiya qilinmagan, o\'tkazib yuborildi.');
       return;
     }
 
@@ -120,7 +122,8 @@ class CloudSyncService extends ChangeNotifier {
 
       // Chat Queue (Pending Messages)
       final chatBox = Hive.box<ChatMessage>(HiveDb.chatMessagesBox);
-      final pendingChats = chatBox.values.where((m) => m.status == 'pending').toList();
+      final pendingChats =
+          chatBox.values.where((m) => m.status == 'pending').toList();
       for (var msg in pendingChats) {
         await _syncPendingChatDirectly(msg);
       }
@@ -150,8 +153,11 @@ class CloudSyncService extends ChangeNotifier {
       List<String> remotePhotoUrls = [];
 
       // Upload single legacy photo if exists
-      if (station.photoPath != null && !kIsWeb && File(station.photoPath!).existsSync()) {
-        final ref = _storage.ref().child('users/$uid/stations/$key/main_photo.jpg');
+      if (station.photoPath != null &&
+          !kIsWeb &&
+          File(station.photoPath!).existsSync()) {
+        final ref =
+            _storage.ref().child('users/$uid/stations/$key/main_photo.jpg');
         await ref.putFile(File(station.photoPath!));
         remotePhotoUrl = await ref.getDownloadURL();
       }
@@ -161,7 +167,8 @@ class CloudSyncService extends ChangeNotifier {
         for (int i = 0; i < station.photoPaths!.length; i++) {
           final path = station.photoPaths![i];
           if (!kIsWeb && File(path).existsSync()) {
-            final ref = _storage.ref().child('users/$uid/stations/$key/photo_$i.jpg');
+            final ref =
+                _storage.ref().child('users/$uid/stations/$key/photo_$i.jpg');
             await ref.putFile(File(path));
             final url = await ref.getDownloadURL();
             remotePhotoUrls.add(url);
@@ -170,8 +177,11 @@ class CloudSyncService extends ChangeNotifier {
       }
 
       // Upload audio
-      if (station.audioPath != null && !kIsWeb && File(station.audioPath!).existsSync()) {
-        final ref = _storage.ref().child('users/$uid/stations/$key/audio_note.m4a');
+      if (station.audioPath != null &&
+          !kIsWeb &&
+          File(station.audioPath!).existsSync()) {
+        final ref =
+            _storage.ref().child('users/$uid/stations/$key/audio_note.m4a');
         await ref.putFile(File(station.audioPath!));
         remoteAudioUrl = await ref.getDownloadURL();
       }
@@ -258,7 +268,9 @@ class CloudSyncService extends ChangeNotifier {
       String? remoteMediaUrl;
 
       // Upload media if exists
-      if (msg.mediaPath != null && !kIsWeb && File(msg.mediaPath!).existsSync()) {
+      if (msg.mediaPath != null &&
+          !kIsWeb &&
+          File(msg.mediaPath!).existsSync()) {
         final file = File(msg.mediaPath!);
         final ref = _storage.ref().child('chats/${msg.groupId}/${msg.id}');
         await ref.putFile(file);
@@ -328,7 +340,8 @@ class CloudSyncService extends ChangeNotifier {
   Future<void> clearUserStations() async {
     final uid = _currentUserId;
     if (uid == null) {
-      debugPrint('clearUserStations: foydalanuvchi login qilmagan, operatsiya bekor qilindi.');
+      debugPrint(
+          'clearUserStations: foydalanuvchi login qilmagan, operatsiya bekor qilindi.');
       return;
     }
 
@@ -345,7 +358,8 @@ class CloudSyncService extends ChangeNotifier {
       }
       await batch.commit();
       Hive.box(HiveDb.syncStateBox).clear();
-      debugPrint('clearUserStations: ${snapshot.docs.length} stansiya o\'chirildi (uid: $uid).');
+      debugPrint(
+          'clearUserStations: ${snapshot.docs.length} stansiya o\'chirildi (uid: $uid).');
     } catch (e) {
       debugPrint('clearUserStations fail: $e');
     }
@@ -398,7 +412,7 @@ class CloudSyncService extends ChangeNotifier {
     final action = dryRun ? '[DRY RUN]' : '';
     if (purgedCount > 0) {
       debugPrint(
-        'SmartPurge$action: $purgedCount yozuv ${thresholdDays}-kunlik chegaradan o\'tgan.',
+        'SmartPurge$action: $purgedCount yozuv $thresholdDays-kunlik chegaradan o\'tgan.',
       );
     }
     return purgedCount;

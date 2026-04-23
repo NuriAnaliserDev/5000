@@ -43,7 +43,8 @@ class SmartCameraScreen extends StatefulWidget {
   State<SmartCameraScreen> createState() => _SmartCameraScreenState();
 }
 
-class _SmartCameraScreenState extends State<SmartCameraScreen> with WidgetsBindingObserver, SingleTickerProviderStateMixin {
+class _SmartCameraScreenState extends State<SmartCameraScreen>
+    with WidgetsBindingObserver, SingleTickerProviderStateMixin {
   CameraController? _cameraController;
   Future<void>? _cameraInitFuture;
 
@@ -56,7 +57,7 @@ class _SmartCameraScreenState extends State<SmartCameraScreen> with WidgetsBindi
   double _pitch = 0;
   double _roll = 0;
   double? _headingDeg;
-  
+
   StreamSubscription<MagnetometerEvent>? _magSub;
   StreamSubscription<CompassEvent>? _compassSub;
   MagnetometerEvent? _mag;
@@ -80,16 +81,16 @@ class _SmartCameraScreenState extends State<SmartCameraScreen> with WidgetsBindi
   double? _lastAccuracy;
   int _compassQuality = 100;
   bool _wasLeveled = false;
-  bool _miniCalibrationDismissed = false;
+  final bool _miniCalibrationDismissed = false;
 
   // Tutorial Keys
   final GlobalKey _sensorLockButtonKey = GlobalKey();
   final GlobalKey _modeToggleKey = GlobalKey();
   final GlobalKey _shutterButtonKey = GlobalKey();
   final GlobalKey _menuButtonKey = GlobalKey();
-  
+
   CameraMode _cameraMode = CameraMode.geological;
-  
+
   late AnimationController _menuController;
   late Animation<double> _menuAnimation;
 
@@ -98,9 +99,9 @@ class _SmartCameraScreenState extends State<SmartCameraScreen> with WidgetsBindi
   Color get textColor => Colors.white; // Always white for camera HUD
   Color get subTextColor => Colors.white70;
   List<Shadow> get textShadows => [
-    const Shadow(color: Colors.black, blurRadius: 4, offset: Offset(1, 1)),
-    const Shadow(color: Colors.black, blurRadius: 10),
-  ];
+        const Shadow(color: Colors.black, blurRadius: 4, offset: Offset(1, 1)),
+        const Shadow(color: Colors.black, blurRadius: 10),
+      ];
   Color get glassColor => Colors.black.withValues(alpha: 0.5);
   Color get glassBorder => Colors.white.withValues(alpha: 0.2);
 
@@ -113,7 +114,7 @@ class _SmartCameraScreenState extends State<SmartCameraScreen> with WidgetsBindi
     final settings = context.read<SettingsController>();
     _showCalibrationHint = !settings.hasDismissedCalibration;
     _expertMode = settings.expertMode;
-    
+
     _menuController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
@@ -138,19 +139,22 @@ class _SmartCameraScreenState extends State<SmartCameraScreen> with WidgetsBindi
         key: _modeToggleKey,
         identify: "mode_toggle",
         title: "Kamera Rejimi",
-        description: "Geologik o'lchovlar va Hujjatlarni skanerlash rejimi orasida almashing.",
+        description:
+            "Geologik o'lchovlar va Hujjatlarni skanerlash rejimi orasida almashing.",
       ),
       TutorialService.createTarget(
         key: _sensorLockButtonKey,
         identify: "sensor_lock",
         title: "Sensor Lock",
-        description: "O'lchovlarni muzlatish va tahlil qilish uchun foydalaning.",
+        description:
+            "O'lchovlarni muzlatish va tahlil qilish uchun foydalaning.",
       ),
       TutorialService.createTarget(
         key: _shutterButtonKey,
         identify: "shutter",
         title: "Capture & AI",
-        description: "Rasmga oling va avtomatik AI tahlilini (Lithology) ishga tushiring.",
+        description:
+            "Rasmga oling va avtomatik AI tahlilini (Lithology) ishga tushiring.",
         align: ContentAlign.top,
       ),
     ];
@@ -181,7 +185,8 @@ class _SmartCameraScreenState extends State<SmartCameraScreen> with WidgetsBindi
       return;
     }
 
-    if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused) {
       _cameraController?.dispose();
       _cameraInitFuture = null;
       _stopSensors();
@@ -229,12 +234,17 @@ class _SmartCameraScreenState extends State<SmartCameraScreen> with WidgetsBindi
       final acc = event.accuracy;
       if (acc != null) {
         final bool isGoodNow = acc > 0 && acc < 15;
-        final bool wasBadBefore = _lastAccuracy == null || _lastAccuracy! <= 0 || _lastAccuracy! >= 15;
-        if (isGoodNow && wasBadBefore && _showCalibrationHint && !_miniCalibrationDismissed) {
+        final bool wasBadBefore = _lastAccuracy == null ||
+            _lastAccuracy! <= 0 ||
+            _lastAccuracy! >= 15;
+        if (isGoodNow &&
+            wasBadBefore &&
+            _showCalibrationHint &&
+            !_miniCalibrationDismissed) {
           HapticFeedback.mediumImpact();
         }
         _lastAccuracy = acc;
-        
+
         // Calculate Compass Quality (0-100%)
         double q = 1.0 - (acc / 45.0);
         _compassQuality = (q.clamp(0.0, 1.0) * 100).toInt();
@@ -373,9 +383,11 @@ class _SmartCameraScreenState extends State<SmartCameraScreen> with WidgetsBindi
         return;
       }
       final dir = await getApplicationDocumentsDirectory();
-      final exportDir = Directory('${dir.path}${Platform.pathSeparator}recordings');
+      final exportDir =
+          Directory('${dir.path}${Platform.pathSeparator}recordings');
       if (!await exportDir.exists()) await exportDir.create(recursive: true);
-      final outPath = '${exportDir.path}${Platform.pathSeparator}geofield_note_${DateTime.now().millisecondsSinceEpoch}.m4a';
+      final outPath =
+          '${exportDir.path}${Platform.pathSeparator}geofield_note_${DateTime.now().millisecondsSinceEpoch}.m4a';
       await _recorder.start(const RecordConfig(), path: outPath);
       if (mounted) {
         setState(() {
@@ -415,46 +427,52 @@ class _SmartCameraScreenState extends State<SmartCameraScreen> with WidgetsBindi
       final settings = context.read<SettingsController>();
       await _cameraInitFuture;
       XFile file = await _cameraController!.takePicture();
-      
+
       if (_cameraMode == CameraMode.document) {
         if (!mounted) return;
-        Navigator.of(context).pushNamed('/auto-table-review', arguments: file.path);
+        Navigator.of(context)
+            .pushNamed('/auto-table-review', arguments: file.path);
         return;
       }
 
-      if (_showScale) file = await ImageUtils.burnScaleBar(
-        path: file.path,
-        pixelsPerMm: settings.pixelsPerMm,
-      );
+      if (_showScale) {
+        file = await ImageUtils.burnScaleBar(
+          path: file.path,
+          pixelsPerMm: settings.pixelsPerMm,
+        );
+      }
       if (_isRecording) {
         final path = await _recorder.stop();
         _audioPath = path;
         _isRecording = false;
       }
-      
+
       if (!mounted) return;
       final repo = context.read<StationRepository>();
 
       if (widget.stationId != null) {
         final st = repo.getById(widget.stationId!);
         if (st == null) throw StateError('Stansiya topilmadi');
-        final existing = st.photoPaths ?? (st.photoPath != null ? [st.photoPath!] : []);
+        final existing =
+            st.photoPaths ?? (st.photoPath != null ? [st.photoPath!] : []);
         final updatedPhotos = [...existing, file.path];
         final updated = st.copyWith(photoPaths: updatedPhotos);
         await repo.updateStation(
-          widget.stationId!, 
+          widget.stationId!,
           updated,
           author: settings.currentUserName,
         );
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.locRead('photo_added')), behavior: SnackBarBehavior.floating));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(context.locRead('photo_added')),
+            behavior: SnackBarBehavior.floating));
         Navigator.of(context).pop();
         return;
       }
 
       final locService = context.read<LocationService>();
       final pos = locService.currentPosition;
-      
+
       if (pos == null || (pos.latitude == 0.0 && pos.longitude == 0.0)) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -469,13 +487,15 @@ class _SmartCameraScreenState extends State<SmartCameraScreen> with WidgetsBindi
       }
 
       final now = DateTime.now();
-      final datePart = '${now.year}${now.month.toString().padLeft(2,'0')}${now.day.toString().padLeft(2,'0')}';
-      final seqPart = (now.millisecondsSinceEpoch % 1000).toString().padLeft(3, '0');
+      final datePart =
+          '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
+      final seqPart =
+          (now.millisecondsSinceEpoch % 1000).toString().padLeft(3, '0');
       final projectCode = (settings.currentProject.length >= 3
           ? settings.currentProject.substring(0, 3).toUpperCase()
           : settings.currentProject.toUpperCase());
       final stationName = '$projectCode-$datePart-$seqPart';
-      
+
       final station = Station(
         name: stationName,
         lat: pos.latitude,
@@ -485,7 +505,7 @@ class _SmartCameraScreenState extends State<SmartCameraScreen> with WidgetsBindi
         dip: _dip,
         azimuth: _azimuth,
         date: DateTime.now(),
-        photoPath: file.path, 
+        photoPath: file.path,
         audioPath: _audioPath,
         accuracy: pos.accuracy,
         photoPaths: [file.path],
@@ -496,13 +516,17 @@ class _SmartCameraScreenState extends State<SmartCameraScreen> with WidgetsBindi
         authorRole: settings.currentUserRole,
       );
       final id = await repo.addStation(station);
-      
+
       if (!mounted) return;
       context.read<TrackService>().recordStationSaved();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.locRead('station_saved')), behavior: SnackBarBehavior.floating));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(context.locRead('station_saved')),
+          behavior: SnackBarBehavior.floating));
       Navigator.of(context).pushReplacementNamed('/station', arguments: id);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${context.locRead('camera_error')}: $e')));
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('${context.locRead('camera_error')}: $e')));
     } finally {
       if (mounted) setState(() => _isBusy = false);
     }
@@ -541,7 +565,8 @@ class _SmartCameraScreenState extends State<SmartCameraScreen> with WidgetsBindi
                   isDark: isDark,
                   glassBorder: glassBorder,
                   textColor: textColor,
-                  onShowCalibration: () => setState(() => _showCalibrationHint = true),
+                  onShowCalibration: () =>
+                      setState(() => _showCalibrationHint = true),
                 ),
                 CameraHeadingHud(
                   azimuth: _azimuth,
@@ -570,7 +595,8 @@ class _SmartCameraScreenState extends State<SmartCameraScreen> with WidgetsBindi
               glassBorder: glassBorder,
               textColor: textColor,
               onShowScaleChanged: (v) => setState(() => _showScale = v),
-              onHighSenseChanged: (v) => setState(() => _highSensitivityHorizon = v),
+              onHighSenseChanged: (v) =>
+                  setState(() => _highSensitivityHorizon = v),
               onExpertModeChanged: (v) {
                 context.read<SettingsController>().expertMode = v;
                 setState(() => _expertMode = v);
@@ -603,7 +629,8 @@ class _SmartCameraScreenState extends State<SmartCameraScreen> with WidgetsBindi
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(context.locRead('compass_unreliable_warn')),
-                      backgroundColor: StatusSemantics.colorFor(StatusLevel.danger),
+                      backgroundColor:
+                          StatusSemantics.colorFor(StatusLevel.danger),
                     ),
                   );
                   HapticFeedback.heavyImpact();
@@ -614,10 +641,14 @@ class _SmartCameraScreenState extends State<SmartCameraScreen> with WidgetsBindi
               formatDuration: _formatRecordDuration,
               shutterButtonKey: _shutterButtonKey,
             ),
-            if (_showScale && _cameraMode == CameraMode.geological) const CameraRulerOverlay(),
-            if (_showCalibrationHint && _showHud && _cameraMode == CameraMode.geological) 
+            if (_showScale && _cameraMode == CameraMode.geological)
+              const CameraRulerOverlay(),
+            if (_showCalibrationHint &&
+                _showHud &&
+                _cameraMode == CameraMode.geological)
               CameraCalibrationOverlay(onConfirm: () {
-                context.read<SettingsController>().hasDismissedCalibration = true;
+                context.read<SettingsController>().hasDismissedCalibration =
+                    true;
                 setState(() => _showCalibrationHint = false);
                 HapticFeedback.heavyImpact();
               }),
@@ -628,18 +659,23 @@ class _SmartCameraScreenState extends State<SmartCameraScreen> with WidgetsBindi
   }
 
   Widget _buildCameraPreview() {
-    if (_cameraController == null || _cameraInitFuture == null) return const Center(child: CircularProgressIndicator(color: Color(0xFF1976D2)));
+    if (_cameraController == null || _cameraInitFuture == null)
+      return const Center(
+          child: CircularProgressIndicator(color: Color(0xFF1976D2)));
     return FutureBuilder(
       future: _cameraInitFuture,
       builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) return const Center(child: CircularProgressIndicator(color: Color(0xFF1976D2)));
+        if (snapshot.connectionState != ConnectionState.done)
+          return const Center(
+              child: CircularProgressIndicator(color: Color(0xFF1976D2)));
         return CameraPreview(_cameraController!);
       },
     );
   }
 
   Widget _buildLevelIndicator() {
-    if (_gravity == null || _cameraMode == CameraMode.document) return const SizedBox.shrink();
+    if (_gravity == null || _cameraMode == CameraMode.document)
+      return const SizedBox.shrink();
     return IgnorePointer(
       child: ArStrikeDipOverlay(
         pitch: _pitch,
@@ -653,20 +689,23 @@ class _SmartCameraScreenState extends State<SmartCameraScreen> with WidgetsBindi
 
   Widget _buildDocumentHint() {
     return Positioned(
-      bottom: 200, left: 0, right: 0,
+      bottom: 200,
+      left: 0,
+      right: 0,
       child: Center(
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(20)),
+          decoration: BoxDecoration(
+              color: Colors.black54, borderRadius: BorderRadius.circular(20)),
           child: Text(
             context.loc('document_align_hint'),
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+                color: Colors.white, fontWeight: FontWeight.bold),
           ),
         ),
       ),
     );
   }
-
 
   String _formatRecordDuration(int seconds) {
     final m = (seconds ~/ 60).toString().padLeft(2, '0');

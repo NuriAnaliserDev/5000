@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 
+import 'app/app_providers.dart';
 import 'screens/splash_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/smart_camera/smart_camera_screen.dart';
@@ -17,20 +18,8 @@ import 'screens/chat_screen.dart';
 import 'screens/auto_table_review_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'services/hive_db.dart';
-import 'services/settings_controller.dart';
-import 'services/station_repository.dart';
-import 'services/theme_controller.dart';
-import 'services/track_service.dart';
-import 'services/location_service.dart';
-import 'services/cloud_sync_service.dart';
-import 'services/chat_repository.dart';
-import 'services/boundary_service.dart';
 import 'services/auth_service.dart';
-import 'services/mine_report_repository.dart';
-import 'services/security_provider.dart';
-import 'services/geological_line_repository.dart';
-import 'services/presence_service.dart';
-import 'services/sos_service.dart';
+import 'services/theme_controller.dart';
 import 'screens/auth_screen.dart';
 import 'utils/security_wrapper.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -71,61 +60,7 @@ Future<void> main() async {
 
   runApp(
     MultiProvider(
-      providers: [
-        ChangeNotifierProvider<CloudSyncService>(
-          create: (ctx) {
-            final service = CloudSyncService();
-            service.init();
-            return service;
-          },
-        ),
-        ChangeNotifierProxyProvider<CloudSyncService, StationRepository>(
-          create: (ctx) => StationRepository(Provider.of<CloudSyncService>(ctx, listen: false)),
-          update: (_, sync, prev) => prev ?? StationRepository(sync),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => ThemeController(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => AuthService(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => SettingsController(),
-        ),
-        ChangeNotifierProxyProvider<SettingsController, ChatRepository>(
-          create: (ctx) => ChatRepository(settingsController: Provider.of<SettingsController>(ctx, listen: false)),
-          update: (_, settings, chatRepo) => chatRepo ?? ChatRepository(settingsController: settings),
-        ),
-        ChangeNotifierProxyProvider<CloudSyncService, TrackService>(
-          create: (ctx) => TrackService(Provider.of<CloudSyncService>(ctx, listen: false)),
-          update: (_, sync, prev) => prev ?? TrackService(sync),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => LocationService(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => BoundaryService(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => MineReportRepository(),
-        ),
-        ChangeNotifierProvider<GeologicalLineRepository>(
-          create: (_) {
-            final repo = GeologicalLineRepository();
-            repo.init(); // async init — lines load in background
-            return repo;
-          },
-        ),
-        ChangeNotifierProvider(
-          create: (_) => SecurityProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => PresenceService(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => SosService(),
-        ),
-      ],
+      providers: buildAppChangeNotifierProviders(),
       child: const GeoFieldProApp(),
     ),
   );

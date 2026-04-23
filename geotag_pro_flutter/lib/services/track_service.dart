@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hive/hive.dart';
@@ -7,6 +6,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../models/track_data.dart';
 import 'hive_db.dart';
 import 'cloud_sync_service.dart';
+import 'gps/gps_broadcaster.dart';
 
 class TrackService extends ChangeNotifier {
   final CloudSyncService _cloudSyncService;
@@ -122,40 +122,13 @@ class TrackService extends ChangeNotifier {
       _showWarningNotification('Marshrut Yakunlandi', '12 soatlik ish vaqti tugadi.');
     });
 
-    _startGeolocatorStream();
+    _startGpsListener();
   }
-  
-  void _startGeolocatorStream() {
-    _positionStream?.cancel();
-    LocationSettings locationSettings;
-    if (!kIsWeb && Platform.isAndroid) {
-      locationSettings = AndroidSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 5,
-        foregroundNotificationConfig: const ForegroundNotificationConfig(
-          notificationText: "Marshrut yozilmoqda (Aktiv rejim)",
-          notificationTitle: "GeoField Pro N",
-          enableWakeLock: true,
-        ),
-      );
-    } else if (!kIsWeb && (Platform.isIOS || Platform.isMacOS)) {
-      locationSettings = AppleSettings(
-        accuracy: LocationAccuracy.high,
-        activityType: ActivityType.fitness,
-        distanceFilter: 5,
-        pauseLocationUpdatesAutomatically: false,
-        showBackgroundLocationIndicator: true,
-      );
-    } else {
-      locationSettings = const LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 5,
-      );
-    }
 
-    _positionStream = Geolocator.getPositionStream(
-      locationSettings: locationSettings,
-    ).listen(_onPositionUpdate);
+  void _startGpsListener() {
+    _positionStream?.cancel();
+    GpsBroadcaster.instance.acquire();
+    _positionStream = GpsBroadcaster.instance.positionStream.listen(_onPositionUpdate);
   }
 
   void _onPositionUpdate(Position position) {
@@ -219,6 +192,7 @@ class TrackService extends ChangeNotifier {
     if (track == null) return;
     await _positionStream?.cancel();
     _positionStream = null;
+    GpsBroadcaster.instance.release();
     _sessionTimer?.cancel();
     _baseDwellTimer?.cancel();
     _notificationDebounceTimer?.cancel();

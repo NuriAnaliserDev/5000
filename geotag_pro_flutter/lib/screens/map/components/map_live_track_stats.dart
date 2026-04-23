@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../../utils/app_card.dart';
 import '../../../models/track_data.dart';
@@ -24,56 +23,54 @@ class MapLiveTrackStats extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-             Column(
-               mainAxisSize: MainAxisSize.min,
-               children: [
-                 const Icon(Icons.timer, color: Colors.greenAccent, size: 20),
-                 const SizedBox(height: 4),
-                 StreamBuilder(
-                   stream: Stream.periodic(const Duration(seconds: 1)),
-                   builder: (context, snapshot) {
-                     final dur = DateTime.now().difference(track.startTime);
-                     final hours = dur.inHours.toString().padLeft(2, '0');
-                     final mins = (dur.inMinutes % 60).toString().padLeft(2, '0');
-                     final secs = (dur.inSeconds % 60).toString().padLeft(2, '0');
-                     return Text(
-                       '$hours:$mins:$secs',
-                       style: const TextStyle(
-                         color: Colors.white, 
-                         fontWeight: FontWeight.bold, 
-                         fontSize: 16, 
-                         fontFeatures: [FontFeature.tabularFigures()]
-                       ),
-                     );
-                   }
-                 ),
-                 Text(
-                   context.loc('time_label'), 
-                   style: const TextStyle(color: Colors.grey, fontSize: 8, letterSpacing: 1)
-                 ),
-               ],
-             ),
-             Container(width: 1, height: 40, color: Colors.white12),
-             Column(
-               mainAxisSize: MainAxisSize.min,
-               children: [
-                 const Icon(Icons.social_distance, color: Colors.greenAccent, size: 20),
-                 const SizedBox(height: 4),
-                 Text(
-                   '${(track.distanceMeters / 1000).toStringAsFixed(2)} km',
-                   style: const TextStyle(
-                     color: Colors.white, 
-                     fontWeight: FontWeight.bold, 
-                     fontSize: 16, 
-                     fontFeatures: [FontFeature.tabularFigures()]
-                   ),
-                 ),
-                 Text(
-                   context.loc('distance_label'), 
-                   style: const TextStyle(color: Colors.grey, fontSize: 8, letterSpacing: 1)
-                 ),
-               ],
-             ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.timer, color: Colors.greenAccent, size: 20),
+                const SizedBox(height: 4),
+                StreamBuilder(
+                    stream: Stream.periodic(const Duration(seconds: 1)),
+                    builder: (context, snapshot) {
+                      final dur = DateTime.now().difference(track.startTime);
+                      final hours = dur.inHours.toString().padLeft(2, '0');
+                      final mins =
+                          (dur.inMinutes % 60).toString().padLeft(2, '0');
+                      final secs =
+                          (dur.inSeconds % 60).toString().padLeft(2, '0');
+                      return Text(
+                        '$hours:$mins:$secs',
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            fontFeatures: [FontFeature.tabularFigures()]),
+                      );
+                    }),
+                Text(context.loc('time_label'),
+                    style: const TextStyle(
+                        color: Colors.grey, fontSize: 8, letterSpacing: 1)),
+              ],
+            ),
+            Container(width: 1, height: 40, color: Colors.white12),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.social_distance,
+                    color: Colors.greenAccent, size: 20),
+                const SizedBox(height: 4),
+                Text(
+                  '${(track.distanceMeters / 1000).toStringAsFixed(2)} km',
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      fontFeatures: [FontFeature.tabularFigures()]),
+                ),
+                Text(context.loc('distance_label'),
+                    style: const TextStyle(
+                        color: Colors.grey, fontSize: 8, letterSpacing: 1)),
+              ],
+            ),
           ],
         ),
       ),

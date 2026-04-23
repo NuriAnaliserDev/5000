@@ -3,15 +3,19 @@ import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:io' show Platform;
 
+import 'gps/gps_broadcaster.dart';
+
 enum GpsStatus { searching, good, medium, poor, off, denied }
 
 class LocationService extends ChangeNotifier {
   Position? _currentPosition;
   GpsStatus _status = GpsStatus.off;
   StreamSubscription<Position>? _positionSubscription;
+  StreamSubscription<ServiceStatus>? _serviceStatusSub;
   bool _isServiceEnabled = false;
   Timer? _staleCheckTimer;
   DateTime _lastUpdateTime = DateTime.now();
+  bool _gpsAcquired = false;
 
   Position? get currentPosition => _currentPosition;
   GpsStatus get status => _status;
@@ -71,65 +75,44 @@ class LocationService extends ChangeNotifier {
     // Initial positioning
     refreshLocation();
 
-    // Listen to service status (on/off) changes
-    Geolocator.getServiceStatusStream().listen((ServiceStatus status) {
-      _isServiceEnabled = (status == ServiceStatus.enabled);
-      if (!_isServiceEnabled) {
-        _status = GpsStatus.off;
-        _currentPosition = null;
-      } else {
-        _status = GpsStatus.searching;
-        refreshLocation();
-      }
-      notifyListeners();
-    });
-
-    // Platform-aware position stream
-    LocationSettings locationSettings;
-    if (!kIsWeb && Platform.isAndroid) {
-      locationSettings = AndroidSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 2,
-        intervalDuration: const Duration(seconds: 3),
-        forceLocationManager: false,
-        useMSLAltitude: true,       // Use Mean Sea Level if possible
-        foregroundNotificationConfig: const ForegroundNotificationConfig(
-          notificationText: "GeoField Pro N GPS ishlamoqda...",
-          notificationTitle: "GPS Faol",
-          enableWakeLock: false,
-        ),
-      );
-    } else if (!kIsWeb && (Platform.isIOS || Platform.isMacOS)) {
-      locationSettings = AppleSettings(
-        accuracy: LocationAccuracy.best,
-        activityType: ActivityType.other,
-        distanceFilter: 0,
-        pauseLocationUpdatesAutomatically: false,
-        showBackgroundLocationIndicator: true,
-      );
-    } else {
-      locationSettings = const LocationSettings(
-        accuracy: LocationAccuracy.best,
-        distanceFilter: 0,
-      );
+    if (_serviceStatusSub == null) {
+      _serviceStatusSub = Geolocator.getServiceStatusStream().listen((ServiceStatus status) {
+        _isServiceEnabled = (status == ServiceStatus.enabled);
+        if (!_isServiceEnabled) {
+          _status = GpsStatus.off;
+          _currentPosition = null;
+        } else {
+          _status = GpsStatus.searching;
+          refreshLocation();
+        }
+        notifyListeners();
+      });
     }
 
-    _positionSubscription = Geolocator.getPositionStream(
-      locationSettings: locationSettings,
-    ).listen(
-      (Position position) {
-        _currentPosition = position;
-        _lastUpdateTime = DateTime.now();
-        _updateStatus(position.accuracy);
-        notifyListeners();
-      },
-      onError: (e) {
+    _attachGpsStream();
+  }
+
+  void _onGpsPosition(Position position) {
+    _currentPosition = position;
+    _lastUpdateTime = DateTime.now();
+    _updateStatus(position.accuracy);
+    notifyListeners();
+  }
+
+  void _attachGpsStream() {
+    _positionSubscription?.cancel();
+    if (!_gpsAcquired) {
+      GpsBroadcaster.instance.acquire();
+      _gpsAcquired = true;
+    }
+    _positionSubscription = GpsBroadcaster.instance.positionStream.listen(
+      _onGpsPosition,
+      onError: (_) {
         _status = GpsStatus.off;
         notifyListeners();
       },
     );
   }
-
 
   void _updateStatus(double accuracy) {
     if (accuracy < 5) {
@@ -149,6 +132,7 @@ class LocationService extends ChangeNotifier {
     _status = GpsStatus.searching;
     notifyListeners();
     await _init();
+    _startStaleCheck();
     debugPrint("GPS Service Restarted - Forcing fresh data");
   }
 
@@ -191,6 +175,11 @@ class LocationService extends ChangeNotifier {
   @override
   void dispose() {
     _positionSubscription?.cancel();
+    _serviceStatusSub?.cancel();
+    if (_gpsAcquired) {
+      GpsBroadcaster.instance.release();
+      _gpsAcquired = false;
+    }
     _staleCheckTimer?.cancel();
     super.dispose();
   }

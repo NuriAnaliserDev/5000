@@ -98,8 +98,8 @@ Javob berish formati (JSON):
       final decoded = jsonDecode(cleanedJson.trim());
       return AiLithologyResponse.fromJson(decoded);
     } catch (e) {
-      debugPrint("AI tahlil xatosi: \$e");
-      throw Exception("AI tahlilida xatolik: \$e");
+      debugPrint("AI tahlil xatosi: $e");
+      throw Exception("AI tahlilida xatolik: $e");
     }
   }
 }

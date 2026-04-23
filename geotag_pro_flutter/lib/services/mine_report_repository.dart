@@ -63,7 +63,7 @@ class MineReportRepository extends ChangeNotifier {
         'verifiedAt': FieldValue.serverTimestamp(),
       });
     } catch (e) {
-      debugPrint("Error verifying report: \$e");
+      debugPrint("Error verifying report: $e");
       rethrow;
     }
   }
@@ -73,7 +73,7 @@ class MineReportRepository extends ChangeNotifier {
     try {
       await _firestore.collection('daily_mine_reports').doc(reportId).delete();
     } catch (e) {
-      debugPrint("Error deleting report: \$e");
+      debugPrint("Error deleting report: $e");
       rethrow;
     }
   }
