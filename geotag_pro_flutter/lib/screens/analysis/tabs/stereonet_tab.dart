@@ -2,7 +2,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../../models/station.dart';
 import '../../../utils/app_localizations.dart';
+import '../../../utils/app_scroll_physics.dart';
 import '../../../utils/geology_utils.dart';
+import '../../../utils/stereonet_density.dart';
 import '../../../widgets/dashboard/tiles/stereonet_painter.dart';
 import '../components/analysis_info_tile.dart';
 
@@ -19,6 +21,9 @@ class _StereonetTabState extends State<StereonetTab> {
   bool _showContours = false;
   bool _showGreatCircles = false;
   bool _showMeanVector = false;
+  List<List<double>>? _densityGrid;
+  int _densityToken = 0;
+  Object? _lastDensityKey;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +42,7 @@ class _StereonetTabState extends State<StereonetTab> {
     final typeColor = {for (int i = 0; i < types.length; i++) types[i]: colors[i % colors.length]};
 
     return ListView(
+      physics: AppScrollPhysics.list(),
       padding: const EdgeInsets.all(24),
       children: [
         Text(
@@ -99,11 +105,42 @@ class _StereonetTabState extends State<StereonetTab> {
         ),
         const SizedBox(height: 12),
         Center(
-          child: AspectRatio(
+            child: AspectRatio(
             aspectRatio: 1,
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final size = constraints.maxWidth;
+                final r = size / 2 - 12;
+                final dKey = Object.hash(
+                    Object.hashAll(widget.stations.map((s) =>
+                        Object.hash(s.strike, s.dip, s.measurements?.length ?? 0))),
+                    _proj,
+                    _showContours,
+                    r.round());
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (!mounted) return;
+                  if (!_showContours) {
+                    if (_densityGrid != null) {
+                      setState(() {
+                        _densityGrid = null;
+                        _lastDensityKey = null;
+                      });
+                    }
+                    return;
+                  }
+                  if (dKey == _lastDensityKey) return;
+                  _lastDensityKey = dKey;
+                  final t = ++_densityToken;
+                  runStereonetDensityCompute(
+                    stations: widget.stations,
+                    radius: r,
+                    projection: _proj,
+                  ).then((g) {
+                    if (mounted && t == _densityToken) {
+                      setState(() => _densityGrid = g);
+                    }
+                  });
+                });
                 return InteractiveViewer(
                   child: GestureDetector(
                     onTapUp: (details) => _handleTap(details, size),
@@ -115,6 +152,7 @@ class _StereonetTabState extends State<StereonetTab> {
                         isDark: isDark,
                         projection: _proj,
                         showContours: _showContours,
+                        densityGrid: _densityGrid,
                         showGreatCircles: _showGreatCircles,
                         showMeanVector: _showMeanVector,
                       ),

@@ -2,13 +2,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'app_transitions.dart';
+import 'platform_gate.dart';
 import '../screens/archive_screen.dart';
 import '../screens/analysis_screen.dart';
 import '../screens/admin_screen.dart';
 import '../screens/auth_screen.dart';
 import '../screens/auto_table_review_screen.dart';
 import '../screens/chat_screen.dart';
-import '../screens/dashboard_screen.dart';
 import '../screens/global_map_screen.dart';
 import '../screens/image_painter_screen.dart';
 import '../screens/messages_screen.dart';
@@ -46,39 +47,37 @@ class AppRouter {
     switch (routeSettings.name) {
       case home:
         if (kIsWeb) {
-          return MaterialPageRoute<void>(
-            builder: (context) {
-              final auth = context.watch<AuthService>();
-              return auth.isAuthenticated
-                  ? const WebDashboardMain()
-                  : const WebLoginScreen();
-            },
-          );
+          return AppPageRoutes.material<void>((context) {
+            final auth = context.watch<AuthService>();
+            return auth.isAuthenticated
+                ? const WebDashboardMain()
+                : const WebLoginScreen();
+          });
         }
-        return MaterialPageRoute<void>(builder: (_) => const SplashScreen());
+        return AppPageRoutes.material<void>((_) => const SplashScreen());
       case dashboard:
-        return MaterialPageRoute<void>(builder: (_) => const DashboardScreen());
+        return AppPageRoutes.material<void>((_) => const PlatformGate());
       case onboarding:
-        return MaterialPageRoute<void>(builder: (_) => const OnboardingScreen());
+        return AppPageRoutes.material<void>((_) => const OnboardingScreen());
       case auth:
-        return MaterialPageRoute<void>(builder: (_) => AuthScreen());
+        return AppPageRoutes.material<void>((_) => AuthScreen());
       case messages:
-        return MaterialPageRoute<void>(builder: (_) => const MessagesScreen());
+        return AppPageRoutes.material<void>((_) => const MessagesScreen());
       case chat:
         final a = routeSettings.arguments;
         if (a is! String || a.isEmpty) {
           return _notFound();
         }
-        return MaterialPageRoute<void>(
-          builder: (_) => ChatScreen(groupId: a),
+        return AppPageRoutes.material<void>(
+          (_) => ChatScreen(groupId: a),
         );
       case autoTableReview:
         final a = routeSettings.arguments;
         if (a is! String || a.isEmpty) {
           return _notFound();
         }
-        return MaterialPageRoute<void>(
-          builder: (_) => AutoTableReviewScreen(imagePath: a),
+        return AppPageRoutes.material<void>(
+          (_) => AutoTableReviewScreen(imagePath: a),
         );
       case camera:
         final id = routeSettings.arguments;
@@ -88,58 +87,54 @@ class AppRouter {
         } else if (id is num) {
           sid = id.toInt();
         }
-        return MaterialPageRoute<void>(
-          builder: (_) => SmartCameraScreen(stationId: sid),
+        return AppPageRoutes.material<void>(
+          (_) => SmartCameraScreen(stationId: sid),
         );
       case map:
-        return MaterialPageRoute<void>(
-          builder: (_) {
-            final args = routeSettings.arguments;
-            return GlobalMapScreen(
-              initLocation: args is Map<String, dynamic> ? args : null,
-            );
-          },
-        );
+        return AppPageRoutes.material<void>((_) {
+          final args = routeSettings.arguments;
+          return GlobalMapScreen(
+            initLocation: args is Map<String, dynamic> ? args : null,
+          );
+        });
       case archive:
-        return MaterialPageRoute<void>(builder: (_) => const ArchiveScreen());
+        return AppPageRoutes.material<void>((_) => const ArchiveScreen());
       case analysis:
-        return MaterialPageRoute<void>(builder: (_) => const AnalysisScreen());
+        return AppPageRoutes.material<void>((_) => const AnalysisScreen());
       case AppRouter.admin:
       case AppRouter.settings:
-        return MaterialPageRoute<void>(builder: (_) => const AdminScreen());
+        return AppPageRoutes.material<void>((_) => const AdminScreen());
       case scaleAssistant:
-        return MaterialPageRoute<void>(
-          builder: (_) => const ScaleAssistantScreen(),
+        return AppPageRoutes.material<void>(
+          (_) => const ScaleAssistantScreen(),
         );
       case painter:
         final a = routeSettings.arguments;
         if (a is! String || a.isEmpty) {
           return _notFound();
         }
-        return MaterialPageRoute<void>(
-          builder: (_) => ImagePainterScreen(imagePath: a),
+        return AppPageRoutes.material<void>(
+          (_) => ImagePainterScreen(imagePath: a),
         );
       case station:
-        return MaterialPageRoute<void>(
-          builder: (_) {
-            final id = routeSettings.arguments;
-            int? sid;
-            if (id is int) {
-              sid = id;
-            } else if (id is num) {
-              sid = id.toInt();
-            }
-            return StationSummaryScreen(stationId: sid);
-          },
-        );
+        return AppPageRoutes.material<void>((_) {
+          final id = routeSettings.arguments;
+          int? sid;
+          if (id is int) {
+            sid = id;
+          } else if (id is num) {
+            sid = id.toInt();
+          }
+          return StationSummaryScreen(stationId: sid);
+        });
       default:
         return _notFound();
     }
   }
 
   static Route<dynamic> _notFound() {
-    return MaterialPageRoute<void>(
-      builder: (_) => const Scaffold(
+    return AppPageRoutes.material<void>(
+      (_) => const Scaffold(
         body: Center(child: Text('Route not found')),
       ),
     );

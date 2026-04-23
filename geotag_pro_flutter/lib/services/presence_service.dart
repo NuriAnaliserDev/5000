@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
 class TeamMember {
@@ -36,10 +37,11 @@ class TeamMember {
 class PresenceService extends ChangeNotifier {
   final _firestore = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
-  
+
   Timer? _presenceTimer;
   StreamSubscription? _teamSubscription;
   List<TeamMember> _teamMembers = [];
+  LatLng? _lastSentPosition;
 
   List<TeamMember> get teamMembers => _teamMembers;
 
@@ -64,11 +66,25 @@ class PresenceService extends ChangeNotifier {
   /// Starts periodic location updates for the current user
   void startBroadcasting(LatLng Function() getPosition, String name, String role) {
     _presenceTimer?.cancel();
-    _presenceTimer = Timer.periodic(const Duration(seconds: 30), (_) {
-      _updatePresence(getPosition(), name, role, true);
+    final first = getPosition();
+    _lastSentPosition = first;
+    _updatePresence(first, name, role, true);
+    _presenceTimer = Timer.periodic(const Duration(seconds: 120), (_) {
+      final pos = getPosition();
+      if (_lastSentPosition != null) {
+        final d = Geolocator.distanceBetween(
+          _lastSentPosition!.latitude,
+          _lastSentPosition!.longitude,
+          pos.latitude,
+          pos.longitude,
+        );
+        if (d < 10.0) {
+          return;
+        }
+      }
+      _lastSentPosition = pos;
+      _updatePresence(pos, name, role, true);
     });
-    // Immediate update
-    _updatePresence(getPosition(), name, role, true);
   }
 
   Future<void> _updatePresence(LatLng position, String name, String role, bool isOnline) async {

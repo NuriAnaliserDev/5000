@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
-import '../services/station_repository.dart';
 import '../models/station.dart';
-import '../utils/app_nav_bar.dart';
-import '../services/settings_controller.dart';
 import '../services/location_service.dart';
-import '../services/track_service.dart';
+import '../services/settings_controller.dart';
+import '../services/station_repository.dart';
+import '../utils/app_nav_bar.dart';
+import '../utils/app_scroll_physics.dart';
 
 // Components
 import '../widgets/dashboard/dashboard_components.dart';
@@ -20,6 +21,32 @@ import '../widgets/dashboard/desktop/dashboard_desktop_bento_grid.dart';
 import '../widgets/dashboard/desktop/dashboard_desktop_project_section.dart';
 import '../widgets/dashboard/desktop/dashboard_desktop_header.dart';
 
+int _dashboardSettingsToken(SettingsController s) => Object.hash(
+      s.currentProject,
+      s.mapStyle,
+      s.currentUserRole,
+      s.currentUserName,
+      Object.hashAll(s.projects),
+    );
+
+({double lat, double lng, double acc, bool hasFix}) _locSlice(LocationService loc) {
+  final p = loc.currentPosition;
+  if (p == null) {
+    return (
+      lat: loc.latitude,
+      lng: loc.longitude,
+      acc: loc.accuracy,
+      hasFix: false,
+    );
+  }
+  return (
+    lat: p.latitude,
+    lng: p.longitude,
+    acc: p.accuracy,
+    hasFix: true,
+  );
+}
+
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
@@ -28,25 +55,23 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  // Timer and refresh logic is completely removed from the screen level.
-  // It is now encapsulated in `DashboardSessionBox`.
-  
   int _selectedIndex = 0;
-  
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
-    // Add routing logic if needed for desktop sidebar
   }
-
 
   @override
   Widget build(BuildContext context) {
-    final repo = context.watch<StationRepository>();
-    final settings = context.watch<SettingsController>();
+    context.select<StationRepository, int>((r) => r.dataGeneration);
+    context.select<SettingsController, int>(_dashboardSettingsToken);
+
+    final repo = context.read<StationRepository>();
+    final settings = context.read<SettingsController>();
     final locService = context.read<LocationService>();
-    final trackSvc = context.read<TrackService>();
+
     final allStations = repo.stations;
     final stations = allStations
         .where((s) => (s.project ?? 'Default') == settings.currentProject)
@@ -54,45 +79,51 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     final surf = Theme.of(context).colorScheme.surface;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primary = Theme.of(context).colorScheme.primary;
 
     return Scaffold(
       backgroundColor: surf,
       body: LayoutBuilder(
         builder: (context, constraints) {
           if (constraints.maxWidth > 900) {
-            return _buildWideLayout(context, settings, locService, trackSvc, stations, allStations, isDark);
+            return _buildWideLayout(context, settings, stations, isDark);
           }
-          return _buildNarrowLayout(context, settings, locService, trackSvc, stations, allStations, isDark);
+          return _buildNarrowLayout(
+            context,
+            settings,
+            locService,
+            stations,
+            allStations,
+            isDark,
+          );
         },
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFF1976D2),
-        foregroundColor: Colors.white,
+        backgroundColor: primary,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
         elevation: 6,
         onPressed: () => Navigator.of(context).pushNamed('/camera'),
         child: const Icon(Icons.camera_alt, size: 28),
       ),
-      bottomNavigationBar: MediaQuery.of(context).size.width <= 900 
-        ? const AppBottomNavBar(activeRoute: '/dashboard') 
-        : null,
+      bottomNavigationBar: MediaQuery.of(context).size.width <= 900
+          ? const AppBottomNavBar(activeRoute: '/dashboard')
+          : null,
     );
   }
 
   Widget _buildNarrowLayout(
-    BuildContext context, 
-    SettingsController settings, 
-    LocationService locService, 
-    TrackService trackSvc, 
-    List<Station> stations, 
-    List<Station> allStations, 
-    bool isDark
+    BuildContext context,
+    SettingsController settings,
+    LocationService locService,
+    List<Station> stations,
+    List<Station> allStations,
+    bool isDark,
   ) {
     return SafeArea(
       child: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
+        physics: AppScrollPhysics.list(),
         slivers: [
           DashboardSliverAppBar(settings: settings, isDark: isDark),
-          
           Selector<LocationService, GpsStatus>(
             selector: (_, loc) => loc.status,
             builder: (context, status, _) {
@@ -102,23 +133,42 @@ class _DashboardScreenState extends State<DashboardScreen> {
               return const SliverToBoxAdapter(child: SizedBox.shrink());
             },
           ),
-
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             sliver: SliverToBoxAdapter(
               child: Column(
                 children: [
-                  DashboardQuickTools(loc: locService, settings: settings, isDark: isDark),
-                  const SizedBox(height: 12),
-                  Consumer<LocationService>(
-                    builder: (context, loc, _) => DashboardMiniMapBox(loc: loc, settings: settings, isDark: isDark),
+                  DashboardQuickTools(
+                    loc: locService,
+                    settings: settings,
+                    isDark: isDark,
                   ),
                   const SizedBox(height: 12),
-                  SizedBox(
-                    height: 160,
-                    child: Consumer<LocationService>(
-                      builder: (context, loc, _) => UTMTile(loc: loc, isDark: isDark),
-                    ),
+                  Selector<LocationService, ({double lat, double lng, double acc, bool hasFix})>(
+                    selector: (_, loc) => _locSlice(loc),
+                    builder: (context, slice, _) {
+                      return Column(
+                        children: [
+                          DashboardMiniMapBox(
+                            userLatLng: slice.hasFix
+                                ? LatLng(slice.lat, slice.lng)
+                                : null,
+                            mapStyle: settings.mapStyle,
+                            isDark: isDark,
+                          ),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            height: 160,
+                            child: UTMTile(
+                              latitude: slice.lat,
+                              longitude: slice.lng,
+                              accuracyMeters: slice.acc,
+                              isDark: isDark,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(height: 12),
                   Row(
@@ -138,25 +188,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
           ),
-
           if (settings.currentUserRole != 'Sampler')
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              sliver: SliverToBoxAdapter(child: DashboardProjectPicker(allStations: allStations)),
+              sliver: SliverToBoxAdapter(
+                child: DashboardProjectPicker(allStations: allStations),
+              ),
             ),
-
           SliverPadding(
             padding: const EdgeInsets.all(16),
-            sliver: SliverToBoxAdapter(child: DashboardRecentHeader(count: stations.length)),
+            sliver: SliverToBoxAdapter(
+              child: DashboardRecentHeader(count: stations.length),
+            ),
           ),
-
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             sliver: stations.isEmpty
                 ? const SliverToBoxAdapter(child: DashboardEmptyState())
                 : SliverList(
                     delegate: SliverChildBuilderDelegate(
-                      (context, index) => DashboardStationTile(station: stations[index]),
+                      (context, index) =>
+                          DashboardStationTile(station: stations[index]),
                       childCount: stations.length,
                     ),
                   ),
@@ -168,13 +220,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildWideLayout(
-    BuildContext context, 
-    SettingsController settings, 
-    LocationService locService, 
-    TrackService trackSvc, 
-    List<Station> stations, 
-    List<Station> allStations, 
-    bool isDark
+    BuildContext context,
+    SettingsController settings,
+    List<Station> stations,
+    bool isDark,
   ) {
     return Row(
       children: [
@@ -184,6 +233,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         Expanded(
           child: CustomScrollView(
+            physics: AppScrollPhysics.list(),
             slivers: [
               SliverPadding(
                 padding: const EdgeInsets.all(24),
@@ -193,11 +243,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     children: [
                       DashboardDesktopHeader(settings: settings, isDark: isDark),
                       const SizedBox(height: 24),
-                      Consumer<LocationService>(
-                        builder: (context, loc, _) => DashboardDesktopBentoGrid(
-                          stations: stations,
-                          isDark: isDark,
-                        ),
+                      DashboardDesktopBentoGrid(
+                        stations: stations,
+                        isDark: isDark,
                       ),
                       const SizedBox(height: 32),
                       const DashboardDesktopProjectSection(),

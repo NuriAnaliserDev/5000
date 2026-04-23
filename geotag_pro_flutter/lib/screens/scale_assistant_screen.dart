@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../services/settings_controller.dart';
 import '../utils/app_localizations.dart';
 import '../utils/app_nav_bar.dart';
+import '../utils/app_scroll_physics.dart';
 
 import 'scale/components/scale_calculator_card.dart';
 import 'scale/components/scale_layout_card.dart';
@@ -111,6 +112,7 @@ class _ScaleAssistantScreenState extends State<ScaleAssistantScreen> {
         ],
       ),
       body: SingleChildScrollView(
+        physics: AppScrollPhysics.list(),
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
         child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

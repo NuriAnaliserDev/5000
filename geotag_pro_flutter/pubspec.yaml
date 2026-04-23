@@ -8,6 +8,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   cupertino_icons: ^1.0.8
 
@@ -54,7 +56,7 @@ dependencies:
   excel: ^4.0.6
   http: ^1.6.0
   fl_chart: ^1.2.0
-  intl: ^0.19.0
+  intl: ^0.20.2
   google_fonts: ^6.2.1
   archive: ^3.6.1
   local_auth: ^3.0.1
@@ -64,6 +66,7 @@ dependencies:
   uuid: ^4.5.3
   vector_math: ^2.2.0
   firebase_ai: ^3.10.0
+  crypto: ^3.0.5
 
 dev_dependencies:
   flutter_test:
@@ -81,5 +84,6 @@ flutter_launcher_icons:
 
 flutter:
   uses-material-design: true
+  generate: true
   assets:
     - assets/

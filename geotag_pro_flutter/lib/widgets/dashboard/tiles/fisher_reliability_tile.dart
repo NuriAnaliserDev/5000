@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../models/station.dart';
 import '../../../services/station_repository.dart';
 import '../../../utils/app_card.dart';
 import '../../../utils/geology_utils.dart';
 import '../../../utils/app_localizations.dart';
 
-class FisherReliabilityTile extends StatelessWidget {
+class FisherReliabilityTile extends StatefulWidget {
   final bool isDark;
 
   const FisherReliabilityTile({
@@ -14,10 +15,31 @@ class FisherReliabilityTile extends StatelessWidget {
   });
 
   @override
+  State<FisherReliabilityTile> createState() => _FisherReliabilityTileState();
+}
+
+class _FisherReliabilityTileState extends State<FisherReliabilityTile> {
+  int? _cachedLen;
+  FisherStats? _stats;
+
+  void _maybeRecompute(List<Station> stations) {
+    final n = stations.length;
+    if (_cachedLen == n && _stats != null) {
+      return;
+    }
+    _cachedLen = n;
+    final strikes = stations.map((s) => s.strike).toList();
+    _stats = GeologyUtils.fisherStats(strikes);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final stations = context.watch<StationRepository>().stations;
-    final strikes = stations.map((s) => s.strike).toList();
-    final stats = GeologyUtils.fisherStats(strikes);
+    _maybeRecompute(stations);
+    if (_stats == null) {
+      return const SizedBox.shrink();
+    }
+    final stats = _stats!;
 
     return AppCard(
       padding: const EdgeInsets.all(16),
@@ -25,17 +47,22 @@ class FisherReliabilityTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            context.loc('fisher_reliability'), 
-            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)
+            context.loc('fisher_reliability'),
+            style: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey),
           ),
           const Spacer(),
           Row(
             children: [
               Text(
-                stats.alpha95.isNaN ? '—' : '±${stats.alpha95.toStringAsFixed(1)}°',
+                stats.alpha95.isNaN
+                    ? '—'
+                    : '±${stats.alpha95.toStringAsFixed(1)}°',
                 style: TextStyle(
-                  fontSize: 24, 
-                  fontWeight: FontWeight.w900, 
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
                   color: stats.isReliable ? Colors.green : Colors.orange,
                 ),
               ),
@@ -45,12 +72,13 @@ class FisherReliabilityTile extends StatelessWidget {
           ),
           const Spacer(),
           Text(
-            stats.isReliable ? context.loc('fisher_stable') : context.loc('fisher_dispersion'),
+            stats.isReliable
+                ? context.loc('fisher_stable')
+                : context.loc('fisher_dispersion'),
             style: TextStyle(
-              fontSize: 9, 
-              fontWeight: FontWeight.bold, 
-              color: stats.isReliable ? Colors.green : Colors.orange
-            ),
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+                color: stats.isReliable ? Colors.green : Colors.orange),
           ),
         ],
       ),

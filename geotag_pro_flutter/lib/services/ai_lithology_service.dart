@@ -1,7 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:firebase_ai/firebase_ai.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+
+import 'ai/ai_rate_limiter.dart';
 
 class AiLithologyResponse {
   final String rockType;
@@ -38,8 +41,14 @@ class AiLithologyService {
 
   AiLithologyService._internal();
 
-  /// Analyzes a rock sample from an image using Vertex AI
+  /// Analyzes a rock sample from an image using Vertex AI.
+  ///
+  /// Har chaqiruvdan oldin [AiRateLimiter.consume] orqali kundalik kvota
+  /// tekshiriladi. Agar kvota oshib ketsa [QuotaExceededException] tashlanadi.
   Future<AiLithologyResponse> analyzeRockSample(File imageFile) async {
+    final uid = FirebaseAuth.instance.currentUser?.uid ?? 'anonymous';
+    await AiRateLimiter.consume(uid);
+
     try {
       final model = FirebaseAI.vertexAI().generativeModel(
         model: 'gemini-1.5-flash',
@@ -97,6 +106,8 @@ Javob berish formati (JSON):
 
       final decoded = jsonDecode(cleanedJson.trim());
       return AiLithologyResponse.fromJson(decoded);
+    } on QuotaExceededException {
+      rethrow;
     } catch (e) {
       debugPrint("AI tahlil xatosi: $e");
       throw Exception("AI tahlilida xatolik: $e");

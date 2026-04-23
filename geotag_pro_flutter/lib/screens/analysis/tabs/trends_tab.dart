@@ -1,7 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../../../l10n/app_strings.dart';
 import '../../../models/station.dart';
 import '../../../utils/app_localizations.dart';
+import '../../../utils/app_scroll_physics.dart';
 import '../../../utils/geology_utils.dart';
 
 // PERFORMANCE FIX: StatefulWidget — hisob-kitob faqat ma'lumot o'zgarganda
@@ -56,6 +58,7 @@ class _TrendsTabState extends State<TrendsTab> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return ListView(
+      physics: AppScrollPhysics.list(),
       padding: const EdgeInsets.all(24),
       children: [
         Text(context.loc('dip_distribution'),
@@ -139,9 +142,8 @@ class _TrendsTabState extends State<TrendsTab> {
                             color: Colors.blue)),
                     Text(
                       _stats.isReliable
-                          ? context
-                              .loc('trend_recommend_good')
-                              .replaceAll('{dir}', _projToCardinal(_avgStrike))
+                          ? GeoFieldStrings.of(context)!
+                              .trend_recommend_good(_projToCardinal(_avgStrike))
                           : context.loc('trend_recommend_poor'),
                       style: const TextStyle(
                           fontSize: 13, fontWeight: FontWeight.bold),

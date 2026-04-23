@@ -9,6 +9,7 @@ import '../services/theme_controller.dart';
 import '../services/location_service.dart';
 import '../utils/app_localizations.dart';
 import '../utils/app_nav_bar.dart';
+import '../utils/app_scroll_physics.dart';
 
 class AdminScreen extends StatelessWidget {
   const AdminScreen({super.key});
@@ -125,6 +126,7 @@ class AdminScreen extends StatelessWidget {
         title: Text(context.loc('admin')),
       ),
       body: ListView(
+        physics: AppScrollPhysics.list(),
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
         children: [
           Text(

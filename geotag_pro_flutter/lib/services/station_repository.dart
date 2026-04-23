@@ -13,8 +13,19 @@ class StationRepository extends ChangeNotifier {
   late final Box<Station> _box;
   final CloudSyncService _cloudSync;
 
+  /// Har [notifyListeners] da oshadi — [Selector] bilan UI faqat
+  /// ma'lumot o'zgarganda qayta quriladi.
+  int _dataGeneration = 0;
+  int get dataGeneration => _dataGeneration;
+
   StationRepository(this._cloudSync) {
     _box = Hive.box<Station>(HiveDb.stationsBox);
+  }
+
+  @override
+  void notifyListeners() {
+    _dataGeneration++;
+    super.notifyListeners();
   }
 
   // Manually sync all local stations to the cloud

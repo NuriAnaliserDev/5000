@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../models/station.dart';
 import '../../../utils/app_localizations.dart';
+import '../../../utils/app_scroll_physics.dart';
 import '../../../utils/geology_utils.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -96,6 +97,7 @@ class _StatisticsTabState extends State<StatisticsTab> {
         );
 
     return ListView(
+      physics: AppScrollPhysics.list(),
       padding: const EdgeInsets.all(16),
       children: [
         card(context.loc('analysis_general'), Column(children: [

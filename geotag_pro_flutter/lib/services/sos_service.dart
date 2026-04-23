@@ -3,6 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
 
+import 'sos/sos_queue.dart';
+
+/// SMS fallback hook — `url_launcher` bilan to‘ldiriladi (ilova init'ida
+/// o‘rnatiladi). Qiymat: `sms:<number>?body=<url-encoded>` URIni ochadigan
+/// funksiya. `null` bo‘lsa SMS fallback o‘chirilgan hisoblanadi.
+typedef SosSmsHandler = Future<void> Function(Uri smsUri);
+
 class EmergencySignal {
   final String id;
   final String senderUid;
@@ -26,30 +33,58 @@ class EmergencySignal {
       senderUid: map['senderUid'] ?? '',
       senderName: map['senderName'] ?? 'Unknown',
       position: LatLng(map['lat'] ?? 0.0, map['lng'] ?? 0.0),
-      timestamp: (map['timestamp'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      timestamp:
+          (map['timestamp'] as Timestamp?)?.toDate() ?? DateTime.now(),
       isActive: map['isActive'] ?? true,
     );
   }
 }
 
+/// SOS xizmati — onlayn bo‘lganda darhol yuboradi, aks holda
+/// [SosQueue] orqali offline saqlaydi va ulanish paydo bo‘lgach yuboradi.
+///
+/// Shuningdek, [smsFallback] = `true` bo‘lsa, SMS orqali ham signal
+/// yuborishga uriniladi (url_launcher + `sms:` sxema).
 class SosService extends ChangeNotifier {
   final _firestore = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
+
+  /// Tashqi chaqiruv uchun (masalan admin-panel yoki status widget).
+  bool lastSendQueued = false;
+
+  /// Agar o‘rnatilsa, SMS fallback'da shu funksiya chaqiriladi.
+  /// Ilova boot paytida `url_launcher` bilan to‘ldirishga tavsiya etiladi:
+  /// ```dart
+  /// sosService.smsHandler = (uri) async {
+  ///   if (await canLaunchUrl(uri)) await launchUrl(uri);
+  /// };
+  /// ```
+  SosSmsHandler? smsHandler;
 
   Stream<List<EmergencySignal>> get emergencySignals {
     return _firestore
         .collection('emergency_signals')
         .where('isActive', isEqualTo: true)
-        .where('timestamp', isGreaterThan: DateTime.now().subtract(const Duration(hours: 4)))
+        .where('timestamp',
+            isGreaterThan: DateTime.now().subtract(const Duration(hours: 4)))
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => EmergencySignal.fromMap(doc.data(), doc.id))
             .toList());
   }
 
-  Future<void> sendSos(LatLng position, String name) async {
+  /// SOS signalini yuboradi. Onlayn bo‘lsa to‘g‘ridan to‘g‘ri, aks holda
+  /// offline queue'ga qo‘shadi. [smsFallback] true bo‘lsa SMS ham yuboradi.
+  Future<void> sendSos(
+    LatLng position,
+    String name, {
+    bool smsFallback = false,
+    String? emergencyNumber,
+  }) async {
     final user = _auth.currentUser;
     if (user == null) return;
+
+    lastSendQueued = false;
 
     try {
       await _firestore.collection('emergency_signals').add({
@@ -61,17 +96,59 @@ class SosService extends ChangeNotifier {
         'isActive': true,
       });
     } catch (e) {
-      debugPrint('Error sending SOS: $e');
+      debugPrint('SOS direct-send failed, queuing: $e');
+      await SosQueue.enqueue(
+        senderUid: user.uid,
+        senderName: name,
+        lat: position.latitude,
+        lng: position.longitude,
+      );
+      lastSendQueued = true;
+      notifyListeners();
+    }
+
+    if (smsFallback && emergencyNumber != null && emergencyNumber.isNotEmpty) {
+      await _trySendSms(
+        number: emergencyNumber,
+        name: name,
+        position: position,
+      );
+    }
+  }
+
+  Future<void> _trySendSms({
+    required String number,
+    required String name,
+    required LatLng position,
+  }) async {
+    final handler = smsHandler;
+    if (handler == null) return;
+    final body = Uri.encodeComponent(
+      'SOS: $name. Location: ${position.latitude}, ${position.longitude}. '
+      'https://maps.google.com/?q=${position.latitude},${position.longitude}',
+    );
+    final uri = Uri.parse('sms:$number?body=$body');
+    try {
+      await handler(uri);
+    } catch (e) {
+      debugPrint('SMS fallback failed: $e');
     }
   }
 
   Future<void> clearSos(String signalId) async {
     try {
-      await _firestore.collection('emergency_signals').doc(signalId).update({
-        'isActive': false,
-      });
+      await _firestore
+          .collection('emergency_signals')
+          .doc(signalId)
+          .update({'isActive': false});
     } catch (e) {
       debugPrint('Error clearing SOS: $e');
     }
   }
+
+  /// Queue'dagi pending signallar sonini olish.
+  Future<int> pendingCount() => SosQueue.pendingCount();
+
+  /// Auto-flush'ni boshlash (app init'da bir marta chaqiriladi).
+  Future<void> startAutoFlush() => SosQueue.startAutoFlush();
 }

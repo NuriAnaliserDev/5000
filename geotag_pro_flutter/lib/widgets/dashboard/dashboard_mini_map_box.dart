@@ -2,29 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
-import '../../services/location_service.dart';
-import '../../services/settings_controller.dart';
-
 /// Kichik xarita ko'rinishi — hozirgi joylashuvni ko'rsatadi.
 ///
-/// Dashboard'da ishlatiladi. Tap qilinsa, to'liq xaritani ochadi.
-/// `LocationService`'dan faqat `currentPosition`'ga bog'liq (Selector
-/// qatlami DashboardScreen'da qo'llanilgan, bu yerda listen qilmaydi).
+/// Faqat [userLatLng] + [mapStyle] o'zgarishiga bog'liq (Selector
+/// [DashboardScreen]da qo'llanadi).
 class DashboardMiniMapBox extends StatelessWidget {
-  final LocationService loc;
-  final SettingsController settings;
+  final LatLng? userLatLng;
+  final String mapStyle;
   final bool isDark;
 
   const DashboardMiniMapBox({
     super.key,
-    required this.loc,
-    required this.settings,
+    required this.userLatLng,
+    required this.mapStyle,
     required this.isDark,
   });
 
   @override
   Widget build(BuildContext context) {
-    final pos = loc.currentPosition;
+    final pos = userLatLng;
     final center = pos == null
         ? const LatLng(41.3111, 69.2797) // Toshkent default
         : LatLng(pos.latitude, pos.longitude);
@@ -54,7 +50,7 @@ class DashboardMiniMapBox extends StatelessWidget {
               ),
               children: [
                 TileLayer(
-                  urlTemplate: _tileUrl(settings.mapStyle),
+                  urlTemplate: _tileUrl(mapStyle),
                   userAgentPackageName: 'com.geofield.pro',
                   tileBuilder: isDark ? _darkTileBuilder : null,
                 ),

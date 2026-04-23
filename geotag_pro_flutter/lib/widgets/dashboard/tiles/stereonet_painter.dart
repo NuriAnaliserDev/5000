@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../../utils/geology_utils.dart';
 import '../../../models/station.dart';
@@ -9,6 +10,8 @@ class StereonetPainter extends CustomPainter {
   final bool isDark;
   final StereonetProjection projection;
   final bool showContours;
+  /// Ixtiyoriy: [compute]da hisoblangan zichlik (UI threadni tushirmaslik).
+  final List<List<double>>? densityGrid;
   final bool showGreatCircles;
   final bool showMeanVector;
 
@@ -18,6 +21,7 @@ class StereonetPainter extends CustomPainter {
     required this.isDark,
     required this.projection,
     required this.showContours,
+    this.densityGrid,
     this.showGreatCircles = false,
     this.showMeanVector = false,
   });
@@ -73,9 +77,17 @@ class StereonetPainter extends CustomPainter {
     }
 
     if (showContours && points.isNotEmpty) {
-      final gridSize = 50;
-      final bw = r * 0.12; 
-      final grid = StereonetEngine.calculateDensityGrid(points, r, gridSize, bw);
+      const gridSize = 50;
+      final bw = r * 0.12;
+      final List<List<double>> grid;
+      if (densityGrid != null &&
+          densityGrid!.length == gridSize &&
+          densityGrid!.isNotEmpty &&
+          densityGrid![0].length == gridSize) {
+        grid = densityGrid!;
+      } else {
+        grid = StereonetEngine.calculateDensityGrid(points, r, gridSize, bw);
+      }
       
       double maxDensity = 0.0;
       for (var row in grid) {
@@ -268,12 +280,25 @@ class StereonetPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(StereonetPainter old) {
-    return old.stations != stations ||
-           old.isDark != isDark ||
-           old.projection != projection ||
-           old.showContours != showContours ||
-           old.showGreatCircles != showGreatCircles ||
-           old.showMeanVector != showMeanVector ||
-           old.typeColor != typeColor;
+    if (old.isDark != isDark ||
+        old.projection != projection ||
+        old.showContours != showContours ||
+        old.densityGrid != densityGrid ||
+        old.showGreatCircles != showGreatCircles ||
+        old.showMeanVector != showMeanVector) {
+      return true;
+    }
+    if (!mapEquals(old.typeColor, typeColor)) {
+      return true;
+    }
+    if (old.stations.length != stations.length) {
+      return true;
+    }
+    for (int i = 0; i < stations.length; i++) {
+      if (old.stations[i].key != stations[i].key) {
+        return true;
+      }
+    }
+    return false;
   }
 }

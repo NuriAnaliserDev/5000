@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/app_strings.dart';
 import '../../../utils/app_localizations.dart';
+import '../../../utils/app_scroll_physics.dart';
 import '../../../utils/geology_utils.dart';
 
 class ApparentDipTab extends StatefulWidget {
@@ -78,6 +80,7 @@ class _ApparentDipTabState extends State<ApparentDipTab> {
     }
 
     return ListView(
+      physics: AppScrollPhysics.list(),
       padding: const EdgeInsets.all(24),
       children: [
         Text(
@@ -155,10 +158,10 @@ class _ApparentDipTabState extends State<ApparentDipTab> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  context
-                      .loc('apparent_result_hint')
-                      .replaceAll('{trueDip}', _dipCtrl.text)
-                      .replaceAll('{apparent}', _result!.toStringAsFixed(1)),
+                  GeoFieldStrings.of(context)!.apparent_result_hint(
+                    _dipCtrl.text,
+                    _result!.toStringAsFixed(1),
+                  ),
                   style: const TextStyle(color: Colors.white70, fontSize: 11),
                 ),
               ],

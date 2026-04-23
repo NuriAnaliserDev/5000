@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../../models/station.dart';
 import '../../../utils/app_localizations.dart';
+import '../../../utils/app_scroll_physics.dart';
 import '../components/analysis_info_tile.dart';
 
 // YAXSHILANISH: Dinamik bin tanlash — 8/16/36/72 bin
@@ -60,6 +61,7 @@ class _RoseTabState extends State<RoseTab> {
     final dominantDeg = (_dominantBin * binSize + binSize / 2).toStringAsFixed(1);
 
     return ListView(
+      physics: AppScrollPhysics.list(),
       padding: const EdgeInsets.all(24),
       children: [
         Text(
