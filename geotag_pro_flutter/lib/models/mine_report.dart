@@ -5,6 +5,7 @@ class MineReport {
   final String reportType; // 'ore_block', 'rc_drill', 'stockpile'
   final DateTime createdAt;
   final String authorName;
+  final String? authorUid;
   final String imageUrl;
   final String? audioUrl;
   final double? lat;
@@ -19,6 +20,7 @@ class MineReport {
     required this.reportType,
     required this.createdAt,
     required this.authorName,
+    this.authorUid,
     required this.imageUrl,
     this.audioUrl,
     this.lat,
@@ -36,6 +38,7 @@ class MineReport {
       reportType: data['reportType'] ?? 'unknown',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       authorName: data['authorName'] ?? 'Noma\'lum',
+      authorUid: data['authorUid'] as String?,
       imageUrl: data['imageUrl'] ?? '',
       audioUrl: data['audioUrl'],
       lat: (data['lat'] as num?)?.toDouble(),
@@ -52,6 +55,7 @@ class MineReport {
       'reportType': reportType,
       'createdAt': Timestamp.fromDate(createdAt),
       'authorName': authorName,
+      if (authorUid != null) 'authorUid': authorUid,
       'imageUrl': imageUrl,
       'audioUrl': audioUrl,
       'lat': lat,

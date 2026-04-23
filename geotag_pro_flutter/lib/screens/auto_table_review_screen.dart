@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -75,7 +76,16 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
       final auth = context.read<AuthService>();
       final settings = context.read<SettingsController>();
       final loc = context.read<LocationService>().currentPosition;
-      
+      final uid = auth.currentUser?.uid ?? FirebaseAuth.instance.currentUser?.uid;
+      if (uid == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Hisobot yuborish uchun avval tizimga kiring.')),
+          );
+        }
+        return;
+      }
+
       // 1. Prepare data
       final updatedTable = List<Map<String, dynamic>>.from(_tableRows);
       final reportType = _parsedData!['report_type'] ?? 'unknown';
@@ -83,6 +93,7 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
       // 2. Upload to Firestore
       await FirebaseFirestore.instance.collection('daily_mine_reports').add({
         'reportType': reportType,
+        'authorUid': uid,
         'authorName': settings.currentUserName ?? auth.currentUser?.email ?? 'Noma\'lum',
         'createdAt': FieldValue.serverTimestamp(),
         'status': 'pending',

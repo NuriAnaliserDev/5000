@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:firebase_ai/firebase_ai.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:firebase_ai/firebase_ai.dart';
 
+import 'ai/ai_rate_limiter.dart';
 import '../utils/image_mime.dart';
 
 class AiTranslatorService {
@@ -38,6 +40,9 @@ class AiTranslatorService {
         bytes = await file.readAsBytes();
         mime = mimeTypeForImagePath(imagePath);
       }
+
+      final uid = FirebaseAuth.instance.currentUser?.uid ?? 'anonymous';
+      await AiRateLimiter.consume(uid);
 
       final imagePart = InlineDataPart(mime, bytes);
 
