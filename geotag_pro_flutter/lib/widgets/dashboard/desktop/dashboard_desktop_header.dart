@@ -85,7 +85,9 @@ class DashboardDesktopHeader extends StatelessWidget {
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
             ),
             Text(
-              context.read<SettingsController>().currentUserRole?.toUpperCase() ?? 'ADMIN',
+              context.read<SettingsController>().expertMode
+                  ? 'PROFESSIONAL'
+                  : 'STANDARD',
               style: TextStyle(fontSize: 9, color: Colors.grey.withValues(alpha: 0.8), letterSpacing: 1),
             ),
           ],

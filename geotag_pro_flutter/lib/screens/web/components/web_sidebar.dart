@@ -113,7 +113,12 @@ class WebSidebar extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.logout, color: Colors.redAccent, size: 20),
               tooltip: 'Tizimdan chiqish',
-              onPressed: () => context.read<AuthService>().logout(),
+              onPressed: () async {
+                await context.read<AuthService>().logout();
+                if (context.mounted) {
+                  context.read<SettingsController>().clearLocalDisplayName();
+                }
+              },
             ),
             const Text(
               'Chiqish',

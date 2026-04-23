@@ -75,16 +75,21 @@ class _WebSettingsScreenState extends State<WebSettingsScreen> {
                     ),
                     const Divider(height: 1),
                     _infoRow(
-                      icon: Icons.shield_outlined,
-                      label: 'Rol',
-                      value: settings.currentUserRole ?? 'Auditor',
+                      icon: Icons.psychology_outlined,
+                      label: 'Rejim',
+                      value: settings.expertMode ? 'Professional' : 'Oddiy',
                     ),
                     const Divider(height: 1),
                     ListTile(
                       leading: const Icon(Icons.logout, color: Colors.redAccent),
                       title: const Text('Tizimdan Chiqish', style: TextStyle(color: Colors.redAccent)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.redAccent),
-                      onTap: () => auth.logout(),
+                      onTap: () async {
+                        await auth.logout();
+                        if (context.mounted) {
+                          settings.clearLocalDisplayName();
+                        }
+                      },
                     ),
                   ],
                 ),

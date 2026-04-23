@@ -99,7 +99,8 @@ class TrackService extends ChangeNotifier {
 
     final settingsBox = Hive.box(HiveDb.settingsBox);
     final authorName = settingsBox.get('currentUserName') as String?;
-    final authorRole = settingsBox.get('currentUserRole') as String?;
+    final expert = settingsBox.get('expertMode', defaultValue: false) as bool;
+    final authorRole = expert ? 'Professional' : null;
 
     final newTrack = TrackData(
       name: name,

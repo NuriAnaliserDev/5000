@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../app/app_router.dart';
+import '../services/auth_service.dart';
 import '../services/station_repository.dart';
 import '../services/export_service.dart';
 import '../services/settings_controller.dart';
@@ -232,9 +234,27 @@ class AdminScreen extends StatelessWidget {
             contentPadding: EdgeInsets.zero,
             secondary: const Icon(Icons.psychology, color: Color(0xFF1976D2)),
             title: Text(context.loc('expert_mode')),
+            subtitle: Text(
+              'Professional geologik funksiyalar va kengaytirilgan forma',
+              style: TextStyle(fontSize: 11, color: onSurf.withValues(alpha: 0.55)),
+            ),
             value: settings.expertMode,
             onChanged: (v) => settings.expertMode = v,
             activeThumbColor: const Color(0xFF1976D2),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.logout, color: Colors.redAccent),
+            title: const Text('Hisobdan chiqish', style: TextStyle(color: Colors.redAccent)),
+            onTap: () async {
+              await context.read<AuthService>().logout();
+              if (!context.mounted) return;
+              context.read<SettingsController>().clearLocalDisplayName();
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                AppRouter.auth,
+                (r) => false,
+              );
+            },
           ),
           ListTile(
             contentPadding: EdgeInsets.zero,

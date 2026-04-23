@@ -104,7 +104,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
         return pos != null ? LatLng(pos.latitude, pos.longitude) : LatLng(_centerLat, _centerLng);
       },
       settings.currentUserName ?? 'Geolog',
-      settings.currentUserRole ?? 'Geologist',
+      settings.expertMode ? 'Professional' : 'Standard',
     );
   }
 

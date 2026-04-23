@@ -415,7 +415,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
         dipDirection: GeologyUtils.calculateDipDirection(_strike),
         confidence: 5,
         authorName: settings.currentUserName,
-        authorRole: settings.currentUserRole,
+        authorRole: settings.expertMode ? 'Professional' : null,
       );
       final id = await repo.addStation(station);
 
