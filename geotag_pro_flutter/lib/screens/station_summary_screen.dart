@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
@@ -11,6 +13,8 @@ import '../models/measurement.dart';
 import '../services/station_repository.dart';
 import '../services/settings_controller.dart';
 import '../services/pdf_export_service.dart';
+import '../services/ai_lithology_service.dart';
+import '../services/ai/ai_rate_limiter.dart';
 import '../utils/app_localizations.dart';
 import '../utils/rocks_list.dart';
 import '../utils/munsell_data.dart';
@@ -55,7 +59,7 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
   int _confidence = 5;
   String _munsellColor = 'N 8';
   List<Measurement> _measurements = [];
-  final bool _isAiLoading = false;
+  bool _isAiLoading = false;
   String _coordinateFormat = 'DD';
 
   final List<String> _measurementTypes = [
@@ -318,6 +322,81 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
     }
   }
 
+  Future<void> _runAiLithology() async {
+    if (_station == null) return;
+    final paths = <String>[
+      ...?_station!.photoPaths,
+      if (_station!.photoPath != null && _station!.photoPath!.isNotEmpty)
+        _station!.photoPath!,
+    ];
+    final existing = paths.where((p) => File(p).existsSync()).toList();
+    if (existing.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.locRead('ai_lithology_need_photo')),
+        ),
+      );
+      return;
+    }
+    final imagePath = existing.last;
+
+    setState(() => _isAiLoading = true);
+    try {
+      final result =
+          await AiLithologyService().analyzeRockSample(File(imagePath));
+      if (!mounted) return;
+
+      final matched = matchRockTreeFromAiLabel(result.rockType);
+      final mineralsLine = result.minerals.isEmpty
+          ? ''
+          : '${context.locRead('ai_lithology_minerals_prefix')} ${result.minerals.join(', ')}';
+
+      setState(() {
+        if (matched != null) {
+          _rockType = matched.category;
+          _subRockType = matched.sub;
+          _rockTypeController.text = matched.sub;
+        } else {
+          _rockTypeController.text = result.rockType;
+        }
+
+        final prev = _descriptionController.text.trim();
+        final desc = result.description.trim();
+        final tail = mineralsLine.trim();
+        final parts = <String>[];
+        if (prev.isNotEmpty) parts.add(prev);
+        if (desc.isNotEmpty) parts.add(desc);
+        if (tail.isNotEmpty) parts.add(tail);
+        _descriptionController.text = parts.join('\n\n');
+
+        _confidence = result.confidence.clamp(1, 5);
+        _munsellColor = result.munsellColor;
+      });
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.locRead('ai_lithology_applied_hint')),
+        ),
+      );
+    } on QuotaExceededException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${context.locRead('ai_lithology_error')}: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isAiLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -368,7 +447,7 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
                   setState(() => _rockType = v ?? 'Magmatik'),
               onSubRockTypeChanged: (v) =>
                   setState(() => _subRockType = v ?? ''),
-              onAiAnalyze: () {},
+              onAiAnalyze: _runAiLithology,
               onConfidenceChanged: (v) => setState(() => _confidence = v),
               onPickMunsell: _showMunsellPicker,
               onMeasurementTypeChanged: (v) =>

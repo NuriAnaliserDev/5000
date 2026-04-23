@@ -1,5 +1,7 @@
 import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/ai_translator_service.dart';
@@ -21,6 +23,7 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
   bool _isLoading = true;
   Map<String, dynamic>? _parsedData;
   List<Map<String, dynamic>> _tableRows = [];
+  String? _analysisError;
   
   @override
   void initState() {
@@ -29,26 +32,42 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
   }
 
   Future<void> _startAnalysis() async {
-    final result = await _aiService.analyzeReportImage(widget.imagePath);
     if (mounted) {
       setState(() {
-        _parsedData = result;
-        final type = result['report_type'] ?? 'unknown';
-        if (type == 'rc_drill' && result['holes'] != null) {
-          _tableRows = List<Map<String, dynamic>>.from(result['holes']);
-        } else if (type == 'ore_stockpile' && result['loaders'] != null) {
-          _tableRows = List<Map<String, dynamic>>.from(result['loaders']);
-        } else if (type == 'ore_block') {
-          // Flatten block data as it's a single entry
-          _tableRows = [Map<String, dynamic>.from(result)];
-        }
-              _isLoading = false;
+        _isLoading = true;
+        _analysisError = null;
+        _parsedData = null;
+        _tableRows = [];
       });
     }
+    final result = await _aiService.analyzeReportImage(widget.imagePath);
+    if (!mounted) return;
+    if (result.containsKey('error') && result['error'] != null) {
+      setState(() {
+        _analysisError = result['error'].toString();
+        _parsedData = null;
+        _tableRows = [];
+        _isLoading = false;
+      });
+      return;
+    }
+    setState(() {
+      _parsedData = result;
+      _analysisError = null;
+      final type = result['report_type'] ?? 'unknown';
+      if (type == 'rc_drill' && result['holes'] != null) {
+        _tableRows = List<Map<String, dynamic>>.from(result['holes']);
+      } else if (type == 'ore_stockpile' && result['loaders'] != null) {
+        _tableRows = List<Map<String, dynamic>>.from(result['loaders']);
+      } else if (type == 'ore_block') {
+        _tableRows = [Map<String, dynamic>.from(result)];
+      }
+      _isLoading = false;
+    });
   }
 
   Future<void> _submitReport() async {
-    if (_parsedData == null) return;
+    if (_parsedData == null || _analysisError != null) return;
     
     setState(() => _isLoading = true);
     
@@ -104,7 +123,7 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
       appBar: AppBar(
         title: const Text('AI Hisobot Tahlili'),
         actions: [
-          if (!_isLoading && _parsedData != null)
+          if (!_isLoading && _parsedData != null && _analysisError == null)
             TextButton.icon(
               onPressed: _submitReport,
               icon: const Icon(Icons.send, color: Colors.blue),
@@ -112,11 +131,11 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
             ),
         ],
       ),
-      body: _isLoading 
-        ? _buildLoadingState()
-        : _parsedData == null 
-          ? _buildErrorState()
-          : _buildReviewLayout(),
+      body: _isLoading
+          ? _buildLoadingState()
+          : _parsedData == null
+              ? _buildErrorState()
+              : _buildReviewLayout(),
     );
   }
 
@@ -136,16 +155,30 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
   }
 
   Widget _buildErrorState() {
+    final detail = _analysisError;
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, size: 64, color: Colors.red),
-          const SizedBox(height: 16),
-          const Text('AI tahlil qila olmadi', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 24),
-          ElevatedButton(onPressed: _startAnalysis, child: const Text('Qayta urinish')),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            const SizedBox(height: 16),
+            const Text('AI tahlil qila olmadi',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            if (detail != null && detail.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text(
+                detail,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+              ),
+            ],
+            const SizedBox(height: 24),
+            ElevatedButton(
+                onPressed: _startAnalysis, child: const Text('Qayta urinish')),
+          ],
+        ),
       ),
     );
   }
@@ -177,7 +210,7 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
               const SizedBox(height: 8),
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.file(File(widget.imagePath), height: 200, fit: BoxFit.cover),
+                child: _buildPreviewImage(height: 200),
               ),
               const SizedBox(height: 24),
               const Text('AI tomonidan o\'qilgan jadval:', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -189,6 +222,17 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
         ),
       ],
     );
+  }
+
+  Widget _buildPreviewImage({required double height}) {
+    final path = widget.imagePath;
+    if (path.startsWith('http')) {
+      return Image.network(path, height: height, width: double.infinity, fit: BoxFit.cover);
+    }
+    if (kIsWeb) {
+      return SizedBox(height: height, child: const Center(child: Text('Rasm ko‘rinishi')));
+    }
+    return Image.file(File(path), height: height, width: double.infinity, fit: BoxFit.cover);
   }
 
   Widget _summaryItem(String label, String value) {

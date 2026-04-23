@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
@@ -103,9 +104,8 @@ class _ChatScreenState extends State<ChatScreen> {
               itemCount: messages.length,
               itemBuilder: (context, index) {
                 final msg = messages[index];
-                // basic logic: if senderId == currentUser, it's mine
-                // For now, assume all sent locally are "mine" since we don't have separate streams yet
-                final isMe = msg.senderId == chatRepo.settingsController.currentUserName || msg.senderId == 'anon';
+                final myUid = FirebaseAuth.instance.currentUser?.uid;
+                final isMe = myUid != null && msg.senderId == myUid;
 
                 return _buildMessageBubble(msg, isMe, isDark, primary);
               },

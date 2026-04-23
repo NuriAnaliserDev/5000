@@ -13,6 +13,11 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'add_first_station': return s.add_first_station;
     case 'add_gallery': return s.add_gallery;
     case 'admin': return s.admin;
+    case 'ai_lithology_applied_hint': return s.ai_lithology_applied_hint;
+    case 'ai_lithology_btn': return s.ai_lithology_btn;
+    case 'ai_lithology_error': return s.ai_lithology_error;
+    case 'ai_lithology_minerals_prefix': return s.ai_lithology_minerals_prefix;
+    case 'ai_lithology_need_photo': return s.ai_lithology_need_photo;
     case 'all_projects': return s.all_projects;
     case 'all_stations': return s.all_stations;
     case 'altitude': return s.altitude;
