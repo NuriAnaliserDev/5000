@@ -104,14 +104,16 @@ class SpatialCalculator {
     return t * deltaLng / 2.0;
   }
 
-  /// Ko'pburchak perimetri (metrlarda) — Haversine formulasi bilan
+  /// Yopiq ko'pburchak perimetri (metr) — Haversine. Kamida 3 nuqta kerak
+  /// (2 ta bo‘lsa yopiq shakl emas, 0 qaytaramiz; aks holda A–B–A ikki marta
+  /// hisoblanardi).
   static double calculatePerimeter(List<LatLng> path) {
-    if (path.length < 2) return 0.0;
+    if (path.length < 3) return 0.0;
     double perimeter = 0.0;
     const distanceModel = Distance();
 
     for (int i = 0; i < path.length; i++) {
-      int j = (i + 1) % path.length;
+      final j = (i + 1) % path.length;
       perimeter += distanceModel.as(LengthUnit.Meter, path[i], path[j]);
     }
     return perimeter;

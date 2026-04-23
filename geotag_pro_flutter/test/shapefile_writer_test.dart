@@ -1,10 +1,26 @@
+import 'dart:io';
+
 import 'package:archive/archive.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geofield_pro_flutter/models/station.dart';
 import 'package:geofield_pro_flutter/models/track_data.dart';
 import 'package:geofield_pro_flutter/services/export/shapefile_writer.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() {
+    const ch = MethodChannel('plugins.flutter.io/path_provider');
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(ch, (call) async {
+      if (call.method == 'getTemporaryDirectory') {
+        return Directory.systemTemp.path;
+      }
+      return null;
+    });
+  });
+
   group('ShapefileWriter.writeZip', () {
     test('bir stansiya — ZIPda stations.shp va .prj', () async {
       final s = Station(
