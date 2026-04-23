@@ -1,0 +1,99 @@
+rules_version = '2';
+
+// GeoField Pro — Firestore Security Rules.
+//
+// Tamoyillar:
+//   * Har bir foydalanuvchi faqat o‘zining kolleksiyasini ko‘radi/yozadi.
+//   * Presence — barcha autentifikatsiyadan o‘tganlarga ko‘rinadi, yozish —
+//     faqat o‘zi.
+//   * Emergency signals — barcha autentifikatsiyadan o‘tganlar ko‘radi
+//     (xavfsizlik uchun); yaratish — autentifikatsiyadan o‘tgan; update —
+//     faqat yuboruvchi.
+//   * Global boundaries va global_lines — faqat admin/senior_geologist.
+//
+// Deploy: cd geotag_pro_flutter && firebase deploy --only firestore:rules
+
+service cloud.firestore {
+  match /databases/{db}/documents {
+    function isAuthed() {
+      return request.auth != null;
+    }
+
+    function userRole() {
+      return get(/databases/$(db)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isAdmin() {
+      return userRole() in ['admin', 'geologist_senior'];
+    }
+
+    match /users/{uid} {
+      allow read: if isAuthed() && request.auth.uid == uid;
+      allow write: if isAuthed() && request.auth.uid == uid;
+
+      match /stations/{stationId} {
+        allow read, write: if isAuthed() && request.auth.uid == uid;
+      }
+
+      match /tracks/{trackId} {
+        allow read, write: if isAuthed() && request.auth.uid == uid;
+      }
+    }
+
+    match /presence/{uid} {
+      allow read: if isAuthed();
+      allow write: if isAuthed() && request.auth.uid == uid;
+    }
+
+    match /emergency_signals/{doc} {
+      allow read: if isAuthed();
+      allow create: if isAuthed()
+                    && request.resource.data.senderUid == request.auth.uid;
+      allow update: if isAuthed()
+                    && resource.data.senderUid == request.auth.uid;
+      allow delete: if isAdmin();
+    }
+
+    match /global_boundaries/{doc} {
+      allow read: if isAuthed();
+      allow write: if isAdmin();
+    }
+
+    match /global_lines/{doc} {
+      allow read: if isAuthed();
+      allow write: if isAdmin();
+    }
+
+    // Ilova kodida kolleksiya nomi: chat_groups
+    match /chat_groups/{groupId} {
+      allow read: if isAuthed();
+      allow create, update, delete: if isAuthed();
+
+      match /messages/{msgId} {
+        allow read: if isAuthed();
+        allow create: if isAuthed()
+          && request.resource.data.senderId == request.auth.uid;
+        allow update, delete: if isAuthed()
+          && resource.data.senderId == request.auth.uid;
+      }
+    }
+
+    match /groups/{groupId} {
+      allow read: if isAuthed();
+      allow create, update, delete: if isAuthed();
+
+      match /messages/{msgId} {
+        allow read: if isAuthed();
+        allow create: if isAuthed()
+          && request.resource.data.senderId == request.auth.uid;
+        allow update, delete: if isAuthed()
+          && resource.data.senderId == request.auth.uid;
+      }
+    }
+
+    match /ai_quota_overrides/{uid} {
+      allow read: if isAuthed();
+      allow write: if isAdmin();
+    }
+  }
+}

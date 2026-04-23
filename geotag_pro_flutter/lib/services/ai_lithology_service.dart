@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
 import 'ai/ai_rate_limiter.dart';
+import '../utils/image_mime.dart';
 
 class AiLithologyResponse {
   final String rockType;
@@ -59,7 +60,8 @@ class AiLithologyService {
       );
 
       final imageBytes = await imageFile.readAsBytes();
-      
+      final mime = mimeTypeForImagePath(imageFile.path);
+
       final prompt = '''
 Sen professional katta (Senior) geologsan. 
 Quyidagi rasmni vizual analiz qilib uning litologik tarkibini aniqla va ma'lumotlarni faqat berilgan JSON formatida qaytar.
@@ -79,7 +81,7 @@ Javob berish formati (JSON):
       final content = [
         Content.multi([
           TextPart(prompt),
-          InlineDataPart('image/jpeg', imageBytes),
+          InlineDataPart(mime, imageBytes),
         ]),
       ];
 

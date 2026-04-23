@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_ai/firebase_ai.dart';
 
+import '../utils/image_mime.dart';
+
 class AiTranslatorService {
   late final GenerativeModel _model;
 
@@ -19,21 +21,25 @@ class AiTranslatorService {
   Future<Map<String, dynamic>> analyzeReportImage(String imagePath) async {
     try {
       Uint8List bytes;
+      String mime;
       if (imagePath.startsWith('http')) {
         final response = await http.get(Uri.parse(imagePath));
         if (response.statusCode != 200) {
           throw Exception("Rasmni yuklashda xatolik: ${response.statusCode}");
         }
         bytes = response.bodyBytes;
+        mime = mimeTypeFromContentTypeHeader(response.headers['content-type']) ??
+            mimeTypeForImagePath(imagePath);
       } else {
         if (kIsWeb) {
           throw Exception("Web muhitda lokal fayl yo'llari ruxsat etilmagan");
         }
         final file = File(imagePath);
         bytes = await file.readAsBytes();
+        mime = mimeTypeForImagePath(imagePath);
       }
 
-      final imagePart = InlineDataPart('image/jpeg', bytes);
+      final imagePart = InlineDataPart(mime, bytes);
 
       final prompt = TextPart('''
 Siz professional konchilik geologisisiz. Rasmda qolyozma hisobot tasvirlangan.

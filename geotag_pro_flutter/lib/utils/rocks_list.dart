@@ -39,3 +39,52 @@ final Map<String, List<String>> rockTree = {
 List<String> getAllRocks() {
   return rockTree.values.expand((e) => e).toList();
 }
+
+/// AI qaytargan `rock_type` qatorini [rockTree] dagi kategoriya va kichik tur bilan moslashtirish.
+({String category, String sub})? matchRockTreeFromAiLabel(String aiRockType) {
+  final normalized = aiRockType.trim();
+  if (normalized.isEmpty) return null;
+  final lower = normalized.toLowerCase();
+  if (lower.contains('noma\'lum') ||
+      lower.contains("noma'lum") ||
+      lower.contains('noma‘lum')) {
+    return null;
+  }
+
+  String? bestCat;
+  String? bestSub;
+  var bestScore = 0;
+
+  for (final e in rockTree.entries) {
+    for (final sub in e.value) {
+      final sl = sub.toLowerCase();
+      var score = 0;
+      if (lower == sl) {
+        score = 1000 + sub.length;
+      } else if (lower.contains(sl)) {
+        score = 500 + sl.length;
+      } else if (sl.contains(lower) && lower.length >= 3) {
+        score = 400 + lower.length;
+      } else if (_tokenOverlap(lower, sl)) {
+        score = 100;
+      }
+      if (score > bestScore) {
+        bestScore = score;
+        bestCat = e.key;
+        bestSub = sub;
+      }
+    }
+  }
+
+  if (bestCat != null && bestSub != null && bestScore >= 100) {
+    return (category: bestCat, sub: bestSub);
+  }
+  return null;
+}
+
+bool _tokenOverlap(String a, String b) {
+  final ta = a.split(RegExp(r'\s+')).where((t) => t.length > 2).toSet();
+  final tb = b.split(RegExp(r'\s+')).where((t) => t.length > 2).toSet();
+  return ta.intersection(tb).isNotEmpty;
+}
+
