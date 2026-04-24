@@ -206,6 +206,14 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'map_layer_export_data': return s.map_layer_export_data;
     case 'map_line_deleted_snack': return s.map_line_deleted_snack;
     case 'map_tap_line_delete_message': return s.map_tap_line_delete_message;
+    case 'map_structure_mode_tooltip': return s.map_structure_mode_tooltip;
+    case 'map_structure_mode_hint': return s.map_structure_mode_hint;
+    case 'map_structure_add_title': return s.map_structure_add_title;
+    case 'map_structure_strike_label': return s.map_structure_strike_label;
+    case 'map_structure_dip_label': return s.map_structure_dip_label;
+    case 'map_structure_type_label': return s.map_structure_type_label;
+    case 'map_structure_deleted_snack': return s.map_structure_deleted_snack;
+    case 'map_structure_delete_body': return s.map_structure_delete_body;
     case 'map_offline_tiles_hint': return s.map_offline_tiles_hint;
     case 'massive': return s.massive;
     case 'measurement_error_high': return s.measurement_error_high;

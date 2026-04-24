@@ -15,10 +15,13 @@ import '../services/location_service.dart';
 import '../services/settings_controller.dart';
 import '../services/boundary_service.dart';
 import '../services/geological_line_repository.dart';
+import '../services/map_structure_repository.dart';
 import '../services/tutorial_service.dart';
 import '../services/presence_service.dart';
 import '../models/station.dart';
 import '../models/geological_line.dart';
+import '../models/map_structure_annotation.dart';
+import '../models/measurement.dart';
 import '../models/boundary_polygon.dart';
 import '../utils/linework_utils.dart';
 import '../l10n/app_strings.dart';
@@ -43,6 +46,7 @@ import 'map/components/map_linework_controls.dart';
 import 'map/components/map_projection_controls.dart';
 import 'map/components/map_layer_drawer.dart';
 import 'map/components/map_three_d_button.dart';
+import 'map/components/map_structure_markers_layer.dart';
 
 class GlobalMapScreen extends StatefulWidget {
   final Map<String, dynamic>? initLocation;
@@ -81,6 +85,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
   bool _isVertexEditMode = false;
 
   bool _isSliceMode = false;
+  /// Field Move uslubida: xaritada qo'lda strike/dip belgisi
+  bool _isStructurePlaceMode = false;
 
   double _centerLat = 41.2995;
   double _centerLng = 69.2401;
@@ -211,6 +217,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     final geoLines = context.select<GeologicalLineRepository, List<GeologicalLine>>(
       (repo) => repo.getAllLines(),
     );
+    final structureAnnotations = context
+        .select<MapStructureRepository, List<MapStructureAnnotation>>((r) => r.annotations);
     final trackSvc = context.read<TrackService>();
     final locationSvc = context.read<LocationService>();
     final currentPos = locationSvc.currentPosition;
@@ -309,6 +317,11 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                        ),
                   ],
                 ),
+                MapStructureMarkersLayer(
+                  annotations: structureAnnotations,
+                  opacity: _drawingLayerOpacity,
+                  onMarkerTap: (a) => unawaited(_confirmDeleteStructure(a)),
+                ),
                 MapStationLayer(
                   stations: stations,
                   onStationTap: (s) => Navigator.of(context).pushNamed('/station', arguments: s.key as int?),
@@ -348,6 +361,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
               onStartDrawing: () => setState(() {
                 _isDrawingMode = true;
                 _isSliceMode = false;
+                _isStructurePlaceMode = false;
                 _drawingPoints.clear();
               }),
               onLineTypeChanged: (type) => setState(() => _selectedLineType = type),
@@ -397,6 +411,23 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                   ),
                 ),
               ),
+            if (_isStructurePlaceMode)
+              Positioned(
+                left: 8,
+                right: 8,
+                bottom: 80,
+                child: Material(
+                  color: Colors.amber.shade900.withValues(alpha: 0.9),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    child: Text(
+                      GeoFieldStrings.of(context)?.map_structure_mode_hint ?? '',
+                      style: const TextStyle(color: Colors.white, fontSize: 12, height: 1.3),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -431,8 +462,47 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
   }
 
   Widget _buildSideControls() {
+    final s = GeoFieldStrings.of(context);
     return Stack(
       children: [
+        Positioned(
+          left: 8,
+          bottom: 230,
+          child: Material(
+            elevation: 6,
+            borderRadius: BorderRadius.circular(28),
+            color: _isStructurePlaceMode ? Colors.amber.shade800 : const Color(0xFF1A2028),
+            child: IconButton(
+              tooltip: s?.map_structure_mode_tooltip ?? 'Structure',
+              onPressed: () {
+                setState(() {
+                  _isStructurePlaceMode = !_isStructurePlaceMode;
+                  if (_isStructurePlaceMode) {
+                    _isDrawingMode = false;
+                    _isSliceMode = false;
+                    _drawingPoints = [];
+                  }
+                });
+                if (_isStructurePlaceMode) {
+                  final h = s?.map_structure_mode_hint;
+                  if (h != null && mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(h),
+                        behavior: SnackBarBehavior.floating,
+                        duration: const Duration(seconds: 5),
+                      ),
+                    );
+                  }
+                }
+              },
+              icon: Icon(
+                Icons.architecture,
+                color: _isStructurePlaceMode ? Colors.white : Colors.amber.shade200,
+              ),
+            ),
+          ),
+        ),
         Positioned(
           right: 16,
           bottom: 310,
@@ -442,6 +512,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
               setState(() {
                 _isSliceMode = !_isSliceMode;
                 _isDrawingMode = false;
+                _isStructurePlaceMode = false;
                 _drawingPoints = [];
               });
               if (_isSliceMode) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.locRead('select_two_points'))));
@@ -502,6 +573,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     } else if (_isSliceMode) {
       setState(() => _drawingPoints.add(point));
       if (_drawingPoints.length == 2) _finalizeSlice();
+    } else if (_isStructurePlaceMode) {
+      unawaited(_showAddStructureDialog(point));
     } else {
       final tol = _lineHitToleranceMeters(point);
       final lineRepo = context.read<GeologicalLineRepository>();
@@ -552,6 +625,132 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(s.map_line_deleted_snack),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  Future<void> _showAddStructureDialog(LatLng point) async {
+    final s = GeoFieldStrings.of(context);
+    if (s == null) return;
+    const types = <String>['bedding', 'cleavage', 'lineation', 'joint', 'contact', 'fault', 'other'];
+    var selectedType = 'bedding';
+    final strikeCtrl = TextEditingController(text: '0');
+    final dipCtrl = TextEditingController(text: '45');
+    if (!mounted) return;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setLocal) {
+          return AlertDialog(
+            title: Text(s.map_structure_add_title),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: strikeCtrl,
+                    decoration: InputDecoration(labelText: s.map_structure_strike_label),
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: dipCtrl,
+                    decoration: InputDecoration(labelText: s.map_structure_dip_label),
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  ),
+                  const SizedBox(height: 4),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      s.map_structure_type_label,
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 4,
+                    children: types.map((t) {
+                      final selected = selectedType == t;
+                      return FilterChip(
+                        label: Text(
+                          Measurement(
+                            type: t,
+                            strike: 0,
+                            dip: 0,
+                            dipDirection: 0,
+                            capturedAt: DateTime.now(),
+                          ).localizedType,
+                          style: const TextStyle(fontSize: 11),
+                        ),
+                        selected: selected,
+                        onSelected: (_) => setLocal(() => selectedType = t),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(s.cancel),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text(s.save_label),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+    if (ok != true || !mounted) return;
+    var strike = double.tryParse(strikeCtrl.text.replaceAll(',', '.')) ?? 0;
+    var dip = double.tryParse(dipCtrl.text.replaceAll(',', '.')) ?? 0;
+    strike = strike % 360;
+    if (strike < 0) strike += 360;
+    dip = dip.clamp(0, 90);
+    final a = MapStructureAnnotation(
+      id: const Uuid().v4(),
+      lat: point.latitude,
+      lng: point.longitude,
+      strike: strike,
+      dip: dip,
+      structureType: selectedType,
+      createdAt: DateTime.now(),
+    );
+    await context.read<MapStructureRepository>().addAnnotation(a);
+  }
+
+  Future<void> _confirmDeleteStructure(MapStructureAnnotation a) async {
+    final s = GeoFieldStrings.of(context);
+    if (s == null) return;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('${a.strike.toStringAsFixed(0)}° / ${a.dip.toStringAsFixed(0)}°'),
+        content: Text(s.map_structure_delete_body),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(s.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
+            child: Text(s.delete_confirm_btn),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    await context.read<MapStructureRepository>().deleteAnnotation(a.id);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(s.map_structure_deleted_snack),
         behavior: SnackBarBehavior.floating,
       ),
     );

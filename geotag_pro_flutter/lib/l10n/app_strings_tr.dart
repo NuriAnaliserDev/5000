@@ -229,6 +229,32 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get map_line_deleted_snack => 'Çizim silindi';
 
   @override
+  String get map_structure_mode_tooltip => 'Strike/dip işareti yerleştir';
+
+  @override
+  String get map_structure_mode_hint =>
+      'Eklemek için haritaya dokunun. Silmek için işarete dokunun.';
+
+  @override
+  String get map_structure_add_title => 'Strike / dip';
+
+  @override
+  String get map_structure_strike_label => 'Strike (°)';
+
+  @override
+  String get map_structure_dip_label => 'Dip (°)';
+
+  @override
+  String get map_structure_type_label => 'Yapı tipi';
+
+  @override
+  String get map_structure_deleted_snack => 'Yapı işareti silindi';
+
+  @override
+  String get map_structure_delete_body =>
+      'Bu işaret kalıcı olarak silinir. Geri alınamaz.';
+
+  @override
   String get ai_vertex_disabled_title => 'AI (Vertex) arka uç etkin değil';
 
   @override

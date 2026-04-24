@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../models/geological_line.dart';
+import '../models/map_structure_annotation.dart';
 import '../models/measurement.dart';
 import '../models/audit_entry.dart';
 import '../models/station.dart';
@@ -18,6 +19,7 @@ class HiveDb {
   static const chatMessagesBox = 'chat_messages';
   static const chatGroupsBox = 'chat_groups';
   static const linesBox = 'geological_lines';
+  static const mapStructureBox = 'map_structure_annotations';
 
   static Future<void> init() async {
     await Hive.initFlutter();
@@ -29,6 +31,7 @@ class HiveDb {
     _registerAdapter(GeologicalLineAdapter());
     _registerAdapter(MeasurementAdapter());
     _registerAdapter(AuditEntryAdapter());
+    _registerAdapter(MapStructureAnnotationAdapter());
 
     final cipher = await EncryptionManager.cipher();
 
@@ -37,6 +40,7 @@ class HiveDb {
     await _openTypedMigrate<ChatMessage>(chatMessagesBox, cipher);
     await _openTypedMigrate<ChatGroup>(chatGroupsBox, cipher);
     await _openTypedMigrate<GeologicalLine>(linesBox, cipher);
+    await _openTypedMigrate<MapStructureAnnotation>(mapStructureBox, cipher);
     await _openDynamicMigrate(settingsBox, cipher);
     await _openDynamicMigrate(syncStateBox, cipher);
   }

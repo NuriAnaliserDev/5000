@@ -10,7 +10,7 @@ class MapGpsHud extends StatelessWidget {
     final locService = context.watch<LocationService>();
     final loc = locService.currentPosition;
     final status = locService.status;
-    
+
     Color statusColor;
     String statusText;
     switch (status) {
@@ -37,7 +37,7 @@ class MapGpsHud extends StatelessWidget {
     }
 
     return Positioned(
-      top: 80,
+      top: 140,
       left: 10,
       child: Container(
         constraints: const BoxConstraints(maxWidth: 200),
@@ -52,14 +52,11 @@ class MapGpsHud extends StatelessWidget {
           children: [
             Icon(Icons.satellite_alt, color: statusColor, size: 14),
             const SizedBox(width: 4),
-            Text(
-              statusText, 
-              style: const TextStyle(
-                color: Colors.white, 
-                fontSize: 11, 
-                fontWeight: FontWeight.bold
-              )
-            ),
+            Text(statusText,
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold)),
           ],
         ),
       ),

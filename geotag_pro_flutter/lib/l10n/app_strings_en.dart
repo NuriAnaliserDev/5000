@@ -229,6 +229,32 @@ class GeoFieldStringsEn extends GeoFieldStrings {
   String get map_line_deleted_snack => 'Linework removed';
 
   @override
+  String get map_structure_mode_tooltip => 'Place strike/dip on map';
+
+  @override
+  String get map_structure_mode_hint =>
+      'Tap the map to add a strike/dip symbol. Tap an existing symbol to delete it.';
+
+  @override
+  String get map_structure_add_title => 'Strike / dip';
+
+  @override
+  String get map_structure_strike_label => 'Strike (°)';
+
+  @override
+  String get map_structure_dip_label => 'Dip (°)';
+
+  @override
+  String get map_structure_type_label => 'Structure type';
+
+  @override
+  String get map_structure_deleted_snack => 'Structure marker removed';
+
+  @override
+  String get map_structure_delete_body =>
+      'This structure marker will be permanently removed. This cannot be undone.';
+
+  @override
   String get ai_vertex_disabled_title => 'AI backend (Vertex) is not enabled';
 
   @override

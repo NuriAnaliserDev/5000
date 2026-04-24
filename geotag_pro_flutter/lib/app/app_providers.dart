@@ -6,6 +6,7 @@ import '../services/boundary_service.dart';
 import '../services/chat_repository.dart';
 import '../services/cloud_sync_service.dart';
 import '../services/geological_line_repository.dart';
+import '../services/map_structure_repository.dart';
 import '../services/location_service.dart';
 import '../services/mine_report_repository.dart';
 import '../services/presence_service.dart';
@@ -57,6 +58,14 @@ List<SingleChildWidget> buildAppChangeNotifierProviders() {
         final repo = GeologicalLineRepository();
         repo.init();
         return repo;
+      },
+    ),
+    ChangeNotifierProvider<MapStructureRepository>(
+      lazy: true,
+      create: (_) {
+        final r = MapStructureRepository();
+        r.init();
+        return r;
       },
     ),
     ChangeNotifierProvider<SecurityProvider>(lazy: true, create: (_) => SecurityProvider()),

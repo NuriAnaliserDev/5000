@@ -229,6 +229,32 @@ class GeoFieldStringsUz extends GeoFieldStrings {
   String get map_line_deleted_snack => 'Chizma o‘chirildi';
 
   @override
+  String get map_structure_mode_tooltip => 'Xaritaga strike/dip belgisi';
+
+  @override
+  String get map_structure_mode_hint =>
+      'Belgi qo‘yish uchun xaritani bosing. O‘chirish — belgini bosing.';
+
+  @override
+  String get map_structure_add_title => 'Strike / dip';
+
+  @override
+  String get map_structure_strike_label => 'Strike (°)';
+
+  @override
+  String get map_structure_dip_label => 'Dip (°)';
+
+  @override
+  String get map_structure_type_label => 'Struktur turi';
+
+  @override
+  String get map_structure_deleted_snack => 'Struktur belgisi o‘chirildi';
+
+  @override
+  String get map_structure_delete_body =>
+      'Ushbu struktur belgisi butunlay o‘chiriladi. Qayta tiklab bo‘lmaydi.';
+
+  @override
   String get ai_vertex_disabled_title => 'AI (Vertex) backend o‘chiq';
 
   @override

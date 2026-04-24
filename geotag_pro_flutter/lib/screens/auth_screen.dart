@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../app/app_router.dart';
 import '../services/auth_service.dart';
 import '../services/settings_controller.dart';
+import '../services/user_flags_service.dart';
 
 /// Email + parol: kirish va ro‘yxatdan o‘tish (Firebase Auth).
 class AuthScreen extends StatefulWidget {
@@ -87,7 +88,22 @@ class _AuthScreenState extends State<AuthScreen> {
     }
     HapticFeedback.lightImpact();
     setState(() => _loading = false);
-    Navigator.of(context).pushReplacementNamed(AppRouter.dashboard);
+
+    if (user == null) return;
+
+    final completed = await UserFlagsService.getOnboardingCompleted(user.uid);
+    if (!mounted) return;
+
+    final showOnboarding = _register
+        ? (completed != true)
+        : (completed == false);
+
+    if (showOnboarding) {
+      Navigator.of(context).pushReplacementNamed(AppRouter.onboarding);
+    } else {
+      settings.isFirstRun = false;
+      Navigator.of(context).pushReplacementNamed(AppRouter.dashboard);
+    }
   }
 
   Future<void> _resetPassword() async {
@@ -139,6 +155,8 @@ class _AuthScreenState extends State<AuthScreen> {
                         width: 100,
                         height: 100,
                         fit: BoxFit.contain,
+                        filterQuality: FilterQuality.high,
+                        gaplessPlayback: true,
                       ),
                     ),
                   ),

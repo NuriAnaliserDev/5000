@@ -508,6 +508,54 @@ abstract class GeoFieldStrings {
   /// **'Linework removed'**
   String get map_line_deleted_snack;
 
+  /// No description provided for @map_structure_mode_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Place strike/dip on map'**
+  String get map_structure_mode_tooltip;
+
+  /// No description provided for @map_structure_mode_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the map to add a strike/dip symbol. Tap an existing symbol to delete it.'**
+  String get map_structure_mode_hint;
+
+  /// No description provided for @map_structure_add_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Strike / dip'**
+  String get map_structure_add_title;
+
+  /// No description provided for @map_structure_strike_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Strike (°)'**
+  String get map_structure_strike_label;
+
+  /// No description provided for @map_structure_dip_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Dip (°)'**
+  String get map_structure_dip_label;
+
+  /// No description provided for @map_structure_type_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Structure type'**
+  String get map_structure_type_label;
+
+  /// No description provided for @map_structure_deleted_snack.
+  ///
+  /// In en, this message translates to:
+  /// **'Structure marker removed'**
+  String get map_structure_deleted_snack;
+
+  /// No description provided for @map_structure_delete_body.
+  ///
+  /// In en, this message translates to:
+  /// **'This structure marker will be permanently removed. This cannot be undone.'**
+  String get map_structure_delete_body;
+
   /// No description provided for @ai_vertex_disabled_title.
   ///
   /// In en, this message translates to:

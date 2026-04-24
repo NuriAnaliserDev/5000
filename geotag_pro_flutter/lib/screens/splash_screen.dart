@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import '../app/app_router.dart';
 import '../services/auth_service.dart';
 import '../services/hive_db.dart';
 import '../services/settings_controller.dart';
+import '../services/user_flags_service.dart';
 import '../utils/wmm/wmm_model.dart';
 import 'error_screen.dart';
 
@@ -42,6 +44,23 @@ class _SplashScreenState extends State<SplashScreen> {
       await Future<void>.delayed(const Duration(milliseconds: 80));
       if (Firebase.apps.isNotEmpty) {
         Firebase.app();
+        setState(() {
+          _statusLabel = 'Sessiya...';
+        });
+        // Saqlangan kirish: ba'zida [currentUser] keyinroq to'ldiriladi; authState birinchi hodisa kutamiz
+        try {
+          await FirebaseAuth.instance
+              .authStateChanges()
+              .first
+              .timeout(const Duration(seconds: 4));
+        } catch (_) {
+          // tarmoq yoki vaqt — davom etamiz
+        }
+        // Ba'zi qurilmalarda birinchi hodisa null, keyin saqlangan foydalanuvchi paydo bo‘ladi
+        for (int i = 0; i < 25; i++) {
+          if (FirebaseAuth.instance.currentUser != null) break;
+          await Future<void>.delayed(const Duration(milliseconds: 60));
+        }
       }
 
       setState(() {
@@ -74,6 +93,14 @@ class _SplashScreenState extends State<SplashScreen> {
       );
 
       setState(() {
+        _progress = 0.95;
+        _statusLabel = 'Profil...';
+      });
+      if (mounted) {
+        await _syncOnboardingForLoggedInUser();
+      }
+
+      setState(() {
         _progress = 1.0;
         _statusLabel = 'Tayyor';
       });
@@ -93,22 +120,40 @@ class _SplashScreenState extends State<SplashScreen> {
     }
   }
 
+  /// Tizimda allaqachon sessiya bo‘lsa — Firestore’dan «onboarding o‘tgan» sozlamasini olish.
+  Future<void> _syncOnboardingForLoggedInUser() async {
+    final u = FirebaseAuth.instance.currentUser;
+    if (u == null) return;
+    final completed = await UserFlagsService.getOnboardingCompleted(u.uid);
+    if (!mounted) return;
+    final settings = context.read<SettingsController>();
+    if (completed == true) {
+      settings.isFirstRun = false;
+    } else if (completed == null) {
+      // Eski foydalanuvchi, hujjat yo‘q — qayta tanishtirish qilmaymiz, bulutga belgi qo‘yamiz
+      settings.isFirstRun = false;
+      await UserFlagsService.setOnboardingCompleted(u.uid, true);
+    }
+  }
+
   void _goNext() {
     final settings = context.read<SettingsController>();
-    final auth = context.read<AuthService>();
-    final user = auth.currentUser;
+    // Provider'dagi [AuthService] ba'zida hali [null]; marshrut uchun to'g'ridan-to'g'ri Firebase
+    final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       final name = AuthService.displayNameFromUser(user);
       if (settings.currentUserName != name) {
         settings.setLocalDisplayName(name);
       }
     }
-    if (settings.isFirstRun) {
-      Navigator.pushReplacementNamed(context, AppRouter.onboarding);
-    } else if (!auth.isAuthenticated) {
-      Navigator.pushReplacementNamed(context, AppRouter.auth);
+    if (user != null) {
+      if (settings.isFirstRun) {
+        Navigator.pushReplacementNamed(context, AppRouter.onboarding);
+      } else {
+        Navigator.pushReplacementNamed(context, AppRouter.dashboard);
+      }
     } else {
-      Navigator.pushReplacementNamed(context, AppRouter.dashboard);
+      Navigator.pushReplacementNamed(context, AppRouter.auth);
     }
   }
 
@@ -133,6 +178,9 @@ class _SplashScreenState extends State<SplashScreen> {
                 'assets/logo.png',
                 width: 200,
                 height: 200,
+                fit: BoxFit.contain,
+                filterQuality: FilterQuality.high,
+                gaplessPlayback: true,
               ),
             ),
             const SizedBox(height: 24),

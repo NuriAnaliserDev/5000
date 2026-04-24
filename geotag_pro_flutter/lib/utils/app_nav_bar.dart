@@ -12,7 +12,8 @@ class AppBottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final surf = Theme.of(context).colorScheme.surface;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final borderColor = (isDark ? Colors.white : Colors.black).withValues(alpha: 0.08);
+    final borderColor =
+        (isDark ? Colors.white : Colors.black).withValues(alpha: 0.08);
     final isExpert = context.watch<SettingsController>().expertMode;
 
     return Container(
@@ -39,7 +40,8 @@ class AppBottomNavBar extends StatelessWidget {
               _navItem(
                 context,
                 icon: Icons.chat_bubble_rounded,
-                label: 'Xabarlar', // Using hardcoded string since string resources might not have 'messages' yet
+                label:
+                    'Xabarlar', // Using hardcoded string since string resources might not have 'messages' yet
                 route: '/messages',
                 isActive: activeRoute == '/messages',
               ),

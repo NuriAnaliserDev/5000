@@ -11,7 +11,7 @@ class MapLiveTrackStats extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      top: 70,
+      top: 130,
       left: 16,
       right: 16,
       child: AppCard(

@@ -1,9 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../app/app_router.dart';
 import '../services/settings_controller.dart';
+import '../services/user_flags_service.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
@@ -27,6 +29,20 @@ class OnboardingScreen extends StatelessWidget {
       pageColor: Colors.white,
       imagePadding: EdgeInsets.zero,
     );
+
+    Future<void> completeOnboarding() async {
+      settings.isFirstRun = false;
+      final u = FirebaseAuth.instance.currentUser;
+      if (u != null) {
+        await UserFlagsService.setOnboardingCompleted(u.uid, true);
+      }
+      if (!context.mounted) return;
+      if (u != null) {
+        Navigator.of(context).pushReplacementNamed(AppRouter.dashboard);
+      } else {
+        Navigator.of(context).pushReplacementNamed(AppRouter.auth);
+      }
+    }
 
     return IntroductionScreen(
       globalBackgroundColor: Colors.white,
@@ -56,14 +72,8 @@ class OnboardingScreen extends StatelessWidget {
           decoration: pageDecoration,
         ),
       ],
-      onDone: () {
-        settings.isFirstRun = false;
-        Navigator.of(context).pushReplacementNamed(AppRouter.auth);
-      },
-      onSkip: () {
-        settings.isFirstRun = false;
-        Navigator.of(context).pushReplacementNamed(AppRouter.auth);
-      },
+      onDone: () => completeOnboarding(),
+      onSkip: () => completeOnboarding(),
       showSkipButton: true,
       skip: const Text("O'tkazib yuborish", style: TextStyle(fontWeight: FontWeight.w600)),
       next: const Icon(Icons.arrow_forward),
