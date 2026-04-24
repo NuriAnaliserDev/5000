@@ -211,6 +211,44 @@ class GeoFieldStringsTr extends GeoFieldStrings {
       'İstasyon yok — 3D için saha istasyonu ekleyin.';
 
   @override
+  String get ai_vertex_disabled_title => 'AI (Vertex) arka uç etkin değil';
+
+  @override
+  String get ai_vertex_disabled_body =>
+      'Belge analizi Google Cloud (Firebase AI Logic / Vertex AI) gerektirir. Yöneticiden bu Firebase projesi için API’yi açmasını isteyin, 2–5 dakika bekleyin ve Yeniden dene deyin.';
+
+  @override
+  String get ai_vertex_open_console => 'Google Cloud API sayfasını aç';
+
+  @override
+  String get draw_first_point_hint =>
+      'İlk nokta eklendi. Çizgiye devam için tekrar dokunun.';
+
+  @override
+  String get notifications_screen_title => 'Bildirimler';
+
+  @override
+  String get notifications_empty_hint =>
+      'Henüz duyuru yok. Ekip, Firestore’daki `geofield_broadcasts` koleksiyonuna (oturum açmış kullanıcılar) yazdığında burada görünür.';
+
+  @override
+  String get notifications_open_chats => 'Sohbetler';
+
+  @override
+  String get sync_purpose_tooltip =>
+      'Çevrimdışı: veri cihazda kalır; internet gelince yüklenir. Kimin ne göreceği Firestore kurallarına ve projeye bağlıdır.';
+
+  @override
+  String get map_layer_import_gis => 'KML/DXF içe aktar (GIS)';
+
+  @override
+  String get map_layer_export_data => 'Dışa aktar (arşiv)';
+
+  @override
+  String get map_offline_tiles_hint =>
+      'Harita karoları dolaşırken önbelleğe alınır. Çevrimdışı gitmeden önce alanı yakınlaştırın. Birleşik bölge indirme yol haritasında.';
+
+  @override
   String get camera_header_document => 'BELGE SENKRON';
 
   @override

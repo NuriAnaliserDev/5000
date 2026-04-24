@@ -5,10 +5,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_strings.dart';
 import '../services/ai_translator_service.dart';
 import '../services/settings_controller.dart';
 import '../services/auth_service.dart';
 import '../services/location_service.dart';
+import '../utils/ai_vertex_error_helper.dart';
 import '../utils/app_card.dart';
 
 class AutoTableReviewScreen extends StatefulWidget {
@@ -166,7 +168,9 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
   }
 
   Widget _buildErrorState() {
-    final detail = _analysisError;
+    final detail = _analysisError ?? '';
+    final s = GeoFieldStrings.of(context);
+    final isVertex = isVertexAiDisabledError(detail);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -175,19 +179,39 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
           children: [
             const Icon(Icons.error_outline, size: 64, color: Colors.red),
             const SizedBox(height: 16),
-            const Text('AI tahlil qila olmadi',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            if (detail != null && detail.isNotEmpty) ...[
+            Text(
+              isVertex && s != null ? s.ai_vertex_disabled_title : 'AI tahlil qila olmadi',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            if (isVertex && s != null) ...[
+              const SizedBox(height: 12),
+              Text(
+                s.ai_vertex_disabled_body,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: Colors.grey.shade600, height: 1.35),
+              ),
+            ] else if (detail.isNotEmpty) ...[
               const SizedBox(height: 12),
               Text(
                 detail,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
               ),
             ],
-            const SizedBox(height: 24),
+            if (isVertex && s != null) ...[
+              const SizedBox(height: 16),
+              FilledButton.tonalIcon(
+                onPressed: () => openVertexErrorLink(detail),
+                icon: const Icon(Icons.open_in_new, size: 18),
+                label: Text(s.ai_vertex_open_console),
+              ),
+            ],
+            const SizedBox(height: 20),
             ElevatedButton(
-                onPressed: _startAnalysis, child: const Text('Qayta urinish')),
+              onPressed: _startAnalysis,
+              child: const Text('Qayta urinish'),
+            ),
           ],
         ),
       ),

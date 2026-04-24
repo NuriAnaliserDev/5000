@@ -211,6 +211,44 @@ class GeoFieldStringsEn extends GeoFieldStrings {
       'No stations yet — add field stations to see 3D planes.';
 
   @override
+  String get ai_vertex_disabled_title => 'AI backend (Vertex) is not enabled';
+
+  @override
+  String get ai_vertex_disabled_body =>
+      'Document analysis uses Google Cloud (Firebase AI Logic / Vertex AI). Ask the project admin to enable the API for this Firebase project, wait 2–5 minutes, then tap Retry.';
+
+  @override
+  String get ai_vertex_open_console => 'Open Google Cloud API page';
+
+  @override
+  String get draw_first_point_hint =>
+      'First point placed. Keep tapping to draw the line.';
+
+  @override
+  String get notifications_screen_title => 'Notifications';
+
+  @override
+  String get notifications_empty_hint =>
+      'No announcements yet. Broadcasts appear here when your team writes documents to the Firestore collection \"geofield_broadcasts\" (read access for signed-in users).';
+
+  @override
+  String get notifications_open_chats => 'Open chats';
+
+  @override
+  String get sync_purpose_tooltip =>
+      'Offline: data is stored on the device and uploads when the internet is back. Who-sees-what on the server depends on your Firestore rules and features enabled for the project.';
+
+  @override
+  String get map_layer_import_gis => 'Import KML/DXF (GIS)';
+
+  @override
+  String get map_layer_export_data => 'Export data (archive)';
+
+  @override
+  String get map_offline_tiles_hint =>
+      'Base map tiles cache as you pan. Pre-load an area by zooming/panning before going offline. Full “merge & download region” is on the roadmap.';
+
+  @override
   String get camera_header_document => 'DOCUMENT SYNC';
 
   @override

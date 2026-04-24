@@ -21,6 +21,7 @@ import '../models/station.dart';
 import '../models/geological_line.dart';
 import '../models/boundary_polygon.dart';
 import '../utils/linework_utils.dart';
+import '../l10n/app_strings.dart';
 import '../utils/app_nav_bar.dart';
 import '../utils/app_localizations.dart';
 import 'cross_section_screen.dart';
@@ -256,6 +257,26 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                   selectedLineType: _selectedLineType,
                   isCurvedMode: _isCurvedMode,
                 ),
+                if (_isDrawingMode && _drawingPoints.isNotEmpty)
+                  MarkerLayer(
+                    markers: _drawingPoints
+                        .map(
+                          (p) => Marker(
+                            point: p,
+                            width: 16,
+                            height: 16,
+                            alignment: Alignment.center,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: const Color(0xFFFF9800), width: 2),
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ),
                 if (_isSliceMode && _drawingPoints.isNotEmpty)
                   PolylineLayer(
                     polylines: [
@@ -346,6 +367,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                 _isVertexEditMode = !_isVertexEditMode;
                 if (!_isVertexEditMode) { _editingPolygonId = null; _selectedVertexIndex = null; }
               }),
+              onImportGis: _importGisFromMap,
+              onOpenExportArchive: () => Navigator.of(context).pushNamed('/archive'),
             ),
           ],
         ),
@@ -355,6 +378,30 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
   }
 
   void _gisOpacityChanged(double v) => _gisLayerOpacity = v;
+
+  Future<void> _importGisFromMap() async {
+    final boundary = context.read<BoundaryService>();
+    final s = GeoFieldStrings.of(context);
+    try {
+      final r = await boundary.importFileFromWeb();
+      if (!mounted) return;
+      if (r == null) return;
+      if (s != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(s.gis_import_done(r.importedCount, r.skippedCount)),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$e'), behavior: SnackBarBehavior.floating),
+        );
+      }
+    }
+  }
 
   Widget _buildSideControls() {
     return Stack(
@@ -412,6 +459,19 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
         if (snapped != null) { finalPoint = snapped; HapticFeedback.lightImpact(); }
       }
       setState(() => _drawingPoints.add(finalPoint));
+      if (!mounted) return;
+      if (_drawingPoints.length == 1) {
+        final h = GeoFieldStrings.of(context)?.draw_first_point_hint;
+        if (h != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(h),
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
+      }
     } else if (_isSliceMode) {
       setState(() => _drawingPoints.add(point));
       if (_drawingPoints.length == 2) _finalizeSlice();

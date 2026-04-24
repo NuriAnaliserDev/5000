@@ -211,6 +211,44 @@ class GeoFieldStringsUz extends GeoFieldStrings {
       'Stansiya yo‘q — dala stansiyalari qo‘shilganda 3D tekisliklar ko‘rinadi.';
 
   @override
+  String get ai_vertex_disabled_title => 'AI (Vertex) backend o‘chiq';
+
+  @override
+  String get ai_vertex_disabled_body =>
+      'Hujjat tahlili Google Cloud (Firebase AI Logic / Vertex AI) orqali ishlaydi. Loyiha adminidan ushbu Firebase loyihasi uchun API ni yoqishni so‘rang, 2–5 daqiqa kuting, so‘ng «Qayta urinish» bosing.';
+
+  @override
+  String get ai_vertex_open_console => 'Google Cloud API sahifasini ochish';
+
+  @override
+  String get draw_first_point_hint =>
+      'Birinchi nuqta qo‘yildi. Chiziqni davom etirish uchun yana bosing.';
+
+  @override
+  String get notifications_screen_title => 'Bildirishnomalar';
+
+  @override
+  String get notifications_empty_hint =>
+      'Hozircha e’lon yo‘q. Jamoa `geofield_broadcasts` kolleksiyasiga (kirgan foydalanuvchilar o‘qishi) yozganda shu yerda paydo bo‘ladi.';
+
+  @override
+  String get notifications_open_chats => 'Chatlar';
+
+  @override
+  String get sync_purpose_tooltip =>
+      'Internet bo‘lmasa ma’lumot telefonda saqlanadi, tarmoq paydo bo‘lganda yuboriladi. Kim nimani ko‘rishi — Firestore qoidalari va loyiha sozlamalariga bog‘liq.';
+
+  @override
+  String get map_layer_import_gis => 'KML/DXF import (GIS)';
+
+  @override
+  String get map_layer_export_data => 'Ma’lumot eksport (arxiv)';
+
+  @override
+  String get map_offline_tiles_hint =>
+      'Fon xarita plitalari harakatlanishda keshga yoziladi. Oflaynga chiqquncha xaritani kerakli hududga yaqinlashtiring. Bitta yirik hududni birlashtirib yuklab olish — rejadagi vazifa.';
+
+  @override
   String get camera_header_document => 'HUJJAT SINXRON';
 
   @override

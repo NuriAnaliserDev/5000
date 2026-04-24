@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../l10n/app_strings.dart';
 import '../../models/station.dart';
 import '../../services/settings_controller.dart';
 import '../station_tile.dart';
@@ -40,16 +41,23 @@ class DashboardSliverAppBar extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              greeting,
-              style: const TextStyle(
-                fontWeight: FontWeight.w900,
-                fontSize: 18,
-                letterSpacing: -0.5,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                greeting,
+                maxLines: 1,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 17,
+                  letterSpacing: -0.5,
+                ),
               ),
             ),
             Text(
               dateStr,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 10,
                 color: isDark ? Colors.white54 : Colors.grey,
@@ -61,8 +69,8 @@ class DashboardSliverAppBar extends StatelessWidget {
       actions: [
         IconButton(
           icon: const Icon(Icons.notifications_none),
-          tooltip: 'Xabarlar',
-          onPressed: () => Navigator.of(context).pushNamed('/messages'),
+          tooltip: GeoFieldStrings.of(context)?.notifications_screen_title ?? '',
+          onPressed: () => Navigator.of(context).pushNamed('/notifications'),
         ),
         const SizedBox(width: 8),
       ],

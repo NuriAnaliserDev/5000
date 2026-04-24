@@ -51,12 +51,15 @@ class DashboardQuickTools extends StatelessWidget {
             primary,
             () => Navigator.pushNamed(context, '/map'),
           ),
-          _buildQuickToolItem(
-            context,
-            Icons.cloud_sync_rounded,
-            context.loc('sync'),
-            primary,
-            () => context.read<StationRepository>().syncAllToCloud(),
+          Tooltip(
+            message: GeoFieldStrings.of(context)?.sync_purpose_tooltip ?? '',
+            child: _buildQuickToolItem(
+              context,
+              Icons.cloud_sync_rounded,
+              context.loc('sync'),
+              primary,
+              () => context.read<StationRepository>().syncAllToCloud(),
+            ),
           ),
           _buildQuickToolItem(
             context,

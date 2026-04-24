@@ -6,6 +6,9 @@ import 'package:geofield_pro_flutter/l10n/app_strings.dart';
 String? lookupGeoFieldString(GeoFieldStrings s, String key) {
   switch (key) {
     case 'about_app': return s.about_app;
+    case 'ai_vertex_disabled_title': return s.ai_vertex_disabled_title;
+    case 'ai_vertex_disabled_body': return s.ai_vertex_disabled_body;
+    case 'ai_vertex_open_console': return s.ai_vertex_open_console;
     case 'acc_label': return s.acc_label;
     case 'accuracy': return s.accuracy;
     case 'actions_label': return s.actions_label;
@@ -113,6 +116,7 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'download_confirm': return s.download_confirm;
     case 'download_pdf': return s.download_pdf;
     case 'download_region_tooltip': return s.download_region_tooltip;
+    case 'draw_first_point_hint': return s.draw_first_point_hint;
     case 'draw_on_photo': return s.draw_on_photo;
     case 'drawing_name': return s.drawing_name;
     case 'drawing_saved': return s.drawing_saved;
@@ -196,6 +200,9 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'map_3d_tooltip': return s.map_3d_tooltip;
     case 'map_slice_tooltip': return s.map_slice_tooltip;
     case 'map_track_fab_aria': return s.map_track_fab_aria;
+    case 'map_layer_import_gis': return s.map_layer_import_gis;
+    case 'map_layer_export_data': return s.map_layer_export_data;
+    case 'map_offline_tiles_hint': return s.map_offline_tiles_hint;
     case 'massive': return s.massive;
     case 'measurement_error_high': return s.measurement_error_high;
     case 'measurement_label': return s.measurement_label;
@@ -211,6 +218,9 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'next_station': return s.next_station;
     case 'no_data': return s.no_data;
     case 'no_local_data': return s.no_local_data;
+    case 'notifications_empty_hint': return s.notifications_empty_hint;
+    case 'notifications_open_chats': return s.notifications_open_chats;
+    case 'notifications_screen_title': return s.notifications_screen_title;
     case 'no_stations_in_project': return s.no_stations_in_project;
     case 'note': return s.note;
     case 'note_saved': return s.note_saved;
@@ -299,6 +309,7 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'structure_label': return s.structure_label;
     case 'success_saved': return s.success_saved;
     case 'sync': return s.sync;
+    case 'sync_purpose_tooltip': return s.sync_purpose_tooltip;
     case 'system_online': return s.system_online;
     case 'tahlil_label': return s.tahlil_label;
     case 'theme_dark': return s.theme_dark;

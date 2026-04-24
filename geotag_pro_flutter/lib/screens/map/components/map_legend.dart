@@ -22,7 +22,7 @@ class MapLegend extends StatelessWidget {
   Widget build(BuildContext context) {
     return Positioned(
       left: 12,
-      bottom: 96,
+      bottom: 200,
       child: AppCard(
         opacity: 0.45,
         blur: 10,

@@ -13,6 +13,7 @@ import '../screens/chat_screen.dart';
 import '../screens/global_map_screen.dart';
 import '../screens/image_painter_screen.dart';
 import '../screens/messages_screen.dart';
+import '../screens/notifications_feed_screen.dart';
 import '../screens/onboarding_screen.dart';
 import '../screens/scale_assistant_screen.dart';
 import '../screens/splash_screen.dart';
@@ -31,6 +32,7 @@ class AppRouter {
   static const String onboarding = '/onboarding';
   static const String auth = '/auth';
   static const String messages = '/messages';
+  static const String notifications = '/notifications';
   static const String chat = '/chat';
   static const String autoTableReview = '/auto-table-review';
   static const String camera = '/camera';
@@ -63,6 +65,8 @@ class AppRouter {
         return AppPageRoutes.material<void>((_) => AuthScreen());
       case messages:
         return AppPageRoutes.material<void>((_) => const MessagesScreen());
+      case notifications:
+        return AppPageRoutes.material<void>((_) => const NotificationsFeedScreen());
       case chat:
         final a = routeSettings.arguments;
         if (a is! String || a.isEmpty) {

@@ -478,6 +478,72 @@ abstract class GeoFieldStrings {
   /// **'No stations yet — add field stations to see 3D planes.'**
   String get viewer_3d_no_data;
 
+  /// No description provided for @ai_vertex_disabled_title.
+  ///
+  /// In en, this message translates to:
+  /// **'AI backend (Vertex) is not enabled'**
+  String get ai_vertex_disabled_title;
+
+  /// No description provided for @ai_vertex_disabled_body.
+  ///
+  /// In en, this message translates to:
+  /// **'Document analysis uses Google Cloud (Firebase AI Logic / Vertex AI). Ask the project admin to enable the API for this Firebase project, wait 2–5 minutes, then tap Retry.'**
+  String get ai_vertex_disabled_body;
+
+  /// No description provided for @ai_vertex_open_console.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Google Cloud API page'**
+  String get ai_vertex_open_console;
+
+  /// No description provided for @draw_first_point_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'First point placed. Keep tapping to draw the line.'**
+  String get draw_first_point_hint;
+
+  /// No description provided for @notifications_screen_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notifications_screen_title;
+
+  /// No description provided for @notifications_empty_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'No announcements yet. Broadcasts appear here when your team writes documents to the Firestore collection \"geofield_broadcasts\" (read access for signed-in users).'**
+  String get notifications_empty_hint;
+
+  /// No description provided for @notifications_open_chats.
+  ///
+  /// In en, this message translates to:
+  /// **'Open chats'**
+  String get notifications_open_chats;
+
+  /// No description provided for @sync_purpose_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline: data is stored on the device and uploads when the internet is back. Who-sees-what on the server depends on your Firestore rules and features enabled for the project.'**
+  String get sync_purpose_tooltip;
+
+  /// No description provided for @map_layer_import_gis.
+  ///
+  /// In en, this message translates to:
+  /// **'Import KML/DXF (GIS)'**
+  String get map_layer_import_gis;
+
+  /// No description provided for @map_layer_export_data.
+  ///
+  /// In en, this message translates to:
+  /// **'Export data (archive)'**
+  String get map_layer_export_data;
+
+  /// No description provided for @map_offline_tiles_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Base map tiles cache as you pan. Pre-load an area by zooming/panning before going offline. Full “merge & download region” is on the roadmap.'**
+  String get map_offline_tiles_hint;
+
   /// No description provided for @camera_header_document.
   ///
   /// In en, this message translates to:

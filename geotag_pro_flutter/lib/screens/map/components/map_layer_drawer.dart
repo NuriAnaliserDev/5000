@@ -13,6 +13,8 @@ class MapLayerDrawer extends StatelessWidget {
   final ValueChanged<double> onGisOpacityChanged;
   final ValueChanged<double> onDrawingOpacityChanged;
   final VoidCallback onToggleVertexEdit;
+  final VoidCallback onImportGis;
+  final VoidCallback onOpenExportArchive;
 
   const MapLayerDrawer({
     super.key,
@@ -26,6 +28,8 @@ class MapLayerDrawer extends StatelessWidget {
     required this.onGisOpacityChanged,
     required this.onDrawingOpacityChanged,
     required this.onToggleVertexEdit,
+    required this.onImportGis,
+    required this.onOpenExportArchive,
   });
 
   @override
@@ -56,7 +60,7 @@ class MapLayerDrawer extends StatelessWidget {
           if (isVisible) ...[
             const SizedBox(height: 8),
             AppCard(
-              width: 220,
+              width: 248,
               opacity: 0.6,
               blur: 15,
               baseColor: Colors.black,
@@ -84,6 +88,27 @@ class MapLayerDrawer extends StatelessWidget {
                   _buildSlider(context, context.loc('layer_base_map'), baseLayerOpacity, onBaseOpacityChanged),
                   _buildSlider(context, context.loc('layer_gis_kml'), gisLayerOpacity, onGisOpacityChanged),
                   _buildSlider(context, context.loc('layer_drawings'), drawingLayerOpacity, onDrawingOpacityChanged),
+                  const Divider(color: Colors.white10),
+                  TextButton.icon(
+                    onPressed: onImportGis,
+                    icon: const Icon(Icons.file_upload, size: 14, color: Color(0xFF81C784)),
+                    label: Text(
+                      context.loc('map_layer_import_gis'),
+                      style: const TextStyle(fontSize: 10, color: Color(0xFF81C784), fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  TextButton.icon(
+                    onPressed: onOpenExportArchive,
+                    icon: const Icon(Icons.file_download_outlined, size: 14, color: Color(0xFF90CAF9)),
+                    label: Text(
+                      context.loc('map_layer_export_data'),
+                      style: const TextStyle(fontSize: 10, color: Color(0xFF90CAF9), fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Text(
+                    context.loc('map_offline_tiles_hint'),
+                    style: const TextStyle(color: Colors.white38, fontSize: 8, height: 1.25),
+                  ),
                   const Divider(color: Colors.white10),
                   TextButton.icon(
                     onPressed: onToggleVertexEdit,
