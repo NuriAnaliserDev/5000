@@ -1,7 +1,115 @@
 import 'dart:math' as math;
 import 'package:latlong2/latlong.dart';
+import '../models/geological_line.dart';
 
 class LineworkUtils {
+  static const Distance _distance = Distance();
+
+  /// Chiziladigan (render) nuqtalar — silliqlangan yoki asl to‘g‘ri chiziq.
+  static List<LatLng> renderedPoints(GeologicalLine l) {
+    if (l.lats.isEmpty) return [];
+    var pts = List.generate(l.lats.length, (i) => LatLng(l.lats[i], l.lngs[i]));
+    if (l.isCurved && pts.length >= 2) {
+      pts = smoothLine(pts);
+    }
+    return pts;
+  }
+
+  /// Yopiq poligon: nuqta shakl ichidami (xarita poligon chizgisi bilan mos, silliqsiz to‘g‘rilar).
+  static bool polygonContainsPoint(LatLng point, List<LatLng> ring) {
+    if (ring.length < 3) return false;
+    final lat = point.latitude;
+    final lng = point.longitude;
+    int winding = 0;
+    for (int i = 0; i < ring.length; i++) {
+      final p1 = ring[i];
+      final p2 = ring[(i + 1) % ring.length];
+      final lat1 = p1.latitude, lng1 = p1.longitude;
+      final lat2 = p2.latitude, lng2 = p2.longitude;
+      if (lat1 <= lat) {
+        if (lat2 > lat) {
+          if (_isLeft2(lng1, lat1, lng2, lat2, lng, lat) > 0) winding++;
+        }
+      } else {
+        if (lat2 <= lat) {
+          if (_isLeft2(lng1, lat1, lng2, lat2, lng, lat) < 0) winding--;
+        }
+      }
+    }
+    return winding != 0;
+  }
+
+  static double _isLeft2(
+    double x1, double y1,
+    double x2, double y2,
+    double px, double py,
+  ) {
+    return (x2 - x1) * (py - y1) - (px - x1) * (y2 - y1);
+  }
+
+  static LatLng _closestOnSegment(LatLng p, LatLng a, LatLng b) {
+    final dLat = b.latitude - a.latitude;
+    final dLng = b.longitude - a.longitude;
+    final l2 = dLat * dLat + dLng * dLng;
+    if (l2 < 1e-22) return a;
+    var t = ((p.latitude - a.latitude) * dLat + (p.longitude - a.longitude) * dLng) / l2;
+    t = t.clamp(0.0, 1.0);
+    return LatLng(a.latitude + t * dLat, a.longitude + t * dLng);
+  }
+
+  /// Nuqta ochiq yoki yopiq poliliniya chegarasigacha (metr) eng yaqin masofa.
+  static double _minDistanceToPolylineEdge(
+    LatLng tap,
+    List<LatLng> pts, {
+    required bool closed,
+  }) {
+    if (pts.length < 2) return double.infinity;
+    double best = double.infinity;
+    final n = closed ? pts.length : pts.length - 1;
+    for (int i = 0; i < n; i++) {
+      final a = pts[i];
+      final b = closed ? pts[(i + 1) % pts.length] : pts[i + 1];
+      final c = _closestOnSegment(tap, a, b);
+      final d = _distance.as(LengthUnit.Meter, tap, c);
+      if (d < best) best = d;
+    }
+    return best;
+  }
+
+  /// `tap` nuqtasining ushbu geologik chiziqgacha eng kam masofasi (metr).
+  static double minDistanceMetersToLine(LatLng tap, GeologicalLine l) {
+    if (l.lats.isEmpty) return double.infinity;
+    final raw = List.generate(l.lats.length, (i) => LatLng(l.lats[i], l.lngs[i]));
+
+    if (l.isClosed) {
+      if (raw.length < 3) return double.infinity;
+      if (polygonContainsPoint(tap, raw)) return 0.0;
+      return _minDistanceToPolylineEdge(tap, raw, closed: true);
+    }
+    if (raw.length < 2) return double.infinity;
+    final pts = renderedPoints(l);
+    if (pts.length < 2) return double.infinity;
+    return _minDistanceToPolylineEdge(tap, pts, closed: false);
+  }
+
+  /// Xarita masshtabiga mos «bosish» radiusi: `tap` atrofida `maxDistanceMeters` ichida bo‘lgan chizma.
+  static GeologicalLine? findGeologicalLineNear(
+    LatLng tap,
+    List<GeologicalLine> lines, {
+    required double maxDistanceMeters,
+  }) {
+    GeologicalLine? best;
+    var bestD = double.infinity;
+    for (final l in lines) {
+      final d = minDistanceMetersToLine(tap, l);
+      if (d < bestD) {
+        bestD = d;
+        best = l;
+      }
+    }
+    if (best != null && bestD <= maxDistanceMeters) return best;
+    return null;
+  }
   /// Subdivides a sequence of points into a smooth Bezier path.
   /// Uses Catmull-Rom spline interpolation if control points aren't explicitly provided,
   /// or Quadratic/Cubic Bezier logic if they are.

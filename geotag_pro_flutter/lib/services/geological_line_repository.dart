@@ -66,6 +66,11 @@ class GeologicalLineRepository extends ChangeNotifier {
     await _box!.delete(id);
     _lines = _box!.values.toList();
     notifyListeners();
+    try {
+      await _firestore.collection('geological_lines').doc(id).delete();
+    } catch (e) {
+      debugPrint('Error deleting line from Firestore: $e');
+    }
   }
 
   /// Get all lines for a given project.

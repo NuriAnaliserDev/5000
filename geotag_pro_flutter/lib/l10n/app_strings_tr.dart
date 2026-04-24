@@ -222,6 +222,13 @@ class GeoFieldStringsTr extends GeoFieldStrings {
       'Son noktayı: ↩, haritada uzun basma veya iki parmakla dokunma / ikincil tık.';
 
   @override
+  String get map_tap_line_delete_message =>
+      'Bu çizim kalıcı olarak silinir. Geri alınamaz.';
+
+  @override
+  String get map_line_deleted_snack => 'Çizim silindi';
+
+  @override
   String get ai_vertex_disabled_title => 'AI (Vertex) arka uç etkin değil';
 
   @override

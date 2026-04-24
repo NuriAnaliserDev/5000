@@ -204,6 +204,8 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'map_draw_undo_caption': return s.map_draw_undo_caption;
     case 'map_gesture_undo_hint': return s.map_gesture_undo_hint;
     case 'map_layer_export_data': return s.map_layer_export_data;
+    case 'map_line_deleted_snack': return s.map_line_deleted_snack;
+    case 'map_tap_line_delete_message': return s.map_tap_line_delete_message;
     case 'map_offline_tiles_hint': return s.map_offline_tiles_hint;
     case 'massive': return s.massive;
     case 'measurement_error_high': return s.measurement_error_high;

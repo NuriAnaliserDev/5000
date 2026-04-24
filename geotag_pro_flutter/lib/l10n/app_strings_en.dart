@@ -222,6 +222,13 @@ class GeoFieldStringsEn extends GeoFieldStrings {
       'Remove last point: ↩ below, long-press the map, or two-finger tap / secondary click.';
 
   @override
+  String get map_tap_line_delete_message =>
+      'This linework will be permanently removed. This cannot be undone.';
+
+  @override
+  String get map_line_deleted_snack => 'Linework removed';
+
+  @override
   String get ai_vertex_disabled_title => 'AI backend (Vertex) is not enabled';
 
   @override

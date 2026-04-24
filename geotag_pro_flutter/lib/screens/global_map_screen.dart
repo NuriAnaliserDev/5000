@@ -502,7 +502,59 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     } else if (_isSliceMode) {
       setState(() => _drawingPoints.add(point));
       if (_drawingPoints.length == 2) _finalizeSlice();
+    } else {
+      final tol = _lineHitToleranceMeters(point);
+      final lineRepo = context.read<GeologicalLineRepository>();
+      final hit = LineworkUtils.findGeologicalLineNear(
+        point,
+        lineRepo.lines,
+        maxDistanceMeters: tol,
+      );
+      if (hit != null) {
+        unawaited(_confirmDeleteLine(hit));
+      }
     }
+  }
+
+  /// Chiziq «bosish» radiusi — ekranda ~28px atrofida (masshtabga bog‘liq).
+  double _lineHitToleranceMeters(LatLng tap) {
+    final z = _mapController.camera.zoom;
+    final lat = tap.latitude;
+    final metersPerPixel =
+        40075016.686 * math.cos(lat * math.pi / 180) / (math.pow(2, z) * 256);
+    return (28 * metersPerPixel).clamp(5.0, 150.0);
+  }
+
+  Future<void> _confirmDeleteLine(GeologicalLine line) async {
+    final s = GeoFieldStrings.of(context);
+    if (s == null) return;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(line.name),
+        content: Text(s.map_tap_line_delete_message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(s.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
+            child: Text(s.delete_confirm_btn),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    await context.read<GeologicalLineRepository>().deleteLine(line.id);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(s.map_line_deleted_snack),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   Polygon _buildBoundaryPolygon(BoundaryPolygon b, dynamic currentPos) {

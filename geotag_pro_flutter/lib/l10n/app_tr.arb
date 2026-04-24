@@ -77,6 +77,8 @@
   "viewer_3d_nothing_visible": "Çizimler ekran dışında olabilir. Döndürün, +/- kullanın.",
   "map_draw_undo_caption": "Son nokta",
   "map_gesture_undo_hint": "Son noktayı: ↩, haritada uzun basma veya iki parmakla dokunma / ikincil tık.",
+  "map_tap_line_delete_message": "Bu çizim kalıcı olarak silinir. Geri alınamaz.",
+  "map_line_deleted_snack": "Çizim silindi",
   "ai_vertex_disabled_title": "AI (Vertex) arka uç etkin değil",
   "ai_vertex_disabled_body": "Belge analizi Google Cloud (Firebase AI Logic / Vertex AI) gerektirir. Yöneticiden bu Firebase projesi için API’yi açmasını isteyin, 2–5 dakika bekleyin ve Yeniden dene deyin.",
   "ai_vertex_open_console": "Google Cloud API sayfasını aç",

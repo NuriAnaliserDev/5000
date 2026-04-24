@@ -496,6 +496,18 @@ abstract class GeoFieldStrings {
   /// **'Remove last point: ↩ below, long-press the map, or two-finger tap / secondary click.'**
   String get map_gesture_undo_hint;
 
+  /// No description provided for @map_tap_line_delete_message.
+  ///
+  /// In en, this message translates to:
+  /// **'This linework will be permanently removed. This cannot be undone.'**
+  String get map_tap_line_delete_message;
+
+  /// No description provided for @map_line_deleted_snack.
+  ///
+  /// In en, this message translates to:
+  /// **'Linework removed'**
+  String get map_line_deleted_snack;
+
   /// No description provided for @ai_vertex_disabled_title.
   ///
   /// In en, this message translates to:

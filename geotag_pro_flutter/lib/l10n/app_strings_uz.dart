@@ -222,6 +222,13 @@ class GeoFieldStringsUz extends GeoFieldStrings {
       'So‘nggi nuqta: pastdagi ↩, xaritada uzoq bosish yoki ikkinchi barmoq teginishi.';
 
   @override
+  String get map_tap_line_delete_message =>
+      'Ushbu chizma butunlay o‘chiriladi. Qayta tiklab bo‘lmaydi.';
+
+  @override
+  String get map_line_deleted_snack => 'Chizma o‘chirildi';
+
+  @override
   String get ai_vertex_disabled_title => 'AI (Vertex) backend o‘chiq';
 
   @override
