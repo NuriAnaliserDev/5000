@@ -211,6 +211,17 @@ class GeoFieldStringsTr extends GeoFieldStrings {
       'İstasyon yok — 3D için saha istasyonu ekleyin.';
 
   @override
+  String get viewer_3d_nothing_visible =>
+      'Çizimler ekran dışında olabilir. Döndürün, +/- kullanın.';
+
+  @override
+  String get map_draw_undo_caption => 'Son nokta';
+
+  @override
+  String get map_gesture_undo_hint =>
+      'Son noktayı: ↩, haritada uzun basma veya iki parmakla dokunma / ikincil tık.';
+
+  @override
   String get ai_vertex_disabled_title => 'AI (Vertex) arka uç etkin değil';
 
   @override

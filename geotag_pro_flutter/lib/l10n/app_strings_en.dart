@@ -211,6 +211,17 @@ class GeoFieldStringsEn extends GeoFieldStrings {
       'No stations yet — add field stations to see 3D planes.';
 
   @override
+  String get viewer_3d_nothing_visible =>
+      'Content may be off-screen. Pinch/rotate, use +/-, or move the view.';
+
+  @override
+  String get map_draw_undo_caption => 'Last point';
+
+  @override
+  String get map_gesture_undo_hint =>
+      'Remove last point: ↩ below, long-press the map, or two-finger tap / secondary click.';
+
+  @override
   String get ai_vertex_disabled_title => 'AI backend (Vertex) is not enabled';
 
   @override

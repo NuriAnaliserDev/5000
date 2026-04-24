@@ -231,6 +231,16 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                 initialCenter: center,
                 initialZoom: 12,
                 onTap: (tapPosition, point) => _handleMapTap(point, boundarySvc),
+                onSecondaryTap: (tapPosition, point) {
+                  if (_isDrawingMode && _drawingPoints.isNotEmpty) {
+                    setState(() => _drawingPoints.removeLast());
+                  }
+                },
+                onLongPress: (tapPosition, point) {
+                  if (_isDrawingMode && _drawingPoints.isNotEmpty) {
+                    setState(() => _drawingPoints.removeLast());
+                  }
+                },
                 onPositionChanged: (pos, hasGesture) {
                   _centerLat = pos.center.latitude;
                   _centerLng = pos.center.longitude;
@@ -370,6 +380,23 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
               onImportGis: _importGisFromMap,
               onOpenExportArchive: () => Navigator.of(context).pushNamed('/archive'),
             ),
+            if (_isDrawingMode)
+              Positioned(
+                left: 8,
+                right: 8,
+                bottom: 80,
+                child: Material(
+                  color: Colors.black.withValues(alpha: 0.75),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    child: Text(
+                      GeoFieldStrings.of(context)?.map_gesture_undo_hint ?? '',
+                      style: const TextStyle(color: Colors.white, fontSize: 12, height: 1.3),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),

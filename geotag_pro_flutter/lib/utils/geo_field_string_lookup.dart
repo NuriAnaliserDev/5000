@@ -201,6 +201,8 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'map_slice_tooltip': return s.map_slice_tooltip;
     case 'map_track_fab_aria': return s.map_track_fab_aria;
     case 'map_layer_import_gis': return s.map_layer_import_gis;
+    case 'map_draw_undo_caption': return s.map_draw_undo_caption;
+    case 'map_gesture_undo_hint': return s.map_gesture_undo_hint;
     case 'map_layer_export_data': return s.map_layer_export_data;
     case 'map_offline_tiles_hint': return s.map_offline_tiles_hint;
     case 'massive': return s.massive;
@@ -336,6 +338,7 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'utm_coordinates': return s.utm_coordinates;
     case 'viewer_3d_legend': return s.viewer_3d_legend;
     case 'viewer_3d_no_data': return s.viewer_3d_no_data;
+    case 'viewer_3d_nothing_visible': return s.viewer_3d_nothing_visible;
     case 'version': return s.version;
     case 'voice_note': return s.voice_note;
     case 'voice_record': return s.voice_record;

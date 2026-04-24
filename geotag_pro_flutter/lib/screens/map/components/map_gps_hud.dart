@@ -38,8 +38,9 @@ class MapGpsHud extends StatelessWidget {
 
     return Positioned(
       top: 80,
-      right: 16,
+      left: 10,
       child: Container(
+        constraints: const BoxConstraints(maxWidth: 200),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
           color: Colors.black.withValues(alpha: 0.6),

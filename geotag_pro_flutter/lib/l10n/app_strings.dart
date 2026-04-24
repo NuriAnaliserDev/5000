@@ -478,6 +478,24 @@ abstract class GeoFieldStrings {
   /// **'No stations yet — add field stations to see 3D planes.'**
   String get viewer_3d_no_data;
 
+  /// No description provided for @viewer_3d_nothing_visible.
+  ///
+  /// In en, this message translates to:
+  /// **'Content may be off-screen. Pinch/rotate, use +/-, or move the view.'**
+  String get viewer_3d_nothing_visible;
+
+  /// No description provided for @map_draw_undo_caption.
+  ///
+  /// In en, this message translates to:
+  /// **'Last point'**
+  String get map_draw_undo_caption;
+
+  /// No description provided for @map_gesture_undo_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove last point: ↩ below, long-press the map, or two-finger tap / secondary click.'**
+  String get map_gesture_undo_hint;
+
   /// No description provided for @ai_vertex_disabled_title.
   ///
   /// In en, this message translates to:

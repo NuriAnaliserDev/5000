@@ -211,6 +211,17 @@ class GeoFieldStringsUz extends GeoFieldStrings {
       'Stansiya yo‘q — dala stansiyalari qo‘shilganda 3D tekisliklar ko‘rinadi.';
 
   @override
+  String get viewer_3d_nothing_visible =>
+      'Chizimlar ekran tashqarisida bo‘lishi mumkin. Barmoq bilan aylantiring, +/- bosing.';
+
+  @override
+  String get map_draw_undo_caption => 'Oxirgi nuqta';
+
+  @override
+  String get map_gesture_undo_hint =>
+      'So‘nggi nuqta: pastdagi ↩, xaritada uzoq bosish yoki ikkinchi barmoq teginishi.';
+
+  @override
   String get ai_vertex_disabled_title => 'AI (Vertex) backend o‘chiq';
 
   @override

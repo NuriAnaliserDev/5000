@@ -69,10 +69,14 @@ class ThreeDMathUtils {
     vmath.Vector4 vTransformed = viewMatrix.transform(v);
     
     // Simple perspective projection divide
-    if (vTransformed.w == 0) return Offset.zero;
-    
-    double x = vTransformed.x / vTransformed.w;
-    double y = vTransformed.y / vTransformed.w;
+    if (vTransformed.w.abs() < 1e-9) return Offset.zero;
+    if (vTransformed.w <= 0) {
+      // Kamera orqasida — chizilmasin (bo‘sh qora ekran illüziyasi)
+      return Offset.zero;
+    }
+
+    final x = vTransformed.x / vTransformed.w;
+    final y = vTransformed.y / vTransformed.w;
 
     return Offset(
       (x + 1) * screenSize.width / 2,

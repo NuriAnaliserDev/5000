@@ -21,8 +21,8 @@ class MapProjectionControls extends StatelessWidget {
     return Stack(
       children: [
         Positioned(
-          right: 16,
-          top: 140,
+          left: 10,
+          top: 132,
           child: FloatingActionButton(
             mini: true,
             heroTag: 'projToggle',

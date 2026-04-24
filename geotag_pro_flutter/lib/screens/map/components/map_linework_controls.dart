@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/app_strings.dart';
 import '../../../utils/app_card.dart';
 
 class MapLineworkControls extends StatelessWidget {
@@ -38,8 +39,8 @@ class MapLineworkControls extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!isDrawingMode) {
       return Positioned(
-        right: 16,
-        top: 90,
+        right: 10,
+        top: 92,
         child: FloatingActionButton(
           key: drawButtonKey,
           heroTag: 'drawFAB',
@@ -52,8 +53,8 @@ class MapLineworkControls extends StatelessWidget {
     }
 
     return Positioned(
-      top: 90,
-      right: 16,
+      top: 92,
+      right: 10,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
@@ -87,13 +88,26 @@ class MapLineworkControls extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 12),
-          FloatingActionButton(
-            heroTag: 'undoFAB',
-            mini: true,
-            backgroundColor: Colors.grey.shade800,
-            onPressed: onUndo,
-            child: const Icon(Icons.undo, color: Colors.white),
+          const SizedBox(height: 10),
+          Tooltip(
+            message: GeoFieldStrings.of(context)?.map_draw_undo_caption ?? 'Undo',
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FloatingActionButton(
+                  heroTag: 'undoFAB',
+                  mini: true,
+                  backgroundColor: Colors.grey.shade800,
+                  onPressed: onUndo,
+                  child: const Icon(Icons.undo, color: Colors.white),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  GeoFieldStrings.of(context)?.map_draw_undo_caption ?? '',
+                  style: const TextStyle(color: Colors.white54, fontSize: 9),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 8),
           FloatingActionButton(
