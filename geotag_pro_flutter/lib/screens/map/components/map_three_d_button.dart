@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+
+import '../../../l10n/app_strings.dart';
 import '../../three_d_viewer_screen.dart';
 
 class MapThreeDButton extends StatelessWidget {
@@ -8,19 +10,23 @@ class MapThreeDButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FloatingActionButton(
-      heroTag: 'three_d_btn',
-      onPressed: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => ThreeDViewerScreen(
-              centerPoint: centerPoint,
+    final tip = GeoFieldStrings.of(context)?.map_3d_tooltip ?? '';
+    return Tooltip(
+      message: tip,
+      child: FloatingActionButton(
+        heroTag: 'three_d_btn',
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => ThreeDViewerScreen(
+                centerPoint: centerPoint,
+              ),
             ),
-          ),
-        );
-      },
-      backgroundColor: const Color(0xFF1976D2),
-      child: const Icon(Icons.view_in_ar_rounded, color: Colors.white),
+          );
+        },
+        backgroundColor: const Color(0xFF1976D2),
+        child: const Icon(Icons.view_in_ar_rounded, color: Colors.white),
+      ),
     );
   }
 }

@@ -199,6 +199,18 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get camera_error => 'Kamera Hatası';
 
   @override
+  String get camera_voice_mic_hint =>
+      'Mikrofon: Bu istasyon için ses notu kaydedin (kaydet ile birlikte saklanır).';
+
+  @override
+  String get viewer_3d_legend =>
+      'Nokta: istasyon konumu. Turuncu: strike/dip düzlemi. Sürükleyerek döndürün, +/− ile yakınlaştırın. Koyu turuncu ≈ daha dik dip.';
+
+  @override
+  String get viewer_3d_no_data =>
+      'İstasyon yok — 3D için saha istasyonu ekleyin.';
+
+  @override
   String get camera_header_document => 'BELGE SENKRON';
 
   @override
@@ -417,6 +429,40 @@ class GeoFieldStringsTr extends GeoFieldStrings {
 
   @override
   String get fisher_stats => 'Fisher istatistikleri';
+
+  @override
+  String get fisher_reliability_help =>
+      'α₉₅, tüm istasyon strike’ları için %95 güven koni (Fisher). Küçük açı: strike’lar tek yöne kümelenir; büyük açı: dağılım yüksektir. Yeşil/turuncu: genelde n ≥ 5 ve ortalama vektör uzunluğu R > 0.5 ise güvenilir kabul edilir.';
+
+  @override
+  String get dashboard_data_export => 'Veri dışa aktar';
+
+  @override
+  String get dashboard_gis_import => 'KML/DXF içe aktar';
+
+  @override
+  String get voice_open_camera_hint =>
+      'Kamera açıldı. Ses notu için kamera ekranındaki mikrofona basın; istasyon Foto + kaydet adımında kaydedilir.';
+
+  @override
+  String get map_slice_tooltip =>
+      'Profil çizgisi (makas): Haritada iki noktaya dokunun — en kesit (cross section) açılır.';
+
+  @override
+  String get map_3d_tooltip =>
+      '3D: Harita merkezi çevresinde arazi ve istasyonlar. Başka bölge için önce haritayı kaydırın.';
+
+  @override
+  String get map_track_fab_aria => 'GPS rotası (iz) kaydet';
+
+  @override
+  String get track_start_failed =>
+      'Rota başlatılamadı. GPS’i açın ve konum iznini verin.';
+
+  @override
+  String gis_import_done(int imported, int skipped) {
+    return 'GIS içe aktarma: $imported eklendi, $skipped atlandı.';
+  }
 
   @override
   String get foliated => 'Folyasyonlu';

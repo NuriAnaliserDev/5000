@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_strings.dart';
 import '../../../services/location_service.dart';
 import '../../../utils/status_semantics.dart';
 import '../../../widgets/common/status_badge.dart';
@@ -35,11 +36,28 @@ class CameraBottomControls extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pos = context.watch<LocationService>().currentPosition;
+    final voiceHint = GeoFieldStrings.of(context)?.camera_voice_mic_hint ?? '';
     return Positioned(
       left: 0, right: 0, bottom: 12,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (voiceHint.isNotEmpty && !isRecording)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 6),
+              child: Text(
+                voiceHint,
+                textAlign: TextAlign.center,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: textColor.withValues(alpha: 0.75),
+                  fontSize: 10,
+                  height: 1.2,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
           if (isRecording)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -64,11 +82,14 @@ class CameraBottomControls extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              IconButton(
-                iconSize: 32,
-                color: isRecording ? const Color(0xFFFF1744) : (isDark ? Colors.white : Colors.black),
-                icon: Icon(isRecording ? Icons.mic : Icons.mic_none),
-                onPressed: onToggleRecording,
+              Tooltip(
+                message: voiceHint,
+                child: IconButton(
+                  iconSize: 32,
+                  color: isRecording ? const Color(0xFFFF1744) : (isDark ? Colors.white : Colors.black),
+                  icon: Icon(isRecording ? Icons.mic : Icons.mic_none),
+                  onPressed: onToggleRecording,
+                ),
               ),
               const SizedBox(width: 40),
               Column(

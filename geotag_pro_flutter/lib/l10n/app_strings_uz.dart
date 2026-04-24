@@ -199,6 +199,18 @@ class GeoFieldStringsUz extends GeoFieldStrings {
   String get camera_error => 'Kamera xatosi';
 
   @override
+  String get camera_voice_mic_hint =>
+      'Mikrofon: bosib ovozli eslatma yozing (surat saqlanganda qo‘shiladi).';
+
+  @override
+  String get viewer_3d_legend =>
+      'Oq nuqta: stansiya joyi. Sariq/orange: strike/dip bo‘yicha qatlam tekisligi. Barmoq bilan aylantiring, +/− yaqinlashtiring. To‘q ro‘ng ≈ qalinroq dip.';
+
+  @override
+  String get viewer_3d_no_data =>
+      'Stansiya yo‘q — dala stansiyalari qo‘shilganda 3D tekisliklar ko‘rinadi.';
+
+  @override
   String get camera_header_document => 'HUJJAT SINXRON';
 
   @override
@@ -417,6 +429,40 @@ class GeoFieldStringsUz extends GeoFieldStrings {
 
   @override
   String get fisher_stats => 'Fisher statistikasi';
+
+  @override
+  String get fisher_reliability_help =>
+      'α₉₅ — barcha stansiyalar strike’lari bo‘yicha 95% ishonch konusi (Fisher). Burchak kichik bo‘lsa, strike’lar bitta yo‘nalishga to‘planadi; katta bo‘lsa, sochilgan. Yashil/turunc holat: odatdagi qoida — ishonchli, agar n ≥ 5 va o‘rtacha vektor uzunligi R > 0.5 bo‘lsa.';
+
+  @override
+  String get dashboard_data_export => 'Eksport (arxiv)';
+
+  @override
+  String get dashboard_gis_import => 'KML/DXF import';
+
+  @override
+  String get voice_open_camera_hint =>
+      'Kamera ochildi. Ovozli eslatma uchun kamera ekranidagi mikrofonni bosing; stansiya surat olish va saqlash bosqichida saqlanadi.';
+
+  @override
+  String get map_slice_tooltip =>
+      'Kesim (qaychi): xaritada 2 nuqta belgilang — shu chiziq bo‘yicha profil (cross-section) ochiladi.';
+
+  @override
+  String get map_3d_tooltip =>
+      '3D: xarita markazi atrofida relyef va stansiyalar. Boshqa hududni ko‘rish uchun avval xaritani siljiting.';
+
+  @override
+  String get map_track_fab_aria => 'Marshrut (GPS) yozish';
+
+  @override
+  String get track_start_failed =>
+      'Marshrut boshlanmadi. GPSni yoqing va tizimda joylashuv ruxsatini bering.';
+
+  @override
+  String gis_import_done(int imported, int skipped) {
+    return 'GIS import: $imported qo‘shildi, $skipped o‘tkazib yuborildi.';
+  }
 
   @override
   String get foliated => 'Folyatsiyalangan';

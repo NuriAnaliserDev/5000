@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'dart:ui' as ui;
+import '../l10n/app_strings.dart';
 import '../models/station.dart';
 import '../services/station_repository.dart';
 import '../utils/three_d_math_utils.dart';
@@ -40,15 +41,50 @@ class _ThreeDViewerScreenState extends State<ThreeDViewerScreen> {
   @override
   Widget build(BuildContext context) {
     final stations = context.watch<StationRepository>().stations;
+    final s = GeoFieldStrings.of(context);
+
+    if (stations.isEmpty) {
+      return Scaffold(
+        backgroundColor: const Color(0xFF0D1117),
+        appBar: AppBar(
+          title: Text(
+            s?.three_d_structure ?? '3D',
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+          ),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(
+              s?.viewer_3d_no_data ?? '',
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.white70, fontSize: 15, height: 1.4),
+            ),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFF0D1117),
       appBar: AppBar(
-        title: const Text('3D STRUCTURAL VIEWER', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+        title: Text(
+          s?.three_d_structure ?? '3D',
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
-           IconButton(onPressed: () => setState(() { _rotationX = 0.5; _rotationY = 0.5; _zoom = 1.0; }), icon: const Icon(Icons.refresh)),
+          IconButton(
+            onPressed: () => setState(() {
+              _rotationX = 0.5;
+              _rotationY = 0.5;
+              _zoom = 1.0;
+            }),
+            icon: const Icon(Icons.refresh),
+          ),
         ],
       ),
       body: GestureDetector(
@@ -69,6 +105,26 @@ class _ThreeDViewerScreenState extends State<ThreeDViewerScreen> {
                   rotX: _rotationX,
                   rotY: _rotationY,
                   zoom: _zoom,
+                ),
+              ),
+            ),
+            Positioned(
+              left: 10,
+              top: 8,
+              right: 72,
+              child: Material(
+                color: Colors.black.withValues(alpha: 0.45),
+                borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  child: Text(
+                    s?.viewer_3d_legend ?? '',
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 11,
+                      height: 1.35,
+                    ),
+                  ),
                 ),
               ),
             ),

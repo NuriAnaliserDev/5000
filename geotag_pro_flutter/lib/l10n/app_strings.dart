@@ -460,6 +460,24 @@ abstract class GeoFieldStrings {
   /// **'Camera Error'**
   String get camera_error;
 
+  /// No description provided for @camera_voice_mic_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Mic: tap to record a voice note for this station (saved when you save the shot).'**
+  String get camera_voice_mic_hint;
+
+  /// No description provided for @viewer_3d_legend.
+  ///
+  /// In en, this message translates to:
+  /// **'Each point: station location. Orange fill: bedding plane from strike/dip. Drag to rotate the view, use +/− to zoom. Darker orange ≈ steeper dip.'**
+  String get viewer_3d_legend;
+
+  /// No description provided for @viewer_3d_no_data.
+  ///
+  /// In en, this message translates to:
+  /// **'No stations yet — add field stations to see 3D planes.'**
+  String get viewer_3d_no_data;
+
   /// No description provided for @camera_header_document.
   ///
   /// In en, this message translates to:
@@ -885,6 +903,60 @@ abstract class GeoFieldStrings {
   /// In en, this message translates to:
   /// **'Fisher statistics'**
   String get fisher_stats;
+
+  /// No description provided for @fisher_reliability_help.
+  ///
+  /// In en, this message translates to:
+  /// **'α₉₅ is the 95% confidence cone (Fisher) for all station strikes. A smaller angle means strikes cluster in one direction; a larger angle means more scatter. The green/orange status uses the usual field rule: reliable when n ≥ 5 and the mean vector length R > 0.5.'**
+  String get fisher_reliability_help;
+
+  /// No description provided for @dashboard_data_export.
+  ///
+  /// In en, this message translates to:
+  /// **'Export data'**
+  String get dashboard_data_export;
+
+  /// No description provided for @dashboard_gis_import.
+  ///
+  /// In en, this message translates to:
+  /// **'Import KML/DXF'**
+  String get dashboard_gis_import;
+
+  /// No description provided for @voice_open_camera_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera is open. Use the microphone in the camera to add a voice note; the station is saved when you finish the photo and save step.'**
+  String get voice_open_camera_hint;
+
+  /// No description provided for @map_slice_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile line (scissors): tap two points on the map to build a line and open a cross-section along it.'**
+  String get map_slice_tooltip;
+
+  /// No description provided for @map_3d_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'3D: terrain and stations around the current map center. Move the map first if you need another area.'**
+  String get map_3d_tooltip;
+
+  /// No description provided for @map_track_fab_aria.
+  ///
+  /// In en, this message translates to:
+  /// **'Record GPS route (track)'**
+  String get map_track_fab_aria;
+
+  /// No description provided for @track_start_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not start the route. Turn on GPS and allow location in system settings.'**
+  String get track_start_failed;
+
+  /// No description provided for @gis_import_done.
+  ///
+  /// In en, this message translates to:
+  /// **'GIS import: {imported} added, {skipped} skipped.'**
+  String gis_import_done(int imported, int skipped);
 
   /// No description provided for @foliated.
   ///

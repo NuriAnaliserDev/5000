@@ -199,6 +199,18 @@ class GeoFieldStringsEn extends GeoFieldStrings {
   String get camera_error => 'Camera Error';
 
   @override
+  String get camera_voice_mic_hint =>
+      'Mic: tap to record a voice note for this station (saved when you save the shot).';
+
+  @override
+  String get viewer_3d_legend =>
+      'Each point: station location. Orange fill: bedding plane from strike/dip. Drag to rotate the view, use +/− to zoom. Darker orange ≈ steeper dip.';
+
+  @override
+  String get viewer_3d_no_data =>
+      'No stations yet — add field stations to see 3D planes.';
+
+  @override
   String get camera_header_document => 'DOCUMENT SYNC';
 
   @override
@@ -416,6 +428,40 @@ class GeoFieldStringsEn extends GeoFieldStrings {
 
   @override
   String get fisher_stats => 'Fisher statistics';
+
+  @override
+  String get fisher_reliability_help =>
+      'α₉₅ is the 95% confidence cone (Fisher) for all station strikes. A smaller angle means strikes cluster in one direction; a larger angle means more scatter. The green/orange status uses the usual field rule: reliable when n ≥ 5 and the mean vector length R > 0.5.';
+
+  @override
+  String get dashboard_data_export => 'Export data';
+
+  @override
+  String get dashboard_gis_import => 'Import KML/DXF';
+
+  @override
+  String get voice_open_camera_hint =>
+      'Camera is open. Use the microphone in the camera to add a voice note; the station is saved when you finish the photo and save step.';
+
+  @override
+  String get map_slice_tooltip =>
+      'Profile line (scissors): tap two points on the map to build a line and open a cross-section along it.';
+
+  @override
+  String get map_3d_tooltip =>
+      '3D: terrain and stations around the current map center. Move the map first if you need another area.';
+
+  @override
+  String get map_track_fab_aria => 'Record GPS route (track)';
+
+  @override
+  String get track_start_failed =>
+      'Could not start the route. Turn on GPS and allow location in system settings.';
+
+  @override
+  String gis_import_done(int imported, int skipped) {
+    return 'GIS import: $imported added, $skipped skipped.';
+  }
 
   @override
   String get foliated => 'Foliated';

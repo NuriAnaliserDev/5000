@@ -51,34 +51,49 @@ class _DashboardSessionBoxState extends State<DashboardSessionBox> {
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.max,
         children: [
           Row(
             children: [
               Icon(Icons.timer_outlined, size: 14, color: isTracking ? Colors.green : Colors.grey),
               const SizedBox(width: 8),
-              Text(
-                (context.loc('session')).toUpperCase(),
-                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5, color: Colors.grey),
+              Expanded(
+                child: Text(
+                  (context.loc('session')).toUpperCase(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.1, color: Colors.grey),
+                ),
               ),
             ],
           ),
-          const Spacer(),
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 500),
-            child: Text(
-              hasActiveTrack ? _formatDuration(DateTime.now().difference(track.startTime)) : '00:00:00',
-              key: ValueKey(
-                hasActiveTrack ? (DateTime.now().difference(track.startTime).inSeconds / 10).floor() : 0,
+          const SizedBox(height: 4),
+          Expanded(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 500),
+                child: Text(
+                  hasActiveTrack ? _formatDuration(DateTime.now().difference(track.startTime)) : '00:00:00',
+                  key: ValueKey(
+                    hasActiveTrack ? (DateTime.now().difference(track.startTime).inSeconds / 10).floor() : 0,
+                  ),
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
+                ),
               ),
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Row(
             children: [
-              Text(
-                '${((track?.distanceMeters ?? 0) / 1000).toStringAsFixed(2)} km',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.blue),
+              Flexible(
+                child: Text(
+                  '${((track?.distanceMeters ?? 0) / 1000).toStringAsFixed(2)} km',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.blue),
+                ),
               ),
               const SizedBox(width: 8),
               Text(

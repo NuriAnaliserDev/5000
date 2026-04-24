@@ -64,6 +64,7 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'calibration_instruction': return s.calibration_instruction;
     case 'camera': return s.camera;
     case 'camera_error': return s.camera_error;
+    case 'camera_voice_mic_hint': return s.camera_voice_mic_hint;
     case 'camera_header_document': return s.camera_header_document;
     case 'camera_header_geology': return s.camera_header_geology;
     case 'camera_mode_document': return s.camera_mode_document;
@@ -90,6 +91,8 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'custom_input': return s.custom_input;
     case 'dark_grey': return s.dark_grey;
     case 'dashboard': return s.dashboard;
+    case 'dashboard_data_export': return s.dashboard_data_export;
+    case 'dashboard_gis_import': return s.dashboard_gis_import;
     case 'delete': return s.delete;
     case 'delete_all_label': return s.delete_all_label;
     case 'delete_confirm_btn': return s.delete_confirm_btn;
@@ -135,6 +138,7 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'fisher_reliability': return s.fisher_reliability;
     case 'fisher_stable': return s.fisher_stable;
     case 'fisher_stats': return s.fisher_stats;
+    case 'fisher_reliability_help': return s.fisher_reliability_help;
     case 'foliated': return s.foliated;
     case 'geoloc_header': return s.geoloc_header;
     case 'gis_monitoring_active': return s.gis_monitoring_active;
@@ -189,6 +193,9 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'map_style_osm': return s.map_style_osm;
     case 'map_style_satellite': return s.map_style_satellite;
     case 'map_style_topo': return s.map_style_topo;
+    case 'map_3d_tooltip': return s.map_3d_tooltip;
+    case 'map_slice_tooltip': return s.map_slice_tooltip;
+    case 'map_track_fab_aria': return s.map_track_fab_aria;
     case 'massive': return s.massive;
     case 'measurement_error_high': return s.measurement_error_high;
     case 'measurement_label': return s.measurement_label;
@@ -303,6 +310,7 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'total_stations': return s.total_stations;
     case 'total_stations_short': return s.total_stations_short;
     case 'tracking_started_snack': return s.tracking_started_snack;
+    case 'track_start_failed': return s.track_start_failed;
     case 'trend_analysis': return s.trend_analysis;
     case 'trend_density': return s.trend_density;
     case 'trend_growth': return s.trend_growth;
@@ -315,9 +323,12 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'unsaved_changes': return s.unsaved_changes;
     case 'unsaved_changes_desc': return s.unsaved_changes_desc;
     case 'utm_coordinates': return s.utm_coordinates;
+    case 'viewer_3d_legend': return s.viewer_3d_legend;
+    case 'viewer_3d_no_data': return s.viewer_3d_no_data;
     case 'version': return s.version;
     case 'voice_note': return s.voice_note;
     case 'voice_record': return s.voice_record;
+    case 'voice_open_camera_hint': return s.voice_open_camera_hint;
     case 'warning_label': return s.warning_label;
     case 'welcome_text': return s.welcome_text;
     case 'width_cm': return s.width_cm;

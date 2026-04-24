@@ -71,6 +71,9 @@
   "calibration_instruction": "Place a physical ruler on screen and match 1 cm.",
   "camera": "Camera",
   "camera_error": "Camera Error",
+  "camera_voice_mic_hint": "Mic: tap to record a voice note for this station (saved when you save the shot).",
+  "viewer_3d_legend": "Each point: station location. Orange fill: bedding plane from strike/dip. Drag to rotate the view, use +/− to zoom. Darker orange ≈ steeper dip.",
+  "viewer_3d_no_data": "No stations yet — add field stations to see 3D planes.",
   "camera_header_document": "DOCUMENT SYNC",
   "camera_header_geology": "GEOLOGY",
   "camera_mode_document": "Report",
@@ -142,6 +145,21 @@
   "fisher_reliability": "FISHER RELIABILITY",
   "fisher_stable": "STABLE TREND ✅",
   "fisher_stats": "Fisher statistics",
+  "fisher_reliability_help": "α₉₅ is the 95% confidence cone (Fisher) for all station strikes. A smaller angle means strikes cluster in one direction; a larger angle means more scatter. The green/orange status uses the usual field rule: reliable when n ≥ 5 and the mean vector length R > 0.5.",
+  "dashboard_data_export": "Export data",
+  "dashboard_gis_import": "Import KML/DXF",
+  "voice_open_camera_hint": "Camera is open. Use the microphone in the camera to add a voice note; the station is saved when you finish the photo and save step.",
+  "map_slice_tooltip": "Profile line (scissors): tap two points on the map to build a line and open a cross-section along it.",
+  "map_3d_tooltip": "3D: terrain and stations around the current map center. Move the map first if you need another area.",
+  "map_track_fab_aria": "Record GPS route (track)",
+  "track_start_failed": "Could not start the route. Turn on GPS and allow location in system settings.",
+  "gis_import_done": "GIS import: {imported} added, {skipped} skipped.",
+  "@gis_import_done": {
+    "placeholders": {
+      "imported": { "type": "int" },
+      "skipped": { "type": "int" }
+    }
+  },
   "foliated": "Foliated",
   "geoloc_header": "GEOLOCATION",
   "gis_monitoring_active": "GIS Monitoring Active",

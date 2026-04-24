@@ -37,6 +37,7 @@ import 'map/components/map_top_bar.dart';
 import 'map/components/map_live_track_stats.dart';
 import 'map/components/map_slice_button.dart';
 import 'map/components/map_sos_button.dart';
+import 'map/components/map_track_fab.dart';
 import 'map/components/map_linework_controls.dart';
 import 'map/components/map_projection_controls.dart';
 import 'map/components/map_layer_drawer.dart';
@@ -346,7 +347,6 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                 if (!_isVertexEditMode) { _editingPolygonId = null; _selectedVertexIndex = null; }
               }),
             ),
-            MapThreeDButton(centerPoint: LatLng(_centerLat, _centerLng)),
           ],
         ),
       ),
@@ -378,6 +378,16 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
           right: 16,
           bottom: 240,
           child: MapSosButton(currentCenter: LatLng(_centerLat, _centerLng)),
+        ),
+        Positioned(
+          right: 16,
+          bottom: 160,
+          child: MapThreeDButton(centerPoint: LatLng(_centerLat, _centerLng)),
+        ),
+        const Positioned(
+          right: 16,
+          bottom: 80,
+          child: MapTrackFab(),
         ),
       ],
     );

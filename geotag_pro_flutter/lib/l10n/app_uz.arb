@@ -71,6 +71,9 @@
   "calibration_instruction": "Haqiqiy lineykani ekranga qo‘ying va 1 sm ni moslang.",
   "camera": "Kamera",
   "camera_error": "Kamera xatosi",
+  "camera_voice_mic_hint": "Mikrofon: bosib ovozli eslatma yozing (surat saqlanganda qo‘shiladi).",
+  "viewer_3d_legend": "Oq nuqta: stansiya joyi. Sariq/orange: strike/dip bo‘yicha qatlam tekisligi. Barmoq bilan aylantiring, +/− yaqinlashtiring. To‘q ro‘ng ≈ qalinroq dip.",
+  "viewer_3d_no_data": "Stansiya yo‘q — dala stansiyalari qo‘shilganda 3D tekisliklar ko‘rinadi.",
   "camera_header_document": "HUJJAT SINXRON",
   "camera_header_geology": "GEOLOGIYA",
   "camera_mode_document": "Hisobot",
@@ -142,6 +145,21 @@
   "fisher_reliability": "FISHER ISHONCHLILIGI",
   "fisher_stable": "BARQAROR TREND ✅",
   "fisher_stats": "Fisher statistikasi",
+  "fisher_reliability_help": "α₉₅ — barcha stansiyalar strike’lari bo‘yicha 95% ishonch konusi (Fisher). Burchak kichik bo‘lsa, strike’lar bitta yo‘nalishga to‘planadi; katta bo‘lsa, sochilgan. Yashil/turunc holat: odatdagi qoida — ishonchli, agar n ≥ 5 va o‘rtacha vektor uzunligi R > 0.5 bo‘lsa.",
+  "dashboard_data_export": "Eksport (arxiv)",
+  "dashboard_gis_import": "KML/DXF import",
+  "voice_open_camera_hint": "Kamera ochildi. Ovozli eslatma uchun kamera ekranidagi mikrofonni bosing; stansiya surat olish va saqlash bosqichida saqlanadi.",
+  "map_slice_tooltip": "Kesim (qaychi): xaritada 2 nuqta belgilang — shu chiziq bo‘yicha profil (cross-section) ochiladi.",
+  "map_3d_tooltip": "3D: xarita markazi atrofida relyef va stansiyalar. Boshqa hududni ko‘rish uchun avval xaritani siljiting.",
+  "map_track_fab_aria": "Marshrut (GPS) yozish",
+  "track_start_failed": "Marshrut boshlanmadi. GPSni yoqing va tizimda joylashuv ruxsatini bering.",
+  "gis_import_done": "GIS import: {imported} qo‘shildi, {skipped} o‘tkazib yuborildi.",
+  "@gis_import_done": {
+    "placeholders": {
+      "imported": { "type": "int" },
+      "skipped": { "type": "int" }
+    }
+  },
   "foliated": "Folyatsiyalangan",
   "geoloc_header": "GEOLOKATSIYA",
   "gis_monitoring_active": "GIS monitoringi faol",

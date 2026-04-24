@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/app_strings.dart';
 import '../../models/station.dart';
+import '../../services/boundary_service.dart';
 import '../../services/location_service.dart';
 import '../../services/settings_controller.dart';
 import '../../services/station_repository.dart';
-import '../../services/track_service.dart';
 import '../../utils/app_card.dart';
 import '../../utils/app_localizations.dart';
 import '../../utils/auto_scroll_text.dart';
@@ -62,16 +63,70 @@ class DashboardQuickTools extends StatelessWidget {
             Icons.mic_rounded,
             context.loc('voice_record'),
             primary,
-            () => _handleQuickVoice(context),
+            () => _openCameraForVoice(context),
           ),
           _buildQuickToolItem(
             context,
-            Icons.explore_rounded,
-            context.loc('compass'),
+            Icons.alt_route_rounded,
+            context.loc('map_track_fab_aria'),
             primary,
-            () => Navigator.pushNamed(context, '/camera'),
+            () => Navigator.pushNamed(context, '/map'),
+          ),
+          _buildQuickToolItem(
+            context,
+            Icons.file_download_outlined,
+            context.loc('dashboard_data_export'),
+            primary,
+            () => Navigator.pushNamed(context, '/archive'),
+          ),
+          _buildQuickToolItem(
+            context,
+            Icons.file_upload_outlined,
+            context.loc('dashboard_gis_import'),
+            primary,
+            () => _importGisFromDashboard(context),
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _importGisFromDashboard(BuildContext context) async {
+    final boundary = context.read<BoundaryService>();
+    final s = GeoFieldStrings.of(context);
+    if (s == null) return;
+    try {
+      final r = await boundary.importFileFromWeb();
+      if (!context.mounted) return;
+      if (r == null) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(s.gis_import_done(r.importedCount, r.skippedCount)),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('$e'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _openCameraForVoice(BuildContext context) async {
+    await Navigator.pushNamed(context, '/camera');
+    if (!context.mounted) return;
+    final s = GeoFieldStrings.of(context)?.voice_open_camera_hint;
+    if (s == null) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(s),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 5),
       ),
     );
   }
@@ -99,46 +154,19 @@ class DashboardQuickTools extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             SizedBox(
-              width: 68,
+              width: 76,
               child: Text(
                 label,
-                maxLines: 1,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey),
+                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, height: 1.1),
               ),
             ),
           ],
         ),
       ),
     );
-  }
-
-  Future<void> _handleQuickVoice(BuildContext context) async {
-    final pos = loc.currentPosition;
-    final now = DateTime.now();
-    final station = Station(
-      name: 'VOICE-${now.millisecondsSinceEpoch}',
-      lat: pos?.latitude ?? 0.0,
-      lng: pos?.longitude ?? 0.0,
-      altitude: pos?.altitude ?? 0.0,
-      strike: 0,
-      dip: 0,
-      azimuth: 0,
-      date: now,
-      project: settings.currentProject,
-      description: 'Quick Voice Record',
-    );
-    
-    await context.read<StationRepository>().addStation(station);
-    if (!context.mounted) return;
-    context.read<TrackService>().recordStationSaved();
-    
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.loc('station_saved')), behavior: SnackBarBehavior.floating),
-      );
-    }
   }
 }
 

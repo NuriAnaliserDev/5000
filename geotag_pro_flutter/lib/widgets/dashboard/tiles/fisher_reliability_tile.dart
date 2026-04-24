@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_strings.dart';
 import '../../../models/station.dart';
 import '../../../services/station_repository.dart';
 import '../../../utils/app_card.dart';
@@ -42,43 +43,86 @@ class _FisherReliabilityTileState extends State<FisherReliabilityTile> {
     final stats = _stats!;
 
     return AppCard(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.max,
         children: [
-          Text(
-            context.loc('fisher_reliability'),
-            style: const TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey),
-          ),
-          const Spacer(),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                stats.alpha95.isNaN
-                    ? '—'
-                    : '±${stats.alpha95.toStringAsFixed(1)}°',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w900,
-                  color: stats.isReliable ? Colors.green : Colors.orange,
+              Expanded(
+                child: Text(
+                  context.loc('fisher_reliability'),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey,
+                  ),
                 ),
               ),
-              const SizedBox(width: 8),
-              const Text('α₉₅', style: TextStyle(color: Colors.grey, fontSize: 12)),
+              IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                onPressed: () {
+                  showDialog<void>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: Text(context.loc('fisher_reliability')),
+                      content: SingleChildScrollView(
+                        child: Text(GeoFieldStrings.of(context)?.fisher_reliability_help ?? ''),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx),
+                          child: Text(context.loc('close')),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.info_outline, size: 16, color: Colors.grey),
+                tooltip: context.loc('fisher_stats'),
+              ),
             ],
           ),
-          const Spacer(),
+          const SizedBox(height: 4),
+          Expanded(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.bottomLeft,
+              child: Row(
+                children: [
+                  Text(
+                    stats.alpha95.isNaN
+                        ? '—'
+                        : '±${stats.alpha95.toStringAsFixed(1)}°',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                      color: stats.isReliable ? Colors.green : Colors.orange,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  const Text('α₉₅', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 2),
           Text(
             stats.isReliable
                 ? context.loc('fisher_stable')
                 : context.loc('fisher_dispersion'),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
-                fontSize: 9,
-                fontWeight: FontWeight.bold,
-                color: stats.isReliable ? Colors.green : Colors.orange),
+              fontSize: 9,
+              fontWeight: FontWeight.bold,
+              color: stats.isReliable ? Colors.green : Colors.orange,
+            ),
           ),
         ],
       ),

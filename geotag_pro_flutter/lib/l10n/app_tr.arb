@@ -71,6 +71,9 @@
   "calibration_instruction": "Ekrana fiziksel bir cetvel yerleştirin ve 1 cm ile eşleştirin.",
   "camera": "Kamera",
   "camera_error": "Kamera Hatası",
+  "camera_voice_mic_hint": "Mikrofon: Bu istasyon için ses notu kaydedin (kaydet ile birlikte saklanır).",
+  "viewer_3d_legend": "Nokta: istasyon konumu. Turuncu: strike/dip düzlemi. Sürükleyerek döndürün, +/− ile yakınlaştırın. Koyu turuncu ≈ daha dik dip.",
+  "viewer_3d_no_data": "İstasyon yok — 3D için saha istasyonu ekleyin.",
   "camera_header_document": "BELGE SENKRON",
   "camera_header_geology": "JEOLOJİ",
   "camera_mode_document": "Rapor",
@@ -142,6 +145,21 @@
   "fisher_reliability": "FISHER RELIABILITY",
   "fisher_stable": "STABLE TREND ✅",
   "fisher_stats": "Fisher istatistikleri",
+  "fisher_reliability_help": "α₉₅, tüm istasyon strike’ları için %95 güven koni (Fisher). Küçük açı: strike’lar tek yöne kümelenir; büyük açı: dağılım yüksektir. Yeşil/turuncu: genelde n ≥ 5 ve ortalama vektör uzunluğu R > 0.5 ise güvenilir kabul edilir.",
+  "dashboard_data_export": "Veri dışa aktar",
+  "dashboard_gis_import": "KML/DXF içe aktar",
+  "voice_open_camera_hint": "Kamera açıldı. Ses notu için kamera ekranındaki mikrofona basın; istasyon Foto + kaydet adımında kaydedilir.",
+  "map_slice_tooltip": "Profil çizgisi (makas): Haritada iki noktaya dokunun — en kesit (cross section) açılır.",
+  "map_3d_tooltip": "3D: Harita merkezi çevresinde arazi ve istasyonlar. Başka bölge için önce haritayı kaydırın.",
+  "map_track_fab_aria": "GPS rotası (iz) kaydet",
+  "track_start_failed": "Rota başlatılamadı. GPS’i açın ve konum iznini verin.",
+  "gis_import_done": "GIS içe aktarma: {imported} eklendi, {skipped} atlandı.",
+  "@gis_import_done": {
+    "placeholders": {
+      "imported": { "type": "int" },
+      "skipped": { "type": "int" }
+    }
+  },
   "foliated": "Folyasyonlu",
   "geoloc_header": "COĞRAFİ KONUM",
   "gis_monitoring_active": "GIS Monitoring Active",
