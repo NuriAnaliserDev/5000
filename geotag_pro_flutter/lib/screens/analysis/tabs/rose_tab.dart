@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../models/station.dart';
 import '../../../utils/app_localizations.dart';
 import '../../../utils/app_scroll_physics.dart';
+import '../../../utils/rose_strike_binning.dart';
 import '../components/analysis_info_tile.dart';
 
 // YAXSHILANISH: Dinamik bin tanlash — 8/16/36/72 bin
@@ -24,7 +25,9 @@ class _RoseTabState extends State<RoseTab> {
 
   late List<int> _counts;
   late int _maxCount;
-  late int _dominantBin;
+  /// 0..(binCount/2-1) — strike aksial (0–180°) bo‘yicha, 10° va 190° bir xil bin.
+  late int _dominantHalfBin;
+  late double _axialBinWidthDeg;
 
   @override
   void initState() {
@@ -42,23 +45,29 @@ class _RoseTabState extends State<RoseTab> {
   }
 
   void _compute() {
-    final counts = List<int>.filled(_binCount, 0);
-    final binSize = 360.0 / _binCount;
-    for (final s in widget.stations) {
-      final bin = ((s.strike % 360) / binSize).floor() % _binCount;
-      counts[bin]++;
+    // Strike 10° va 190° — bir xil chiziq; 0..180° (aksial). [RoseStrikeBinning].
+    final halfBins = _binCount ~/ 2;
+    _axialBinWidthDeg = 180.0 / halfBins;
+    final core = RoseStrikeBinning.halfBinsCore(widget.stations, _binCount);
+    _counts = RoseStrikeBinning.fullRingCounts(core, _binCount);
+    _maxCount = core.isNotEmpty
+        ? core.reduce((a, b) => a > b ? a : b)
+        : 0;
+    if (_maxCount == 0) {
+      _dominantHalfBin = 0;
+    } else {
+      _dominantHalfBin = core.indexOf(_maxCount);
     }
-    _counts = counts;
-    _maxCount = counts.isNotEmpty ? counts.reduce((a, b) => a > b ? a : b) : 0;
-    _dominantBin = _maxCount > 0 ? counts.indexOf(_maxCount) : 0;
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final onSurf = Theme.of(context).colorScheme.onSurface;
-    final binSize = 360.0 / _binCount;
-    final dominantDeg = (_dominantBin * binSize + binSize / 2).toStringAsFixed(1);
+    final halfBins = _binCount ~/ 2;
+    final dominantDeg =
+        (_dominantHalfBin * _axialBinWidthDeg + _axialBinWidthDeg / 2)
+            .toStringAsFixed(1);
 
     return ListView(
       physics: AppScrollPhysics.list(),
@@ -173,8 +182,10 @@ class _RoseTabState extends State<RoseTab> {
             spacing: 6,
             runSpacing: 5,
             children: List.generate(_binCount, (i) {
-              final deg = (i * binSize).toStringAsFixed(
-                  _binCount > 16 ? 0 : 0);
+              final seg = i % halfBins;
+              final start = seg * _axialBinWidthDeg;
+              final deg =
+                  '${start.toStringAsFixed(_binCount > 16 ? 0 : 1)}°';
               final cnt = _counts[i];
               return Container(
                 padding: const EdgeInsets.symmetric(
