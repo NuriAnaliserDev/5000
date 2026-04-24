@@ -17,6 +17,22 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
+// Firebase Android Auth (reCAPTCHA) uchun "Web client" ID: google-services.jsonda bo‘lmasa ham shu string yetarli.
+val firebaseSecretsFile = rootProject.file("firebase_secrets.properties")
+val firebaseSecrets = Properties()
+if (firebaseSecretsFile.exists()) {
+    firebaseSecrets.load(FileInputStream(firebaseSecretsFile))
+}
+val localPropertiesFile = rootProject.file("local.properties")
+val localProjectProps = Properties()
+if (localPropertiesFile.exists()) {
+    localProjectProps.load(FileInputStream(localPropertiesFile))
+}
+val defaultWebClientId: String? =
+    firebaseSecrets.getProperty("defaultWebClientId")?.trim()?.takeIf { it.isNotEmpty() }
+        ?: localProjectProps.getProperty("firebase.defaultWebClientId")?.trim()?.takeIf { it.isNotEmpty() }
+        ?: System.getenv("FIREBASE_DEFAULT_WEB_CLIENT_ID")?.trim()?.takeIf { it.isNotEmpty() }
+
 android {
     namespace = "com.example.geofield_pro_flutter"
     compileSdk = flutter.compileSdkVersion
@@ -40,6 +56,10 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        defaultWebClientId?.let { clientId ->
+            resValue("string", "default_web_client_id", clientId)
+        }
     }
 
     signingConfigs {
@@ -77,4 +97,6 @@ flutter {
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    // reCAPTCHA / Google Sign-In bilan bog‘liq auth oqimlari
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
 }

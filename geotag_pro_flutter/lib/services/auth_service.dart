@@ -46,7 +46,17 @@ class AuthService extends ChangeNotifier {
           return 'Juda ko\'p urinish. Bir oz kuting.';
         case 'network-request-failed':
           return 'Internet aloqasi yo\'q.';
+        case 'internal-error':
+        case 'unknown':
+        case 'operation-not-allowed':
+          if (_isAuthConfigOrRecaptchaError(e)) {
+            return _firebaseAuthConfigHint();
+          }
+          return e.message ?? 'Tizimga kirishda xatolik yuz berdi.';
         default:
+          if (_isAuthConfigOrRecaptchaError(e)) {
+            return _firebaseAuthConfigHint();
+          }
           return e.message ?? 'Tizimga kirishda xatolik yuz berdi.';
       }
     } catch (e) {
@@ -80,7 +90,17 @@ class AuthService extends ChangeNotifier {
           return 'Parol juda zaif (kamida 6 belgi).';
         case 'network-request-failed':
           return 'Internet aloqasi yo\'q.';
+        case 'internal-error':
+        case 'unknown':
+        case 'operation-not-allowed':
+          if (_isAuthConfigOrRecaptchaError(e)) {
+            return _firebaseAuthConfigHint();
+          }
+          return e.message ?? 'Ro\'yxatdan o\'tishda xatolik.';
         default:
+          if (_isAuthConfigOrRecaptchaError(e)) {
+            return _firebaseAuthConfigHint();
+          }
           return e.message ?? 'Ro\'yxatdan o\'tishda xatolik.';
       }
     } catch (e) {
@@ -105,6 +125,20 @@ class AuthService extends ChangeNotifier {
   Future<void> logout() async {
     await _auth.signOut();
     notifyListeners();
+  }
+
+  static bool _isAuthConfigOrRecaptchaError(FirebaseAuthException e) {
+    final m = (e.message ?? '').toLowerCase();
+    return m.contains('configuration_not_found') ||
+        m.contains('recaptcha') ||
+        m.contains('internal error has occurred') ||
+        m.contains('appcheck');
+  }
+
+  static String _firebaseAuthConfigHint() {
+    return "Firebase Android uchun Web client ID (default_web_client_id) qo'shilmagan. "
+        "android/firebase_secrets.properties.example faylida yo'riqnomaga qarang, "
+        "so'zlangan kalitni qo'ying yoki muhit o'zgaruvchisidan FIREBASE_DEFAULT_WEB_CLIENT_ID bering.";
   }
 
   void devLogin() {

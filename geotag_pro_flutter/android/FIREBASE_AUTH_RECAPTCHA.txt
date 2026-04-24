@@ -20,9 +20,15 @@ yoki Email/Password yoqilmagan.
    powershell -ExecutionPolicy Bypass -File android/verify_firebase_auth.ps1
    Agar “Auth sozlamalari OK” chiqsa, keyingi qadam: flutter run.
 
-2) Oldingi texnik ish (o‘zgarmaydi)
-   - Debug SHA-1/256 Firebase’da qo‘shilgan.
-   - oauth_client bo‘sh bo‘lsa, (0) dan keyin yangi JSON ko‘pincha to‘ldiriladi.
+2) Android: default_web_client_id (reCAPTCHA / ijtimoiy emas, lekin tavsiya)
+   a) Konsol: https://console.cloud.google.com/apis/credentials?project=geofield-pro-8529f
+   b) "OAuth 2.0 Client IDs" da "Web client (auto created by ...)" ushbu loyiha
+      client ID sini nusxalang (turi Web application).
+   c) android/firebase_secrets.properties.example faylidan nusxa oling
+      → android/firebase_secrets.properties nomiga, defaultWebClientId=... ni
+      to‘ldiring. (Loyiha: build.gradle bu qiymatni R.string.default_web_client_id
+      qilib yig‘ishda ishlatadi; google-services.jsondagi bo‘sh oauth_client o‘zini
+      almashtirmaydi, shuning uchun u ikkala hollarda ham yordam beradi.)
 
 3) Qayta build
    flutter clean && flutter pub get && flutter run

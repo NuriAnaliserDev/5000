@@ -30,3 +30,8 @@
 -dontwarn com.google.android.play.core.tasks.OnFailureListener
 -dontwarn com.google.android.play.core.tasks.OnSuccessListener
 -dontwarn com.google.android.play.core.tasks.Task
+
+# Firebase Auth / reCAPTCHA (release minify)
+-keep class com.google.firebase.auth.** { *; }
+-keep class com.google.android.recaptcha.** { *; }
+-keep class com.google.android.gms.internal.** { *; }

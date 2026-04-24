@@ -48,5 +48,7 @@ app.*.map.json
 lib/firebase_options.dart
 **/google-services.json
 **/GoogleService-Info.plist
+# Web OAuth (reCAPTCHA) — android/.gitignore ham to‘sadi
+android/firebase_secrets.properties
 .env
 .env.*

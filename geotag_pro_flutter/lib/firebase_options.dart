@@ -17,7 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      return android; // Fallback to android config so Web doesn't crash
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -27,17 +27,17 @@ class DefaultFirebaseOptions {
       case TargetPlatform.macOS:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
+          'you can reconfigure by running the FlutterFire CLI again.',
         );
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
+          'you can reconfigure by running the FlutterFire CLI again.',
         );
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
+          'you can reconfigure by running the FlutterFire CLI again.',
         );
       default:
         throw UnsupportedError(
@@ -61,5 +61,14 @@ class DefaultFirebaseOptions {
     projectId: 'geofield-pro-8529f',
     storageBucket: 'geofield-pro-8529f.firebasestorage.app',
     iosBundleId: 'com.aurum.geofieldpro',
+  );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyAbo1Lb0JCePqgVXAceFMwPwMw2bZOnS0o',
+    appId: '1:36261437268:web:efcf1bdf17fff9e036f2c1',
+    messagingSenderId: '36261437268',
+    projectId: 'geofield-pro-8529f',
+    authDomain: 'geofield-pro-8529f.firebaseapp.com',
+    storageBucket: 'geofield-pro-8529f.firebasestorage.app',
   );
 }
