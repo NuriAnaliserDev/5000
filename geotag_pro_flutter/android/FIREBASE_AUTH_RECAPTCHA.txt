@@ -1,0 +1,40 @@
+CONFIGURATION_NOT_FOUND / Recaptcha xatosi — nima qilindi va nima qilish kerak
+================================================================================
+
+1) BAJARILDI (loyiha ikkilanmasin)
+   - Firebase’dagi Android ilovaga DEBUG SHA-1 va SHA-256 qo‘shildi (flutter run / debug APK).
+   - Buyruq: firebase apps:android:sha:create (CLI orqali).
+
+2) NEGA google-services.json ichida "oauth_client": [] bo‘sh?
+   - Email/parol bilan kirish Android’da reCAPTCHA orqali ishlaydi.
+   - Ko‘p loyihada OAuth client ID Google Cloud’da “Web client” yoki Google
+     Sign-In yoqilgach yaratiladi. CLI orqali yuklab olingan JSON ba’zida
+     oauth_client bo‘sh qoladi — bu normal; konsol orqali yangilangan fayl
+     to‘ldiriladi.
+
+3) SIZNING BIR MARTALIK QADAMLARINGIZ (Firebase Console, brauzer)
+   a) https://console.firebase.google.com/project/geofield-pro-8529f/authentication/providers
+      - “Sign-in method” → Email/Password — yoqilgan bo‘lsin.
+      - “Google” provayderini yoqing (faqat email ishlatilsa ham reCAPTCHA
+        konfiguratsiyasi uchun kerak bo‘lishi mumkin). Saqlang.
+   b) https://console.firebase.google.com/project/geofield-pro-8529f/settings/general
+      - “Your apps” → Android (com.example.geofield_pro_flutter) →
+        “google-services.json” ni YUKLAB OLING (Download).
+      - Yuklab olingan faylni loyihada almashtiring:
+        geotag_pro_flutter/android/app/google-services.json
+   c) Release APK/Play uchun: key.properties dagi release kalitdan SHA-1/256
+      oling va Firebase → Project settings → Android ilovaga qo‘shing.
+
+4) JSONni CLI orqali yangilash (ixtiyoriy)
+   geotag_pro_flutter/android papkasida:
+   powershell -ExecutionPolicy Bypass -File refresh_google_services.ps1
+
+5) Qayta build
+   flutter clean
+   flutter pub get
+   flutter run   (yoki flutter build apk)
+
+Agar oauth_client baribir bo‘sh bo‘lsa, Google Cloud → APIs & Services →
+Credentials dan “Web client (auto created by Google Service)” Client ID ni
+olib, android/app/src/main/res/values/strings.xml ichida
+default_web_client_id string sifatida qo‘shish mumkin (Firebase hujjatlari).
