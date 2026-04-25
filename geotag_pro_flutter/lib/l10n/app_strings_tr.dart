@@ -424,6 +424,7 @@ class GeoFieldStringsTr extends GeoFieldStrings {
 
   @override
   String get camera_mode_geology => 'Jeolojik';
+
   @override
   String get camera_pro_sheet_hint =>
       'Cetvel, yatay, uzman ve HUD (jeoloji modu).';
@@ -1101,9 +1102,6 @@ class GeoFieldStringsTr extends GeoFieldStrings {
 
   @override
   String get sos_cancelled => 'SOS sonlandı';
-  @override
-  String get sos_cancel_failed =>
-      'SOS sonlandırılamadı (ağ veya kurallar). Bağlantıyı kontrol edin.';
 
   @override
   String get sos_login_required =>
@@ -1117,28 +1115,42 @@ class GeoFieldStringsTr extends GeoFieldStrings {
 
   @override
   String get map_follow_gps => 'Beni takip et: haritayı GPS’e kilitli tutar';
+
   @override
   String get map_pro_tools_title => 'Pro araçlar (harita)';
+
   @override
   String get map_pro_tools_subtitle =>
       'Katman, CBS, ölçüm, kesit, 3D, dışa aktar — birini seçin, haritaya dönün.';
+
+  @override
+  String get nav_messages => 'Mesajlar';
+
+  @override
+  String get nav_more => 'Diğer';
+
+  @override
+  String get camera_pro_short_label => 'Pro';
+
+  @override
+  String get messages_hub_title => 'Mesaj merkezi';
+
+  @override
+  String get messages_sync_tooltip => 'Bulutla eşitle';
+
+  @override
+  String get messages_sync_started => 'Eşitleme başladı';
+
+  @override
+  String get messages_no_groups => 'Henüz grup yok';
+
   @override
   String get map_fab_drag_long_press_hint =>
       'Taşımak için sol çizgide uzun basın';
+
   @override
-  String get nav_messages => 'Mesajlar';
-  @override
-  String get nav_more => 'Diğer';
-  @override
-  String get camera_pro_short_label => 'Pro';
-  @override
-  String get messages_hub_title => 'Mesaj merkezi';
-  @override
-  String get messages_sync_tooltip => 'Bulutla eşitle';
-  @override
-  String get messages_sync_started => 'Eşitleme başladı';
-  @override
-  String get messages_no_groups => 'Henüz grup yok';
+  String get sos_cancel_failed =>
+      'SOS sonlandırılamadı (ağ veya kurallar). Bağlantıyı kontrol edin.';
 
   @override
   String get photo_saved_limited_gps =>

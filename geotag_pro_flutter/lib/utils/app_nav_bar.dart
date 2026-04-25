@@ -91,33 +91,42 @@ class AppBottomNavBar extends StatelessWidget {
     return Expanded(
       child: Material(
         color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            if (isActive) return;
-            Navigator.of(context).pushReplacementNamed(route);
-          },
-          child: SizedBox(
-            height: double.infinity,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, color: color),
-                const SizedBox(height: 2),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 7,
-                      letterSpacing: 0.2,
-                      fontWeight: FontWeight.bold,
-                      color: color,
+        child: Tooltip(
+          message: label,
+          child: Semantics(
+            label: label,
+            button: true,
+            child: InkWell(
+              onTap: () {
+                if (isActive) return;
+                Navigator.of(context).pushReplacementNamed(route);
+              },
+              child: SizedBox(
+                height: double.infinity,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ExcludeSemantics(
+                      child: Icon(icon, color: color),
                     ),
-                  ),
+                    const SizedBox(height: 2),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 7,
+                          letterSpacing: 0.2,
+                          fontWeight: FontWeight.bold,
+                          color: color,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
@@ -131,75 +140,86 @@ class AppBottomNavBar extends StatelessWidget {
     required bool isActive,
   }) {
     final color = isActive ? const Color(0xFF1976D2) : Colors.grey;
+    final moreLabel = context.loc('nav_more');
     return Expanded(
       child: Material(
         color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            showModalBottomSheet<void>(
-              context: context,
-              showDragHandle: true,
-              builder: (ctx) {
-                return SafeArea(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ListTile(
-                        leading: const Icon(Icons.chat_bubble_rounded),
-                        title: Text(context.loc('nav_messages')),
-                        onTap: () {
-                          Navigator.of(ctx).pop();
-                          Navigator.of(context)
-                              .pushReplacementNamed('/messages');
-                        },
+        child: Tooltip(
+          message: moreLabel,
+          child: Semantics(
+            label: moreLabel,
+            button: true,
+            child: InkWell(
+              onTap: () {
+                showModalBottomSheet<void>(
+                  context: context,
+                  showDragHandle: true,
+                  builder: (ctx) {
+                    return SafeArea(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ListTile(
+                            leading: const Icon(Icons.chat_bubble_rounded),
+                            title: Text(context.loc('nav_messages')),
+                            onTap: () {
+                              Navigator.of(ctx).pop();
+                              Navigator.of(context)
+                                  .pushReplacementNamed('/messages');
+                            },
+                          ),
+                          if (isExpert)
+                            ListTile(
+                              leading: const Icon(Icons.square_foot_rounded),
+                              title: Text(context.loc('scale_short')),
+                              onTap: () {
+                                Navigator.of(ctx).pop();
+                                Navigator.of(context)
+                                    .pushReplacementNamed(
+                                        '/scale-assistant');
+                              },
+                            ),
+                          ListTile(
+                            leading: const Icon(Icons.settings_rounded),
+                            title: Text(context.loc('admin')),
+                            onTap: () {
+                              Navigator.of(ctx).pop();
+                              Navigator.of(context)
+                                  .pushReplacementNamed('/admin');
+                            },
+                          ),
+                        ],
                       ),
-                      if (isExpert)
-                        ListTile(
-                          leading: const Icon(Icons.square_foot_rounded),
-                          title: Text(context.loc('scale_short')),
-                          onTap: () {
-                            Navigator.of(ctx).pop();
-                            Navigator.of(context)
-                                .pushReplacementNamed('/scale-assistant');
-                          },
-                        ),
-                      ListTile(
-                        leading: const Icon(Icons.settings_rounded),
-                        title: Text(context.loc('admin')),
-                        onTap: () {
-                          Navigator.of(ctx).pop();
-                          Navigator.of(context)
-                              .pushReplacementNamed('/admin');
-                        },
-                      ),
-                    ],
-                  ),
+                    );
+                  },
                 );
               },
-            );
-          },
-          child: SizedBox(
-            height: double.infinity,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.more_horiz_rounded, color: color),
-                const SizedBox(height: 2),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    context.loc('nav_more'),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 7,
-                      letterSpacing: 0.2,
-                      fontWeight: FontWeight.bold,
-                      color: color,
+              child: SizedBox(
+                height: double.infinity,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ExcludeSemantics(
+                      child: Icon(Icons.more_horiz_rounded, color: color),
                     ),
-                  ),
+                    const SizedBox(height: 2),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        moreLabel,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 7,
+                          letterSpacing: 0.2,
+                          fontWeight: FontWeight.bold,
+                          color: color,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),

@@ -423,6 +423,7 @@ class GeoFieldStringsEn extends GeoFieldStrings {
 
   @override
   String get camera_mode_geology => 'Geological';
+
   @override
   String get camera_pro_sheet_hint =>
       'Ruler, horizon gain, expert overlays, and HUD (geology mode).';
@@ -1101,9 +1102,6 @@ class GeoFieldStringsEn extends GeoFieldStrings {
 
   @override
   String get sos_cancelled => 'SOS ended';
-  @override
-  String get sos_cancel_failed =>
-      'Could not end SOS (network or rules). Check connection and try again.';
 
   @override
   String get sos_login_required =>
@@ -1117,28 +1115,42 @@ class GeoFieldStringsEn extends GeoFieldStrings {
 
   @override
   String get map_follow_gps => 'Follow my position (keeps the map on GPS)';
+
   @override
   String get map_pro_tools_title => 'Pro tools (map)';
+
   @override
   String get map_pro_tools_subtitle =>
-      'Layers, GIS, measure, section, 3D, export — pick one, return to the map.';
+      'Dala va GIS: qatlamlar, o‘lchov, kesim, 3D, eksport — bittadan tanlang, xaritaga qaytasiz.';
+
+  @override
+  String get nav_messages => 'Messages';
+
+  @override
+  String get nav_more => 'More';
+
+  @override
+  String get camera_pro_short_label => 'Pro';
+
+  @override
+  String get messages_hub_title => 'Messages hub';
+
+  @override
+  String get messages_sync_tooltip => 'Sync with cloud';
+
+  @override
+  String get messages_sync_started => 'Sync started';
+
+  @override
+  String get messages_no_groups => 'No groups yet';
+
   @override
   String get map_fab_drag_long_press_hint =>
       'Long-press the grip strip to move this control';
+
   @override
-  String get nav_messages => 'Messages';
-  @override
-  String get nav_more => 'More';
-  @override
-  String get camera_pro_short_label => 'Pro';
-  @override
-  String get messages_hub_title => 'Messages hub';
-  @override
-  String get messages_sync_tooltip => 'Sync with cloud';
-  @override
-  String get messages_sync_started => 'Sync started';
-  @override
-  String get messages_no_groups => 'No groups yet';
+  String get sos_cancel_failed =>
+      'Could not end SOS (network or rules). Check connection and try again.';
 
   @override
   String get photo_saved_limited_gps =>

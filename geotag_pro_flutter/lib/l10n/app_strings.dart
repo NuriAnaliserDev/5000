@@ -868,6 +868,10 @@ abstract class GeoFieldStrings {
   /// **'Geological'**
   String get camera_mode_geology;
 
+  /// No description provided for @camera_pro_sheet_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ruler, horizon gain, expert overlays, and HUD (geology mode).'**
   String get camera_pro_sheet_hint;
 
   /// No description provided for @cancel.
@@ -2172,9 +2176,6 @@ abstract class GeoFieldStrings {
   /// **'SOS ended'**
   String get sos_cancelled;
 
-  /// No description provided for @sos_cancel_failed.
-  String get sos_cancel_failed;
-
   /// No description provided for @sos_login_required.
   ///
   /// In en, this message translates to:
@@ -2199,18 +2200,71 @@ abstract class GeoFieldStrings {
   /// **'Follow my position (keeps the map on GPS)'**
   String get map_follow_gps;
 
+  /// No description provided for @map_pro_tools_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro tools (map)'**
   String get map_pro_tools_title;
-  String get map_pro_tools_subtitle;
-  String get map_fab_drag_long_press_hint;
 
+  /// No description provided for @map_pro_tools_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Dala va GIS: qatlamlar, o‘lchov, kesim, 3D, eksport — bittadan tanlang, xaritaga qaytasiz.'**
+  String get map_pro_tools_subtitle;
+
+  /// No description provided for @nav_messages.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
   String get nav_messages;
+
+  /// No description provided for @nav_more.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
   String get nav_more;
 
+  /// No description provided for @camera_pro_short_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro'**
   String get camera_pro_short_label;
+
+  /// No description provided for @messages_hub_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages hub'**
   String get messages_hub_title;
+
+  /// No description provided for @messages_sync_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync with cloud'**
   String get messages_sync_tooltip;
+
+  /// No description provided for @messages_sync_started.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync started'**
   String get messages_sync_started;
+
+  /// No description provided for @messages_no_groups.
+  ///
+  /// In en, this message translates to:
+  /// **'No groups yet'**
   String get messages_no_groups;
+
+  /// No description provided for @map_fab_drag_long_press_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Long-press the grip strip to move this control'**
+  String get map_fab_drag_long_press_hint;
+
+  /// No description provided for @sos_cancel_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not end SOS (network or rules). Check connection and try again.'**
+  String get sos_cancel_failed;
 
   /// No description provided for @photo_saved_limited_gps.
   ///

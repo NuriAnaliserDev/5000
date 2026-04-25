@@ -103,6 +103,8 @@ class SettingsController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Ekspert sozlamalar: pastki **Yana** (Scale), kamera, xarita, stansiya formasi, veb, track.
+  /// To‘liq ro‘yxat: `geotag_pro_flutter/docs/EXPERT_MODE.md` — yangi ekran qo‘shganda u yerga ham qo‘shing.
   bool get expertMode => _box.get(_expertModeKey, defaultValue: false) as bool;
 
   set expertMode(bool value) {

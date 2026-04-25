@@ -423,6 +423,7 @@ class GeoFieldStringsUz extends GeoFieldStrings {
 
   @override
   String get camera_mode_geology => 'Geologik';
+
   @override
   String get camera_pro_sheet_hint =>
       'Chiziq, gorizontal, ekspert o‘lchamlari, HUD (geologiya rejimi).';
@@ -1103,9 +1104,6 @@ class GeoFieldStringsUz extends GeoFieldStrings {
 
   @override
   String get sos_cancelled => 'SOS yopildi';
-  @override
-  String get sos_cancel_failed =>
-      'SOS to‘liq o‘chmadi (tarmoq yoki ruxsat). Internetni tekshiring yoki qayta urining.';
 
   @override
   String get sos_login_required =>
@@ -1120,28 +1118,42 @@ class GeoFieldStringsUz extends GeoFieldStrings {
   @override
   String get map_follow_gps =>
       'Men bilan yur: xaritani GPS bo‘yicha ushlab turadi';
+
   @override
   String get map_pro_tools_title => 'Pro vositalar (xarita)';
+
   @override
   String get map_pro_tools_subtitle =>
       'Qatlam, GIS, o‘lchov, kesim, 3D, eksport — bittasini tanlang, keyin xaritaga qayting.';
+
+  @override
+  String get nav_messages => 'Xabarlar';
+
+  @override
+  String get nav_more => 'Yana';
+
+  @override
+  String get camera_pro_short_label => 'Pro';
+
+  @override
+  String get messages_hub_title => 'Aloqa markazi';
+
+  @override
+  String get messages_sync_tooltip => 'Bulut bilan sinxronlash';
+
+  @override
+  String get messages_sync_started => 'Sinxronizatsiya boshlandi';
+
+  @override
+  String get messages_no_groups => 'Guruhlar topilmadi';
+
   @override
   String get map_fab_drag_long_press_hint =>
       'Boshqaruvni surish: chapdagi chiziqni uzoq bosing';
+
   @override
-  String get nav_messages => 'Xabarlar';
-  @override
-  String get nav_more => 'Yana';
-  @override
-  String get camera_pro_short_label => 'Pro';
-  @override
-  String get messages_hub_title => 'Aloqa markazi';
-  @override
-  String get messages_sync_tooltip => 'Bulut bilan sinxronlash';
-  @override
-  String get messages_sync_started => 'Sinxronizatsiya boshlandi';
-  @override
-  String get messages_no_groups => 'Guruhlar topilmadi';
+  String get sos_cancel_failed =>
+      'SOS to‘liq o‘chmadi (tarmoq yoki ruxsat). Internetni tekshiring yoki qayta urining.';
 
   @override
   String get photo_saved_limited_gps =>

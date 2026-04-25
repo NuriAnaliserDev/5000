@@ -728,9 +728,11 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
                   key: const ValueKey('camera_fab_bottom_panel'),
                   screen: 'camera',
                   id: 'bottom_panel',
-                  // Default: markaz, pastda (dy manfiy — pastdan 12 px)
-                  defaultOffset: const Offset(0, -160),
-                  size: Size(MediaQuery.of(context).size.width, 150),
+                  defaultOffset: OverlayFabLayout.cameraBottomPanel,
+                  size: Size(
+                    MediaQuery.of(context).size.width,
+                    OverlayFabLayout.cameraBottomPanelHeight,
+                  ),
                   unconstrained: true,
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width,
