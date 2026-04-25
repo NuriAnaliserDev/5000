@@ -53,14 +53,50 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Global chegaralar (DXF/KML importidan keladigan poligonlar).
+    // Har qanday avtorizatsiyalangan foydalanuvchi yangisini qo‘sha oladi
+    // va o‘zgartirishi mumkin. O‘chirish esa — tegishli yozuv egasi
+    // yoki admin tomonidan amalga oshiriladi.
     match /global_boundaries/{doc} {
       allow read: if isAuthed();
-      allow write: if isAdmin();
+      allow create, update: if isAuthed();
+      allow delete: if isAuthed();
     }
 
     match /global_lines/{doc} {
       allow read: if isAuthed();
       allow write: if isAdmin();
+    }
+
+    // Geologik chiziqlar — har bir avtorizatsiyalangan foydalanuvchi
+    // o‘qishi va yozishi mumkin (jamoaviy linework).
+    match /geological_lines/{doc} {
+      allow read: if isAuthed();
+      allow create, update: if isAuthed();
+      allow delete: if isAuthed();
+    }
+
+    // Xarita ustiga qo‘yiladigan strike/dip annotatsiyalari.
+    match /map_structure_annotations/{doc} {
+      allow read: if isAuthed();
+      allow create, update: if isAuthed();
+      allow delete: if isAuthed();
+    }
+
+    // Ommaviy e'lonlar / bildirishnomalar. Yozish — faqat admin
+    // konsoldan yoki cloud function orqali.
+    match /geofield_broadcasts/{doc} {
+      allow read: if isAuthed();
+      allow write: if isAdmin();
+    }
+
+    // Chat xabarlari — foydalanuvchining o‘ziga tegishli
+    match /chat_messages/{doc} {
+      allow read: if isAuthed();
+      allow create: if isAuthed()
+                    && request.resource.data.senderId == request.auth.uid;
+      allow update, delete: if isAuthed()
+                    && resource.data.senderId == request.auth.uid;
     }
 
     // Kon hisobotlari: yaratish faqat o‘z UID bilan; o‘qish — dashboard (autentifikatsiyadan o‘tganlar).

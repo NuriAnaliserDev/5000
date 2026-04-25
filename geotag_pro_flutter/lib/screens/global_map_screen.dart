@@ -512,6 +512,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
       return DraggableFabLayer(
         children: [
           DraggableFab(
+            key: const ValueKey('map_fab_structure'),
             screen: 'map',
             id: 'structure',
             defaultOffset: const Offset(8, -230),
@@ -541,6 +542,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     return DraggableFabLayer(
       children: [
         DraggableFab(
+          key: const ValueKey('map_fab_structure'),
           screen: 'map',
           id: 'structure',
           defaultOffset: const Offset(8, -230),
@@ -557,6 +559,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
           ),
         ),
         DraggableFab(
+          key: const ValueKey('map_fab_slice'),
           screen: 'map',
           id: 'slice',
           defaultOffset: const Offset(-16, -310),
@@ -571,6 +574,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
         // 3-marta tez bosish (triple-tap) drag-rejimni yoqadi, keyin tugmani
         // oddiy surib joylashtirish mumkin (6 soniya oynasi ichida).
         DraggableFab(
+          key: const ValueKey('map_fab_sos'),
           screen: 'map',
           id: 'sos',
           defaultOffset: const Offset(-16, -240),
@@ -579,6 +583,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
           child: MapSosButton(currentCenter: LatLng(_centerLat, _centerLng)),
         ),
         DraggableFab(
+          key: const ValueKey('map_fab_three_d'),
           screen: 'map',
           id: 'three_d',
           defaultOffset: const Offset(-16, -160),
@@ -586,6 +591,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
           child: MapThreeDButton(centerPoint: LatLng(_centerLat, _centerLng)),
         ),
         const DraggableFab(
+          key: ValueKey('map_fab_track'),
           screen: 'map',
           id: 'track',
           defaultOffset: Offset(-16, -80),
@@ -638,6 +644,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     return DraggableFabLayer(
       children: [
         DraggableFab(
+          key: const ValueKey('map_fab_my_location'),
           screen: 'map',
           id: 'my_location',
           defaultOffset: const Offset(-16, -400),

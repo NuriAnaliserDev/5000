@@ -47,12 +47,38 @@ service cloud.firestore {
 
     match /global_boundaries/{doc} {
       allow read: if isAuthed();
-      allow write: if isAdmin();
+      allow create, update: if isAuthed();
+      allow delete: if isAuthed();
     }
 
     match /global_lines/{doc} {
       allow read: if isAuthed();
       allow write: if isAdmin();
+    }
+
+    match /geological_lines/{doc} {
+      allow read: if isAuthed();
+      allow create, update: if isAuthed();
+      allow delete: if isAuthed();
+    }
+
+    match /map_structure_annotations/{doc} {
+      allow read: if isAuthed();
+      allow create, update: if isAuthed();
+      allow delete: if isAuthed();
+    }
+
+    match /geofield_broadcasts/{doc} {
+      allow read: if isAuthed();
+      allow write: if isAdmin();
+    }
+
+    match /chat_messages/{doc} {
+      allow read: if isAuthed();
+      allow create: if isAuthed()
+                    && request.resource.data.senderId == request.auth.uid;
+      allow update, delete: if isAuthed()
+                    && resource.data.senderId == request.auth.uid;
     }
 
     match /chat_groups/{groupId} {

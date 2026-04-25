@@ -76,6 +76,9 @@ class _DraggableFabState extends State<DraggableFab>
   bool _armed = false;
   Timer? _armedTimer;
 
+  /// Dispose paytida `context` ga murojaat qilmaslik uchun cache.
+  SettingsController? _settingsRef;
+
   static const Duration _tapWindow = Duration(milliseconds: 650);
   static const Duration _armedHoldDuration = Duration(seconds: 6);
 
@@ -92,11 +95,18 @@ class _DraggableFabState extends State<DraggableFab>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final settings = context.read<SettingsController>();
+      _settingsRef = settings;
       final saved = settings.getFabPosition(widget.screen, widget.id);
       if (saved != null && mounted) {
         setState(() => _savedPos = saved);
       }
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _settingsRef = context.read<SettingsController>();
   }
 
   @override
@@ -107,14 +117,37 @@ class _DraggableFabState extends State<DraggableFab>
     super.dispose();
   }
 
+  void _savePosition(Offset pos) {
+    try {
+      _settingsRef?.setFabPosition(widget.screen, widget.id, pos);
+    } catch (_) {
+      // ignore: dispose-holatida saqlashda xato bo‘lsa e’tiborsiz qoldiramiz
+    }
+  }
+
+  /// `clamp(4.0, maxX)` chaqiruvi assertion tashlamasligi uchun xavfsiz klamp.
+  /// Agar screen hali berilmagan yoki tugma screen'dan katta bo‘lsa —
+  /// `lower > upper` bo‘lib qoladi va `clamp` throw qiladi.
+  double _safeClamp(double value, double lower, double upper) {
+    if (upper < lower) return lower;
+    if (value < lower) return lower;
+    if (value > upper) return upper;
+    return value;
+  }
+
   Offset _resolveInitialPosition(Size screen) {
-    if (_savedPos != null) return _savedPos!;
+    if (_savedPos != null) {
+      return Offset(
+        _safeClamp(_savedPos!.dx, 4.0, screen.width - widget.size.width - 4.0),
+        _safeClamp(_savedPos!.dy, 4.0, screen.height - widget.size.height - 4.0),
+      );
+    }
     final d = widget.defaultOffset;
     final dx = d.dx >= 0 ? d.dx : (screen.width - widget.size.width + d.dx);
     final dy = d.dy >= 0 ? d.dy : (screen.height - widget.size.height + d.dy);
     return Offset(
-      dx.clamp(4.0, screen.width - widget.size.width - 4.0),
-      dy.clamp(4.0, screen.height - widget.size.height - 4.0),
+      _safeClamp(dx, 4.0, screen.width - widget.size.width - 4.0),
+      _safeClamp(dy, 4.0, screen.height - widget.size.height - 4.0),
     );
   }
 
@@ -131,8 +164,8 @@ class _DraggableFabState extends State<DraggableFab>
     if (!_dragging) return;
     final next = _dragStart + d.offsetFromOrigin;
     final clamped = Offset(
-      next.dx.clamp(4.0, screen.width - widget.size.width - 4.0),
-      next.dy.clamp(4.0, screen.height - widget.size.height - 4.0),
+      _safeClamp(next.dx, 4.0, screen.width - widget.size.width - 4.0),
+      _safeClamp(next.dy, 4.0, screen.height - widget.size.height - 4.0),
     );
     setState(() => _dragCurrent = clamped);
   }
@@ -143,9 +176,7 @@ class _DraggableFabState extends State<DraggableFab>
     _pulseCtrl.stop();
     _pulseCtrl.value = 1.0;
     final finalPos = _dragCurrent;
-    context
-        .read<SettingsController>()
-        .setFabPosition(widget.screen, widget.id, finalPos);
+    _savePosition(finalPos);
     setState(() {
       _savedPos = finalPos;
       _dragging = false;
@@ -222,8 +253,8 @@ class _DraggableFabState extends State<DraggableFab>
     if (!_dragging) return;
     final next = _dragCurrent + d.delta;
     final clamped = Offset(
-      next.dx.clamp(4.0, screen.width - widget.size.width - 4.0),
-      next.dy.clamp(4.0, screen.height - widget.size.height - 4.0),
+      _safeClamp(next.dx, 4.0, screen.width - widget.size.width - 4.0),
+      _safeClamp(next.dy, 4.0, screen.height - widget.size.height - 4.0),
     );
     setState(() => _dragCurrent = clamped);
   }
@@ -232,9 +263,7 @@ class _DraggableFabState extends State<DraggableFab>
     if (!_dragging) return;
     HapticFeedback.selectionClick();
     final finalPos = _dragCurrent;
-    context
-        .read<SettingsController>()
-        .setFabPosition(widget.screen, widget.id, finalPos);
+    _savePosition(finalPos);
     setState(() {
       _savedPos = finalPos;
       _dragging = false;

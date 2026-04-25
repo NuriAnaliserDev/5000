@@ -1,0 +1,40 @@
+[
+  {
+    "id": "cl_1777134872233_u7ly",
+    "timestamp": "2026-04-25T16:34:32.233Z",
+    "filePath": "geotag_pro_flutter\\build\\app\\intermediates\\flutter\\debug\\flutter_assets\\packages\\wakelock_plus\\assets\\no_sleep.js",
+    "changedFunctions": [
+      "_classCallCheck"
+    ],
+    "newFunctions": [
+      "_classCallCheck"
+    ],
+    "deletedFunctions": [],
+    "impactSummary": {
+      "directImpacts": 0,
+      "transitiveImpacts": 0,
+      "clustersAffected": 0,
+      "servicesAffected": 1
+    },
+    "primaryGraphId": "flow:geotag_pro_flutter\\build\\app\\intermediates\\flutter\\debug\\flutter_assets\\packages\\wakelock_plus\\assets\\no_sleep.js:_classCallCheck"
+  },
+  {
+    "id": "cl_1777134876824_ec1j",
+    "timestamp": "2026-04-25T16:34:36.824Z",
+    "filePath": "geotag_pro_flutter\\build\\app\\intermediates\\assets\\debug\\mergeDebugAssets\\flutter_assets\\packages\\wakelock_plus\\assets\\no_sleep.js",
+    "changedFunctions": [
+      "_classCallCheck"
+    ],
+    "newFunctions": [
+      "_classCallCheck"
+    ],
+    "deletedFunctions": [],
+    "impactSummary": {
+      "directImpacts": 0,
+      "transitiveImpacts": 0,
+      "clustersAffected": 0,
+      "servicesAffected": 1
+    },
+    "primaryGraphId": "flow:geotag_pro_flutter\\build\\app\\intermediates\\assets\\debug\\mergeDebugAssets\\flutter_assets\\packages\\wakelock_plus\\assets\\no_sleep.js:_classCallCheck"
+  }
+]

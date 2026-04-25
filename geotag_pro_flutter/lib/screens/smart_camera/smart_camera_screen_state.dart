@@ -639,6 +639,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
             DraggableFabLayer(
               children: [
                 DraggableFab(
+                  key: const ValueKey('camera_fab_side_panel'),
                   screen: 'camera',
                   id: 'side_panel',
                   // Default: o‘ng tepa (12 px o‘ngdan, 170 tepadan)
@@ -681,6 +682,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
                   ),
                 ),
                 DraggableFab(
+                  key: const ValueKey('camera_fab_bottom_panel'),
                   screen: 'camera',
                   id: 'bottom_panel',
                   // Default: markaz, pastda (dy manfiy — pastdan 12 px)
