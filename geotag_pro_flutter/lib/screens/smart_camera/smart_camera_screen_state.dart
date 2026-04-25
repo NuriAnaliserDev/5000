@@ -45,6 +45,11 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
   final GlobalKey _shutterButtonKey = GlobalKey();
   final GlobalKey _menuButtonKey = GlobalKey();
 
+  /// [context.read] oqim/pauza oynasida ishlatilmasin — deaktiv elementda Provider xatosi.
+  SettingsController? _settings;
+  LocationService? _locationService;
+  bool _appliedInitialUserPrefs = false;
+
   CameraMode _cameraMode = CameraMode.geological;
 
   late AnimationController _menuController;
@@ -153,14 +158,17 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
     if (!mounted) {
       return;
     }
+    final settings = _settings;
+    final locService = _locationService;
+    if (settings == null || locService == null) {
+      return;
+    }
     final mag = _mag;
     final g = _gravity;
     if (mag == null || g == null) {
       return;
     }
     final now = DateTime.now();
-    final settings = context.read<SettingsController>();
-    final locService = context.read<LocationService>();
     final delay = settings.ecoMode
         ? (_highSensitivityHorizon ? 80 : 120)
         : (_highSensitivityHorizon ? 30 : 50);
@@ -537,14 +545,23 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _settings = context.read<SettingsController>();
+    _locationService = context.read<LocationService>();
+    if (!_appliedInitialUserPrefs) {
+      _appliedInitialUserPrefs = true;
+      _showCalibrationHint = !_settings!.hasDismissedCalibration;
+      _expertMode = _settings!.expertMode;
+    }
+  }
+
+  @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _initCamera();
     _startSensors();
-    final settings = context.read<SettingsController>();
-    _showCalibrationHint = !settings.hasDismissedCalibration;
-    _expertMode = settings.expertMode;
 
     _menuController = AnimationController(
       duration: const Duration(milliseconds: 300),
@@ -559,6 +576,12 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkShowTutorial();
     });
+  }
+
+  @override
+  void deactivate() {
+    _stopSensors();
+    super.deactivate();
   }
 
   @override

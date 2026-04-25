@@ -433,6 +433,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
               }),
               onImportGis: _importGisFromMap,
               onOpenExportArchive: () => Navigator.of(context).pushNamed('/archive'),
+              mapLayersToggleTutorialKey: _downloadButtonKey,
             ),
             if (_isDrawingMode)
               Positioned(

@@ -15,6 +15,7 @@ class MapLayerDrawer extends StatelessWidget {
   final VoidCallback onToggleVertexEdit;
   final VoidCallback onImportGis;
   final VoidCallback onOpenExportArchive;
+  final GlobalKey? mapLayersToggleTutorialKey;
 
   const MapLayerDrawer({
     super.key,
@@ -30,6 +31,7 @@ class MapLayerDrawer extends StatelessWidget {
     required this.onToggleVertexEdit,
     required this.onImportGis,
     required this.onOpenExportArchive,
+    this.mapLayersToggleTutorialKey,
   });
 
   @override
@@ -42,6 +44,7 @@ class MapLayerDrawer extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           GestureDetector(
+            key: mapLayersToggleTutorialKey,
             onTap: onToggleDrawer,
             child: Container(
               padding: const EdgeInsets.all(8),

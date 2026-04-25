@@ -78,6 +78,7 @@ class MapLineworkControls extends StatelessWidget {
       );
     }
 
+    // Chizish rejimida ham [drawButtonKey] daraxtda qoladi (tutorial / koach mark).
     return Positioned(
       top: 92,
       right: 10,
@@ -85,6 +86,7 @@ class MapLineworkControls extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           AppCard(
+            key: drawButtonKey,
             baseColor: Colors.black,
             opacity: 0.7,
             padding: const EdgeInsets.all(8),
