@@ -202,7 +202,17 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
             if (isVertex && s != null) ...[
               const SizedBox(height: 16),
               FilledButton.tonalIcon(
-                onPressed: () => openVertexErrorLink(detail),
+                onPressed: () async {
+                  final ok = await openVertexErrorLink(detail);
+                  if (!mounted) return;
+                  if (!ok) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Havolani ochib bo‘lmadi. Brauzer yoki tizim sozlamalarini tekshiring.'),
+                      ),
+                    );
+                  }
+                },
                 icon: const Icon(Icons.open_in_new, size: 18),
                 label: Text(s.ai_vertex_open_console),
               ),

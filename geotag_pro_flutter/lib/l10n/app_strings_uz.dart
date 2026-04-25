@@ -342,6 +342,17 @@ class GeoFieldStringsUz extends GeoFieldStrings {
   String get map_layer_export_data => 'Ma’lumot eksport (arxiv)';
 
   @override
+  String get field_workshop_title => 'Pro maydon (field workshop)';
+
+  @override
+  String get field_workshop_fab_tooltip =>
+      'Pro maydon: qatlam, KML/DXF, chizim, struktura';
+
+  @override
+  String get field_workshop_banner =>
+      'Qatlam, GIS import, chizim va dala vositalari bitta oynada.';
+
+  @override
   String get map_offline_tiles_hint =>
       'Fon xarita plitalari harakatlanishda keshga yoziladi. Oflaynga chiqquncha xaritani kerakli hududga yaqinlashtiring. Bitta yirik hududni birlashtirib yuklab olish — rejadagi vazifa.';
 
@@ -1001,6 +1012,24 @@ class GeoFieldStringsUz extends GeoFieldStrings {
 
   @override
   String get sos_sent => 'SOS signal yuborildi! Jamoa ogohlantirildi.';
+
+  @override
+  String get sos_gps_unavailable =>
+      'GPS olinmadi. Ochiq osmonda yoki biroz kutib, qayta urining.';
+
+  @override
+  String get sos_cancel => 'SOS ni tugatish';
+
+  @override
+  String get sos_cancelled => 'SOS yopildi';
+
+  @override
+  String get map_follow_gps =>
+      'Men bilan yur: xaritani GPS bo‘yicha ushlab turadi';
+
+  @override
+  String get photo_saved_limited_gps =>
+      'Rasm saqlandi. GPS topilmadi — stansiya joyini keyinroq to‘g‘irlang.';
 
   @override
   String get start => 'Boshlash';

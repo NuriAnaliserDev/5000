@@ -94,6 +94,9 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
 
   double _centerLat = 41.2995;
   double _centerLng = 69.2401;
+  /// GPS yangilanishi bilan xaritani surib yuritish.
+  bool _followGps = false;
+  LocationService? _locationForFollow;
   
   @override
   void initState() {
@@ -102,9 +105,28 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     _startCompass();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      _locationForFollow = context.read<LocationService>();
+      _locationForFollow!.addListener(_onGpsForFollow);
       _checkShowTutorial();
       _startPresenceBroadcast();
     });
+  }
+
+  void _onGpsForFollow() {
+    if (!mounted || !_followGps) {
+      return;
+    }
+    final p = _locationForFollow?.currentPosition;
+    if (p == null) {
+      return;
+    }
+    _mapController.move(
+      LatLng(p.latitude, p.longitude),
+      _mapController.camera.zoom,
+    );
   }
 
   void _startPresenceBroadcast() {
@@ -146,6 +168,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
 
   @override
   void dispose() {
+    _locationForFollow?.removeListener(_onGpsForFollow);
     _compassSub?.cancel();
     _headingNotifier.dispose();
     _mapController.dispose();
@@ -256,6 +279,9 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                 onPositionChanged: (pos, hasGesture) {
                   _centerLat = pos.center.latitude;
                   _centerLng = pos.center.longitude;
+                  if (hasGesture == true && _followGps) {
+                    setState(() => _followGps = false);
+                  }
                 },
               ),
               children: [
@@ -354,7 +380,11 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
               onSearchPressed: _openSearch,
             ),
             if (currentTrack != null) MapLiveTrackStats(track: trackSvc.currentTrack!),
-            _buildSideControls(),
+            _buildSideControls(
+              threeDCenter: currentPos != null
+                  ? LatLng(currentPos.latitude, currentPos.longitude)
+                  : center,
+            ),
             _buildMyLocationFab(currentPos),
             MapLineworkControls(
               isDrawingMode: _isDrawingMode,
@@ -484,7 +514,18 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     try {
       final r = await boundary.importFileFromWeb();
       if (!mounted) return;
-      if (r == null) return;
+      if (r == null) {
+        return;
+      }
+      if (r.fitPoints.isNotEmpty) {
+        final bounds = LatLngBounds.fromPoints(r.fitPoints);
+        _mapController.fitCamera(
+          CameraFit.bounds(
+            bounds: bounds,
+            padding: const EdgeInsets.all(48),
+          ),
+        );
+      }
       if (s != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -502,7 +543,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     }
   }
 
-  Widget _buildSideControls() {
+  Widget _buildSideControls({required LatLng threeDCenter}) {
     // Chizish / kesma / struktura rejimlarida side-control FAB larni yashiramiz,
     // chunki [MapLineworkControls] o‘z paneli va tugmalarini ochib ustiga chiqib
     // qolmasin. Natijada panellar bir-birini bosib ketmaydi.
@@ -518,6 +559,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
             id: 'structure',
             defaultOffset: const Offset(8, -230),
             size: const Size(52, 52),
+            dragMode: DragTriggerMode.tripleTap,
             child: Material(
               elevation: 6,
               borderRadius: BorderRadius.circular(28),
@@ -548,6 +590,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
           id: 'structure',
           defaultOffset: const Offset(8, -230),
           size: const Size(52, 52),
+          dragMode: DragTriggerMode.tripleTap,
           child: Material(
             elevation: 6,
             borderRadius: BorderRadius.circular(28),
@@ -565,6 +608,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
           id: 'slice',
           defaultOffset: const Offset(-16, -310),
           size: const Size(48, 48),
+          dragMode: DragTriggerMode.tripleTap,
           child: MapSliceButton(
             isSliceMode: _isSliceMode,
             onPressed: _toggleSliceMode,
@@ -579,9 +623,10 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
           screen: 'map',
           id: 'sos',
           defaultOffset: const Offset(-16, -240),
-          size: const Size(56, 62),
+          size: const Size(72, 120),
+          unconstrained: true,
           dragMode: DragTriggerMode.tripleTap,
-          child: MapSosButton(currentCenter: LatLng(_centerLat, _centerLng)),
+          child: const MapSosButton(),
         ),
         DraggableFab(
           key: const ValueKey('map_fab_three_d'),
@@ -589,7 +634,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
           id: 'three_d',
           defaultOffset: const Offset(-16, -160),
           size: const Size(56, 56),
-          child: MapThreeDButton(centerPoint: LatLng(_centerLat, _centerLng)),
+          dragMode: DragTriggerMode.tripleTap,
+          child: MapThreeDButton(centerPoint: threeDCenter),
         ),
         const DraggableFab(
           key: ValueKey('map_fab_track'),
@@ -597,6 +643,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
           id: 'track',
           defaultOffset: Offset(-16, -80),
           size: Size(56, 56),
+          dragMode: DragTriggerMode.tripleTap,
           child: MapTrackFab(),
         ),
       ],
@@ -650,6 +697,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
           id: 'my_location',
           defaultOffset: const Offset(-16, -400),
           size: const Size(48, 48),
+          dragMode: DragTriggerMode.tripleTap,
           child: Tooltip(
             message: context.loc('map_my_location'),
             child: FloatingActionButton.small(
@@ -657,6 +705,34 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
               backgroundColor: Colors.white,
               onPressed: () => _goToMyLocation(currentPos),
               child: const Icon(Icons.my_location, color: Color(0xFF1976D2)),
+            ),
+          ),
+        ),
+        DraggableFab(
+          key: const ValueKey('map_fab_follow_gps'),
+          screen: 'map',
+          id: 'follow_gps',
+          defaultOffset: const Offset(-16, -470),
+          size: const Size(48, 48),
+          dragMode: DragTriggerMode.tripleTap,
+          child: Tooltip(
+            message: context.loc('map_follow_gps'),
+            child: FloatingActionButton.small(
+              heroTag: 'map_follow_gps_fab',
+              backgroundColor: _followGps ? const Color(0xFF1976D2) : Colors.white,
+              onPressed: () {
+                setState(() {
+                  _followGps = !_followGps;
+                });
+                if (_followGps) {
+                  HapticFeedback.selectionClick();
+                  _goToMyLocation(currentPos);
+                }
+              },
+              child: Icon(
+                _followGps ? Icons.navigation : Icons.compass_calibration_outlined,
+                color: _followGps ? Colors.white : const Color(0xFF1976D2),
+              ),
             ),
           ),
         ),
@@ -956,11 +1032,18 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
 
   Polygon _buildBoundaryPolygon(BoundaryPolygon b, dynamic currentPos) {
     final isActive = currentPos != null && b.containsPoint(LatLng(currentPos.latitude, currentPos.longitude));
+    final fillAlpha = isActive
+        ? 0.32
+        : math.max(0.18, 0.38 * _gisLayerOpacity);
     return Polygon(
       points: b.points,
-      color: isActive ? Colors.green.withValues(alpha: 0.3) : Colors.blue.withValues(alpha: 0.1 * _gisLayerOpacity),
-      borderColor: isActive ? Colors.greenAccent : Colors.blueAccent.withValues(alpha: _gisLayerOpacity),
-      borderStrokeWidth: isActive ? 3.0 : 2.0,
+      color: isActive
+          ? Colors.green.withValues(alpha: fillAlpha)
+          : Colors.blue.withValues(alpha: fillAlpha),
+      borderColor: isActive
+          ? Colors.greenAccent
+          : Colors.cyanAccent.withValues(alpha: math.max(0.75, _gisLayerOpacity)),
+      borderStrokeWidth: isActive ? 3.0 : 2.5,
     );
   }
 

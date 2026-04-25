@@ -312,6 +312,11 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'share': return s.share;
     case 'signal_searching': return s.signal_searching;
     case 'sos_sent': return s.sos_sent;
+    case 'sos_gps_unavailable': return s.sos_gps_unavailable;
+    case 'sos_cancel': return s.sos_cancel;
+    case 'sos_cancelled': return s.sos_cancelled;
+    case 'map_follow_gps': return s.map_follow_gps;
+    case 'photo_saved_limited_gps': return s.photo_saved_limited_gps;
     case 'start': return s.start;
     case 'station_project_label': return s.station_project_label;
     case 'station_saved': return s.station_saved;

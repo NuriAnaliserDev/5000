@@ -13,12 +13,15 @@ class BoundaryImportResult {
   final int importedCount;
   final int skippedCount;
   final bool normalizedCoordinates;
+  /// Xarita oynasini ushbu importga yig‘ish (bo‘sh bo‘lmasa).
+  final List<LatLng> fitPoints;
 
   const BoundaryImportResult({
     required this.extension,
     required this.importedCount,
     required this.skippedCount,
     required this.normalizedCoordinates,
+    this.fitPoints = const [],
   });
 }
 
@@ -170,6 +173,7 @@ class BoundaryService extends ChangeNotifier {
       int imported = 0;
       int skipped = 0;
       bool normalized = false;
+      final List<LatLng> allFit = [];
 
       for (final p in newPolys) {
         final normalizedPolygon = _normalizePolygonIfNeeded(p);
@@ -181,6 +185,7 @@ class BoundaryService extends ChangeNotifier {
           normalized = true;
         }
         await _firestore.collection('global_boundaries').add(normalizedPolygon.toMap());
+        allFit.addAll(normalizedPolygon.points);
         imported++;
       }
 
@@ -189,6 +194,7 @@ class BoundaryService extends ChangeNotifier {
         importedCount: imported,
         skippedCount: skipped,
         normalizedCoordinates: normalized,
+        fitPoints: allFit,
       );
     } catch (e) {
       debugPrint("Web Upload Error: $e");

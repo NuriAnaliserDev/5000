@@ -342,6 +342,17 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get map_layer_export_data => 'Dışa aktar (arşiv)';
 
   @override
+  String get field_workshop_title => 'Saha atölyesi (field workshop)';
+
+  @override
+  String get field_workshop_fab_tooltip =>
+      'Pro atölye: katman, KML/DXF, çizim, yapı';
+
+  @override
+  String get field_workshop_banner =>
+      'Katman, GIS içe aktarma, çizim ve saha araçları tek ekranda.';
+
+  @override
   String get map_offline_tiles_hint =>
       'Harita karoları dolaşırken önbelleğe alınır. Çevrimdışı gitmeden önce alanı yakınlaştırın. Birleşik bölge indirme yol haritasında.';
 
@@ -999,6 +1010,23 @@ class GeoFieldStringsTr extends GeoFieldStrings {
 
   @override
   String get sos_sent => 'SOS sinyali gönderildi! Ekip uyarıldı.';
+
+  @override
+  String get sos_gps_unavailable =>
+      'GPS alınamadı. Açık havada veya sinyal gelene kadar bekleyin.';
+
+  @override
+  String get sos_cancel => 'SOS’u bitir';
+
+  @override
+  String get sos_cancelled => 'SOS sonlandı';
+
+  @override
+  String get map_follow_gps => 'Beni takip et: haritayı GPS’e kilitli tutar';
+
+  @override
+  String get photo_saved_limited_gps =>
+      'Fotoğraf kaydedildi. GPS yok — istasyonu sonra düzeltin.';
 
   @override
   String get start => 'Başlat';

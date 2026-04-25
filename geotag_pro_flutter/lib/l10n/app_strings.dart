@@ -712,6 +712,24 @@ abstract class GeoFieldStrings {
   /// **'Export data (archive)'**
   String get map_layer_export_data;
 
+  /// No description provided for @field_workshop_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Field workshop'**
+  String get field_workshop_title;
+
+  /// No description provided for @field_workshop_fab_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro workshop: layers, KML/DXF, linework, structure'**
+  String get field_workshop_fab_tooltip;
+
+  /// No description provided for @field_workshop_banner.
+  ///
+  /// In en, this message translates to:
+  /// **'Layers, GIS import, drawing and field tools in one place.'**
+  String get field_workshop_banner;
+
   /// No description provided for @map_offline_tiles_hint.
   ///
   /// In en, this message translates to:
@@ -1989,6 +2007,36 @@ abstract class GeoFieldStrings {
   /// In en, this message translates to:
   /// **'SOS signal sent! Team has been alerted.'**
   String get sos_sent;
+
+  /// No description provided for @sos_gps_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not get GPS. Go outdoors or wait for a fix, then try again.'**
+  String get sos_gps_unavailable;
+
+  /// No description provided for @sos_cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'End SOS'**
+  String get sos_cancel;
+
+  /// No description provided for @sos_cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS ended'**
+  String get sos_cancelled;
+
+  /// No description provided for @map_follow_gps.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow my position (keeps the map on GPS)'**
+  String get map_follow_gps;
+
+  /// No description provided for @photo_saved_limited_gps.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo saved. GPS was not available — you can correct the station position later.'**
+  String get photo_saved_limited_gps;
 
   /// No description provided for @start.
   ///

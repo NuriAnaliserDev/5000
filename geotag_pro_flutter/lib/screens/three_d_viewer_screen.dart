@@ -263,14 +263,14 @@ class Structural3DPainter extends CustomPainter {
       }
 
       if (screenPos != Offset.zero) {
-        canvas.drawCircle(screenPos, 6, Paint()..color = const Color(0xFF7EC8FF));
+        canvas.drawCircle(screenPos, 6, Paint()..color = Colors.white);
         canvas.drawCircle(
           screenPos,
           6,
           Paint()
-            ..color = Colors.white
+            ..color = const Color(0xFF29B6F6)
             ..style = PaintingStyle.stroke
-            ..strokeWidth = 1.2,
+            ..strokeWidth = 1.4,
         );
         final TextPainter tp = TextPainter(
           text: TextSpan(

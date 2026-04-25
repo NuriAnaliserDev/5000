@@ -342,6 +342,17 @@ class GeoFieldStringsEn extends GeoFieldStrings {
   String get map_layer_export_data => 'Export data (archive)';
 
   @override
+  String get field_workshop_title => 'Field workshop';
+
+  @override
+  String get field_workshop_fab_tooltip =>
+      'Pro workshop: layers, KML/DXF, linework, structure';
+
+  @override
+  String get field_workshop_banner =>
+      'Layers, GIS import, drawing and field tools in one place.';
+
+  @override
   String get map_offline_tiles_hint =>
       'Base map tiles cache as you pan. Pre-load an area by zooming/panning before going offline. Full “merge & download region” is on the roadmap.';
 
@@ -999,6 +1010,23 @@ class GeoFieldStringsEn extends GeoFieldStrings {
 
   @override
   String get sos_sent => 'SOS signal sent! Team has been alerted.';
+
+  @override
+  String get sos_gps_unavailable =>
+      'Could not get GPS. Go outdoors or wait for a fix, then try again.';
+
+  @override
+  String get sos_cancel => 'End SOS';
+
+  @override
+  String get sos_cancelled => 'SOS ended';
+
+  @override
+  String get map_follow_gps => 'Follow my position (keeps the map on GPS)';
+
+  @override
+  String get photo_saved_limited_gps =>
+      'Photo saved. GPS was not available — you can correct the station position later.';
 
   @override
   String get start => 'Start';

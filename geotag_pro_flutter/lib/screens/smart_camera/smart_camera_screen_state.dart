@@ -381,19 +381,34 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
       }
 
       final locService = context.read<LocationService>();
-      final pos = locService.currentPosition;
-
-      if (pos == null || (pos.latitude == 0.0 && pos.longitude == 0.0)) {
+      await locService.refreshLocation();
+      Position? pos = locService.currentPosition;
+      if (pos == null) {
+        pos = await Geolocator.getLastKnownPosition();
+      }
+      if (pos == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(context.locRead('gps_not_locked')),
-              backgroundColor: Colors.redAccent,
+              content: Text(context.locRead('photo_saved_limited_gps')),
               behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 4),
             ),
           );
         }
-        return;
+        // GPS yo‘q — yoki rasm yoki 0,0. Foydalanuvchi rasmni olishi muhim.
+        pos = Position(
+          latitude: 0,
+          longitude: 0,
+          timestamp: DateTime.now(),
+          accuracy: 99999,
+          altitude: 0,
+          heading: 0,
+          speed: 0,
+          speedAccuracy: 0,
+          altitudeAccuracy: 0,
+          headingAccuracy: 0,
+        );
       }
 
       final now = DateTime.now();

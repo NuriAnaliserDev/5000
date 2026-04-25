@@ -52,6 +52,10 @@ class SosService extends ChangeNotifier {
   /// Tashqi chaqiruv uchun (masalan admin-panel yoki status widget).
   bool lastSendQueued = false;
 
+  /// Ayni paytda faol bo‘lgan, ushbu qurilmadan yuborilgan SOS hujjati.
+  String? get myActiveSosDocumentId => _myActiveSosDocumentId;
+  String? _myActiveSosDocumentId;
+
   /// Agar o‘rnatilsa, SMS fallback'da shu funksiya chaqiriladi.
   /// Ilova boot paytida `url_launcher` bilan to‘ldirishga tavsiya etiladi:
   /// ```dart
@@ -85,9 +89,10 @@ class SosService extends ChangeNotifier {
     if (user == null) return;
 
     lastSendQueued = false;
+    _myActiveSosDocumentId = null;
 
     try {
-      await _firestore.collection('emergency_signals').add({
+      final ref = await _firestore.collection('emergency_signals').add({
         'senderUid': user.uid,
         'senderName': name,
         'lat': position.latitude,
@@ -95,6 +100,8 @@ class SosService extends ChangeNotifier {
         'timestamp': FieldValue.serverTimestamp(),
         'isActive': true,
       });
+      _myActiveSosDocumentId = ref.id;
+      notifyListeners();
     } catch (e) {
       debugPrint('SOS direct-send failed, queuing: $e');
       await SosQueue.enqueue(
@@ -113,6 +120,19 @@ class SosService extends ChangeNotifier {
         name: name,
         position: position,
       );
+    }
+  }
+
+  /// Yuborilgan faol SOS ni serverda o‘chirish (karta/royxatda yo‘qoladi).
+  Future<void> cancelMyActiveSos() async {
+    final id = _myActiveSosDocumentId;
+    if (id == null) {
+      return;
+    }
+    await clearSos(id);
+    if (_myActiveSosDocumentId == id) {
+      _myActiveSosDocumentId = null;
+      notifyListeners();
     }
   }
 
@@ -143,6 +163,10 @@ class SosService extends ChangeNotifier {
           .update({'isActive': false});
     } catch (e) {
       debugPrint('Error clearing SOS: $e');
+    }
+    if (_myActiveSosDocumentId == signalId) {
+      _myActiveSosDocumentId = null;
+      notifyListeners();
     }
   }
 
