@@ -36,5 +36,24 @@
       "servicesAffected": 1
     },
     "primaryGraphId": "flow:geotag_pro_flutter\\build\\app\\intermediates\\assets\\debug\\mergeDebugAssets\\flutter_assets\\packages\\wakelock_plus\\assets\\no_sleep.js:_classCallCheck"
+  },
+  {
+    "id": "cl_1777141536046_1trq",
+    "timestamp": "2026-04-25T18:25:36.046Z",
+    "filePath": "geotag_pro_flutter\\build\\unit_test_assets\\packages\\wakelock_plus\\assets\\no_sleep.js",
+    "changedFunctions": [
+      "_classCallCheck"
+    ],
+    "newFunctions": [
+      "_classCallCheck"
+    ],
+    "deletedFunctions": [],
+    "impactSummary": {
+      "directImpacts": 0,
+      "transitiveImpacts": 0,
+      "clustersAffected": 0,
+      "servicesAffected": 1
+    },
+    "primaryGraphId": "flow:geotag_pro_flutter\\build\\unit_test_assets\\packages\\wakelock_plus\\assets\\no_sleep.js:_classCallCheck"
   }
 ]

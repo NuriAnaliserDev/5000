@@ -78,7 +78,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     final surf = Theme.of(context).colorScheme.surface;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primary = Theme.of(context).colorScheme.primary;
 
     return Scaffold(
       backgroundColor: surf,
@@ -96,13 +95,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             isDark,
           );
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: primary,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
-        elevation: 6,
-        onPressed: () => Navigator.of(context).pushNamed('/camera'),
-        child: const Icon(Icons.camera_alt, size: 28),
       ),
       bottomNavigationBar: MediaQuery.of(context).size.width <= 900
           ? const AppBottomNavBar(activeRoute: '/dashboard')

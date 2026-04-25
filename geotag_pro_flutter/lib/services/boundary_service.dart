@@ -1,13 +1,19 @@
+import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
+import 'dart:io' as io;
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 
 import '../models/boundary_polygon.dart';
-import '../utils/parsers/kml_parser.dart';
 import '../utils/parsers/dxf_parser.dart';
 import '../utils/parsers/geojson_import_parser.dart';
+import '../utils/parsers/gpkg_import_parser.dart';
+import '../utils/parsers/kml_parser.dart';
+import '../utils/parsers/shp_shapefile_parser.dart';
 
 class BoundaryImportResult {
   final String extension;
@@ -151,7 +157,7 @@ class BoundaryService extends ChangeNotifier {
     try {
       FilePickerResult? result = await FilePicker.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['kml', 'dxf', 'geojson', 'json'],
+        allowedExtensions: ['kml', 'dxf', 'geojson', 'json', 'shp', 'gpkg'],
         withData: true,
       );
 
@@ -160,17 +166,38 @@ class BoundaryService extends ChangeNotifier {
       final file = result.files.first;
       if (file.bytes == null) throw Exception("Fayl datasi o'qilmadi.");
 
-      final content = utf8.decode(file.bytes!);
       final ext = file.extension?.toLowerCase() ?? '';
       final filename = file.name;
 
       List<BoundaryPolygon> newPolys = [];
-      if (ext == 'kml') {
-        newPolys = KmlParser.parse(content, filename);
-      } else if (ext == 'dxf') {
-        newPolys = DxfParser.parse(content, filename);
-      } else if (ext == 'geojson' || ext == 'json') {
-        newPolys = GeojsonImportParser.parse(content, filename);
+      if (ext == 'kml' || ext == 'dxf' || ext == 'geojson' || ext == 'json') {
+        final content = utf8.decode(file.bytes!);
+        if (ext == 'kml') {
+          newPolys = KmlParser.parse(content, filename);
+        } else if (ext == 'dxf') {
+          newPolys = DxfParser.parse(content, filename);
+        } else {
+          newPolys = GeojsonImportParser.parse(content, filename);
+        }
+      } else if (ext == 'shp') {
+        newPolys = ShpShapefileParser.parse(
+            Uint8List.fromList(file.bytes!), filename);
+      } else if (ext == 'gpkg') {
+        if (kIsWeb) {
+          throw Exception("GeoPackage (.gpkg) brauzerda import qilib bo'lmaydi (SQLite yo'q).");
+        }
+        final dir = await getTemporaryDirectory();
+        final tmp = io.File(
+          p.join(dir.path, 'gpkg_import_${DateTime.now().millisecondsSinceEpoch}.gpkg'),
+        );
+        await tmp.writeAsBytes(file.bytes!);
+        try {
+          newPolys = await GpkgImportParser.parseFile(tmp.path);
+        } finally {
+          if (tmp.existsSync()) {
+            unawaited(tmp.delete());
+          }
+        }
       } else {
         newPolys = [];
       }

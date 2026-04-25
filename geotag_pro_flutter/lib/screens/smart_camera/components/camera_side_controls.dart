@@ -1,8 +1,10 @@
-import 'package:camera/camera.dart' show FlashMode;
+ximport 'package:camera/camera.dart' show FlashMode;
 import 'package:flutter/material.dart';
+import '../../../l10n/app_strings.dart';
 import '../../../utils/app_localizations.dart';
 import '../../../utils/app_card.dart';
 import '../smart_camera_screen.dart';
+import 'camera_pro_settings_sheet.dart';
 
 class CameraSideControls extends StatelessWidget {
   final Animation<double> menuAnimation;
@@ -55,9 +57,8 @@ class CameraSideControls extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenH = MediaQuery.of(context).size.height;
-    // Maks balandlikni qat‘iy kichikroq qilamiz, shunday qilib pastki shutter va
-    // bottom controls bilan ustma-ust tushmaydi (ilgari 520 edi, o‘ta uzun edi).
-    final maxMenuHeight = (screenH - 420).clamp(180.0, 380.0).toDouble();
+    // Pro sozlamalar alohida sheet’da — yon qator qisqaroq.
+    final maxMenuHeight = (screenH - 480).clamp(160.0, 260.0).toDouble();
     final showAdvancedButtons = cameraMode == CameraMode.geological;
 
     return AnimatedBuilder(
@@ -81,32 +82,34 @@ class CameraSideControls extends StatelessWidget {
                             children: [
                               if (showAdvancedButtons) ...[
                                 _sideBtn(
-                                  icon: Icons.straighten,
-                                  label: context.locRead('ruler_label'),
-                                  active: showScale,
-                                  onTap: () => onShowScaleChanged(!showScale),
-                                ),
-                                const SizedBox(height: 10),
-                                _sideBtn(
-                                  icon: Icons.speed,
-                                  label: 'H-SENSE',
-                                  active: highSensitivityHorizon,
-                                  onTap: () => onHighSenseChanged(!highSensitivityHorizon),
-                                ),
-                                SizedBox(height: 10, key: sensorLockButtonKey),
-                                const SizedBox(height: 10),
-                                _sideBtn(
-                                  icon: expertMode ? Icons.psychology : Icons.person_outline,
-                                  label: expertMode ? 'EXPERT' : 'BASIC',
-                                  active: expertMode,
-                                  onTap: () => onExpertModeChanged(!expertMode),
-                                ),
-                                const SizedBox(height: 10),
-                                _sideBtn(
-                                  icon: showHud ? Icons.visibility : Icons.visibility_off,
-                                  label: context.locRead('hud_toggle').toUpperCase(),
-                                  active: showHud,
-                                  onTap: () => onHudToggle(!showHud),
+                                  icon: Icons.workspace_premium,
+                                  label: (GeoFieldStrings.of(context)
+                                              ?.camera_pro_short_label ??
+                                          'Pro')
+                                      .toUpperCase(),
+                                  onTap: () {
+                                    showModalBottomSheet<void>(
+                                      context: context,
+                                      showDragHandle: true,
+                                      isScrollControlled: true,
+                                      builder: (ctx) => CameraProSettingsSheet(
+                                        showScale: showScale,
+                                        highSensitivityHorizon:
+                                            highSensitivityHorizon,
+                                        expertMode: expertMode,
+                                        showHud: showHud,
+                                        onShowScaleChanged: (v) =>
+                                            onShowScaleChanged(v),
+                                        onHighSenseChanged: (v) =>
+                                            onHighSenseChanged(v),
+                                        onExpertModeChanged: (v) =>
+                                            onExpertModeChanged(v),
+                                        onHudToggle: (v) => onHudToggle(v),
+                                        textColor: textColor,
+                                        sensorLockButtonKey: sensorLockButtonKey,
+                                      ),
+                                    );
+                                  },
                                 ),
                                 const SizedBox(height: 10),
                               ],

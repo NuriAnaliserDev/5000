@@ -343,7 +343,7 @@ class GeoFieldStringsEn extends GeoFieldStrings {
       'Offline: data is stored on the device and uploads when the internet is back. Who-sees-what on the server depends on your Firestore rules and features enabled for the project.';
 
   @override
-  String get map_layer_import_gis => 'Import KML / DXF / GeoJSON (GIS)';
+  String get map_layer_import_gis => 'Import GIS: KML, DXF, GeoJSON, SHP, GPKG';
 
   @override
   String get map_layer_export_data => 'Export data (archive)';
@@ -403,7 +403,7 @@ class GeoFieldStringsEn extends GeoFieldStrings {
   String get field_workshop_ch1 => 'Base map and GIS layers';
 
   @override
-  String get field_workshop_ch2 => 'KML / DXF / GeoJSON import';
+  String get field_workshop_ch2 => 'KML, DXF, GeoJSON, Shapefile, GeoPackage';
 
   @override
   String get field_workshop_ch3 => 'Drawings, measure, then export if needed';
@@ -423,6 +423,9 @@ class GeoFieldStringsEn extends GeoFieldStrings {
 
   @override
   String get camera_mode_geology => 'Geological';
+  @override
+  String get camera_pro_sheet_hint =>
+      'Ruler, horizon gain, expert overlays, and HUD (geology mode).';
 
   @override
   String get cancel => 'Cancel';
@@ -596,7 +599,29 @@ class GeoFieldStringsEn extends GeoFieldStrings {
   String get export_csv => 'Export CSV';
 
   @override
+  String get export_stations_excel => 'Export stations (Excel)';
+
+  @override
   String get export_geojson => 'Export GeoJSON';
+
+  @override
+  String get map_elevation_center_tooltip =>
+      'Elevation at map center (DEM, online)';
+
+  @override
+  String get elevation_lookup_progress => 'Requesting elevation…';
+
+  @override
+  String get elevation_lookup_failed =>
+      'Could not get elevation (check network).';
+
+  @override
+  String elevation_meters_result(String m) {
+    return 'Approx. elevation: $m m (DEM)';
+  }
+
+  @override
+  String get snap_to_grid_label => 'Draw snap: local grid (m, 0 = off)';
 
   @override
   String get export_kml => 'KML (Google Earth)';
@@ -1076,6 +1101,9 @@ class GeoFieldStringsEn extends GeoFieldStrings {
 
   @override
   String get sos_cancelled => 'SOS ended';
+  @override
+  String get sos_cancel_failed =>
+      'Could not end SOS (network or rules). Check connection and try again.';
 
   @override
   String get sos_login_required =>
@@ -1089,6 +1117,28 @@ class GeoFieldStringsEn extends GeoFieldStrings {
 
   @override
   String get map_follow_gps => 'Follow my position (keeps the map on GPS)';
+  @override
+  String get map_pro_tools_title => 'Pro tools (map)';
+  @override
+  String get map_pro_tools_subtitle =>
+      'Layers, GIS, measure, section, 3D, export — pick one, return to the map.';
+  @override
+  String get map_fab_drag_long_press_hint =>
+      'Long-press the grip strip to move this control';
+  @override
+  String get nav_messages => 'Messages';
+  @override
+  String get nav_more => 'More';
+  @override
+  String get camera_pro_short_label => 'Pro';
+  @override
+  String get messages_hub_title => 'Messages hub';
+  @override
+  String get messages_sync_tooltip => 'Sync with cloud';
+  @override
+  String get messages_sync_started => 'Sync started';
+  @override
+  String get messages_no_groups => 'No groups yet';
 
   @override
   String get photo_saved_limited_gps =>

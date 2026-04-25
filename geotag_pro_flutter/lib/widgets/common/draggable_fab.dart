@@ -46,6 +46,11 @@ class DraggableFab extends StatefulWidget {
   /// (clamp qilish uchun). Uzun bosish gesture maydoni [size] bilan belgilanadi.
   final bool unconstrained;
 
+  /// [child]da allaqachon uzoq bosish band bo‘lsa (SOS) — surish shu
+  /// tutqichda uzoq bosish bilan. [size] = tutqich + asosiy tugma chizig‘i.
+  final Widget? longPressDragHandle;
+  final double longPressDragHandleWidth;
+
   const DraggableFab({
     super.key,
     required this.screen,
@@ -56,6 +61,8 @@ class DraggableFab extends StatefulWidget {
     this.enableDrag = true,
     this.unconstrained = false,
     this.dragMode = DragTriggerMode.longPress,
+    this.longPressDragHandle,
+    this.longPressDragHandleWidth = 22,
   });
 
   @override
@@ -304,6 +311,53 @@ class _DraggableFabState extends State<DraggableFab>
         final screen = Size(constraints.maxWidth, constraints.maxHeight);
         final base = _resolveInitialPosition(screen);
         final pos = _dragging ? _dragCurrent : base;
+
+        if (widget.longPressDragHandle != null) {
+          final w = widget.longPressDragHandleWidth;
+          final restW = (widget.size.width - w).clamp(1.0, 10000.0);
+          final h = widget.size.height;
+          final handleBox = SizedBox(
+            width: w,
+            height: h,
+            child: Center(child: widget.longPressDragHandle!),
+          );
+          final mainPart = widget.unconstrained
+              ? widget.child
+              : SizedBox(
+                  width: restW,
+                  height: h,
+                  child: widget.child,
+                );
+          final row = Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: widget.unconstrained
+                ? CrossAxisAlignment.start
+                : CrossAxisAlignment.center,
+            children: [
+              if (widget.enableDrag)
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onLongPressStart: (_) => _onLongPressStart(base),
+                  onLongPressMoveUpdate: (d) => _onLongPressMove(d, screen),
+                  onLongPressEnd: (_) => _onLongPressEnd(),
+                  child: handleBox,
+                )
+              else
+                handleBox,
+              mainPart,
+            ],
+          );
+          final inner = _wrapVisual(row);
+          return Stack(
+            children: [
+              Positioned(
+                left: pos.dx,
+                top: pos.dy,
+                child: inner,
+              ),
+            ],
+          );
+        }
 
         final inner = widget.unconstrained
             ? _wrapVisual(widget.child)

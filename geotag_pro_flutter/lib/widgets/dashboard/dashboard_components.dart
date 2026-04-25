@@ -40,13 +40,6 @@ class DashboardQuickTools extends StatelessWidget {
         children: [
           _buildQuickToolItem(
             context,
-            Icons.camera_alt_rounded,
-            context.loc('camera'),
-            primary,
-            () => Navigator.pushNamed(context, '/camera'),
-          ),
-          _buildQuickToolItem(
-            context,
             Icons.map_rounded,
             context.loc('map'),
             primary,
@@ -54,10 +47,31 @@ class DashboardQuickTools extends StatelessWidget {
           ),
           _buildQuickToolItem(
             context,
+            Icons.photo_camera_rounded,
+            context.loc('camera'),
+            primary,
+            () => Navigator.pushNamed(context, '/camera'),
+          ),
+          _buildQuickToolItem(
+            context,
             Icons.maps_home_work_rounded,
             GeoFieldStrings.of(context)?.field_workshop_title ?? 'Field workshop',
             const Color(0xFF2E7D32),
             () => Navigator.pushNamed(context, AppRouter.fieldWorkshop),
+          ),
+          _buildQuickToolItem(
+            context,
+            Icons.alt_route_rounded,
+            context.loc('map_track_fab_aria'),
+            primary,
+            () => Navigator.pushNamed(context, '/map'),
+          ),
+          _buildQuickToolItem(
+            context,
+            Icons.mic_rounded,
+            context.loc('voice_record'),
+            primary,
+            () => _openCameraForVoice(context),
           ),
           Tooltip(
             message: GeoFieldStrings.of(context)?.sync_purpose_tooltip ?? '',
@@ -71,17 +85,10 @@ class DashboardQuickTools extends StatelessWidget {
           ),
           _buildQuickToolItem(
             context,
-            Icons.mic_rounded,
-            context.loc('voice_record'),
+            Icons.file_upload_outlined,
+            context.loc('dashboard_gis_import'),
             primary,
-            () => _openCameraForVoice(context),
-          ),
-          _buildQuickToolItem(
-            context,
-            Icons.alt_route_rounded,
-            context.loc('map_track_fab_aria'),
-            primary,
-            () => Navigator.pushNamed(context, '/map'),
+            () => _importGisFromDashboard(context),
           ),
           _buildQuickToolItem(
             context,
@@ -89,13 +96,6 @@ class DashboardQuickTools extends StatelessWidget {
             context.loc('dashboard_data_export'),
             primary,
             () => Navigator.pushNamed(context, '/archive'),
-          ),
-          _buildQuickToolItem(
-            context,
-            Icons.file_upload_outlined,
-            context.loc('dashboard_gis_import'),
-            primary,
-            () => _importGisFromDashboard(context),
           ),
         ],
       ),

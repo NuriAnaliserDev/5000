@@ -121,15 +121,22 @@ class MapSosButton extends StatelessWidget {
             child: InkWell(
               onTap: () async {
                 HapticFeedback.mediumImpact();
-                await context.read<SosService>().cancelMyActiveSos();
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(context.locRead('sos_cancelled')),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
+                final ok =
+                    await context.read<SosService>().cancelMyActiveSos();
+                if (!context.mounted) {
+                  return;
                 }
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      ok
+                          ? context.locRead('sos_cancelled')
+                          : context.locRead('sos_cancel_failed'),
+                    ),
+                    backgroundColor: ok ? null : Colors.orange.shade800,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
               },
               borderRadius: BorderRadius.circular(20),
               child: Padding(

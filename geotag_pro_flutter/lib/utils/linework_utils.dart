@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:latlong2/latlong.dart';
+import '../models/boundary_polygon.dart';
 import '../models/geological_line.dart';
 
 class LineworkUtils {
@@ -210,5 +211,41 @@ class LineworkUtils {
       }
     }
     return nearest;
+  }
+
+  /// Ixtiyoriy metrli to‘r (WGS-84 taxmin) — fokus atrofida bitta yopishish nuqtasi.
+  static LatLng nearestGridPoint(LatLng p, double gridMeters) {
+    if (gridMeters <= 0) return p;
+    const lat0 = 111320.0;
+    final latRad = p.latitude * math.pi / 180.0;
+    final mPerDegLng = lat0 * math.cos(latRad).clamp(0.02, 1.0);
+    final gx = (p.longitude * mPerDegLng / gridMeters).round() * (gridMeters / mPerDegLng);
+    final gy = (p.latitude * lat0 / gridMeters).round() * (gridMeters / lat0);
+    return LatLng(gy, gx);
+  }
+
+  /// Stansiya, barcha chiziq/chegara vertikallari, ixtiyoriy panjaraga yaqin bitta nuqta.
+  static List<LatLng> buildSnapCandidatePoints({
+    required List<LatLng> stationPoints,
+    required List<GeologicalLine> lines,
+    required List<BoundaryPolygon> boundaries,
+    required LatLng focus,
+    int snapGridMeters = 0,
+  }) {
+    final out = <LatLng>[];
+    out.addAll(stationPoints);
+    for (final line in lines) {
+      final n = line.lats.length;
+      for (var i = 0; i < n; i++) {
+        out.add(LatLng(line.lats[i], line.lngs[i]));
+      }
+    }
+    for (final b in boundaries) {
+      out.addAll(b.points);
+    }
+    if (snapGridMeters > 0) {
+      out.add(nearestGridPoint(focus, snapGridMeters.toDouble()));
+    }
+    return out;
   }
 }

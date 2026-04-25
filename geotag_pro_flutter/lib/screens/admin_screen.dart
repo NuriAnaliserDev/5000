@@ -6,6 +6,7 @@ import '../app/app_router.dart';
 import '../services/auth_service.dart';
 import '../services/station_repository.dart';
 import '../services/export_service.dart';
+import '../services/station_excel_export.dart';
 import '../services/settings_controller.dart';
 import '../services/theme_controller.dart';
 import '../services/location_service.dart';
@@ -90,7 +91,12 @@ class AdminScreen extends StatelessWidget {
     }
   }
 
-  Future<void> _exportData(BuildContext context, StationRepository repo, bool isCsv) async {
+  Future<void> _exportData(
+    BuildContext context,
+    StationRepository repo, {
+    bool isCsv = false,
+    bool isExcel = false,
+  }) async {
     if (repo.stations.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.locRead('export_no_stations'))),
@@ -146,9 +152,11 @@ class AdminScreen extends StatelessWidget {
       return;
     }
 
-    final file = isCsv 
-        ? await ExportService.exportToCsv(toExport)
-        : await ExportService.exportToGeoJson(toExport);
+    final file = isExcel
+        ? await StationExcelExport.writeStationsFile(toExport)
+        : isCsv
+            ? await ExportService.exportToCsv(toExport)
+            : await ExportService.exportToGeoJson(toExport);
         
     if (!context.mounted) return;
     await Share.shareXFiles([XFile(file.path)], text: 'GeoField Pro N: $selectedProject export');
@@ -286,6 +294,23 @@ class AdminScreen extends StatelessWidget {
           ),
           ListTile(
             contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.grid_on, color: Color(0xFF1976D2)),
+            title: Text(context.loc('snap_to_grid_label')),
+            trailing: DropdownButton<int>(
+              value: settings.snapToGridMeters,
+              items: const [
+                DropdownMenuItem(value: 0, child: Text('0')),
+                DropdownMenuItem(value: 5, child: Text('5 m')),
+                DropdownMenuItem(value: 10, child: Text('10 m')),
+                DropdownMenuItem(value: 25, child: Text('25 m')),
+              ],
+              onChanged: (v) {
+                if (v != null) settings.snapToGridMeters = v;
+              },
+            ),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
             leading: const Icon(
               Icons.open_with,
               color: Color(0xFF1976D2),
@@ -359,7 +384,7 @@ class AdminScreen extends StatelessWidget {
               backgroundColor: Colors.green.shade700,
               foregroundColor: Colors.white,
             ),
-            onPressed: () => _exportData(context, repo, true),
+            onPressed: () => _exportData(context, repo, isCsv: true),
             icon: const Icon(Icons.table_chart),
             label: Text(context.loc('export_csv')),
           ),
@@ -369,9 +394,19 @@ class AdminScreen extends StatelessWidget {
               backgroundColor: Colors.deepPurple.shade700,
               foregroundColor: Colors.white,
             ),
-            onPressed: () => _exportData(context, repo, false),
+            onPressed: () => _exportData(context, repo, isCsv: false),
             icon: const Icon(Icons.public),
             label: Text(context.loc('export_geojson')),
+          ),
+          const SizedBox(height: 8),
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.teal.shade800,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => _exportData(context, repo, isExcel: true),
+            icon: const Icon(Icons.table_view),
+            label: Text(context.loc('export_stations_excel')),
           ),
           const SizedBox(height: 24),
           Text(

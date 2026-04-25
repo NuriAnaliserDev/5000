@@ -224,6 +224,17 @@ class SettingsController extends ChangeNotifier {
     }
   }
 
+  static const _snapToGridMetersKey = 'snapToGridMeters';
+
+  /// 0 — panjaraga yopishish yo‘q; 5 / 10 / 25 m.
+  int get snapToGridMeters => _box.get(_snapToGridMetersKey, defaultValue: 0) as int;
+
+  set snapToGridMeters(int value) {
+    const allowed = {0, 5, 10, 25};
+    _box.put(_snapToGridMetersKey, allowed.contains(value) ? value : 0);
+    notifyListeners();
+  }
+
   static const _customMbtilesPathKey = 'customMbtilesPath';
 
   String? get customMbtilesPath => _box.get(_customMbtilesPathKey) as String?;

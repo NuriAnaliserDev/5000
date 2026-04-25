@@ -343,7 +343,7 @@ class GeoFieldStringsUz extends GeoFieldStrings {
       'Internet bo‘lmasa ma’lumot telefonda saqlanadi, tarmoq paydo bo‘lganda yuboriladi. Kim nimani ko‘rishi — Firestore qoidalari va loyiha sozlamalariga bog‘liq.';
 
   @override
-  String get map_layer_import_gis => 'KML / DXF / GeoJSON import (GIS)';
+  String get map_layer_import_gis => 'GIS import: KML, DXF, GeoJSON, SHP, GPKG';
 
   @override
   String get map_layer_export_data => 'Ma’lumot eksport (arxiv)';
@@ -403,7 +403,7 @@ class GeoFieldStringsUz extends GeoFieldStrings {
   String get field_workshop_ch1 => 'Fon xarita va GIS qatlamlar';
 
   @override
-  String get field_workshop_ch2 => 'KML / DXF / GeoJSON import';
+  String get field_workshop_ch2 => 'KML, DXF, GeoJSON, Shapefile, GeoPackage';
 
   @override
   String get field_workshop_ch3 => 'Chizim, o‘lchov, kerak bo‘lsa eksport';
@@ -423,6 +423,9 @@ class GeoFieldStringsUz extends GeoFieldStrings {
 
   @override
   String get camera_mode_geology => 'Geologik';
+  @override
+  String get camera_pro_sheet_hint =>
+      'Chiziq, gorizontal, ekspert o‘lchamlari, HUD (geologiya rejimi).';
 
   @override
   String get cancel => 'Bekor qilish';
@@ -597,7 +600,29 @@ class GeoFieldStringsUz extends GeoFieldStrings {
   String get export_csv => 'CSV eksport';
 
   @override
+  String get export_stations_excel => 'Stansiyalar (Excel) eksport';
+
+  @override
   String get export_geojson => 'GeoJSON eksport';
+
+  @override
+  String get map_elevation_center_tooltip =>
+      'Xarita markazidagi balandlik (DEM, onlayn)';
+
+  @override
+  String get elevation_lookup_progress => 'Balandlik so‘ralmoqda…';
+
+  @override
+  String get elevation_lookup_failed => 'Balandlik olinmadi (tarmoq).';
+
+  @override
+  String elevation_meters_result(String m) {
+    return 'Taxminiy balandlik: $m m (DEM)';
+  }
+
+  @override
+  String get snap_to_grid_label =>
+      'Chizishda yopishish: lokal panjara (m, 0 = o‘chiq)';
 
   @override
   String get export_kml => 'KML (Google Earth)';
@@ -1078,6 +1103,9 @@ class GeoFieldStringsUz extends GeoFieldStrings {
 
   @override
   String get sos_cancelled => 'SOS yopildi';
+  @override
+  String get sos_cancel_failed =>
+      'SOS to‘liq o‘chmadi (tarmoq yoki ruxsat). Internetni tekshiring yoki qayta urining.';
 
   @override
   String get sos_login_required =>
@@ -1092,6 +1120,28 @@ class GeoFieldStringsUz extends GeoFieldStrings {
   @override
   String get map_follow_gps =>
       'Men bilan yur: xaritani GPS bo‘yicha ushlab turadi';
+  @override
+  String get map_pro_tools_title => 'Pro vositalar (xarita)';
+  @override
+  String get map_pro_tools_subtitle =>
+      'Qatlam, GIS, o‘lchov, kesim, 3D, eksport — bittasini tanlang, keyin xaritaga qayting.';
+  @override
+  String get map_fab_drag_long_press_hint =>
+      'Boshqaruvni surish: chapdagi chiziqni uzoq bosing';
+  @override
+  String get nav_messages => 'Xabarlar';
+  @override
+  String get nav_more => 'Yana';
+  @override
+  String get camera_pro_short_label => 'Pro';
+  @override
+  String get messages_hub_title => 'Aloqa markazi';
+  @override
+  String get messages_sync_tooltip => 'Bulut bilan sinxronlash';
+  @override
+  String get messages_sync_started => 'Sinxronizatsiya boshlandi';
+  @override
+  String get messages_no_groups => 'Guruhlar topilmadi';
 
   @override
   String get photo_saved_limited_gps =>

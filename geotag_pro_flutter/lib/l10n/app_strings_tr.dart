@@ -343,7 +343,8 @@ class GeoFieldStringsTr extends GeoFieldStrings {
       'Çevrimdışı: veri cihazda kalır; internet gelince yüklenir. Kimin ne göreceği Firestore kurallarına ve projeye bağlıdır.';
 
   @override
-  String get map_layer_import_gis => 'KML / DXF / GeoJSON içe aktar (GIS)';
+  String get map_layer_import_gis =>
+      'GIS içe aktar: KML, DXF, GeoJSON, SHP, GPKG';
 
   @override
   String get map_layer_export_data => 'Dışa aktar (arşiv)';
@@ -403,7 +404,7 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get field_workshop_ch1 => 'Temel harita ve GIS katmanları';
 
   @override
-  String get field_workshop_ch2 => 'KML / DXF / GeoJSON içe aktarma';
+  String get field_workshop_ch2 => 'KML, DXF, GeoJSON, Shapefile, GeoPackage';
 
   @override
   String get field_workshop_ch3 => 'Çizim, ölçüm, gerekirse dışa aktarma';
@@ -423,6 +424,9 @@ class GeoFieldStringsTr extends GeoFieldStrings {
 
   @override
   String get camera_mode_geology => 'Jeolojik';
+  @override
+  String get camera_pro_sheet_hint =>
+      'Cetvel, yatay, uzman ve HUD (jeoloji modu).';
 
   @override
   String get cancel => 'İptal';
@@ -597,7 +601,28 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get export_csv => 'CSV Dışa Aktar';
 
   @override
+  String get export_stations_excel => 'İstasyonlar (Excel) dışa aktar';
+
+  @override
   String get export_geojson => 'GeoJSON Dışa Aktar';
+
+  @override
+  String get map_elevation_center_tooltip =>
+      'Harita merkezi yükseklik (DEM, çevrimiçi)';
+
+  @override
+  String get elevation_lookup_progress => 'Yükseklik alınıyor…';
+
+  @override
+  String get elevation_lookup_failed => 'Yükseklik alınamadı (ağ).';
+
+  @override
+  String elevation_meters_result(String m) {
+    return 'Yaklaşık yükseklik: $m m (DEM)';
+  }
+
+  @override
+  String get snap_to_grid_label => 'Çizim yakala: lokal ızgara (m, 0 = kapalı)';
 
   @override
   String get export_kml => 'KML (Google Earth)';
@@ -1076,6 +1101,9 @@ class GeoFieldStringsTr extends GeoFieldStrings {
 
   @override
   String get sos_cancelled => 'SOS sonlandı';
+  @override
+  String get sos_cancel_failed =>
+      'SOS sonlandırılamadı (ağ veya kurallar). Bağlantıyı kontrol edin.';
 
   @override
   String get sos_login_required =>
@@ -1089,6 +1117,28 @@ class GeoFieldStringsTr extends GeoFieldStrings {
 
   @override
   String get map_follow_gps => 'Beni takip et: haritayı GPS’e kilitli tutar';
+  @override
+  String get map_pro_tools_title => 'Pro araçlar (harita)';
+  @override
+  String get map_pro_tools_subtitle =>
+      'Katman, CBS, ölçüm, kesit, 3D, dışa aktar — birini seçin, haritaya dönün.';
+  @override
+  String get map_fab_drag_long_press_hint =>
+      'Taşımak için sol çizgide uzun basın';
+  @override
+  String get nav_messages => 'Mesajlar';
+  @override
+  String get nav_more => 'Diğer';
+  @override
+  String get camera_pro_short_label => 'Pro';
+  @override
+  String get messages_hub_title => 'Mesaj merkezi';
+  @override
+  String get messages_sync_tooltip => 'Bulutla eşitle';
+  @override
+  String get messages_sync_started => 'Eşitleme başladı';
+  @override
+  String get messages_no_groups => 'Henüz grup yok';
 
   @override
   String get photo_saved_limited_gps =>

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../services/chat_repository.dart';
 import '../services/cloud_sync_service.dart';
+import '../utils/app_localizations.dart';
 import '../utils/app_nav_bar.dart';
 
 class MessagesScreen extends StatefulWidget {
@@ -28,7 +29,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
         backgroundColor: surf,
         elevation: 0,
         title: Text(
-          'Aloqa Markazi',
+          context.locRead('messages_hub_title'),
           style: TextStyle(
             fontWeight: FontWeight.w900,
             letterSpacing: 1.2,
@@ -38,13 +39,15 @@ class _MessagesScreenState extends State<MessagesScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.refresh, color: primary),
-            tooltip: 'Sinxronizatsiya',
+            tooltip: context.locRead('messages_sync_tooltip'),
             onPressed: () async {
               final messenger = ScaffoldMessenger.of(context);
               await context.read<CloudSyncService>().triggerSync();
               if (!mounted) return;
               messenger.showSnackBar(
-                const SnackBar(content: Text('Sinxronizatsiya ishga tushdi')),
+                SnackBar(
+                  content: Text(context.locRead('messages_sync_started')),
+                ),
               );
             },
           ),
@@ -54,8 +57,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
       body: groups.isEmpty
           ? Center(
               child: Text(
-                'Guruhlar topilmadi',
-                style: TextStyle(color: Colors.grey, fontSize: 16),
+                context.locRead('messages_no_groups'),
+                style: const TextStyle(color: Colors.grey, fontSize: 16),
               ),
             )
           : ListView.builder(

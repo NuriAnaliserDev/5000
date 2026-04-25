@@ -715,7 +715,7 @@ abstract class GeoFieldStrings {
   /// No description provided for @map_layer_import_gis.
   ///
   /// In en, this message translates to:
-  /// **'Import KML / DXF / GeoJSON (GIS)'**
+  /// **'Import GIS: KML, DXF, GeoJSON, SHP, GPKG'**
   String get map_layer_import_gis;
 
   /// No description provided for @map_layer_export_data.
@@ -829,7 +829,7 @@ abstract class GeoFieldStrings {
   /// No description provided for @field_workshop_ch2.
   ///
   /// In en, this message translates to:
-  /// **'KML / DXF / GeoJSON import'**
+  /// **'KML, DXF, GeoJSON, Shapefile, GeoPackage'**
   String get field_workshop_ch2;
 
   /// No description provided for @field_workshop_ch3.
@@ -867,6 +867,8 @@ abstract class GeoFieldStrings {
   /// In en, this message translates to:
   /// **'Geological'**
   String get camera_mode_geology;
+
+  String get camera_pro_sheet_hint;
 
   /// No description provided for @cancel.
   ///
@@ -1198,11 +1200,47 @@ abstract class GeoFieldStrings {
   /// **'Export CSV'**
   String get export_csv;
 
+  /// No description provided for @export_stations_excel.
+  ///
+  /// In en, this message translates to:
+  /// **'Export stations (Excel)'**
+  String get export_stations_excel;
+
   /// No description provided for @export_geojson.
   ///
   /// In en, this message translates to:
   /// **'Export GeoJSON'**
   String get export_geojson;
+
+  /// No description provided for @map_elevation_center_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Elevation at map center (DEM, online)'**
+  String get map_elevation_center_tooltip;
+
+  /// No description provided for @elevation_lookup_progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Requesting elevation…'**
+  String get elevation_lookup_progress;
+
+  /// No description provided for @elevation_lookup_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not get elevation (check network).'**
+  String get elevation_lookup_failed;
+
+  /// No description provided for @elevation_meters_result.
+  ///
+  /// In en, this message translates to:
+  /// **'Approx. elevation: {m} m (DEM)'**
+  String elevation_meters_result(String m);
+
+  /// No description provided for @snap_to_grid_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Draw snap: local grid (m, 0 = off)'**
+  String get snap_to_grid_label;
 
   /// No description provided for @export_kml.
   ///
@@ -2134,6 +2172,9 @@ abstract class GeoFieldStrings {
   /// **'SOS ended'**
   String get sos_cancelled;
 
+  /// No description provided for @sos_cancel_failed.
+  String get sos_cancel_failed;
+
   /// No description provided for @sos_login_required.
   ///
   /// In en, this message translates to:
@@ -2157,6 +2198,19 @@ abstract class GeoFieldStrings {
   /// In en, this message translates to:
   /// **'Follow my position (keeps the map on GPS)'**
   String get map_follow_gps;
+
+  String get map_pro_tools_title;
+  String get map_pro_tools_subtitle;
+  String get map_fab_drag_long_press_hint;
+
+  String get nav_messages;
+  String get nav_more;
+
+  String get camera_pro_short_label;
+  String get messages_hub_title;
+  String get messages_sync_tooltip;
+  String get messages_sync_started;
+  String get messages_no_groups;
 
   /// No description provided for @photo_saved_limited_gps.
   ///

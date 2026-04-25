@@ -634,6 +634,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
+      bottomNavigationBar: const AppBottomNavBar(activeRoute: '/camera'),
       body: SafeArea(
         child: Stack(
           children: [
@@ -685,9 +686,8 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
                   key: const ValueKey('camera_fab_side_panel'),
                   screen: 'camera',
                   id: 'side_panel',
-                  // Default: o‘ng tepa (12 px o‘ngdan, 170 tepadan)
-                  defaultOffset: const Offset(-82, 170),
-                  size: const Size(70, 440),
+                  defaultOffset: OverlayFabLayout.cameraSidePanel,
+                  size: OverlayFabLayout.cameraSidePanelSize,
                   unconstrained: true,
                   child: CameraSideControls(
                     menuAnimation: _menuAnimation,

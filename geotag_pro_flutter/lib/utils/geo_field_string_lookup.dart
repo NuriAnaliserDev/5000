@@ -73,6 +73,8 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'camera_header_geology': return s.camera_header_geology;
     case 'camera_mode_document': return s.camera_mode_document;
     case 'camera_mode_geology': return s.camera_mode_geology;
+    case 'camera_pro_short_label': return s.camera_pro_short_label;
+    case 'camera_pro_sheet_hint': return s.camera_pro_sheet_hint;
     case 'camera_voice_mic_hint': return s.camera_voice_mic_hint;
     case 'cancel': return s.cancel;
     case 'cleavage': return s.cleavage;
@@ -130,6 +132,8 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'edit_disable': return s.edit_disable;
     case 'edit_enable': return s.edit_enable;
     case 'edit_project': return s.edit_project;
+    case 'elevation_lookup_failed': return s.elevation_lookup_failed;
+    case 'elevation_lookup_progress': return s.elevation_lookup_progress;
     case 'expert_mode': return s.expert_mode;
     case 'export_csv': return s.export_csv;
     case 'export_geojson': return s.export_geojson;
@@ -137,6 +141,7 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'export_no_stations': return s.export_no_stations;
     case 'export_pdf': return s.export_pdf;
     case 'export_select_project': return s.export_select_project;
+    case 'export_stations_excel': return s.export_stations_excel;
     case 'export_title': return s.export_title;
     case 'fab_reset_all': return s.fab_reset_all;
     case 'fab_reset_camera': return s.fab_reset_camera;
@@ -218,11 +223,15 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'map_3d_tooltip': return s.map_3d_tooltip;
     case 'map_drag_mode_hint': return s.map_drag_mode_hint;
     case 'map_draw_undo_caption': return s.map_draw_undo_caption;
+    case 'map_elevation_center_tooltip': return s.map_elevation_center_tooltip;
     case 'map_eraser_hint': return s.map_eraser_hint;
     case 'map_eraser_tooltip': return s.map_eraser_tooltip;
     case 'map_error_prefix': return s.map_error_prefix;
     case 'map_export_geojson': return s.map_export_geojson;
     case 'map_follow_gps': return s.map_follow_gps;
+    case 'map_fab_drag_long_press_hint': return s.map_fab_drag_long_press_hint;
+    case 'map_pro_tools_subtitle': return s.map_pro_tools_subtitle;
+    case 'map_pro_tools_title': return s.map_pro_tools_title;
     case 'map_gesture_undo_hint': return s.map_gesture_undo_hint;
     case 'map_layer_export_data': return s.map_layer_export_data;
     case 'map_layer_import_gis': return s.map_layer_import_gis;
@@ -252,6 +261,10 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'map_style_satellite': return s.map_style_satellite;
     case 'map_style_topo': return s.map_style_topo;
     case 'map_tap_line_delete_message': return s.map_tap_line_delete_message;
+    case 'messages_hub_title': return s.messages_hub_title;
+    case 'messages_no_groups': return s.messages_no_groups;
+    case 'messages_sync_started': return s.messages_sync_started;
+    case 'messages_sync_tooltip': return s.messages_sync_tooltip;
     case 'map_track_fab_aria': return s.map_track_fab_aria;
     case 'massive': return s.massive;
     case 'measurement_error_high': return s.measurement_error_high;
@@ -273,6 +286,8 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'note_saved': return s.note_saved;
     case 'notifications_empty_hint': return s.notifications_empty_hint;
     case 'notifications_open_chats': return s.notifications_open_chats;
+    case 'nav_messages': return s.nav_messages;
+    case 'nav_more': return s.nav_more;
     case 'notifications_screen_title': return s.notifications_screen_title;
     case 'observation_area_label': return s.observation_area_label;
     case 'offline_download': return s.offline_download;
@@ -334,8 +349,10 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'settings': return s.settings;
     case 'share': return s.share;
     case 'signal_searching': return s.signal_searching;
+    case 'snap_to_grid_label': return s.snap_to_grid_label;
     case 'sos_cancel': return s.sos_cancel;
     case 'sos_cancelled': return s.sos_cancelled;
+    case 'sos_cancel_failed': return s.sos_cancel_failed;
     case 'sos_gps_unavailable': return s.sos_gps_unavailable;
     case 'sos_login_required': return s.sos_login_required;
     case 'sos_queue_cancel': return s.sos_queue_cancel;

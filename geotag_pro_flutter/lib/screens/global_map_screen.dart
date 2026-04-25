@@ -15,6 +15,7 @@ import 'package:uuid/uuid.dart';
 
 import '../services/station_repository.dart';
 import '../services/track_service.dart';
+import '../services/elevation_service.dart';
 import '../services/location_service.dart';
 import '../services/settings_controller.dart';
 import '../services/boundary_service.dart';
@@ -22,6 +23,7 @@ import '../services/geological_line_repository.dart';
 import '../services/map_structure_repository.dart';
 import '../services/tutorial_service.dart';
 import '../services/presence_service.dart';
+import '../services/sos_service.dart';
 import '../models/station.dart';
 import '../models/geological_line.dart';
 import '../models/map_structure_annotation.dart';
@@ -35,6 +37,7 @@ import '../utils/utm_wgs84.dart';
 import '../l10n/app_strings.dart';
 import '../utils/app_nav_bar.dart';
 import '../utils/app_localizations.dart';
+import '../utils/overlay_fab_layout.dart';
 import '../widgets/common/draggable_fab.dart';
 import '../widgets/map/map_search_sheet.dart';
 import 'cross_section_screen.dart';
@@ -49,14 +52,14 @@ import 'map/components/map_gps_hud.dart';
 import 'map/components/map_legend.dart';
 import 'map/components/map_top_bar.dart';
 import 'map/components/map_live_track_stats.dart';
-import 'map/components/map_slice_button.dart';
 import 'map/components/map_sos_button.dart';
 import 'map/components/map_track_fab.dart';
 import 'map/components/map_linework_controls.dart';
 import 'map/components/map_projection_controls.dart';
 import 'map/components/map_layer_drawer.dart';
-import 'map/components/map_three_d_button.dart';
 import 'map/components/map_structure_markers_layer.dart';
+import 'map/map_pro_tools_screen.dart';
+import 'three_d_viewer_screen.dart';
 import '../app/app_router.dart';
 
 class GlobalMapScreen extends StatefulWidget {
@@ -129,6 +132,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
       }
       _locationForFollow = context.read<LocationService>();
       _locationForFollow!.addListener(_onGpsForFollow);
+      unawaited(context.read<SosService>().syncActiveSosFromServer());
       _checkShowTutorial();
       _startPresenceBroadcast();
       if (widget.fieldWorkshopMode) {
@@ -441,12 +445,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
             if (widget.fieldWorkshopMode && _workshopInfoBanner) _buildWorkshopInfoBanner(),
             if (widget.fieldWorkshopMode) _buildFieldWorkshopToolRail(),
             if (currentTrack != null) MapLiveTrackStats(track: trackSvc.currentTrack!),
-            _buildSideControls(
-              threeDCenter: currentPos != null
-                  ? LatLng(currentPos.latitude, currentPos.longitude)
-                  : center,
-            ),
-            _buildMyLocationFab(currentPos),
+            _buildMapFloatingLayer(currentPos: currentPos),
             MapLineworkControls(
               isDrawingMode: _isDrawingMode,
               selectedLineType: _selectedLineType,
@@ -574,8 +573,13 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
   }
 
   /// Pro maydon: qatlam, GIS, kesim, struktura, chizim, proyeksiya — tez qo‘l panel.
+  /// Dala rejimi: faqat tez-tez kerak bo‘lgan 3 + [MapProToolsScreen] kirishi.
+  /// Qolganlari takrorlanmasin — bitta Pro ro‘yxatida.
   Widget _buildFieldWorkshopToolRail() {
     final s = GeoFieldStrings.of(context);
+    if (s == null) {
+      return const SizedBox.shrink();
+    }
     final t = Theme.of(context);
     return Positioned(
       right: 4,
@@ -584,85 +588,41 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
         elevation: 6,
         borderRadius: BorderRadius.circular(14),
         color: t.colorScheme.surfaceContainerHigh.withValues(alpha: 0.95),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: 360),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  tooltip: context.loc('layer_management'),
-                  onPressed: () => setState(() => _showLayerDrawer = true),
-                  icon: const Icon(Icons.layers, color: Color(0xFF1976D2)),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                tooltip: context.loc('layer_management'),
+                onPressed: () => setState(() => _showLayerDrawer = true),
+                icon: const Icon(Icons.layers, color: Color(0xFF1976D2)),
+              ),
+              IconButton(
+                tooltip: s.map_layer_import_gis,
+                onPressed: _importGisFromMap,
+                icon: const Icon(Icons.file_upload, color: Color(0xFF388E3C)),
+              ),
+              IconButton(
+                tooltip: context.loc('layer_drawings'),
+                onPressed: _workshopStartDrawing,
+                icon: Icon(
+                  Icons.draw,
+                  color: _isDrawingMode
+                      ? const Color(0xFFFF9800)
+                      : const Color(0xFF5D4037),
                 ),
-                IconButton(
-                  tooltip: s?.map_layer_import_gis,
-                  onPressed: _importGisFromMap,
-                  icon: const Icon(Icons.file_upload, color: Color(0xFF388E3C)),
+              ),
+              const Divider(height: 1),
+              IconButton(
+                tooltip: s.map_pro_tools_title,
+                onPressed: _openMapProTools,
+                icon: const Icon(
+                  Icons.workspace_premium,
+                  color: Color(0xFF0D47A1),
                 ),
-                IconButton(
-                  tooltip: context.loc('map_measure_mode'),
-                  onPressed: _toggleMeasureMode,
-                  icon: Icon(
-                    Icons.straighten,
-                    color: _isMeasureMode
-                        ? Colors.cyanAccent
-                        : const Color(0xFF5D4037),
-                  ),
-                ),
-                IconButton(
-                  tooltip: s?.map_slice_tooltip,
-                  onPressed: _toggleSliceMode,
-                  icon: Icon(
-                    Icons.content_cut,
-                    color: _isSliceMode ? Colors.orange : const Color(0xFF5D4037),
-                  ),
-                ),
-                IconButton(
-                  tooltip: s?.map_structure_mode_tooltip,
-                  onPressed: _toggleStructureMode,
-                  icon: Icon(
-                    Icons.architecture,
-                    color: _isStructurePlaceMode
-                        ? Colors.amber.shade800
-                        : const Color(0xFF5D4037),
-                  ),
-                ),
-                IconButton(
-                  tooltip: context.loc('layer_drawings'),
-                  onPressed: _workshopStartDrawing,
-                  icon: Icon(
-                    Icons.draw,
-                    color: _isDrawingMode ? const Color(0xFFFF9800) : const Color(0xFF5D4037),
-                  ),
-                ),
-                IconButton(
-                  tooltip: context.loc('projection_depth'),
-                  onPressed: () => setState(() => _showProjections = !_showProjections),
-                  icon: Icon(
-                    Icons.view_in_ar,
-                    color: _showProjections ? const Color(0xFF7E57C2) : const Color(0xFF5D4037),
-                  ),
-                ),
-                IconButton(
-                  tooltip: s?.field_workshop_stereonet,
-                  onPressed: () =>
-                      Navigator.of(context).pushNamed('/analysis'),
-                  icon: const Icon(Icons.analytics, color: Color(0xFF5C6BC0)),
-                ),
-                IconButton(
-                  tooltip: s?.field_utm_tap,
-                  onPressed: _copyUtmCenterToClipboard,
-                  icon: const Icon(Icons.gps_fixed, color: Color(0xFF00897B)),
-                ),
-                IconButton(
-                  tooltip: s?.map_export_geojson,
-                  onPressed: _exportMapGeoJson,
-                  icon: const Icon(Icons.ios_share, color: Color(0xFF80CBC4)),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -917,130 +877,215 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     }
   }
 
-  Widget _buildSideControls({required LatLng threeDCenter}) {
-    // Chizish / kesma / struktura rejimlarida side-control FAB larni yashiramiz,
-    // chunki [MapLineworkControls] o‘z paneli va tugmalarini ochib ustiga chiqib
-    // qolmasin. Natijada panellar bir-birini bosib ketmaydi.
-    final inDrawMode = _isDrawingMode ||
-        _isSliceMode ||
-        _isStructurePlaceMode ||
-        _isMeasureMode;
+  /// Pro vositalar ekranidan so‘ng amallarni bajarish.
+  void _applyMapProToolResult(MapProToolAction a) {
+    switch (a) {
+      case MapProToolAction.openLayerDrawer:
+        setState(() => _showLayerDrawer = true);
+        break;
+      case MapProToolAction.importGis:
+        unawaited(_importGisFromMap());
+        break;
+      case MapProToolAction.measure:
+        _toggleMeasureMode();
+        break;
+      case MapProToolAction.slice:
+        _toggleSliceMode();
+        break;
+      case MapProToolAction.structure:
+        _toggleStructureMode();
+        break;
+      case MapProToolAction.startDrawing:
+        _workshopStartDrawing();
+        break;
+      case MapProToolAction.openFieldWorkshop:
+        _openFieldWorkshop();
+        break;
+      case MapProToolAction.threeD:
+        final c = _mapController.camera.center;
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (ctx) => ThreeDViewerScreen(centerPoint: c),
+          ),
+        );
+        break;
+      case MapProToolAction.stereonet:
+        Navigator.of(context).pushNamed(AppRouter.analysis);
+        break;
+      case MapProToolAction.copyUtm:
+        _copyUtmCenterToClipboard();
+        break;
+      case MapProToolAction.centerElevation:
+        unawaited(_showMapCenterElevation());
+        break;
+      case MapProToolAction.exportGeojson:
+        unawaited(_exportMapGeoJson());
+        break;
+      case MapProToolAction.toggleProjection:
+        setState(() => _showProjections = !_showProjections);
+        break;
+    }
+  }
+
+  Future<void> _openMapProTools() async {
+    if (!mounted) {
+      return;
+    }
+    HapticFeedback.selectionClick();
+    final action = await Navigator.of(context).push<MapProToolAction>(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (ctx) => const MapProToolsScreen(),
+      ),
+    );
+    if (!mounted || action == null) {
+      return;
+    }
+    _applyMapProToolResult(action);
+  }
+
+  /// Barcha suzuvchi tugmalar — bitta [DraggableFabLayer] (z-order aralashmasin).
+  Widget _buildMapFloatingLayer({required dynamic currentPos}) {
+    // Faqat chizim / qo‘lda struktura: chizim paneli bilan to‘qnashadigan
+    // qo‘shimcha yon FABlarni yig‘amiz. Kesim va o‘lchovda to‘liq to‘plam
+    // ko‘rinadi.
+    final hideSideFabsForLineUi = _isDrawingMode || _isStructurePlaceMode;
     final s = GeoFieldStrings.of(context);
-    if (inDrawMode) {
-      // Chizish rejimida faqat struktura FAB ni qoldiramiz (chap pastda).
-      return DraggableFabLayer(
-        children: [
-          DraggableFab(
-            key: const ValueKey('map_fab_structure'),
-            screen: 'map',
-            id: 'structure',
-            defaultOffset: const Offset(8, -230),
-            size: const Size(52, 52),
-            dragMode: DragTriggerMode.longPress,
-            child: Material(
-              elevation: 6,
-              borderRadius: BorderRadius.circular(28),
+    if (s == null) {
+      return const SizedBox.shrink();
+    }
+
+    Widget? structureFab;
+    if (hideSideFabsForLineUi) {
+      structureFab = DraggableFab(
+        key: const ValueKey('map_fab_structure'),
+        screen: 'map',
+        id: 'structure',
+        defaultOffset: OverlayFabLayout.mapStructure,
+        size: OverlayFabLayout.mapStructureSize,
+        dragMode: DragTriggerMode.longPress,
+        child: Material(
+          elevation: 6,
+          borderRadius: BorderRadius.circular(28),
+          color: _isStructurePlaceMode
+              ? Colors.amber.shade800
+              : const Color(0xFF1A2028),
+          child: IconButton(
+            tooltip: s.map_structure_mode_tooltip,
+            onPressed: _toggleStructureMode,
+            icon: Icon(
+              Icons.architecture,
               color: _isStructurePlaceMode
-                  ? Colors.amber.shade800
-                  : const Color(0xFF1A2028),
-              child: IconButton(
-                tooltip: s?.map_structure_mode_tooltip ?? 'Structure',
-                onPressed: _toggleStructureMode,
-                icon: Icon(
-                  Icons.architecture,
-                  color: _isStructurePlaceMode
-                      ? Colors.white
-                      : Colors.amber.shade200,
-                ),
-              ),
+                  ? Colors.white
+                  : Colors.amber.shade200,
             ),
           ),
-        ],
+        ),
+      );
+    }
+
+    Widget? proFab;
+    if (!widget.fieldWorkshopMode && !hideSideFabsForLineUi) {
+      proFab = DraggableFab(
+        key: const ValueKey('map_fab_pro'),
+        screen: 'map',
+        id: 'pro_tools',
+        defaultOffset: OverlayFabLayout.mapProTools,
+        size: OverlayFabLayout.mapProToolsSize,
+        dragMode: DragTriggerMode.longPress,
+        child: Material(
+          elevation: 6,
+          borderRadius: BorderRadius.circular(28),
+          color: const Color(0xFF0D47A1),
+          child: IconButton(
+            tooltip: s.map_pro_tools_title,
+            onPressed: _openMapProTools,
+            icon: const Icon(
+              Icons.workspace_premium,
+              color: Color(0xFFFFD54F),
+            ),
+          ),
+        ),
       );
     }
 
     return DraggableFabLayer(
       children: [
-        if (!widget.fieldWorkshopMode)
-          DraggableFab(
-            key: const ValueKey('map_fab_workshop'),
-            screen: 'map',
-            id: 'workshop',
-            defaultOffset: const Offset(8, -100),
-            size: const Size(52, 52),
-            dragMode: DragTriggerMode.longPress,
-            child: Material(
-              elevation: 6,
-              borderRadius: BorderRadius.circular(28),
-              color: const Color(0xFF2E7D32),
-              child: IconButton(
-                tooltip: s?.field_workshop_fab_tooltip ?? 'Field workshop',
-                onPressed: _openFieldWorkshop,
-                icon: const Icon(Icons.maps_home_work, color: Colors.white),
-              ),
-            ),
-          ),
-        DraggableFab(
-          key: const ValueKey('map_fab_structure'),
-          screen: 'map',
-          id: 'structure',
-          defaultOffset: const Offset(8, -230),
-          size: const Size(52, 52),
-          dragMode: DragTriggerMode.longPress,
-          child: Material(
-            elevation: 6,
-            borderRadius: BorderRadius.circular(28),
-            color: const Color(0xFF1A2028),
-            child: IconButton(
-              tooltip: s?.map_structure_mode_tooltip ?? 'Structure',
-              onPressed: _toggleStructureMode,
-              icon: Icon(Icons.architecture, color: Colors.amber.shade200),
-            ),
-          ),
-        ),
-        DraggableFab(
-          key: const ValueKey('map_fab_slice'),
-          screen: 'map',
-          id: 'slice',
-          defaultOffset: const Offset(-16, -310),
-          size: const Size(48, 48),
-          dragMode: DragTriggerMode.longPress,
-          child: MapSliceButton(
-            isSliceMode: _isSliceMode,
-            onPressed: _toggleSliceMode,
-          ),
-        ),
-        // SOS tugmasining o‘zida `onLongPress` (SOS yuborish) bor. Shuning
-        // uchun oddiy long-press bilan drag qilib bo‘lmaydi. Buning o‘rniga
-        // 3-marta tez bosish (triple-tap) drag-rejimni yoqadi, keyin tugmani
-        // oddiy surib joylashtirish mumkin (6 soniya oynasi ichida).
+        if (structureFab != null) structureFab,
+        if (proFab != null) proFab,
         DraggableFab(
           key: const ValueKey('map_fab_sos'),
           screen: 'map',
           id: 'sos',
-          defaultOffset: const Offset(-16, -240),
-          size: const Size(72, 120),
+          defaultOffset: OverlayFabLayout.mapSos,
+          size: OverlayFabLayout.mapSosSize,
           unconstrained: true,
-          dragMode: DragTriggerMode.tripleTap,
+          longPressDragHandleWidth: OverlayFabLayout.mapSosDragHandleWidth,
+          longPressDragHandle: Tooltip(
+            message: context.locRead('map_fab_drag_long_press_hint'),
+            child: const RotatedBox(
+              quarterTurns: 1,
+              child: Icon(Icons.drag_handle, size: 18, color: Colors.white38),
+            ),
+          ),
           child: const MapSosButton(),
-        ),
-        DraggableFab(
-          key: const ValueKey('map_fab_three_d'),
-          screen: 'map',
-          id: 'three_d',
-          defaultOffset: const Offset(-16, -160),
-          size: const Size(56, 56),
-          dragMode: DragTriggerMode.longPress,
-          child: MapThreeDButton(centerPoint: threeDCenter),
         ),
         const DraggableFab(
           key: ValueKey('map_fab_track'),
           screen: 'map',
           id: 'track',
-          defaultOffset: Offset(-16, -80),
-          size: Size(56, 56),
+          defaultOffset: OverlayFabLayout.mapTrack,
+          size: OverlayFabLayout.mapTrackSize,
           dragMode: DragTriggerMode.longPress,
           child: MapTrackFab(),
+        ),
+        DraggableFab(
+          key: const ValueKey('map_fab_my_location'),
+          screen: 'map',
+          id: 'my_location',
+          defaultOffset: OverlayFabLayout.mapMyLocation,
+          size: OverlayFabLayout.mapMyLocationSize,
+          dragMode: DragTriggerMode.longPress,
+          child: Tooltip(
+            message: context.loc('map_my_location'),
+            child: FloatingActionButton.small(
+              heroTag: 'my_location_fab',
+              backgroundColor: Colors.white,
+              onPressed: () => _goToMyLocation(currentPos),
+              child: const Icon(Icons.my_location, color: Color(0xFF1976D2)),
+            ),
+          ),
+        ),
+        DraggableFab(
+          key: const ValueKey('map_fab_follow_gps'),
+          screen: 'map',
+          id: 'follow_gps',
+          defaultOffset: OverlayFabLayout.mapFollowGps,
+          size: OverlayFabLayout.mapFollowGpsSize,
+          dragMode: DragTriggerMode.longPress,
+          child: Tooltip(
+            message: context.loc('map_follow_gps'),
+            child: FloatingActionButton.small(
+              heroTag: 'map_follow_gps_fab',
+              backgroundColor:
+                  _followGps ? const Color(0xFF1976D2) : Colors.white,
+              onPressed: () {
+                setState(() {
+                  _followGps = !_followGps;
+                });
+                if (_followGps) {
+                  HapticFeedback.selectionClick();
+                  _goToMyLocation(currentPos);
+                }
+              },
+              child: Icon(
+                _followGps
+                    ? Icons.navigation
+                    : Icons.compass_calibration_outlined,
+                color: _followGps ? Colors.white : const Color(0xFF1976D2),
+              ),
+            ),
+          ),
         ),
       ],
     );
@@ -1086,58 +1131,6 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
         SnackBar(content: Text(context.locRead('select_two_points'))),
       );
     }
-  }
-
-  Widget _buildMyLocationFab(dynamic currentPos) {
-    return DraggableFabLayer(
-      children: [
-        DraggableFab(
-          key: const ValueKey('map_fab_my_location'),
-          screen: 'map',
-          id: 'my_location',
-          defaultOffset: const Offset(-16, -400),
-          size: const Size(48, 48),
-          dragMode: DragTriggerMode.longPress,
-          child: Tooltip(
-            message: context.loc('map_my_location'),
-            child: FloatingActionButton.small(
-              heroTag: 'my_location_fab',
-              backgroundColor: Colors.white,
-              onPressed: () => _goToMyLocation(currentPos),
-              child: const Icon(Icons.my_location, color: Color(0xFF1976D2)),
-            ),
-          ),
-        ),
-        DraggableFab(
-          key: const ValueKey('map_fab_follow_gps'),
-          screen: 'map',
-          id: 'follow_gps',
-          defaultOffset: const Offset(-16, -470),
-          size: const Size(48, 48),
-          dragMode: DragTriggerMode.longPress,
-          child: Tooltip(
-            message: context.loc('map_follow_gps'),
-            child: FloatingActionButton.small(
-              heroTag: 'map_follow_gps_fab',
-              backgroundColor: _followGps ? const Color(0xFF1976D2) : Colors.white,
-              onPressed: () {
-                setState(() {
-                  _followGps = !_followGps;
-                });
-                if (_followGps) {
-                  HapticFeedback.selectionClick();
-                  _goToMyLocation(currentPos);
-                }
-              },
-              child: Icon(
-                _followGps ? Icons.navigation : Icons.compass_calibration_outlined,
-                color: _followGps ? Colors.white : const Color(0xFF1976D2),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
   }
 
   void _goToMyLocation(dynamic pos) async {
@@ -1204,9 +1197,25 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     } else if (_isDrawingMode) {
       LatLng finalPoint = point;
       if (_isSnapEnabled) {
-        final stations = context.read<StationRepository>().stations;
-        final snapped = LineworkUtils.findNearestSnapPoint(point, stations.map((s) => LatLng(s.lat, s.lng)).toList());
-        if (snapped != null) { finalPoint = snapped; HapticFeedback.lightImpact(); }
+        final stationRepo = context.read<StationRepository>();
+        final lineRepo = context.read<GeologicalLineRepository>();
+        final settings = context.read<SettingsController>();
+        final candidates = LineworkUtils.buildSnapCandidatePoints(
+          stationPoints:
+              stationRepo.stations.map((s) => LatLng(s.lat, s.lng)).toList(),
+          lines: lineRepo.lines,
+          boundaries: boundarySvc.boundaries,
+          focus: point,
+          snapGridMeters: settings.snapToGridMeters,
+        );
+        final snapped = LineworkUtils.findNearestSnapPoint(
+          point,
+          candidates,
+        );
+        if (snapped != null) {
+          finalPoint = snapped;
+          HapticFeedback.lightImpact();
+        }
       }
       setState(() {
         _drawingPoints.add(finalPoint);
@@ -1455,6 +1464,40 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(t),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  Future<void> _showMapCenterElevation() async {
+    final s = GeoFieldStrings.of(context);
+    if (s == null) return;
+    final c = _mapController.camera.center;
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(s.elevation_lookup_progress),
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+    final m = await ElevationService.fetchElevationMeters(c);
+    if (!mounted) return;
+    if (m == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(s.elevation_lookup_failed),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            s.elevation_meters_result(m.toStringAsFixed(1)),
+          ),
           behavior: SnackBarBehavior.floating,
         ),
       );

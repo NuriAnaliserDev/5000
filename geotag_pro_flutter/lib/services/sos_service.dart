@@ -123,17 +123,64 @@ class SosService extends ChangeNotifier {
     }
   }
 
-  /// Yuborilgan faol SOS ni serverda o‘chirish (karta/royxatda yo‘qoladi).
-  Future<void> cancelMyActiveSos() async {
-    final id = _myActiveSosDocumentId;
-    if (id == null) {
+  /// Ilovada saqlanmagan bo‘lsa ham, foydalanuvchining oxirgi faol SOS
+  /// hujjatini topadi (qayta kirganda `myActiveSosDocumentId` tiklash uchun).
+  Future<String?> _latestActiveSosIdForCurrentUser() async {
+    final user = _auth.currentUser;
+    if (user == null) return null;
+    try {
+      final snap = await _firestore
+          .collection('emergency_signals')
+          .where('senderUid', isEqualTo: user.uid)
+          .limit(25)
+          .get();
+      DateTime? bestTime;
+      String? bestId;
+      for (final d in snap.docs) {
+        final m = d.data();
+        if (m['isActive'] != true) continue;
+        final t = (m['timestamp'] as Timestamp?)?.toDate() ?? DateTime(1970);
+        if (bestId == null || t.isAfter(bestTime ?? DateTime(1970))) {
+          bestTime = t;
+          bestId = d.id;
+        }
+      }
+      return bestId;
+    } catch (e) {
+      debugPrint('SOS: active id lookup failed: $e');
+      return null;
+    }
+  }
+
+  /// Kirish yoki fonda qaytishda chaqiriladi — `myActiveSosDocumentId`ni
+  /// server bilan sinxronlaydi.
+  Future<void> syncActiveSosFromServer() async {
+    final id = await _latestActiveSosIdForCurrentUser();
+    if (_myActiveSosDocumentId == id) {
       return;
     }
-    await clearSos(id);
-    if (_myActiveSosDocumentId == id) {
-      _myActiveSosDocumentId = null;
-      notifyListeners();
+    _myActiveSosDocumentId = id;
+    lastSendQueued = false;
+    notifyListeners();
+  }
+
+  /// Yuborilgan faol SOS ni serverda o‘chirish (karta/royxatda yo‘qoladi).
+  /// Ilovadagi hujjat identifikatori saqlanmagan bo‘lsa, avval qidiradi.
+  /// [false] qaytadi, agar server yangilanishi bajarilmasa.
+  Future<bool> cancelMyActiveSos() async {
+    _myActiveSosDocumentId ??= await _latestActiveSosIdForCurrentUser();
+    final id = _myActiveSosDocumentId;
+    if (id == null) {
+      return false;
     }
+    final ok = await _deactivateSosOnServer(id);
+    if (ok) {
+      if (_myActiveSosDocumentId == id) {
+        _myActiveSosDocumentId = null;
+        notifyListeners();
+      }
+    }
+    return ok;
   }
 
   Future<void> _trySendSms({
@@ -155,18 +202,17 @@ class SosService extends ChangeNotifier {
     }
   }
 
-  Future<void> clearSos(String signalId) async {
+  /// Faqat server `isActive: false` qilgandagina mahalliy holat tozalanadi.
+  Future<bool> _deactivateSosOnServer(String signalId) async {
     try {
       await _firestore
           .collection('emergency_signals')
           .doc(signalId)
           .update({'isActive': false});
+      return true;
     } catch (e) {
       debugPrint('Error clearing SOS: $e');
-    }
-    if (_myActiveSosDocumentId == signalId) {
-      _myActiveSosDocumentId = null;
-      notifyListeners();
+      return false;
     }
   }
 

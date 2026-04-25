@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../services/auth_service.dart';
 import '../services/security_provider.dart';
 import '../services/sos_service.dart';
 import '../screens/lock_screen.dart';
@@ -19,6 +21,7 @@ class SecurityWrapper extends StatefulWidget {
 
 class _SecurityWrapperState extends State<SecurityWrapper> with WidgetsBindingObserver {
   bool _isBackgrounded = false;
+  AuthService? _auth;
 
   @override
   void initState() {
@@ -33,11 +36,22 @@ class _SecurityWrapperState extends State<SecurityWrapper> with WidgetsBindingOb
         }
       };
       sos.startAutoFlush();
+      unawaited(sos.syncActiveSosFromServer());
+      _auth = context.read<AuthService>();
+      _auth!.addListener(_onAuthChanged);
     });
+  }
+
+  void _onAuthChanged() {
+    if (!mounted) return;
+    if (context.read<AuthService>().isAuthenticated) {
+      unawaited(context.read<SosService>().syncActiveSosFromServer());
+    }
   }
 
   @override
   void dispose() {
+    _auth?.removeListener(_onAuthChanged);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
