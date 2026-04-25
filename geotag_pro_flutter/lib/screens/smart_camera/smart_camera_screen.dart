@@ -22,6 +22,7 @@ import '../../utils/geo_orientation.dart';
 import '../../utils/geology_utils.dart';
 import '../../utils/image_utils.dart';
 import '../../utils/status_semantics.dart';
+import '../../widgets/common/draggable_fab.dart';
 import '../components/ar_strike_dip_overlay.dart';
 
 import 'components/camera_bottom_controls.dart';

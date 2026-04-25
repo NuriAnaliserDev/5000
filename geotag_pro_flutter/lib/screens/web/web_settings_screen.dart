@@ -88,6 +88,7 @@ class _WebSettingsScreenState extends State<WebSettingsScreen> {
                         await auth.logout();
                         if (context.mounted) {
                           settings.clearLocalDisplayName();
+                          settings.forgetAuth();
                         }
                       },
                     ),

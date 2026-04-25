@@ -31,14 +31,17 @@ class DashboardSliverAppBar extends StatelessWidget {
     final dateStr = DateFormat('EEEE, d MMMM').format(DateTime.now());
 
     return SliverAppBar(
-      expandedHeight: 120,
+      expandedHeight: 132,
+      collapsedHeight: 64,
+      toolbarHeight: 64,
       floating: false,
       pinned: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
       flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
+        titlePadding: const EdgeInsets.only(left: 16, bottom: 12, right: 56),
         title: Column(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             FittedBox(
@@ -49,17 +52,20 @@ class DashboardSliverAppBar extends StatelessWidget {
                 maxLines: 1,
                 style: const TextStyle(
                   fontWeight: FontWeight.w900,
-                  fontSize: 17,
+                  fontSize: 16,
                   letterSpacing: -0.5,
+                  height: 1.1,
                 ),
               ),
             ),
+            const SizedBox(height: 2),
             Text(
               dateStr,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 10,
+                height: 1.0,
                 color: isDark ? Colors.white54 : Colors.grey,
               ),
             ),

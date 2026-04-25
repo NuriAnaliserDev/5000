@@ -249,7 +249,9 @@ class AdminScreen extends StatelessWidget {
             onTap: () async {
               await context.read<AuthService>().logout();
               if (!context.mounted) return;
-              context.read<SettingsController>().clearLocalDisplayName();
+              final s = context.read<SettingsController>();
+              s.clearLocalDisplayName();
+              s.forgetAuth();
               Navigator.of(context).pushNamedAndRemoveUntil(
                 AppRouter.auth,
                 (r) => false,

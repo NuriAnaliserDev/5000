@@ -127,6 +127,18 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Muvaffaqiyatli kirish/register keyin chaqiring — [SettingsController] ga
+  /// oxirgi sessiyani eslatadi. [SplashScreen] oflayn ham bu ma'lumotdan
+  /// foydalanib foydalanuvchini darhol dashboardga olib kiradi.
+  static Map<String, String?>? authSnapshot(User? user) {
+    if (user == null) return null;
+    return {
+      'uid': user.uid,
+      'email': user.email,
+      'displayName': user.displayName,
+    };
+  }
+
   static bool _isAuthConfigOrRecaptchaError(FirebaseAuthException e) {
     final m = (e.message ?? '').toLowerCase();
     return m.contains('configuration_not_found') ||

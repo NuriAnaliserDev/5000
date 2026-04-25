@@ -27,6 +27,8 @@ import '../utils/linework_utils.dart';
 import '../l10n/app_strings.dart';
 import '../utils/app_nav_bar.dart';
 import '../utils/app_localizations.dart';
+import '../widgets/common/draggable_fab.dart';
+import '../widgets/map/map_search_sheet.dart';
 import 'cross_section_screen.dart';
 
 // Components
@@ -69,6 +71,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
 
   bool _isDrawingMode = false;
   List<LatLng> _drawingPoints = [];
+  final List<LatLng> _redoStack = [];
+  bool _isEraserMode = false;
   String _selectedLineType = 'fault';
   bool _isCurvedMode = false;
   double _projectionDepth = 0;
@@ -347,10 +351,11 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
               stationsCount: stations.length,
               settings: settings,
               onStylePressed: () => _showMapStyleSelector(context, settings),
-              onSearchPressed: () {},
+              onSearchPressed: _openSearch,
             ),
             if (currentTrack != null) MapLiveTrackStats(track: trackSvc.currentTrack!),
             _buildSideControls(),
+            _buildMyLocationFab(currentPos),
             MapLineworkControls(
               isDrawingMode: _isDrawingMode,
               selectedLineType: _selectedLineType,
@@ -358,18 +363,55 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
               isSnapEnabled: _isSnapEnabled,
               drawingPointsCount: _drawingPoints.length,
               drawButtonKey: _drawButtonKey,
+              canRedo: _redoStack.isNotEmpty,
+              isEraserMode: _isEraserMode,
               onStartDrawing: () => setState(() {
                 _isDrawingMode = true;
                 _isSliceMode = false;
                 _isStructurePlaceMode = false;
+                _isEraserMode = false;
                 _drawingPoints.clear();
+                _redoStack.clear();
               }),
               onLineTypeChanged: (type) => setState(() => _selectedLineType = type),
               onToggleCurve: () => setState(() => _isCurvedMode = !_isCurvedMode),
               onToggleSnap: () => setState(() => _isSnapEnabled = !_isSnapEnabled),
-              onUndo: () => setState(() { if (_drawingPoints.isNotEmpty) _drawingPoints.removeLast(); }),
-              onCancel: () => setState(() { _isDrawingMode = false; _drawingPoints.clear(); }),
+              onUndo: () => setState(() {
+                if (_drawingPoints.isNotEmpty) {
+                  _redoStack.add(_drawingPoints.removeLast());
+                }
+              }),
+              onRedo: () => setState(() {
+                if (_redoStack.isNotEmpty) {
+                  _drawingPoints.add(_redoStack.removeLast());
+                }
+              }),
+              onCancel: () => setState(() {
+                _isDrawingMode = false;
+                _drawingPoints.clear();
+                _redoStack.clear();
+              }),
               onSave: _saveDrawing,
+              onToggleEraser: () => setState(() {
+                _isEraserMode = !_isEraserMode;
+                if (_isEraserMode) {
+                  _isDrawingMode = false;
+                  _isSliceMode = false;
+                  _isStructurePlaceMode = false;
+                  _drawingPoints.clear();
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'O‘chirish rejimi: chiziqni bosing — o‘chiradi. Qayta bosing — chiqadi.',
+                        ),
+                        behavior: SnackBarBehavior.floating,
+                        duration: Duration(seconds: 3),
+                      ),
+                    );
+                  }
+                }
+              }),
             ),
             MapProjectionControls(
               showProjections: _showProjections,
@@ -462,83 +504,201 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
   }
 
   Widget _buildSideControls() {
+    // Chizish / kesma / struktura rejimlarida side-control FAB larni yashiramiz,
+    // chunki [MapLineworkControls] o‘z paneli va tugmalarini ochib ustiga chiqib
+    // qolmasin. Natijada panellar bir-birini bosib ketmaydi.
+    final inDrawMode = _isDrawingMode || _isSliceMode || _isStructurePlaceMode;
     final s = GeoFieldStrings.of(context);
-    return Stack(
-      children: [
-        Positioned(
-          left: 8,
-          bottom: 230,
-          child: Material(
-            elevation: 6,
-            borderRadius: BorderRadius.circular(28),
-            color: _isStructurePlaceMode ? Colors.amber.shade800 : const Color(0xFF1A2028),
-            child: IconButton(
-              tooltip: s?.map_structure_mode_tooltip ?? 'Structure',
-              onPressed: () {
-                setState(() {
-                  _isStructurePlaceMode = !_isStructurePlaceMode;
-                  if (_isStructurePlaceMode) {
-                    _isDrawingMode = false;
-                    _isSliceMode = false;
-                    _drawingPoints = [];
-                  }
-                });
-                if (_isStructurePlaceMode) {
-                  final h = s?.map_structure_mode_hint;
-                  if (h != null && mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(h),
-                        behavior: SnackBarBehavior.floating,
-                        duration: const Duration(seconds: 5),
-                      ),
-                    );
-                  }
-                }
-              },
-              icon: Icon(
-                Icons.architecture,
-                color: _isStructurePlaceMode ? Colors.white : Colors.amber.shade200,
+    if (inDrawMode) {
+      // Chizish rejimida faqat struktura FAB ni qoldiramiz (chap pastda).
+      return DraggableFabLayer(
+        children: [
+          DraggableFab(
+            screen: 'map',
+            id: 'structure',
+            defaultOffset: const Offset(8, -230),
+            size: const Size(52, 52),
+            child: Material(
+              elevation: 6,
+              borderRadius: BorderRadius.circular(28),
+              color: _isStructurePlaceMode
+                  ? Colors.amber.shade800
+                  : const Color(0xFF1A2028),
+              child: IconButton(
+                tooltip: s?.map_structure_mode_tooltip ?? 'Structure',
+                onPressed: _toggleStructureMode,
+                icon: Icon(
+                  Icons.architecture,
+                  color: _isStructurePlaceMode
+                      ? Colors.white
+                      : Colors.amber.shade200,
+                ),
               ),
             ),
           ),
-        ),
-        Positioned(
-          right: 16,
-          bottom: 310,
-          child: MapSliceButton(
-            isSliceMode: _isSliceMode,
-            onPressed: () {
-              setState(() {
-                _isSliceMode = !_isSliceMode;
-                _isDrawingMode = false;
-                _isStructurePlaceMode = false;
-                _drawingPoints = [];
-              });
-              if (_isSliceMode) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.locRead('select_two_points'))));
-            },
+        ],
+      );
+    }
+
+    return DraggableFabLayer(
+      children: [
+        DraggableFab(
+          screen: 'map',
+          id: 'structure',
+          defaultOffset: const Offset(8, -230),
+          size: const Size(52, 52),
+          child: Material(
+            elevation: 6,
+            borderRadius: BorderRadius.circular(28),
+            color: const Color(0xFF1A2028),
+            child: IconButton(
+              tooltip: s?.map_structure_mode_tooltip ?? 'Structure',
+              onPressed: _toggleStructureMode,
+              icon: Icon(Icons.architecture, color: Colors.amber.shade200),
+            ),
           ),
         ),
-        Positioned(
-          right: 16,
-          bottom: 240,
+        DraggableFab(
+          screen: 'map',
+          id: 'slice',
+          defaultOffset: const Offset(-16, -310),
+          size: const Size(48, 48),
+          child: MapSliceButton(
+            isSliceMode: _isSliceMode,
+            onPressed: _toggleSliceMode,
+          ),
+        ),
+        DraggableFab(
+          screen: 'map',
+          id: 'sos',
+          defaultOffset: const Offset(-16, -240),
+          size: const Size(56, 62),
           child: MapSosButton(currentCenter: LatLng(_centerLat, _centerLng)),
         ),
-        Positioned(
-          right: 16,
-          bottom: 160,
+        DraggableFab(
+          screen: 'map',
+          id: 'three_d',
+          defaultOffset: const Offset(-16, -160),
+          size: const Size(56, 56),
           child: MapThreeDButton(centerPoint: LatLng(_centerLat, _centerLng)),
         ),
-        const Positioned(
-          right: 16,
-          bottom: 80,
+        const DraggableFab(
+          screen: 'map',
+          id: 'track',
+          defaultOffset: Offset(-16, -80),
+          size: Size(56, 56),
           child: MapTrackFab(),
         ),
       ],
     );
   }
 
+  void _toggleStructureMode() {
+    final s = GeoFieldStrings.of(context);
+    setState(() {
+      _isStructurePlaceMode = !_isStructurePlaceMode;
+      if (_isStructurePlaceMode) {
+        _isDrawingMode = false;
+        _isSliceMode = false;
+        _drawingPoints = [];
+      }
+    });
+    if (_isStructurePlaceMode) {
+      final h = s?.map_structure_mode_hint;
+      if (h != null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(h),
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+    }
+  }
+
+  void _toggleSliceMode() {
+    setState(() {
+      _isSliceMode = !_isSliceMode;
+      _isDrawingMode = false;
+      _isStructurePlaceMode = false;
+      _drawingPoints = [];
+    });
+    if (_isSliceMode) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.locRead('select_two_points'))),
+      );
+    }
+  }
+
+  Widget _buildMyLocationFab(dynamic currentPos) {
+    return DraggableFabLayer(
+      children: [
+        DraggableFab(
+          screen: 'map',
+          id: 'my_location',
+          defaultOffset: const Offset(-16, -400),
+          size: const Size(48, 48),
+          child: Tooltip(
+            message: 'Mening joyim',
+            child: FloatingActionButton.small(
+              heroTag: 'my_location_fab',
+              backgroundColor: Colors.white,
+              onPressed: () => _goToMyLocation(currentPos),
+              child: const Icon(Icons.my_location, color: Color(0xFF1976D2)),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _goToMyLocation(dynamic pos) async {
+    LatLng? target;
+    if (pos != null) {
+      target = LatLng(pos.latitude, pos.longitude);
+    } else {
+      final loc = context.read<LocationService>();
+      final p = loc.currentPosition;
+      if (p != null) {
+        target = LatLng(p.latitude, p.longitude);
+      }
+    }
+    if (target == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.locRead('gps_not_locked')),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      return;
+    }
+    _mapController.move(target, math.max(_mapController.camera.zoom, 15));
+    HapticFeedback.selectionClick();
+  }
+
+  Future<void> _openSearch() async {
+    final result = await showModalBottomSheet<LatLng>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const FractionallySizedBox(
+        heightFactor: 0.85,
+        child: MapSearchSheet(),
+      ),
+    );
+    if (result != null && mounted) {
+      _mapController.move(result, math.max(_mapController.camera.zoom, 13));
+    }
+  }
+
   void _handleMapTap(LatLng point, BoundaryService boundarySvc) {
+    if (_isEraserMode) {
+      _eraseNear(point);
+      return;
+    }
     if (_isVertexEditMode && _editingPolygonId != null) {
       _moveVertex(point);
     } else if (_isVertexEditMode && _editingPolygonId == null) {
@@ -556,7 +716,10 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
         final snapped = LineworkUtils.findNearestSnapPoint(point, stations.map((s) => LatLng(s.lat, s.lng)).toList());
         if (snapped != null) { finalPoint = snapped; HapticFeedback.lightImpact(); }
       }
-      setState(() => _drawingPoints.add(finalPoint));
+      setState(() {
+        _drawingPoints.add(finalPoint);
+        _redoStack.clear();
+      });
       if (!mounted) return;
       if (_drawingPoints.length == 1) {
         final h = GeoFieldStrings.of(context)?.draw_first_point_hint;
@@ -587,6 +750,30 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
         unawaited(_confirmDeleteLine(hit));
       }
     }
+  }
+
+  /// Eraser rejimida xarita bosilganda eng yaqin geologik chiziqni topib,
+  /// foydalanuvchidan tasdiqlab o‘chiradi.
+  Future<void> _eraseNear(LatLng point) async {
+    final lineRepo = context.read<GeologicalLineRepository>();
+    final tol = _lineHitToleranceMeters(point);
+    final hit = LineworkUtils.findGeologicalLineNear(
+      point,
+      lineRepo.lines,
+      maxDistanceMeters: tol,
+    );
+    if (hit != null) {
+      await _confirmDeleteLine(hit);
+      return;
+    }
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Yaqin atrofda chiziq yo‘q'),
+        behavior: SnackBarBehavior.floating,
+        duration: Duration(seconds: 1),
+      ),
+    );
   }
 
   /// Chiziq «bosish» radiusi — ekranda ~28px atrofida (masshtabga bog‘liq).

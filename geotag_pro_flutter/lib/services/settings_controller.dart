@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart' show Offset;
 import 'package:hive/hive.dart';
 
 import 'hive_db.dart';
@@ -233,6 +234,70 @@ class SettingsController extends ChangeNotifier {
     } else {
       _box.put(_customMbtilesPathKey, value);
     }
+    notifyListeners();
+  }
+
+  // =========================================================================
+  // Floating FAB pozitsiyalari — har bir tugma (id) uchun foydalanuvchi qo‘l bilan
+  // joylashtirgan (Offset) koordinatasi. Uzun bosganda FAB olinadi, qo‘yganda
+  // yangi joyda saqlanadi.
+  // Format: `fab_pos_<screen>_<id>_x` va `_y`
+  // =========================================================================
+
+  Offset? getFabPosition(String screen, String id) {
+    final x = _box.get('fab_pos_${screen}_${id}_x') as double?;
+    final y = _box.get('fab_pos_${screen}_${id}_y') as double?;
+    if (x == null || y == null) return null;
+    return Offset(x, y);
+  }
+
+  void setFabPosition(String screen, String id, Offset offset) {
+    _box.put('fab_pos_${screen}_${id}_x', offset.dx);
+    _box.put('fab_pos_${screen}_${id}_y', offset.dy);
+    notifyListeners();
+  }
+
+  void resetFabPositions(String screen) {
+    final keys = _box.keys
+        .where((k) => k is String && k.startsWith('fab_pos_${screen}_'))
+        .toList();
+    for (final k in keys) {
+      _box.delete(k);
+    }
+    notifyListeners();
+  }
+
+  // =========================================================================
+  // Oxirgi muvaffaqiyatli sessiyani Hive'da eslab qolish.
+  // Firebase Auth'ning ichki persistenti ba'zan sekin tiklanadi yoki internet
+  // yo‘q paytda foydalanuvchini null deb qaytaradi. Ushbu belgilar bilan biz
+  // splash'da vaqtincha "kirishi mumkin" deb bilamiz va tezda dashboardga
+  // o‘tkazamiz, Firebase keyinroq tasdiqlab qo‘ygach sinxronlanadi.
+  // =========================================================================
+
+  static const _lastAuthUidKey = 'lastAuthUid';
+  static const _lastAuthEmailKey = 'lastAuthEmail';
+  static const _lastAuthNameKey = 'lastAuthName';
+
+  String? get lastAuthUid => _box.get(_lastAuthUidKey) as String?;
+  String? get lastAuthEmail => _box.get(_lastAuthEmailKey) as String?;
+  String? get lastAuthName => _box.get(_lastAuthNameKey) as String?;
+
+  void rememberAuth({
+    required String uid,
+    String? email,
+    String? displayName,
+  }) {
+    _box.put(_lastAuthUidKey, uid);
+    if (email != null) _box.put(_lastAuthEmailKey, email);
+    if (displayName != null) _box.put(_lastAuthNameKey, displayName);
+    notifyListeners();
+  }
+
+  void forgetAuth() {
+    _box.delete(_lastAuthUidKey);
+    _box.delete(_lastAuthEmailKey);
+    _box.delete(_lastAuthNameKey);
     notifyListeners();
   }
 }

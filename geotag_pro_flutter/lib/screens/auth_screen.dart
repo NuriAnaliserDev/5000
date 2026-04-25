@@ -85,6 +85,11 @@ class _AuthScreenState extends State<AuthScreen> {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       settings.setLocalDisplayName(AuthService.displayNameFromUser(user));
+      settings.rememberAuth(
+        uid: user.uid,
+        email: user.email,
+        displayName: AuthService.displayNameFromUser(user),
+      );
     }
     HapticFeedback.lightImpact();
     setState(() => _loading = false);

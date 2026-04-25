@@ -116,7 +116,9 @@ class WebSidebar extends StatelessWidget {
               onPressed: () async {
                 await context.read<AuthService>().logout();
                 if (context.mounted) {
-                  context.read<SettingsController>().clearLocalDisplayName();
+                  final s = context.read<SettingsController>();
+                  s.clearLocalDisplayName();
+                  s.forgetAuth();
                 }
               },
             ),

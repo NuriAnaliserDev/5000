@@ -9,14 +9,18 @@ class MapLineworkControls extends StatelessWidget {
   final bool isSnapEnabled;
   final int drawingPointsCount;
   final GlobalKey drawButtonKey;
-  
+  final bool canRedo;
+  final bool isEraserMode;
+
   final VoidCallback onStartDrawing;
   final ValueChanged<String> onLineTypeChanged;
   final VoidCallback onToggleCurve;
   final VoidCallback onToggleSnap;
   final VoidCallback onUndo;
+  final VoidCallback onRedo;
   final VoidCallback onCancel;
   final VoidCallback onSave;
+  final VoidCallback onToggleEraser;
 
   const MapLineworkControls({
     super.key,
@@ -26,13 +30,17 @@ class MapLineworkControls extends StatelessWidget {
     required this.isSnapEnabled,
     required this.drawingPointsCount,
     required this.drawButtonKey,
+    required this.canRedo,
+    required this.isEraserMode,
     required this.onStartDrawing,
     required this.onLineTypeChanged,
     required this.onToggleCurve,
     required this.onToggleSnap,
     required this.onUndo,
+    required this.onRedo,
     required this.onCancel,
     required this.onSave,
+    required this.onToggleEraser,
   });
 
   @override
@@ -41,13 +49,31 @@ class MapLineworkControls extends StatelessWidget {
       return Positioned(
         right: 10,
         top: 92,
-        child: FloatingActionButton(
-          key: drawButtonKey,
-          heroTag: 'drawFAB',
-          mini: true,
-          backgroundColor: Colors.white,
-          onPressed: onStartDrawing,
-          child: const Icon(Icons.edit_road, color: Colors.black87),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            FloatingActionButton(
+              key: drawButtonKey,
+              heroTag: 'drawFAB',
+              mini: true,
+              backgroundColor: Colors.white,
+              onPressed: onStartDrawing,
+              child: const Icon(Icons.edit_road, color: Colors.black87),
+            ),
+            const SizedBox(height: 10),
+            FloatingActionButton(
+              heroTag: 'eraserFAB',
+              mini: true,
+              backgroundColor:
+                  isEraserMode ? Colors.redAccent : Colors.white,
+              onPressed: onToggleEraser,
+              tooltip: 'O‘chirish rejimi',
+              child: Icon(
+                Icons.auto_fix_off,
+                color: isEraserMode ? Colors.white : Colors.black87,
+              ),
+            ),
+          ],
         ),
       );
     }
@@ -91,22 +117,44 @@ class MapLineworkControls extends StatelessWidget {
           const SizedBox(height: 10),
           Tooltip(
             message: GeoFieldStrings.of(context)?.map_draw_undo_caption ?? 'Undo',
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                FloatingActionButton(
-                  heroTag: 'undoFAB',
-                  mini: true,
-                  backgroundColor: Colors.grey.shade800,
-                  onPressed: onUndo,
-                  child: const Icon(Icons.undo, color: Colors.white),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  GeoFieldStrings.of(context)?.map_draw_undo_caption ?? '',
-                  style: const TextStyle(color: Colors.white54, fontSize: 9),
-                ),
-              ],
+            child: FloatingActionButton(
+              heroTag: 'undoFAB',
+              mini: true,
+              backgroundColor: Colors.grey.shade800,
+              onPressed: drawingPointsCount == 0 ? null : onUndo,
+              child: Icon(
+                Icons.undo,
+                color: drawingPointsCount == 0 ? Colors.white38 : Colors.white,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Tooltip(
+            message: 'Redo',
+            child: FloatingActionButton(
+              heroTag: 'redoFAB',
+              mini: true,
+              backgroundColor: Colors.grey.shade700,
+              onPressed: canRedo ? onRedo : null,
+              child: Icon(
+                Icons.redo,
+                color: canRedo ? Colors.white : Colors.white38,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Tooltip(
+            message: 'O‘chirish rejimi',
+            child: FloatingActionButton(
+              heroTag: 'eraserDrawFAB',
+              mini: true,
+              backgroundColor:
+                  isEraserMode ? Colors.redAccent : Colors.grey.shade600,
+              onPressed: onToggleEraser,
+              child: Icon(
+                Icons.auto_fix_off,
+                color: Colors.white,
+              ),
             ),
           ),
           const SizedBox(height: 8),

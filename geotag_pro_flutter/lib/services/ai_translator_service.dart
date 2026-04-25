@@ -13,7 +13,7 @@ class AiTranslatorService {
 
   AiTranslatorService() {
     _model = FirebaseAI.vertexAI().generativeModel(
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash',
       generationConfig: GenerationConfig(
         responseMimeType: 'application/json',
       ),

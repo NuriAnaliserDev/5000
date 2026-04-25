@@ -47,19 +47,21 @@ class _SplashScreenState extends State<SplashScreen> {
         setState(() {
           _statusLabel = 'Sessiya...';
         });
-        // Saqlangan kirish: ba'zida [currentUser] keyinroq to'ldiriladi; authState birinchi hodisa kutamiz
+        // Saqlangan kirish: ba'zida [currentUser] keyinroq to'ldiriladi; authState
+        // birinchi hodisasini 8 sekundgacha kutamiz (internet sekin bo‘lishi mumkin).
         try {
           await FirebaseAuth.instance
               .authStateChanges()
               .first
-              .timeout(const Duration(seconds: 4));
+              .timeout(const Duration(seconds: 8));
         } catch (_) {
           // tarmoq yoki vaqt — davom etamiz
         }
-        // Ba'zi qurilmalarda birinchi hodisa null, keyin saqlangan foydalanuvchi paydo bo‘ladi
-        for (int i = 0; i < 25; i++) {
+        // Ba'zi qurilmalarda birinchi hodisa null, keyin saqlangan foydalanuvchi paydo bo‘ladi.
+        // Jami ~3 sekund kutamiz: 100 * 30ms.
+        for (int i = 0; i < 100; i++) {
           if (FirebaseAuth.instance.currentUser != null) break;
-          await Future<void>.delayed(const Duration(milliseconds: 60));
+          await Future<void>.delayed(const Duration(milliseconds: 30));
         }
       }
 
@@ -138,23 +140,47 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void _goNext() {
     final settings = context.read<SettingsController>();
-    // Provider'dagi [AuthService] ba'zida hali [null]; marshrut uchun to'g'ridan-to'g'ri Firebase
     final user = FirebaseAuth.instance.currentUser;
+    final rememberedUid = settings.lastAuthUid;
+
     if (user != null) {
       final name = AuthService.displayNameFromUser(user);
       if (settings.currentUserName != name) {
         settings.setLocalDisplayName(name);
       }
-    }
-    if (user != null) {
+      settings.rememberAuth(
+        uid: user.uid,
+        email: user.email,
+        displayName: name,
+      );
       if (settings.isFirstRun) {
         Navigator.pushReplacementNamed(context, AppRouter.onboarding);
       } else {
         Navigator.pushReplacementNamed(context, AppRouter.dashboard);
       }
-    } else {
-      Navigator.pushReplacementNamed(context, AppRouter.auth);
+      return;
     }
+
+    // Firebase hali joriy foydalanuvchini tiklay olmadi (internet sekin yoki
+    // tokenni yuklashda kechikish). Agar oxirgi sessiya Hive'da eslab qolingan
+    // bo‘lsa — foydalanuvchi allaqachon kirgan, uni dashboardga qaytaramiz.
+    // Firebase keyin o‘zi tiklanadi (authStateChanges orqali).
+    if (rememberedUid != null && rememberedUid.isNotEmpty) {
+      final name = settings.lastAuthName;
+      if (name != null &&
+          name.isNotEmpty &&
+          settings.currentUserName != name) {
+        settings.setLocalDisplayName(name);
+      }
+      if (settings.isFirstRun) {
+        Navigator.pushReplacementNamed(context, AppRouter.onboarding);
+      } else {
+        Navigator.pushReplacementNamed(context, AppRouter.dashboard);
+      }
+      return;
+    }
+
+    Navigator.pushReplacementNamed(context, AppRouter.auth);
   }
 
   @override

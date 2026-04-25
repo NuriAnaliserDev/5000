@@ -37,9 +37,7 @@ class CameraBottomControls extends StatelessWidget {
   Widget build(BuildContext context) {
     final pos = context.watch<LocationService>().currentPosition;
     final voiceHint = GeoFieldStrings.of(context)?.camera_voice_mic_hint ?? '';
-    return Positioned(
-      left: 0, right: 0, bottom: 12,
-      child: Column(
+    return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (voiceHint.isNotEmpty && !isRecording)
@@ -136,7 +134,6 @@ class CameraBottomControls extends StatelessWidget {
             ],
           ),
         ],
-      ),
-    );
+      );
   }
 }

@@ -55,12 +55,12 @@ class CameraSideControls extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenH = MediaQuery.of(context).size.height;
-    final maxMenuHeight = (screenH - 320).clamp(220.0, 520.0).toDouble();
+    // Maks balandlikni qat‘iy kichikroq qilamiz, shunday qilib pastki shutter va
+    // bottom controls bilan ustma-ust tushmaydi (ilgari 520 edi, o‘ta uzun edi).
+    final maxMenuHeight = (screenH - 420).clamp(180.0, 380.0).toDouble();
     final showAdvancedButtons = cameraMode == CameraMode.geological;
 
-    return Positioned(
-      right: 12, top: 170,
-      child: AnimatedBuilder(
+    return AnimatedBuilder(
         animation: menuAnimation,
         builder: (context, child) {
           return AppCard(
@@ -174,8 +174,7 @@ class CameraSideControls extends StatelessWidget {
             ),
           );
         },
-      ),
-    );
+      );
   }
 
   Widget _sideBtn({required IconData icon, required String label, required VoidCallback onTap, bool active = false}) {
