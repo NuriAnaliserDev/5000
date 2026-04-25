@@ -15,6 +15,7 @@ class MapLayerDrawer extends StatelessWidget {
   final VoidCallback onToggleVertexEdit;
   final VoidCallback onImportGis;
   final VoidCallback onOpenExportArchive;
+  final VoidCallback? onExportGeoJson;
   final GlobalKey? mapLayersToggleTutorialKey;
 
   const MapLayerDrawer({
@@ -31,6 +32,7 @@ class MapLayerDrawer extends StatelessWidget {
     required this.onToggleVertexEdit,
     required this.onImportGis,
     required this.onOpenExportArchive,
+    this.onExportGeoJson,
     this.mapLayersToggleTutorialKey,
   });
 
@@ -108,6 +110,19 @@ class MapLayerDrawer extends StatelessWidget {
                       style: const TextStyle(fontSize: 10, color: Color(0xFF90CAF9), fontWeight: FontWeight.bold),
                     ),
                   ),
+                  if (onExportGeoJson != null)
+                    TextButton.icon(
+                      onPressed: onExportGeoJson,
+                      icon: const Icon(Icons.map, size: 14, color: Color(0xFF80CBC4)),
+                      label: Text(
+                        context.loc('map_export_geojson'),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Color(0xFF80CBC4),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   Text(
                     context.loc('map_offline_tiles_hint'),
                     style: const TextStyle(color: Colors.white38, fontSize: 8, height: 1.25),

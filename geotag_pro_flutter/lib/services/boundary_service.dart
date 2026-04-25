@@ -7,6 +7,7 @@ import 'package:file_picker/file_picker.dart';
 import '../models/boundary_polygon.dart';
 import '../utils/parsers/kml_parser.dart';
 import '../utils/parsers/dxf_parser.dart';
+import '../utils/parsers/geojson_import_parser.dart';
 
 class BoundaryImportResult {
   final String extension;
@@ -150,7 +151,7 @@ class BoundaryService extends ChangeNotifier {
     try {
       FilePickerResult? result = await FilePicker.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['kml', 'dxf'],
+        allowedExtensions: ['kml', 'dxf', 'geojson', 'json'],
         withData: true,
       );
 
@@ -168,6 +169,10 @@ class BoundaryService extends ChangeNotifier {
         newPolys = KmlParser.parse(content, filename);
       } else if (ext == 'dxf') {
         newPolys = DxfParser.parse(content, filename);
+      } else if (ext == 'geojson' || ext == 'json') {
+        newPolys = GeojsonImportParser.parse(content, filename);
+      } else {
+        newPolys = [];
       }
 
       int imported = 0;

@@ -8,6 +8,10 @@ class MapTopBar extends StatelessWidget {
   final SettingsController settings;
   final VoidCallback onStylePressed;
   final VoidCallback onSearchPressed;
+  /// Masalan: Pro maydon (field workshop) ekranida sarlavha va orqaga chiqish.
+  final Widget? leading;
+  final String? titleOverride;
+  final String? secondaryLineOverride;
 
   const MapTopBar({
     super.key,
@@ -15,6 +19,9 @@ class MapTopBar extends StatelessWidget {
     required this.settings,
     required this.onStylePressed,
     required this.onSearchPressed,
+    this.leading,
+    this.titleOverride,
+    this.secondaryLineOverride,
   });
 
   @override
@@ -27,21 +34,27 @@ class MapTopBar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  settings.currentProject,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                Text(
-                  '$stationsCount ${context.loc('stations')}',
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-              ],
+            if (leading != null) ...[leading!, const SizedBox(width: 4)],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    titleOverride ?? settings.currentProject,
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    secondaryLineOverride ?? '$stationsCount ${context.loc('stations')}',
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
-            const Spacer(),
             IconButton(
               icon: const Icon(Icons.layers_outlined, color: Color(0xFF1976D2)),
               onPressed: onStylePressed,

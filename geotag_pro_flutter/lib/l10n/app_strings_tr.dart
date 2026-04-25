@@ -318,6 +318,13 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get ai_vertex_open_console => 'Google Cloud API sayfasını aç';
 
   @override
+  String get ai_vertex_quota_billing_title => 'AI limiti veya faturalandırma';
+
+  @override
+  String get ai_vertex_quota_billing_body =>
+      'Vertex / Gemini ücretsiz kotasından sonra Cloud faturalandırma gerekebilir. Google Cloud’da faturalandırma, kotalar ve API kullanımını kontrol edin veya daha sonra tekrar deneyin.';
+
+  @override
   String get draw_first_point_hint =>
       'İlk nokta eklendi. Çizgiye devam için tekrar dokunun.';
 
@@ -336,7 +343,7 @@ class GeoFieldStringsTr extends GeoFieldStrings {
       'Çevrimdışı: veri cihazda kalır; internet gelince yüklenir. Kimin ne göreceği Firestore kurallarına ve projeye bağlıdır.';
 
   @override
-  String get map_layer_import_gis => 'KML/DXF içe aktar (GIS)';
+  String get map_layer_import_gis => 'KML / DXF / GeoJSON içe aktar (GIS)';
 
   @override
   String get map_layer_export_data => 'Dışa aktar (arşiv)';
@@ -351,6 +358,55 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   @override
   String get field_workshop_banner =>
       'Katman, GIS içe aktarma, çizim ve saha araçları tek ekranda.';
+
+  @override
+  String get map_measure_mode => 'Ölç (mesafe ve alan)';
+
+  @override
+  String get map_measure_hint =>
+      'Haritaya dokunun: 2 nokta = mesafe, 3+ = poligon alanı.';
+
+  @override
+  String get map_measure_clear => 'Ölçümü temizle';
+
+  @override
+  String get map_measure_bearing => 'Yön (azimut)';
+
+  @override
+  String get map_measure_angle => 'Son noktadaki açı (°)';
+
+  @override
+  String get map_export_geojson => 'Haritayı GeoJSON olarak dışa aktar';
+
+  @override
+  String get field_workshop_stereonet => 'Stereonet / analiz';
+
+  @override
+  String get field_utm_tap => 'Harita merkezi UTM (pano)';
+
+  @override
+  String get line_action_edit => 'Çizgi özellikleri';
+
+  @override
+  String get line_property_title => 'Çizgi özellikleri';
+
+  @override
+  String get line_property_name => 'Ad';
+
+  @override
+  String get line_property_notes => 'Not';
+
+  @override
+  String get field_workshop_checklist => 'Saha kontrol listesi';
+
+  @override
+  String get field_workshop_ch1 => 'Temel harita ve GIS katmanları';
+
+  @override
+  String get field_workshop_ch2 => 'KML / DXF / GeoJSON içe aktarma';
+
+  @override
+  String get field_workshop_ch3 => 'Çizim, ölçüm, gerekirse dışa aktarma';
 
   @override
   String get map_offline_tiles_hint =>
@@ -1020,6 +1076,16 @@ class GeoFieldStringsTr extends GeoFieldStrings {
 
   @override
   String get sos_cancelled => 'SOS sonlandı';
+
+  @override
+  String get sos_login_required =>
+      'SOS göndermek için giriş yapın. Hesapsız sinyal gönderilmez.';
+
+  @override
+  String get sos_queue_cancel => 'Kuyruktaki SOS’u iptal et (çevrimdışı)';
+
+  @override
+  String get sos_queue_cleared => 'Çevrimdışı SOS kuyruğu temizlendi';
 
   @override
   String get map_follow_gps => 'Beni takip et: haritayı GPS’e kilitli tutar';

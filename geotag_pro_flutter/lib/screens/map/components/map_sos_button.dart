@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -14,6 +15,17 @@ class MapSosButton extends StatelessWidget {
   Future<void> _resolveGpsAndSend(
     BuildContext context,
   ) async {
+    if (FirebaseAuth.instance.currentUser == null) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.locRead('sos_login_required')),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      return;
+    }
     final settings = context.read<SettingsController>();
     final sos = context.read<SosService>();
     final loc = context.read<LocationService>();
@@ -22,9 +34,7 @@ class MapSosButton extends StatelessWidget {
     HapticFeedback.heavyImpact();
     await loc.refreshLocation();
     Position? pos = loc.currentPosition;
-    if (pos == null) {
-      pos = await Geolocator.getLastKnownPosition();
-    }
+    pos ??= await Geolocator.getLastKnownPosition();
     if (pos == null) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -130,6 +140,39 @@ class MapSosButton extends StatelessWidget {
                     color: Color(0xFFC62828),
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+        if (context.watch<SosService>().lastSendQueued) ...[
+          const SizedBox(height: 4),
+          Material(
+            color: Colors.amber.shade100,
+            borderRadius: BorderRadius.circular(8),
+            child: InkWell(
+              onTap: () async {
+                HapticFeedback.lightImpact();
+                await context.read<SosService>().clearQueuedSignals();
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(context.locRead('sos_queue_cleared')),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                child: Text(
+                  context.locRead('sos_queue_cancel'),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Color(0xFF5D4037),
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),

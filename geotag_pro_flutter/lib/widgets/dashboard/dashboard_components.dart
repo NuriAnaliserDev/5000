@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../app/app_router.dart';
 import '../../l10n/app_strings.dart';
 import '../../models/station.dart';
 import '../../services/boundary_service.dart';
@@ -50,6 +51,13 @@ class DashboardQuickTools extends StatelessWidget {
             context.loc('map'),
             primary,
             () => Navigator.pushNamed(context, '/map'),
+          ),
+          _buildQuickToolItem(
+            context,
+            Icons.maps_home_work_rounded,
+            GeoFieldStrings.of(context)?.field_workshop_title ?? 'Field workshop',
+            const Color(0xFF2E7D32),
+            () => Navigator.pushNamed(context, AppRouter.fieldWorkshop),
           ),
           Tooltip(
             message: GeoFieldStrings.of(context)?.sync_purpose_tooltip ?? '',

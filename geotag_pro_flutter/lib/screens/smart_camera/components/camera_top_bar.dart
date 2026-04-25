@@ -12,6 +12,8 @@ class CameraTopBar extends StatelessWidget {
   final Color glassBorder;
   final Color textColor;
   final Color subTextColor;
+  /// [false] — faqat geologik rasm; stansiyaga qo‘shganda hujjat/AI tahlil aralashmasin.
+  final bool allowDocumentMode;
 
   const CameraTopBar({
     super.key,
@@ -21,6 +23,7 @@ class CameraTopBar extends StatelessWidget {
     required this.glassBorder,
     required this.textColor,
     required this.subTextColor,
+    this.allowDocumentMode = true,
     required GlobalKey modeToggleKey,
   }) : _modeToggleKey = modeToggleKey;
 
@@ -48,17 +51,40 @@ class CameraTopBar extends StatelessWidget {
             const SizedBox(width: 4),
             // MODE TOGGLE
             Expanded(
-              child: Container(
-                key: _modeToggleKey,
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(color: Colors.black26, borderRadius: BorderRadius.circular(12)),
-                child: Row(
-                  children: [
-                    Expanded(child: _modeTab(context, CameraMode.geological, Icons.landscape, context.loc('camera_mode_geology'))),
-                    Expanded(child: _modeTab(context, CameraMode.document, Icons.description, context.loc('camera_mode_document'))),
-                  ],
-                ),
-              ),
+              child: allowDocumentMode
+                  ? Container(
+                      key: _modeToggleKey,
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                          color: Colors.black26,
+                          borderRadius: BorderRadius.circular(12)),
+                      child: Row(
+                        children: [
+                          Expanded(
+                              child: _modeTab(
+                                  context,
+                                  CameraMode.geological,
+                                  Icons.landscape,
+                                  context.loc('camera_mode_geology'))),
+                          Expanded(
+                              child: _modeTab(
+                                  context,
+                                  CameraMode.document,
+                                  Icons.description,
+                                  context.loc('camera_mode_document'))),
+                        ],
+                      ),
+                    )
+                  : Padding(
+                      key: _modeToggleKey,
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: Text(
+                        context.loc('camera_mode_geology'),
+                        style: TextStyle(
+                            color: textColor, fontWeight: FontWeight.w800, fontSize: 12),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
             ),
             if (!isCompact)
               Flexible(

@@ -14,9 +14,30 @@ bool isVertexAiDisabledError(String? raw) {
       l.contains('aiplatform') ||
       l.contains('service_disabled') ||
       l.contains('api has not been enabled') ||
+      (l.contains('billing') && l.contains('enable')) ||
+      l.contains('consumer') && l.contains('not been enabled') ||
+      l.contains('resource has not been used') ||
+      l.contains('permission_denied') && l.contains('aiplatform') ||
       (l.contains('vertex') && l.contains('not been')) ||
       (l.contains('has not been used') && l.contains('disabled')) ||
       (l.contains('has not been used') && l.contains('api'));
+}
+
+/// Kvota, billing yoki to‘lov bilan bog‘liq Vertex/Gemini cheklovi.
+bool isVertexAiQuotaOrBillingError(String? raw) {
+  if (raw == null || raw.isEmpty) return false;
+  final l = raw.toLowerCase();
+  return l.contains('resource_exhausted') ||
+      l.contains('quota') ||
+      l.contains('rate limit') ||
+      l.contains('429') ||
+      l.contains('billing must be') ||
+      l.contains('for pay-as-you-go') ||
+      l.contains('payment_instrument') ||
+      l.contains('exceeded your') ||
+      l.contains('limit exceeded') ||
+      l.contains('insufficient') && l.contains('quota') ||
+      l.contains('overloaded') && l.contains('unavailable');
 }
 
 /// Konsol/jurnal matnidan birinchi Google Cloud/ Developers havolasini oladi.

@@ -102,6 +102,12 @@ class SosQueue {
     return box.length;
   }
 
+  /// Tarmoqqa chiqmagan barcha SOS larni o‘chirish (foydalanuvchi bekor qilganda).
+  static Future<void> clearAll() async {
+    final box = await _openBox();
+    await box.clear();
+  }
+
   static Future<bool> _hasConnection() async {
     try {
       final res = await Connectivity().checkConnectivity();

@@ -37,6 +37,8 @@ class AppRouter {
   static const String autoTableReview = '/auto-table-review';
   static const String camera = '/camera';
   static const String map = '/map';
+  /// Pro maydon: bitta oynada qatlam, KML/DXF, chizim, struktura.
+  static const String fieldWorkshop = '/field-workshop';
   static const String archive = '/archive';
   static const String analysis = '/analysis';
   static const String admin = '/admin';
@@ -99,6 +101,14 @@ class AppRouter {
           final args = routeSettings.arguments;
           return GlobalMapScreen(
             initLocation: args is Map<String, dynamic> ? args : null,
+          );
+        });
+      case fieldWorkshop:
+        return AppPageRoutes.material<void>((_) {
+          final args = routeSettings.arguments;
+          return GlobalMapScreen(
+            initLocation: args is Map<String, dynamic> ? args : null,
+            fieldWorkshopMode: true,
           );
         });
       case archive:

@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:io' show File;
 import 'dart:math' as math;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_compass/flutter_compass.dart';
@@ -7,6 +9,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:uuid/uuid.dart';
 
 import '../services/station_repository.dart';
@@ -23,7 +27,11 @@ import '../models/geological_line.dart';
 import '../models/map_structure_annotation.dart';
 import '../models/measurement.dart';
 import '../models/boundary_polygon.dart';
+import '../utils/gis_geojson_export.dart';
 import '../utils/linework_utils.dart';
+import '../utils/map_geodesy.dart';
+import '../utils/spatial_calculator.dart';
+import '../utils/utm_wgs84.dart';
 import '../l10n/app_strings.dart';
 import '../utils/app_nav_bar.dart';
 import '../utils/app_localizations.dart';
@@ -49,10 +57,13 @@ import 'map/components/map_projection_controls.dart';
 import 'map/components/map_layer_drawer.dart';
 import 'map/components/map_three_d_button.dart';
 import 'map/components/map_structure_markers_layer.dart';
+import '../app/app_router.dart';
 
 class GlobalMapScreen extends StatefulWidget {
   final Map<String, dynamic>? initLocation;
-  const GlobalMapScreen({super.key, this.initLocation});
+  /// `true` — alohida marshrut: Pro maydon (qatlam, GIS, chizim, struktura bitta fokus).
+  final bool fieldWorkshopMode;
+  const GlobalMapScreen({super.key, this.initLocation, this.fieldWorkshopMode = false});
 
   @override
   State<GlobalMapScreen> createState() => _GlobalMapScreenState();
@@ -92,11 +103,19 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
   /// Field Move uslubida: xaritada qo'lda strike/dip belgisi
   bool _isStructurePlaceMode = false;
 
+  /// O‘lchov rejimi: 2 nuqta — masofa, 3+ — yopiq poligon maydoni
+  bool _isMeasureMode = false;
+  final List<LatLng> _measurePoints = [];
+  final List<bool> _workshopChecklist = [false, false, false];
+
   double _centerLat = 41.2995;
   double _centerLng = 69.2401;
   /// GPS yangilanishi bilan xaritani surib yuritish.
   bool _followGps = false;
   LocationService? _locationForFollow;
+
+  /// Pro maydon: qisqacha tushuntirish (yopguncha).
+  bool _workshopInfoBanner = true;
   
   @override
   void initState() {
@@ -112,6 +131,9 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
       _locationForFollow!.addListener(_onGpsForFollow);
       _checkShowTutorial();
       _startPresenceBroadcast();
+      if (widget.fieldWorkshopMode) {
+        setState(() => _showLayerDrawer = true);
+      }
     });
   }
 
@@ -143,6 +165,9 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
   }
 
   void _checkShowTutorial() {
+    if (widget.fieldWorkshopMode) {
+      return;
+    }
     final settings = context.read<SettingsController>();
     if (settings.hasSeenMapTutorial) return;
 
@@ -331,6 +356,27 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                       Polyline(points: _drawingPoints, color: Colors.orange, strokeWidth: 3.0),
                     ],
                   ),
+                if (_isMeasureMode && _measurePoints.length >= 2)
+                  PolylineLayer(
+                    polylines: [
+                      Polyline(
+                        points: _measurePoints,
+                        color: Colors.cyanAccent,
+                        strokeWidth: 3,
+                      ),
+                    ],
+                  ),
+                if (_isMeasureMode && _measurePoints.length >= 3)
+                  PolygonLayer(
+                    polygons: [
+                      Polygon(
+                        points: _measurePoints,
+                        color: Colors.cyan.withValues(alpha: 0.12),
+                        borderColor: Colors.cyan,
+                        borderStrokeWidth: 1.5,
+                      ),
+                    ],
+                  ),
                 if (_isVertexEditMode && _editingPolygonId != null)
                   PolylineLayer(polylines: _buildVertexMarkers(boundaries)),
                 
@@ -378,7 +424,22 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
               settings: settings,
               onStylePressed: () => _showMapStyleSelector(context, settings),
               onSearchPressed: _openSearch,
+              leading: widget.fieldWorkshopMode
+                  ? IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Color(0xFF1976D2)),
+                      onPressed: () => Navigator.of(context).maybePop(),
+                      tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                    )
+                  : null,
+              titleOverride: widget.fieldWorkshopMode
+                  ? (GeoFieldStrings.of(context)?.field_workshop_title ?? 'Field workshop')
+                  : null,
+              secondaryLineOverride: widget.fieldWorkshopMode
+                  ? '${settings.currentProject} · ${stations.length} ${context.loc('stations')}'
+                  : null,
             ),
+            if (widget.fieldWorkshopMode && _workshopInfoBanner) _buildWorkshopInfoBanner(),
+            if (widget.fieldWorkshopMode) _buildFieldWorkshopToolRail(),
             if (currentTrack != null) MapLiveTrackStats(track: trackSvc.currentTrack!),
             _buildSideControls(
               threeDCenter: currentPos != null
@@ -396,6 +457,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
               canRedo: _redoStack.isNotEmpty,
               isEraserMode: _isEraserMode,
               onStartDrawing: () => setState(() {
+                _isMeasureMode = false;
+                _measurePoints.clear();
                 _isDrawingMode = true;
                 _isSliceMode = false;
                 _isStructurePlaceMode = false;
@@ -463,6 +526,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
               }),
               onImportGis: _importGisFromMap,
               onOpenExportArchive: () => Navigator.of(context).pushNamed('/archive'),
+              onExportGeoJson: _exportMapGeoJson,
               mapLayersToggleTutorialKey: _downloadButtonKey,
             ),
             if (_isDrawingMode)
@@ -499,10 +563,320 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                   ),
                 ),
               ),
+            if (_isMeasureMode) _buildMeasureStatsPanel(),
           ],
         ),
       ),
-      bottomNavigationBar: const AppBottomNavBar(activeRoute: '/map'),
+      bottomNavigationBar: widget.fieldWorkshopMode
+          ? null
+          : const AppBottomNavBar(activeRoute: '/map'),
+    );
+  }
+
+  /// Pro maydon: qatlam, GIS, kesim, struktura, chizim, proyeksiya — tez qo‘l panel.
+  Widget _buildFieldWorkshopToolRail() {
+    final s = GeoFieldStrings.of(context);
+    final t = Theme.of(context);
+    return Positioned(
+      right: 4,
+      top: 118,
+      child: Material(
+        elevation: 6,
+        borderRadius: BorderRadius.circular(14),
+        color: t.colorScheme.surfaceContainerHigh.withValues(alpha: 0.95),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 360),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  tooltip: context.loc('layer_management'),
+                  onPressed: () => setState(() => _showLayerDrawer = true),
+                  icon: const Icon(Icons.layers, color: Color(0xFF1976D2)),
+                ),
+                IconButton(
+                  tooltip: s?.map_layer_import_gis,
+                  onPressed: _importGisFromMap,
+                  icon: const Icon(Icons.file_upload, color: Color(0xFF388E3C)),
+                ),
+                IconButton(
+                  tooltip: context.loc('map_measure_mode'),
+                  onPressed: _toggleMeasureMode,
+                  icon: Icon(
+                    Icons.straighten,
+                    color: _isMeasureMode
+                        ? Colors.cyanAccent
+                        : const Color(0xFF5D4037),
+                  ),
+                ),
+                IconButton(
+                  tooltip: s?.map_slice_tooltip,
+                  onPressed: _toggleSliceMode,
+                  icon: Icon(
+                    Icons.content_cut,
+                    color: _isSliceMode ? Colors.orange : const Color(0xFF5D4037),
+                  ),
+                ),
+                IconButton(
+                  tooltip: s?.map_structure_mode_tooltip,
+                  onPressed: _toggleStructureMode,
+                  icon: Icon(
+                    Icons.architecture,
+                    color: _isStructurePlaceMode
+                        ? Colors.amber.shade800
+                        : const Color(0xFF5D4037),
+                  ),
+                ),
+                IconButton(
+                  tooltip: context.loc('layer_drawings'),
+                  onPressed: _workshopStartDrawing,
+                  icon: Icon(
+                    Icons.draw,
+                    color: _isDrawingMode ? const Color(0xFFFF9800) : const Color(0xFF5D4037),
+                  ),
+                ),
+                IconButton(
+                  tooltip: context.loc('projection_depth'),
+                  onPressed: () => setState(() => _showProjections = !_showProjections),
+                  icon: Icon(
+                    Icons.view_in_ar,
+                    color: _showProjections ? const Color(0xFF7E57C2) : const Color(0xFF5D4037),
+                  ),
+                ),
+                IconButton(
+                  tooltip: s?.field_workshop_stereonet,
+                  onPressed: () =>
+                      Navigator.of(context).pushNamed('/analysis'),
+                  icon: const Icon(Icons.analytics, color: Color(0xFF5C6BC0)),
+                ),
+                IconButton(
+                  tooltip: s?.field_utm_tap,
+                  onPressed: _copyUtmCenterToClipboard,
+                  icon: const Icon(Icons.gps_fixed, color: Color(0xFF00897B)),
+                ),
+                IconButton(
+                  tooltip: s?.map_export_geojson,
+                  onPressed: _exportMapGeoJson,
+                  icon: const Icon(Icons.ios_share, color: Color(0xFF80CBC4)),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _workshopStartDrawing() {
+    setState(() {
+      _isMeasureMode = false;
+      _measurePoints.clear();
+      _isDrawingMode = true;
+      _isSliceMode = false;
+      _isStructurePlaceMode = false;
+      _isEraserMode = false;
+      _drawingPoints = [];
+      _redoStack.clear();
+    });
+  }
+
+  void _toggleMeasureMode() {
+    setState(() {
+      _isMeasureMode = !_isMeasureMode;
+      if (_isMeasureMode) {
+        _isDrawingMode = false;
+        _isSliceMode = false;
+        _isStructurePlaceMode = false;
+        _isEraserMode = false;
+        _drawingPoints = [];
+        _redoStack.clear();
+        _measurePoints.clear();
+      } else {
+        _measurePoints.clear();
+      }
+    });
+    if (_isMeasureMode && mounted) {
+      final h = GeoFieldStrings.of(context)?.map_measure_hint;
+      if (h != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(h),
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    }
+  }
+
+  Widget _buildWorkshopInfoBanner() {
+    final s = GeoFieldStrings.of(context);
+    if (s == null) return const SizedBox.shrink();
+    final t = Theme.of(context);
+    return Positioned(
+      top: 64,
+      left: 10,
+      right: 10,
+      child: Material(
+        elevation: 2,
+        borderRadius: BorderRadius.circular(8),
+        color: t.colorScheme.primaryContainer,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 4, 4, 6),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.checklist_rtl, size: 20),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      s.field_workshop_checklist,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: t.colorScheme.onPrimaryContainer,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 18),
+                    onPressed: () => setState(() => _workshopInfoBanner = false),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                    tooltip: MaterialLocalizations.of(context).closeButtonLabel,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 2),
+              Text(
+                s.field_workshop_banner,
+                style: TextStyle(
+                  fontSize: 10,
+                  color: t.colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
+                ),
+              ),
+              CheckboxListTile(
+                value: _workshopChecklist[0],
+                onChanged: (v) => setState(() => _workshopChecklist[0] = v ?? false),
+                title: Text(s.field_workshop_ch1, style: const TextStyle(fontSize: 11)),
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+              ),
+              CheckboxListTile(
+                value: _workshopChecklist[1],
+                onChanged: (v) => setState(() => _workshopChecklist[1] = v ?? false),
+                title: Text(s.field_workshop_ch2, style: const TextStyle(fontSize: 11)),
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+              ),
+              CheckboxListTile(
+                value: _workshopChecklist[2],
+                onChanged: (v) => setState(() => _workshopChecklist[2] = v ?? false),
+                title: Text(s.field_workshop_ch3, style: const TextStyle(fontSize: 11)),
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _openFieldWorkshop() {
+    HapticFeedback.selectionClick();
+    Navigator.of(context).pushNamed(
+      AppRouter.fieldWorkshop,
+      arguments: <String, dynamic>{
+        'lat': _centerLat,
+        'lng': _centerLng,
+      },
+    );
+  }
+
+  Widget _buildMeasureStatsPanel() {
+    final s = GeoFieldStrings.of(context);
+    final m = _measurePoints;
+    var line = '';
+    if (m.length >= 2) {
+      var len = 0.0;
+      for (var i = 1; i < m.length; i++) {
+        len += MapGeodesy.distanceMeters(m[i - 1], m[i]);
+      }
+      line += 'Σ ${(len).toStringAsFixed(1)} m';
+      final seg = MapGeodesy.distanceMeters(m[m.length - 2], m[m.length - 1]);
+      line += '  |  so‘nggi: ${seg.toStringAsFixed(1)} m';
+      if (m.length >= 2) {
+        line +=
+            '  |  ${s?.map_measure_bearing ?? "Brg"}: ${MapGeodesy.bearingDeg(m[m.length - 2], m[m.length - 1]).toStringAsFixed(1)}°';
+      }
+      if (m.length >= 3) {
+        line +=
+            '  |  ${s?.map_measure_angle ?? "∠"}: ${MapGeodesy.angleAtB(m[m.length - 3], m[m.length - 2], m[m.length - 1]).toStringAsFixed(1)}°';
+      }
+    }
+    if (m.length >= 3) {
+      final area = SpatialCalculator.calculateArea(m);
+      line += '  |  S ≈ ${(area / 1e6).toStringAsFixed(3)} km² (≈${area.toStringAsFixed(0)} m²)';
+      line +=
+          '  |  P: ${SpatialCalculator.calculatePerimeter(m).toStringAsFixed(0)} m';
+    }
+    return Positioned(
+      left: 8,
+      right: 8,
+      bottom: 80,
+      child: Material(
+        color: Colors.black87,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                s?.map_measure_mode ?? 'Measure',
+                style: const TextStyle(
+                  color: Colors.cyanAccent,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 12,
+                ),
+              ),
+              if (line.isNotEmpty)
+                Text(
+                  line,
+                  style: const TextStyle(color: Colors.white, fontSize: 11, height: 1.2),
+                )
+              else
+                Text(
+                  s?.map_measure_hint ?? '',
+                  style: const TextStyle(color: Colors.white70, fontSize: 10),
+                ),
+              const SizedBox(height: 6),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _measurePoints.clear();
+                  });
+                },
+                child: Text(
+                  s?.map_measure_clear ?? 'Clear',
+                  style: const TextStyle(color: Colors.orangeAccent),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -547,7 +921,10 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     // Chizish / kesma / struktura rejimlarida side-control FAB larni yashiramiz,
     // chunki [MapLineworkControls] o‘z paneli va tugmalarini ochib ustiga chiqib
     // qolmasin. Natijada panellar bir-birini bosib ketmaydi.
-    final inDrawMode = _isDrawingMode || _isSliceMode || _isStructurePlaceMode;
+    final inDrawMode = _isDrawingMode ||
+        _isSliceMode ||
+        _isStructurePlaceMode ||
+        _isMeasureMode;
     final s = GeoFieldStrings.of(context);
     if (inDrawMode) {
       // Chizish rejimida faqat struktura FAB ni qoldiramiz (chap pastda).
@@ -559,7 +936,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
             id: 'structure',
             defaultOffset: const Offset(8, -230),
             size: const Size(52, 52),
-            dragMode: DragTriggerMode.tripleTap,
+            dragMode: DragTriggerMode.longPress,
             child: Material(
               elevation: 6,
               borderRadius: BorderRadius.circular(28),
@@ -584,13 +961,32 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
 
     return DraggableFabLayer(
       children: [
+        if (!widget.fieldWorkshopMode)
+          DraggableFab(
+            key: const ValueKey('map_fab_workshop'),
+            screen: 'map',
+            id: 'workshop',
+            defaultOffset: const Offset(8, -100),
+            size: const Size(52, 52),
+            dragMode: DragTriggerMode.longPress,
+            child: Material(
+              elevation: 6,
+              borderRadius: BorderRadius.circular(28),
+              color: const Color(0xFF2E7D32),
+              child: IconButton(
+                tooltip: s?.field_workshop_fab_tooltip ?? 'Field workshop',
+                onPressed: _openFieldWorkshop,
+                icon: const Icon(Icons.maps_home_work, color: Colors.white),
+              ),
+            ),
+          ),
         DraggableFab(
           key: const ValueKey('map_fab_structure'),
           screen: 'map',
           id: 'structure',
           defaultOffset: const Offset(8, -230),
           size: const Size(52, 52),
-          dragMode: DragTriggerMode.tripleTap,
+          dragMode: DragTriggerMode.longPress,
           child: Material(
             elevation: 6,
             borderRadius: BorderRadius.circular(28),
@@ -608,7 +1004,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
           id: 'slice',
           defaultOffset: const Offset(-16, -310),
           size: const Size(48, 48),
-          dragMode: DragTriggerMode.tripleTap,
+          dragMode: DragTriggerMode.longPress,
           child: MapSliceButton(
             isSliceMode: _isSliceMode,
             onPressed: _toggleSliceMode,
@@ -634,7 +1030,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
           id: 'three_d',
           defaultOffset: const Offset(-16, -160),
           size: const Size(56, 56),
-          dragMode: DragTriggerMode.tripleTap,
+          dragMode: DragTriggerMode.longPress,
           child: MapThreeDButton(centerPoint: threeDCenter),
         ),
         const DraggableFab(
@@ -643,7 +1039,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
           id: 'track',
           defaultOffset: Offset(-16, -80),
           size: Size(56, 56),
-          dragMode: DragTriggerMode.tripleTap,
+          dragMode: DragTriggerMode.longPress,
           child: MapTrackFab(),
         ),
       ],
@@ -653,6 +1049,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
   void _toggleStructureMode() {
     final s = GeoFieldStrings.of(context);
     setState(() {
+      _isMeasureMode = false;
+      _measurePoints.clear();
       _isStructurePlaceMode = !_isStructurePlaceMode;
       if (_isStructurePlaceMode) {
         _isDrawingMode = false;
@@ -676,6 +1074,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
 
   void _toggleSliceMode() {
     setState(() {
+      _isMeasureMode = false;
+      _measurePoints.clear();
       _isSliceMode = !_isSliceMode;
       _isDrawingMode = false;
       _isStructurePlaceMode = false;
@@ -697,7 +1097,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
           id: 'my_location',
           defaultOffset: const Offset(-16, -400),
           size: const Size(48, 48),
-          dragMode: DragTriggerMode.tripleTap,
+          dragMode: DragTriggerMode.longPress,
           child: Tooltip(
             message: context.loc('map_my_location'),
             child: FloatingActionButton.small(
@@ -714,7 +1114,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
           id: 'follow_gps',
           defaultOffset: const Offset(-16, -470),
           size: const Size(48, 48),
-          dragMode: DragTriggerMode.tripleTap,
+          dragMode: DragTriggerMode.longPress,
           child: Tooltip(
             message: context.loc('map_follow_gps'),
             child: FloatingActionButton.small(
@@ -786,6 +1186,11 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
       _eraseNear(point);
       return;
     }
+    if (_isMeasureMode) {
+      setState(() => _measurePoints.add(point));
+      HapticFeedback.selectionClick();
+      return;
+    }
     if (_isVertexEditMode && _editingPolygonId != null) {
       _moveVertex(point);
     } else if (_isVertexEditMode && _editingPolygonId == null) {
@@ -834,7 +1239,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
         maxDistanceMeters: tol,
       );
       if (hit != null) {
-        unawaited(_confirmDeleteLine(hit));
+        unawaited(_onGeologicalLineTapped(hit));
       }
     }
   }
@@ -902,6 +1307,198 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
         behavior: SnackBarBehavior.floating,
       ),
     );
+  }
+
+  Future<void> _onGeologicalLineTapped(GeologicalLine line) async {
+    final s = GeoFieldStrings.of(context);
+    if (s == null) return;
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.edit),
+              title: Text(s.line_action_edit),
+              onTap: () => Navigator.pop(ctx, 'edit'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.redAccent),
+              title: Text(s.delete),
+              onTap: () => Navigator.pop(ctx, 'delete'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.close),
+              title: Text(s.cancel),
+              onTap: () => Navigator.pop(ctx),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (!mounted) return;
+    if (action == 'edit') {
+      await _showLinePropertyEditor(line);
+    } else if (action == 'delete') {
+      await _confirmDeleteLine(line);
+    }
+  }
+
+  Future<void> _showLinePropertyEditor(GeologicalLine line) async {
+    final s = GeoFieldStrings.of(context);
+    if (s == null) return;
+    const types = <String>[
+      'fault',
+      'contact',
+      'bedding_trace',
+      'fold_axis',
+      'polygon',
+      'other',
+    ];
+    final nameCtrl = TextEditingController(text: line.name);
+    final notesCtrl = TextEditingController(text: line.notes ?? '');
+    var lineType = line.lineType;
+    if (!types.contains(lineType)) lineType = 'other';
+    if (!mounted) return;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setL) {
+          return AlertDialog(
+            title: Text(s.line_property_title),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: nameCtrl,
+                    decoration: InputDecoration(labelText: s.line_property_name),
+                  ),
+                  const SizedBox(height: 8),
+                  InputDecorator(
+                    decoration: const InputDecoration(labelText: 'Type'),
+                    child: DropdownButton<String>(
+                      isExpanded: true,
+                      value: lineType,
+                      items: types
+                          .map(
+                            (e) => DropdownMenuItem(
+                              value: e,
+                              child: Text(GeologicalLine.localizedName(e)),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (v) =>
+                          setL(() => lineType = v ?? lineType),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: notesCtrl,
+                    maxLines: 3,
+                    decoration: InputDecoration(labelText: s.line_property_notes),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(s.cancel),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text(s.save),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+    if (ok != true || !mounted) return;
+    final n = notesCtrl.text.trim();
+    final updated = GeologicalLine(
+      id: line.id,
+      name: nameCtrl.text.trim().isNotEmpty ? nameCtrl.text.trim() : line.name,
+      lineType: lineType,
+      lats: line.lats,
+      lngs: line.lngs,
+      date: line.date,
+      colorHex: line.colorHex,
+      project: line.project,
+      notes: n.isEmpty ? null : n,
+      isClosed: line.isClosed,
+      strokeWidth: line.strokeWidth,
+      isDashed: line.isDashed,
+      isCurved: line.isCurved,
+      controlLats: line.controlLats,
+      controlLngs: line.controlLngs,
+    );
+    await context.read<GeologicalLineRepository>().updateLine(updated);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.locRead('success_saved')),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  void _copyUtmCenterToClipboard() {
+    final p = LatLng(_centerLat, _centerLng);
+    final t = UtmWgs84.formatUtm(p);
+    Clipboard.setData(ClipboardData(text: t));
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(t),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  Future<void> _exportMapGeoJson() async {
+    final s = GeoFieldStrings.of(context);
+    if (s == null) return;
+    try {
+      final lines = context.read<GeologicalLineRepository>().getAllLines();
+      final bounds = context.read<BoundaryService>().boundaries;
+      final text = GisGeoJsonExport.buildString(
+        lines: lines,
+        boundaries: bounds,
+      );
+      if (kIsWeb) {
+        await Clipboard.setData(ClipboardData(text: text));
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(s.map_export_geojson),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+        return;
+      }
+      final dir = await getTemporaryDirectory();
+      final f = File(
+        '${dir.path}/geofield_export_${DateTime.now().millisecondsSinceEpoch}.geojson',
+      );
+      await f.writeAsString(text);
+      await Share.shareXFiles([XFile(f.path)], text: s.map_export_geojson);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${s.map_error_prefix}: $e'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _showAddStructureDialog(LatLng point) async {

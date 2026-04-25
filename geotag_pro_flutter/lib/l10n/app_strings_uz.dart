@@ -318,6 +318,13 @@ class GeoFieldStringsUz extends GeoFieldStrings {
   String get ai_vertex_open_console => 'Google Cloud API sahifasini ochish';
 
   @override
+  String get ai_vertex_quota_billing_title => 'AI limiti yoki to‘lov (billing)';
+
+  @override
+  String get ai_vertex_quota_billing_body =>
+      'Vertex / Gemini bepul limitdan keyin Google Cloud hisobi talab qilinishi mumkin. Google Cloud’da billing, kvotalar va API ishlatishni tekshiring yoki keyinroq qayta urinib ko‘ring.';
+
+  @override
   String get draw_first_point_hint =>
       'Birinchi nuqta qo‘yildi. Chiziqni davom etirish uchun yana bosing.';
 
@@ -336,7 +343,7 @@ class GeoFieldStringsUz extends GeoFieldStrings {
       'Internet bo‘lmasa ma’lumot telefonda saqlanadi, tarmoq paydo bo‘lganda yuboriladi. Kim nimani ko‘rishi — Firestore qoidalari va loyiha sozlamalariga bog‘liq.';
 
   @override
-  String get map_layer_import_gis => 'KML/DXF import (GIS)';
+  String get map_layer_import_gis => 'KML / DXF / GeoJSON import (GIS)';
 
   @override
   String get map_layer_export_data => 'Ma’lumot eksport (arxiv)';
@@ -351,6 +358,55 @@ class GeoFieldStringsUz extends GeoFieldStrings {
   @override
   String get field_workshop_banner =>
       'Qatlam, GIS import, chizim va dala vositalari bitta oynada.';
+
+  @override
+  String get map_measure_mode => 'O‘lchash (masofa va maydon)';
+
+  @override
+  String get map_measure_hint =>
+      'Xaritani bosing: 2 nuqta = masofa, 3+ = poligon maydoni.';
+
+  @override
+  String get map_measure_clear => 'O‘lchovni tozalash';
+
+  @override
+  String get map_measure_bearing => 'Bearing (azimut)';
+
+  @override
+  String get map_measure_angle => 'Oxirgi nuqtadagi burchak (°)';
+
+  @override
+  String get map_export_geojson => 'Xaritani GeoJSONga eksport';
+
+  @override
+  String get field_workshop_stereonet => 'Stereonet / tahlil';
+
+  @override
+  String get field_utm_tap => 'Xarita markazi UTM (vaqtinchalik xotira)';
+
+  @override
+  String get line_action_edit => 'Chiziq xususiyatlari';
+
+  @override
+  String get line_property_title => 'Chiziq xususiyatlari';
+
+  @override
+  String get line_property_name => 'Nomi';
+
+  @override
+  String get line_property_notes => 'Izoh';
+
+  @override
+  String get field_workshop_checklist => 'Dala ro‘yxati (belgilash)';
+
+  @override
+  String get field_workshop_ch1 => 'Fon xarita va GIS qatlamlar';
+
+  @override
+  String get field_workshop_ch2 => 'KML / DXF / GeoJSON import';
+
+  @override
+  String get field_workshop_ch3 => 'Chizim, o‘lchov, kerak bo‘lsa eksport';
 
   @override
   String get map_offline_tiles_hint =>
@@ -1022,6 +1078,16 @@ class GeoFieldStringsUz extends GeoFieldStrings {
 
   @override
   String get sos_cancelled => 'SOS yopildi';
+
+  @override
+  String get sos_login_required =>
+      'SOS yuborish uchun tizimga kiring. Hisobsiz signal yuborilmaydi.';
+
+  @override
+  String get sos_queue_cancel => 'Navbatdagi SOS (offline) — bekor';
+
+  @override
+  String get sos_queue_cleared => 'Offline SOS navbati tozalandi';
 
   @override
   String get map_follow_gps =>

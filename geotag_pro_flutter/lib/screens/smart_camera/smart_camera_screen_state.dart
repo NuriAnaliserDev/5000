@@ -330,7 +330,9 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
       await _cameraInitFuture;
       var file = await _cameraController!.takePicture();
 
-      if (_cameraMode == CameraMode.document) {
+      // Mavjud stansiyaga rasm: hujjat rejimida bo'lsa ham rasm sifatida qo'shiladi;
+      // AI hujjat tahlili — faqat «yangi stansiya» oqimida (stationId == null).
+      if (_cameraMode == CameraMode.document && widget.stationId == null) {
         if (!mounted) {
           return;
         }
@@ -383,9 +385,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
       final locService = context.read<LocationService>();
       await locService.refreshLocation();
       Position? pos = locService.currentPosition;
-      if (pos == null) {
-        pos = await Geolocator.getLastKnownPosition();
-      }
+      pos ??= await Geolocator.getLastKnownPosition();
       if (pos == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -574,6 +574,9 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
   @override
   void initState() {
     super.initState();
+    if (widget.stationId != null) {
+      _cameraMode = CameraMode.geological;
+    }
     WidgetsBinding.instance.addObserver(this);
     _initCamera();
     _startSensors();
@@ -616,7 +619,8 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
     if (c == null || !c.value.isInitialized) {
       return;
     }
-    if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused) {
       _cameraController?.dispose();
       _cameraInitFuture = null;
       _stopSensors();
@@ -641,6 +645,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
               glassBorder: glassBorder,
               textColor: textColor,
               subTextColor: subTextColor,
+              allowDocumentMode: widget.stationId == null,
               modeToggleKey: _modeToggleKey,
             ),
             if (_cameraMode == CameraMode.geological && _showHud) ...[
@@ -730,35 +735,35 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width,
                     child: CameraBottomControls(
-                    isRecording: _isRecording,
-                    recordSeconds: _recordSeconds,
-                    isBusy: _isBusy,
-                    compassQuality: _compassQuality,
-                    isDark: isDark,
-                    glassColor: glassColor,
-                    textColor: textColor,
-                    onToggleRecording: _toggleRecording,
-                    onCapture: () {
-                      if (_isBusy) {
-                        return;
-                      }
-                      if (_compassQuality < 20) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content:
-                                Text(context.locRead('compass_unreliable_warn')),
-                            backgroundColor: StatusSemantics.colorFor(
-                                StatusLevel.danger),
-                          ),
-                        );
-                        HapticFeedback.heavyImpact();
-                      } else {
-                        _capture();
-                      }
-                    },
-                    formatDuration: _formatRecordDuration,
-                    shutterButtonKey: _shutterButtonKey,
-                  ),
+                      isRecording: _isRecording,
+                      recordSeconds: _recordSeconds,
+                      isBusy: _isBusy,
+                      compassQuality: _compassQuality,
+                      isDark: isDark,
+                      glassColor: glassColor,
+                      textColor: textColor,
+                      onToggleRecording: _toggleRecording,
+                      onCapture: () {
+                        if (_isBusy) {
+                          return;
+                        }
+                        if (_compassQuality < 20) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                  context.locRead('compass_unreliable_warn')),
+                              backgroundColor:
+                                  StatusSemantics.colorFor(StatusLevel.danger),
+                            ),
+                          );
+                          HapticFeedback.heavyImpact();
+                        } else {
+                          _capture();
+                        }
+                      },
+                      formatDuration: _formatRecordDuration,
+                      shutterButtonKey: _shutterButtonKey,
+                    ),
                   ),
                 ),
               ],

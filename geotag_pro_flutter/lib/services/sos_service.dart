@@ -173,6 +173,13 @@ class SosService extends ChangeNotifier {
   /// Queue'dagi pending signallar sonini olish.
   Future<int> pendingCount() => SosQueue.pendingCount();
 
+  /// Tarmoqqa chiqmagan (offline) SOS navbatini tozalash.
+  Future<void> clearQueuedSignals() async {
+    await SosQueue.clearAll();
+    lastSendQueued = false;
+    notifyListeners();
+  }
+
   /// Auto-flush'ni boshlash (app init'da bir marta chaqiriladi).
   Future<void> startAutoFlush() => SosQueue.startAutoFlush();
 }

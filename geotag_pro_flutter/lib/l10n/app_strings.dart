@@ -670,6 +670,18 @@ abstract class GeoFieldStrings {
   /// **'Open Google Cloud API page'**
   String get ai_vertex_open_console;
 
+  /// No description provided for @ai_vertex_quota_billing_title.
+  ///
+  /// In en, this message translates to:
+  /// **'AI limit or billing'**
+  String get ai_vertex_quota_billing_title;
+
+  /// No description provided for @ai_vertex_quota_billing_body.
+  ///
+  /// In en, this message translates to:
+  /// **'Vertex / Gemini has a free tier with limits, then Cloud Billing applies. In Google Cloud Console, check Billing, quotas, and Generative Language / Vertex API usage, or try again later.'**
+  String get ai_vertex_quota_billing_body;
+
   /// No description provided for @draw_first_point_hint.
   ///
   /// In en, this message translates to:
@@ -703,7 +715,7 @@ abstract class GeoFieldStrings {
   /// No description provided for @map_layer_import_gis.
   ///
   /// In en, this message translates to:
-  /// **'Import KML/DXF (GIS)'**
+  /// **'Import KML / DXF / GeoJSON (GIS)'**
   String get map_layer_import_gis;
 
   /// No description provided for @map_layer_export_data.
@@ -729,6 +741,102 @@ abstract class GeoFieldStrings {
   /// In en, this message translates to:
   /// **'Layers, GIS import, drawing and field tools in one place.'**
   String get field_workshop_banner;
+
+  /// No description provided for @map_measure_mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Measure (distance & area)'**
+  String get map_measure_mode;
+
+  /// No description provided for @map_measure_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the map: 2 points = distance, 3+ = area of polygon.'**
+  String get map_measure_hint;
+
+  /// No description provided for @map_measure_clear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear measure'**
+  String get map_measure_clear;
+
+  /// No description provided for @map_measure_bearing.
+  ///
+  /// In en, this message translates to:
+  /// **'Bearing'**
+  String get map_measure_bearing;
+
+  /// No description provided for @map_measure_angle.
+  ///
+  /// In en, this message translates to:
+  /// **'Angle at last point (°)'**
+  String get map_measure_angle;
+
+  /// No description provided for @map_export_geojson.
+  ///
+  /// In en, this message translates to:
+  /// **'Export map as GeoJSON'**
+  String get map_export_geojson;
+
+  /// No description provided for @field_workshop_stereonet.
+  ///
+  /// In en, this message translates to:
+  /// **'Stereonet / analysis'**
+  String get field_workshop_stereonet;
+
+  /// No description provided for @field_utm_tap.
+  ///
+  /// In en, this message translates to:
+  /// **'UTM of map center (clipboard)'**
+  String get field_utm_tap;
+
+  /// No description provided for @line_action_edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit line properties'**
+  String get line_action_edit;
+
+  /// No description provided for @line_property_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Line properties'**
+  String get line_property_title;
+
+  /// No description provided for @line_property_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get line_property_name;
+
+  /// No description provided for @line_property_notes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get line_property_notes;
+
+  /// No description provided for @field_workshop_checklist.
+  ///
+  /// In en, this message translates to:
+  /// **'Field checklist (tap to check)'**
+  String get field_workshop_checklist;
+
+  /// No description provided for @field_workshop_ch1.
+  ///
+  /// In en, this message translates to:
+  /// **'Base map and GIS layers'**
+  String get field_workshop_ch1;
+
+  /// No description provided for @field_workshop_ch2.
+  ///
+  /// In en, this message translates to:
+  /// **'KML / DXF / GeoJSON import'**
+  String get field_workshop_ch2;
+
+  /// No description provided for @field_workshop_ch3.
+  ///
+  /// In en, this message translates to:
+  /// **'Drawings, measure, then export if needed'**
+  String get field_workshop_ch3;
 
   /// No description provided for @map_offline_tiles_hint.
   ///
@@ -2025,6 +2133,24 @@ abstract class GeoFieldStrings {
   /// In en, this message translates to:
   /// **'SOS ended'**
   String get sos_cancelled;
+
+  /// No description provided for @sos_login_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to send SOS. Without an account the signal is not sent.'**
+  String get sos_login_required;
+
+  /// No description provided for @sos_queue_cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel queued SOS (offline queue)'**
+  String get sos_queue_cancel;
+
+  /// No description provided for @sos_queue_cleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline SOS queue cleared'**
+  String get sos_queue_cleared;
 
   /// No description provided for @map_follow_gps.
   ///

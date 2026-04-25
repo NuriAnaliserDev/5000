@@ -10,7 +10,11 @@ import '../services/ai_translator_service.dart';
 import '../services/settings_controller.dart';
 import '../services/auth_service.dart';
 import '../services/location_service.dart';
-import '../utils/ai_vertex_error_helper.dart';
+import '../utils/ai_vertex_error_helper.dart'
+    show
+        isVertexAiDisabledError,
+        isVertexAiQuotaOrBillingError,
+        openVertexErrorLink;
 import '../utils/app_card.dart';
 
 class AutoTableReviewScreen extends StatefulWidget {
@@ -170,7 +174,9 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
   Widget _buildErrorState() {
     final detail = _analysisError ?? '';
     final s = GeoFieldStrings.of(context);
-    final isVertex = isVertexAiDisabledError(detail);
+    final isQuota = isVertexAiQuotaOrBillingError(detail);
+    final isApiOff = isVertexAiDisabledError(detail);
+    final isVertexUi = (isQuota || isApiOff) && s != null;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -180,11 +186,22 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
             const Icon(Icons.error_outline, size: 64, color: Colors.red),
             const SizedBox(height: 16),
             Text(
-              isVertex && s != null ? s.ai_vertex_disabled_title : 'AI tahlil qila olmadi',
+              isQuota && s != null
+                  ? s.ai_vertex_quota_billing_title
+                  : (isApiOff && s != null
+                      ? s.ai_vertex_disabled_title
+                      : 'AI tahlil qila olmadi'),
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            if (isVertex && s != null) ...[
+            if (isQuota && s != null) ...[
+              const SizedBox(height: 12),
+              Text(
+                s.ai_vertex_quota_billing_body,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: Colors.grey.shade600, height: 1.35),
+              ),
+            ] else if (isApiOff && s != null) ...[
               const SizedBox(height: 12),
               Text(
                 s.ai_vertex_disabled_body,
@@ -199,7 +216,7 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
                 style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
               ),
             ],
-            if (isVertex && s != null) ...[
+            if (isVertexUi) ...[
               const SizedBox(height: 16),
               FilledButton.tonalIcon(
                 onPressed: () async {

@@ -318,6 +318,13 @@ class GeoFieldStringsEn extends GeoFieldStrings {
   String get ai_vertex_open_console => 'Open Google Cloud API page';
 
   @override
+  String get ai_vertex_quota_billing_title => 'AI limit or billing';
+
+  @override
+  String get ai_vertex_quota_billing_body =>
+      'Vertex / Gemini has a free tier with limits, then Cloud Billing applies. In Google Cloud Console, check Billing, quotas, and Generative Language / Vertex API usage, or try again later.';
+
+  @override
   String get draw_first_point_hint =>
       'First point placed. Keep tapping to draw the line.';
 
@@ -336,7 +343,7 @@ class GeoFieldStringsEn extends GeoFieldStrings {
       'Offline: data is stored on the device and uploads when the internet is back. Who-sees-what on the server depends on your Firestore rules and features enabled for the project.';
 
   @override
-  String get map_layer_import_gis => 'Import KML/DXF (GIS)';
+  String get map_layer_import_gis => 'Import KML / DXF / GeoJSON (GIS)';
 
   @override
   String get map_layer_export_data => 'Export data (archive)';
@@ -351,6 +358,55 @@ class GeoFieldStringsEn extends GeoFieldStrings {
   @override
   String get field_workshop_banner =>
       'Layers, GIS import, drawing and field tools in one place.';
+
+  @override
+  String get map_measure_mode => 'Measure (distance & area)';
+
+  @override
+  String get map_measure_hint =>
+      'Tap the map: 2 points = distance, 3+ = area of polygon.';
+
+  @override
+  String get map_measure_clear => 'Clear measure';
+
+  @override
+  String get map_measure_bearing => 'Bearing';
+
+  @override
+  String get map_measure_angle => 'Angle at last point (°)';
+
+  @override
+  String get map_export_geojson => 'Export map as GeoJSON';
+
+  @override
+  String get field_workshop_stereonet => 'Stereonet / analysis';
+
+  @override
+  String get field_utm_tap => 'UTM of map center (clipboard)';
+
+  @override
+  String get line_action_edit => 'Edit line properties';
+
+  @override
+  String get line_property_title => 'Line properties';
+
+  @override
+  String get line_property_name => 'Name';
+
+  @override
+  String get line_property_notes => 'Notes';
+
+  @override
+  String get field_workshop_checklist => 'Field checklist (tap to check)';
+
+  @override
+  String get field_workshop_ch1 => 'Base map and GIS layers';
+
+  @override
+  String get field_workshop_ch2 => 'KML / DXF / GeoJSON import';
+
+  @override
+  String get field_workshop_ch3 => 'Drawings, measure, then export if needed';
 
   @override
   String get map_offline_tiles_hint =>
@@ -1020,6 +1076,16 @@ class GeoFieldStringsEn extends GeoFieldStrings {
 
   @override
   String get sos_cancelled => 'SOS ended';
+
+  @override
+  String get sos_login_required =>
+      'Sign in to send SOS. Without an account the signal is not sent.';
+
+  @override
+  String get sos_queue_cancel => 'Cancel queued SOS (offline queue)';
+
+  @override
+  String get sos_queue_cleared => 'Offline SOS queue cleared';
 
   @override
   String get map_follow_gps => 'Follow my position (keeps the map on GPS)';

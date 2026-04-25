@@ -459,8 +459,7 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
               onUpdateGps: _updateGps,
               onCoordinateFormatChanged: (v) =>
                   setState(() => _coordinateFormat = v),
-              onAddCamera: () => Navigator.of(context)
-                  .pushNamed('/camera', arguments: _station?.key),
+              onAddCamera: _openCameraForStation,
               onAddGallery: _pickFromGallery,
               onDeletePhoto: _deletePhoto,
               onViewPhoto: (p) =>
@@ -473,6 +472,21 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
         ],
       ),
     );
+  }
+
+  /// Aqlli kamera yopilgach stansiyani repodan qayta yuklaymiz — aks holda rasm
+  /// [photoPaths] yangilangan bo'lsa ham [setState] eski [Station] qoladi.
+  Future<void> _openCameraForStation() async {
+    final id = _station?.key;
+    await Navigator.of(context).pushNamed('/camera', arguments: id);
+    if (!mounted || id == null) {
+      return;
+    }
+    final repo = context.read<StationRepository>();
+    final fresh = repo.getById(id);
+    if (fresh != null) {
+      setState(() => _station = fresh);
+    }
   }
 
   void _confirmDelete() async {

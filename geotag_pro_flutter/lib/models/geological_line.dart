@@ -152,4 +152,5 @@ class GeologicalLine extends HiveObject {
       controlLngs: map['controlLngs'] != null ? List<double>.from(map['controlLngs']) : null,
     );
   }
+
 }
