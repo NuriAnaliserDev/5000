@@ -67,7 +67,7 @@ class MapLineworkControls extends StatelessWidget {
               backgroundColor:
                   isEraserMode ? Colors.redAccent : Colors.white,
               onPressed: onToggleEraser,
-              tooltip: 'O‘chirish rejimi',
+              tooltip: GeoFieldStrings.of(context)?.map_eraser_tooltip ?? 'Eraser',
               child: Icon(
                 Icons.auto_fix_off,
                 color: isEraserMode ? Colors.white : Colors.black87,
@@ -130,7 +130,7 @@ class MapLineworkControls extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Tooltip(
-            message: 'Redo',
+            message: GeoFieldStrings.of(context)?.map_redo_tooltip ?? 'Redo',
             child: FloatingActionButton(
               heroTag: 'redoFAB',
               mini: true,
@@ -144,7 +144,7 @@ class MapLineworkControls extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Tooltip(
-            message: 'O‘chirish rejimi',
+            message: GeoFieldStrings.of(context)?.map_eraser_tooltip ?? 'Eraser',
             child: FloatingActionButton(
               heroTag: 'eraserDrawFAB',
               mini: true,

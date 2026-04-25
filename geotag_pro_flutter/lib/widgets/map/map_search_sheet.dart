@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 
+import '../../l10n/app_strings.dart';
+
 /// Xarita ustida joy izlash uchun pastdan chiqadigan bottom sheet.
 /// OpenStreetMap (Nominatim) API orqali qidiradi, tanlangan natija
 /// [LatLng] qaytaradi.
@@ -79,7 +81,7 @@ class _MapSearchSheetState extends State<MapSearchSheet> {
       if (!mounted) return;
       if (resp.statusCode != 200) {
         setState(() {
-          _error = 'Server xatoligi: ${resp.statusCode}';
+          _error = '${_loc()?.map_search_error ?? 'Search error'}: ${resp.statusCode}';
           _loading = false;
         });
         return;
@@ -93,16 +95,19 @@ class _MapSearchSheetState extends State<MapSearchSheet> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _error = 'Qidiruvda xatolik: $e';
+        _error = _loc()?.map_search_error ?? 'Search failed';
         _loading = false;
       });
     }
   }
 
+  GeoFieldStrings? _loc() => GeoFieldStrings.of(context);
+
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final theme = Theme.of(context);
+    final loc = _loc();
     return Padding(
       padding: EdgeInsets.only(bottom: bottomInset),
       child: Container(
@@ -134,7 +139,7 @@ class _MapSearchSheetState extends State<MapSearchSheet> {
                   onChanged: _onChanged,
                   onSubmitted: (v) => _search(v.trim()),
                   decoration: InputDecoration(
-                    hintText: 'Shahar, hudud yoki manzil...',
+                    hintText: loc?.map_search_hint ?? 'City, region or address...',
                     prefixIcon: const Icon(Icons.search),
                     suffixIcon: _ctrl.text.isEmpty
                         ? null
@@ -165,11 +170,11 @@ class _MapSearchSheetState extends State<MapSearchSheet> {
                     ),
                   ),
                 if (!_loading && _error == null && _results.isEmpty && _ctrl.text.length >= 2)
-                  const Padding(
-                    padding: EdgeInsets.all(16),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
                     child: Text(
-                      'Hech narsa topilmadi',
-                      style: TextStyle(color: Colors.grey),
+                      loc?.map_search_empty ?? 'Nothing found',
+                      style: const TextStyle(color: Colors.grey),
                     ),
                   ),
                 Flexible(

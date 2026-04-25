@@ -12,6 +12,59 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get about_app => 'Uygulama Hakkında';
 
   @override
+  String get fab_reset_title => 'Buton konumlarını sıfırla';
+
+  @override
+  String get fab_reset_desc =>
+      'Harita ve kamera ekranlarında sürüklenen butonları varsayılan konumlarına döndür';
+
+  @override
+  String get fab_reset_prompt =>
+      'Hangi ekrandaki buton düzenini sıfırlamak istersiniz?';
+
+  @override
+  String get fab_reset_map => 'Harita';
+
+  @override
+  String get fab_reset_camera => 'Kamera';
+
+  @override
+  String get fab_reset_all => 'Tümü';
+
+  @override
+  String get fab_reset_done => 'Buton konumları sıfırlandı';
+
+  @override
+  String get map_my_location => 'Konumum';
+
+  @override
+  String get map_eraser_tooltip => 'Silgi';
+
+  @override
+  String get map_redo_tooltip => 'İleri';
+
+  @override
+  String get map_eraser_hint =>
+      'Silgi modu: çizgiye dokunun — silinir. Çıkmak için butona tekrar dokunun.';
+
+  @override
+  String get map_search_hint => 'Şehir, bölge veya adres...';
+
+  @override
+  String get map_search_empty => 'Sonuç bulunamadı';
+
+  @override
+  String get map_search_searching => 'Aranıyor...';
+
+  @override
+  String get map_search_error =>
+      'Arama başarısız: internet yok veya sunucu yanıt vermedi';
+
+  @override
+  String get map_drag_mode_hint =>
+      'Sürükleme modu: butonu yeni konumuna kaydırın (6 saniye)';
+
+  @override
   String get acc_label => 'ACC';
 
   @override

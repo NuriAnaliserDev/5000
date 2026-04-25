@@ -106,6 +106,102 @@ abstract class GeoFieldStrings {
   /// **'About App'**
   String get about_app;
 
+  /// No description provided for @fab_reset_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset button positions'**
+  String get fab_reset_title;
+
+  /// No description provided for @fab_reset_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Return the draggable buttons on map and camera screens to their default positions'**
+  String get fab_reset_desc;
+
+  /// No description provided for @fab_reset_prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Which screen\'s button layout do you want to reset?'**
+  String get fab_reset_prompt;
+
+  /// No description provided for @fab_reset_map.
+  ///
+  /// In en, this message translates to:
+  /// **'Map'**
+  String get fab_reset_map;
+
+  /// No description provided for @fab_reset_camera.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get fab_reset_camera;
+
+  /// No description provided for @fab_reset_all.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get fab_reset_all;
+
+  /// No description provided for @fab_reset_done.
+  ///
+  /// In en, this message translates to:
+  /// **'Button positions restored'**
+  String get fab_reset_done;
+
+  /// No description provided for @map_my_location.
+  ///
+  /// In en, this message translates to:
+  /// **'My location'**
+  String get map_my_location;
+
+  /// No description provided for @map_eraser_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Eraser'**
+  String get map_eraser_tooltip;
+
+  /// No description provided for @map_redo_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Redo'**
+  String get map_redo_tooltip;
+
+  /// No description provided for @map_eraser_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Eraser mode: tap a line to remove it. Tap the button again to exit.'**
+  String get map_eraser_hint;
+
+  /// No description provided for @map_search_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'City, region or address...'**
+  String get map_search_hint;
+
+  /// No description provided for @map_search_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing found'**
+  String get map_search_empty;
+
+  /// No description provided for @map_search_searching.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching...'**
+  String get map_search_searching;
+
+  /// No description provided for @map_search_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Search failed: no internet or server did not respond'**
+  String get map_search_error;
+
+  /// No description provided for @map_drag_mode_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag mode: slide the button to its new position (6 seconds)'**
+  String get map_drag_mode_hint;
+
   /// No description provided for @acc_label.
   ///
   /// In en, this message translates to:

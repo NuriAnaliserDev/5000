@@ -12,6 +12,59 @@ class GeoFieldStringsEn extends GeoFieldStrings {
   String get about_app => 'About App';
 
   @override
+  String get fab_reset_title => 'Reset button positions';
+
+  @override
+  String get fab_reset_desc =>
+      'Return the draggable buttons on map and camera screens to their default positions';
+
+  @override
+  String get fab_reset_prompt =>
+      'Which screen\'s button layout do you want to reset?';
+
+  @override
+  String get fab_reset_map => 'Map';
+
+  @override
+  String get fab_reset_camera => 'Camera';
+
+  @override
+  String get fab_reset_all => 'All';
+
+  @override
+  String get fab_reset_done => 'Button positions restored';
+
+  @override
+  String get map_my_location => 'My location';
+
+  @override
+  String get map_eraser_tooltip => 'Eraser';
+
+  @override
+  String get map_redo_tooltip => 'Redo';
+
+  @override
+  String get map_eraser_hint =>
+      'Eraser mode: tap a line to remove it. Tap the button again to exit.';
+
+  @override
+  String get map_search_hint => 'City, region or address...';
+
+  @override
+  String get map_search_empty => 'Nothing found';
+
+  @override
+  String get map_search_searching => 'Searching...';
+
+  @override
+  String get map_search_error =>
+      'Search failed: no internet or server did not respond';
+
+  @override
+  String get map_drag_mode_hint =>
+      'Drag mode: slide the button to its new position (6 seconds)';
+
+  @override
   String get acc_label => 'ACC';
 
   @override

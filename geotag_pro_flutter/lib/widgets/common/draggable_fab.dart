@@ -1,15 +1,30 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/app_strings.dart';
 import '../../services/settings_controller.dart';
 
-/// [DraggableFab] — uzun bosib (long-press) ushlab turganda sudralib ko‘chiriladigan
-/// floating tugma. Joy (Offset) [SettingsController.setFabPosition] orqali Hive ga
-/// saqlanadi va keyingi kirishda tiklanadi.
+/// Qanday qilib drag-rejimni boshqarish kerakligi.
+enum DragTriggerMode {
+  /// Default: uzoq bosish (long-press) bilan sudrab joylashtirish.
+  longPress,
+
+  /// Uch marta tez bosish (triple-tap) bilan drag-rejim yoqiladi, keyin
+  /// [_armedHoldDuration] ichida oddiy pan (sudrab qo‘yish) bilan joylashtirish
+  /// mumkin. Tugmada o‘zining `onLongPress` bor bo‘lsa (masalan, SOS) ushbu
+  /// rejim mos keladi.
+  tripleTap,
+}
+
+/// [DraggableFab] — har xil floating tugmalarni joylashtirish uchun sudrab
+/// ko‘chiriladigan konteyner. Pozitsiya [SettingsController.setFabPosition]
+/// orqali Hive ga saqlanadi va keyingi kirishda tiklanadi.
 ///
-/// Bir vaqtning o‘zida ekranda bir nechta [DraggableFab] ishlatish uchun — har biriga
-/// noyob [id] bering (masalan: `map_slice`, `camera_shutter`).
+/// Bir vaqtning o‘zida ekranda bir nechta [DraggableFab] ishlatish uchun — har
+/// biriga noyob [id] bering (masalan: `map_slice`, `camera_shutter`).
 ///
 /// [defaultOffset] — birinchi ochilishda qo‘llaniladigan koordinata:
 /// * `dx > 0` — chapdan masofa; `dx < 0` — o‘ngdan masofa;
@@ -23,6 +38,7 @@ class DraggableFab extends StatefulWidget {
   final Widget child;
   final Size size;
   final bool enableDrag;
+  final DragTriggerMode dragMode;
 
   /// Agar [true] — child ni `SizedBox` ichiga olmaydi, tabiy o‘lchami beriladi.
   /// Bu o‘zgaruvchan balandlikdagi panellarni (masalan, kamera yon paneli) to‘g‘ri
@@ -39,6 +55,7 @@ class DraggableFab extends StatefulWidget {
     this.size = const Size(56, 56),
     this.enableDrag = true,
     this.unconstrained = false,
+    this.dragMode = DragTriggerMode.longPress,
   });
 
   @override
@@ -52,6 +69,15 @@ class _DraggableFabState extends State<DraggableFab>
   bool _dragging = false;
   Offset _dragStart = Offset.zero;
   Offset _dragCurrent = Offset.zero;
+
+  // Triple-tap uchun
+  int _tapCount = 0;
+  Timer? _tapResetTimer;
+  bool _armed = false;
+  Timer? _armedTimer;
+
+  static const Duration _tapWindow = Duration(milliseconds: 650);
+  static const Duration _armedHoldDuration = Duration(seconds: 6);
 
   late final AnimationController _pulseCtrl = AnimationController(
     vsync: this,
@@ -75,6 +101,8 @@ class _DraggableFabState extends State<DraggableFab>
 
   @override
   void dispose() {
+    _tapResetTimer?.cancel();
+    _armedTimer?.cancel();
     _pulseCtrl.dispose();
     super.dispose();
   }
@@ -90,6 +118,7 @@ class _DraggableFabState extends State<DraggableFab>
     );
   }
 
+  // ─────────── Long-press rejim ────────────
   void _onLongPressStart(Offset basePos) {
     HapticFeedback.mediumImpact();
     _dragStart = basePos;
@@ -123,6 +152,122 @@ class _DraggableFabState extends State<DraggableFab>
     });
   }
 
+  // ─────────── Triple-tap rejim ────────────
+  void _onTap() {
+    if (widget.dragMode != DragTriggerMode.tripleTap) return;
+    if (_dragging) return;
+    if (_armed) {
+      // Armed holatida tap — boshqa vazifasi yo‘q, taymerni uzaytiramiz.
+      _resetArmedTimer();
+      return;
+    }
+    HapticFeedback.selectionClick();
+    _tapCount++;
+    _tapResetTimer?.cancel();
+    _tapResetTimer = Timer(_tapWindow, () {
+      _tapCount = 0;
+    });
+    if (_tapCount >= 3) {
+      _tapCount = 0;
+      _tapResetTimer?.cancel();
+      _armDrag();
+    }
+  }
+
+  void _armDrag() {
+    HapticFeedback.heavyImpact();
+    if (mounted) {
+      final msg = GeoFieldStrings.of(context)?.map_drag_mode_hint ??
+          'Drag mode: slide the button to its new position (6 seconds)';
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(msg),
+            duration: const Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+    }
+    setState(() => _armed = true);
+    _pulseCtrl.repeat(reverse: true);
+    _resetArmedTimer();
+  }
+
+  void _resetArmedTimer() {
+    _armedTimer?.cancel();
+    _armedTimer = Timer(_armedHoldDuration, _disarmDrag);
+  }
+
+  void _disarmDrag() {
+    if (!mounted) return;
+    _armedTimer?.cancel();
+    if (!_dragging) {
+      _pulseCtrl.stop();
+      _pulseCtrl.value = 1.0;
+    }
+    setState(() => _armed = false);
+  }
+
+  void _onPanStart(Offset basePos) {
+    if (!_armed) return;
+    _armedTimer?.cancel();
+    HapticFeedback.mediumImpact();
+    _dragStart = basePos;
+    _dragCurrent = basePos;
+    setState(() => _dragging = true);
+  }
+
+  void _onPanUpdate(DragUpdateDetails d, Size screen) {
+    if (!_dragging) return;
+    final next = _dragCurrent + d.delta;
+    final clamped = Offset(
+      next.dx.clamp(4.0, screen.width - widget.size.width - 4.0),
+      next.dy.clamp(4.0, screen.height - widget.size.height - 4.0),
+    );
+    setState(() => _dragCurrent = clamped);
+  }
+
+  void _onPanEnd() {
+    if (!_dragging) return;
+    HapticFeedback.selectionClick();
+    final finalPos = _dragCurrent;
+    context
+        .read<SettingsController>()
+        .setFabPosition(widget.screen, widget.id, finalPos);
+    setState(() {
+      _savedPos = finalPos;
+      _dragging = false;
+    });
+    _disarmDrag();
+  }
+
+  Widget _buildGestureLayer(Widget inner, Offset base, Size screen) {
+    if (!widget.enableDrag) return inner;
+
+    if (widget.dragMode == DragTriggerMode.tripleTap) {
+      // Armed holatida child ichidagi gesturelarni (masalan, SOS onLongPress)
+      // bloklaymiz — shunda faqat bizning pan gesture ishlaydi.
+      final child = _armed ? AbsorbPointer(absorbing: true, child: inner) : inner;
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: _onTap,
+        onPanStart: _armed ? (_) => _onPanStart(base) : null,
+        onPanUpdate: _armed ? (d) => _onPanUpdate(d, screen) : null,
+        onPanEnd: _armed ? (_) => _onPanEnd() : null,
+        child: child,
+      );
+    }
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onLongPressStart: (_) => _onLongPressStart(base),
+      onLongPressMoveUpdate: (d) => _onLongPressMove(d, screen),
+      onLongPressEnd: (_) => _onLongPressEnd(),
+      child: inner,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -144,15 +289,7 @@ class _DraggableFabState extends State<DraggableFab>
             Positioned(
               left: pos.dx,
               top: pos.dy,
-              child: widget.enableDrag
-                  ? GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onLongPressStart: (_) => _onLongPressStart(base),
-                      onLongPressMoveUpdate: (d) => _onLongPressMove(d, screen),
-                      onLongPressEnd: (_) => _onLongPressEnd(),
-                      child: inner,
-                    )
-                  : inner,
+              child: _buildGestureLayer(inner, base, screen),
             ),
           ],
         );
@@ -161,7 +298,8 @@ class _DraggableFabState extends State<DraggableFab>
   }
 
   Widget _wrapVisual(Widget child) {
-    if (!_dragging) return child;
+    final active = _dragging || _armed;
+    if (!active) return child;
     return AnimatedBuilder(
       animation: _pulseCtrl,
       builder: (context, c) {

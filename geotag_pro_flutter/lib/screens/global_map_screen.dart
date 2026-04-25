@@ -401,12 +401,10 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                   _drawingPoints.clear();
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'O‘chirish rejimi: chiziqni bosing — o‘chiradi. Qayta bosing — chiqadi.',
-                        ),
+                      SnackBar(
+                        content: Text(context.loc('map_eraser_hint')),
                         behavior: SnackBarBehavior.floating,
-                        duration: Duration(seconds: 3),
+                        duration: const Duration(seconds: 3),
                       ),
                     );
                   }
@@ -568,11 +566,16 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
             onPressed: _toggleSliceMode,
           ),
         ),
+        // SOS tugmasining o‘zida `onLongPress` (SOS yuborish) bor. Shuning
+        // uchun oddiy long-press bilan drag qilib bo‘lmaydi. Buning o‘rniga
+        // 3-marta tez bosish (triple-tap) drag-rejimni yoqadi, keyin tugmani
+        // oddiy surib joylashtirish mumkin (6 soniya oynasi ichida).
         DraggableFab(
           screen: 'map',
           id: 'sos',
           defaultOffset: const Offset(-16, -240),
           size: const Size(56, 62),
+          dragMode: DragTriggerMode.tripleTap,
           child: MapSosButton(currentCenter: LatLng(_centerLat, _centerLng)),
         ),
         DraggableFab(
@@ -640,7 +643,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
           defaultOffset: const Offset(-16, -400),
           size: const Size(48, 48),
           child: Tooltip(
-            message: 'Mening joyim',
+            message: context.loc('map_my_location'),
             child: FloatingActionButton.small(
               heroTag: 'my_location_fab',
               backgroundColor: Colors.white,

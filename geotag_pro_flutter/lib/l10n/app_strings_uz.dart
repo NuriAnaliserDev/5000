@@ -12,6 +12,59 @@ class GeoFieldStringsUz extends GeoFieldStrings {
   String get about_app => 'Ilova haqida';
 
   @override
+  String get fab_reset_title => 'Tugmalar joyini tiklash';
+
+  @override
+  String get fab_reset_desc =>
+      'Xarita va kamera ekranida sudrab ko‘chirilgan tugmalarni boshlang‘ich holatga qaytarish';
+
+  @override
+  String get fab_reset_prompt =>
+      'Qaysi ekrandagi tugmalar joyini tiklashni xohlaysiz?';
+
+  @override
+  String get fab_reset_map => 'Xarita';
+
+  @override
+  String get fab_reset_camera => 'Kamera';
+
+  @override
+  String get fab_reset_all => 'Hammasi';
+
+  @override
+  String get fab_reset_done => 'Tugmalar joyi tiklandi';
+
+  @override
+  String get map_my_location => 'Mening joyim';
+
+  @override
+  String get map_eraser_tooltip => 'O‘chirish';
+
+  @override
+  String get map_redo_tooltip => 'Oldinga';
+
+  @override
+  String get map_eraser_hint =>
+      'O‘chirish rejimi: chiziqni bosing — o‘chadi. Qaytadan rejimdan chiqish uchun tugmani qayta bosing.';
+
+  @override
+  String get map_search_hint => 'Shahar, hudud yoki manzil...';
+
+  @override
+  String get map_search_empty => 'Hech narsa topilmadi';
+
+  @override
+  String get map_search_searching => 'Qidirilmoqda...';
+
+  @override
+  String get map_search_error =>
+      'Qidirishda xatolik: internet yo‘qmi yoki server javob bermadi';
+
+  @override
+  String get map_drag_mode_hint =>
+      'Drag-rejim: tugmani surib, yangi joyini tanlang (6 soniya)';
+
+  @override
   String get acc_label => 'ACC';
 
   @override

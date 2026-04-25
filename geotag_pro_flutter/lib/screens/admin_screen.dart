@@ -48,6 +48,48 @@ class AdminScreen extends StatelessWidget {
     }
   }
 
+  Future<void> _showResetFabDialog(BuildContext context) async {
+    final settings = context.read<SettingsController>();
+    final choice = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(context.locRead('fab_reset_title')),
+        content: Text(context.locRead('fab_reset_prompt')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop('cancel'),
+            child: Text(context.locRead('cancel')),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop('map'),
+            child: Text(context.locRead('fab_reset_map')),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop('camera'),
+            child: Text(context.locRead('fab_reset_camera')),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(ctx).pop('all'),
+            child: Text(context.locRead('fab_reset_all')),
+          ),
+        ],
+      ),
+    );
+    if (choice == null || choice == 'cancel') return;
+    if (!context.mounted) return;
+    if (choice == 'map' || choice == 'all') {
+      settings.resetFabPositions('map');
+    }
+    if (choice == 'camera' || choice == 'all') {
+      settings.resetFabPositions('camera');
+    }
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.locRead('fab_reset_done'))),
+      );
+    }
+  }
+
   Future<void> _exportData(BuildContext context, StationRepository repo, bool isCsv) async {
     if (repo.stations.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -241,6 +283,22 @@ class AdminScreen extends StatelessWidget {
             value: settings.expertMode,
             onChanged: (v) => settings.expertMode = v,
             activeThumbColor: const Color(0xFF1976D2),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(
+              Icons.open_with,
+              color: Color(0xFF1976D2),
+            ),
+            title: Text(context.loc('fab_reset_title')),
+            subtitle: Text(
+              context.loc('fab_reset_desc'),
+              style: TextStyle(
+                fontSize: 11,
+                color: onSurf.withValues(alpha: 0.55),
+              ),
+            ),
+            onTap: () => _showResetFabDialog(context),
           ),
           ListTile(
             contentPadding: EdgeInsets.zero,
