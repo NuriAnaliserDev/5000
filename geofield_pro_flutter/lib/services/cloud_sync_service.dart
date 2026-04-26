@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:hive/hive.dart';
+import '../config/cloud_features.dart';
 import '../models/station.dart';
 import '../models/track_data.dart';
 import '../models/chat_message.dart';
@@ -13,7 +14,6 @@ import 'hive_db.dart';
 
 class CloudSyncService extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
   StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
   Timer? _syncTimer;
   bool _isSyncing = false;
@@ -152,38 +152,41 @@ class CloudSyncService extends ChangeNotifier {
       String? remoteAudioUrl;
       List<String> remotePhotoUrls = [];
 
-      // Upload single legacy photo if exists
-      if (station.photoPath != null &&
-          !kIsWeb &&
-          File(station.photoPath!).existsSync()) {
-        final ref =
-            _storage.ref().child('users/$uid/stations/$key/main_photo.jpg');
-        await ref.putFile(File(station.photoPath!));
-        remotePhotoUrl = await ref.getDownloadURL();
-      }
+      if (kFirebaseStorageUploadsEnabled) {
+        final storage = FirebaseStorage.instance;
+        // Upload single legacy photo if exists
+        if (station.photoPath != null &&
+            !kIsWeb &&
+            File(station.photoPath!).existsSync()) {
+          final ref =
+              storage.ref().child('users/$uid/stations/$key/main_photo.jpg');
+          await ref.putFile(File(station.photoPath!));
+          remotePhotoUrl = await ref.getDownloadURL();
+        }
 
-      // Upload multi-photos
-      if (station.photoPaths != null) {
-        for (int i = 0; i < station.photoPaths!.length; i++) {
-          final path = station.photoPaths![i];
-          if (!kIsWeb && File(path).existsSync()) {
-            final ref =
-                _storage.ref().child('users/$uid/stations/$key/photo_$i.jpg');
-            await ref.putFile(File(path));
-            final url = await ref.getDownloadURL();
-            remotePhotoUrls.add(url);
+        // Upload multi-photos
+        if (station.photoPaths != null) {
+          for (int i = 0; i < station.photoPaths!.length; i++) {
+            final path = station.photoPaths![i];
+            if (!kIsWeb && File(path).existsSync()) {
+              final ref =
+                  storage.ref().child('users/$uid/stations/$key/photo_$i.jpg');
+              await ref.putFile(File(path));
+              final url = await ref.getDownloadURL();
+              remotePhotoUrls.add(url);
+            }
           }
         }
-      }
 
-      // Upload audio
-      if (station.audioPath != null &&
-          !kIsWeb &&
-          File(station.audioPath!).existsSync()) {
-        final ref =
-            _storage.ref().child('users/$uid/stations/$key/audio_note.m4a');
-        await ref.putFile(File(station.audioPath!));
-        remoteAudioUrl = await ref.getDownloadURL();
+        // Upload audio
+        if (station.audioPath != null &&
+            !kIsWeb &&
+            File(station.audioPath!).existsSync()) {
+          final ref =
+              storage.ref().child('users/$uid/stations/$key/audio_note.m4a');
+          await ref.putFile(File(station.audioPath!));
+          remoteAudioUrl = await ref.getDownloadURL();
+        }
       }
 
       final data = {
@@ -267,12 +270,14 @@ class CloudSyncService extends ChangeNotifier {
     try {
       String? remoteMediaUrl;
 
-      // Upload media if exists
-      if (msg.mediaPath != null &&
+      if (kFirebaseStorageUploadsEnabled &&
+          msg.mediaPath != null &&
           !kIsWeb &&
           File(msg.mediaPath!).existsSync()) {
         final file = File(msg.mediaPath!);
-        final ref = _storage.ref().child('chats/${msg.groupId}/${msg.id}');
+        final ref = FirebaseStorage.instance
+            .ref()
+            .child('chats/${msg.groupId}/${msg.id}');
         await ref.putFile(file);
         remoteMediaUrl = await ref.getDownloadURL();
       }

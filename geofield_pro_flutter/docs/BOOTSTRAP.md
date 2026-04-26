@@ -27,7 +27,7 @@ Android paket, imzo, Play tayyorligi: [ANDROID_RELEASE](ANDROID_RELEASE.md) va [
 
 ## Firebase qoidalarni chiqarish
 
-Firestore qoidalari CLI orqali chiqariladi: `cd geofield_pro_flutter && npx firebase-tools deploy --only firestore:rules` (loyiha: `geofield-pro-8529f`, `.firebaserc`). **Storage** qoidalari uchun avvalo [Firebase Console → Storage](https://console.firebase.google.com/project/geofield-pro-8529f/storage) da «Get Started» bilan bucket yoqing, so‘ng `deploy --only storage`.
+Firestore qoidalari CLI orqali chiqariladi: `cd geofield_pro_flutter && npx firebase-tools deploy --only firestore:rules` (loyiha: `geofield-pro-8529f`, `.firebaserc`). **Storage** ixtiyoriy: konsolda yo‘q bo‘lsa ham ilova [lib/config/cloud_features.dart](lib/config/cloud_features.dart) dagi `kFirebaseStorageUploadsEnabled = false` bilan fayl yuklamaydi (Firestore matn sinxroni davom etadi). Keyinroq Storage yoki o‘z server — `true` qiling va kerak bo‘lsa `deploy --only storage`.
 
 ## GitHub Actions (reliz AAB)
 
