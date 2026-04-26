@@ -44,9 +44,7 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Firebase — device-specific options
-lib/firebase_options.dart
-**/google-services.json
+# Firebase — iOS plist odatda mahalliy; Android/Dart konfig repoda (CI uchun).
 **/GoogleService-Info.plist
 # Web OAuth (reCAPTCHA) — android/.gitignore ham to‘sadi
 android/firebase_secrets.properties

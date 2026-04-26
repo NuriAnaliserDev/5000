@@ -1,6 +1,8 @@
 rules_version = '2';
 
-// GeoField Pro — Firebase Storage. Deploy: firebase deploy --only storage
+// GeoField Pro — Firebase Storage.
+// Avvalo konsolda Storage yoqing: https://console.firebase.google.com/project/geofield-pro-8529f/storage
+// Keyin: firebase deploy --only storage
 //
 // users/{uid}/... — CloudSyncService stantsiya fotolari/audio.
 // chats/{groupId}/{file} — guruh ilovasi; a’zolikni Storage rulesda tekshirish qiyin —

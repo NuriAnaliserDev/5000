@@ -21,6 +21,14 @@ Barcha mantiqi `lib/app/app_bootstrap.dart` faylida: `runAppBootstrap()`.
 
 Android paket, imzo, Play tayyorligi: [ANDROID_RELEASE](ANDROID_RELEASE.md) va [PLAY_CHECKLIST](PLAY_CHECKLIST.md). Firebase `google-services.json` loyihada `com.aurum.geofieldpro` ga mos tursin — tafsilotlar shu hujjatlarda.
 
-## Firebase fayllari (maxfiylik)
+## Firebase fayllari
 
-Quyidagilar `.gitignore` ro‘yxatida va repoda **kuzatilmasligi** ma’qul: `lib/firebase_options.dart`, `android/app/google-services.json`, iOS bo‘lsa `ios/Runner/GoogleService-Info.plist`. Yangi ishchi nusxa: `cd geofield_pro_flutter` dan keyin [FlutterFire CLI](https://firebase.flutter.dev/docs/cli/) bilan `flutterfire configure` (Firebase loyihasiga kirish kerak); sozlangan fayllar mahalliy diskda qoladi.
+`lib/firebase_options.dart` va `android/app/google-services.json` repoda kuzatiladi (**GitHub Actions** analyze/test/build uchun). API kalitlarini Firebase konsolda ilova cheklovlari bilan toraytiring. iOS: `GoogleService-Info.plist` odatda `.gitignore` da, mahalliy `flutterfire configure`.
+
+## Firebase qoidalarni chiqarish
+
+Firestore qoidalari CLI orqali chiqariladi: `cd geofield_pro_flutter && npx firebase-tools deploy --only firestore:rules` (loyiha: `geofield-pro-8529f`, `.firebaserc`). **Storage** qoidalari uchun avvalo [Firebase Console → Storage](https://console.firebase.google.com/project/geofield-pro-8529f/storage) da «Get Started» bilan bucket yoqing, so‘ng `deploy --only storage`.
+
+## GitHub Actions (reliz AAB)
+
+`build-appbundle` ish oqimi: repoda `ANDROID_KEYSTORE_BASE64` (keystore faylining base64), `ANDROID_KEYSTORE_STORE_PASSWORD`, `ANDROID_KEYSTORE_KEY_PASSWORD`, `ANDROID_KEY_ALIAS` **repository secrets** bo‘lsa — `flutter build appbundle --release` va AAB artefakt. Secrets bo‘lmasa — `flutter build apk --debug` va `app-debug-ci` artefakt (mahalliy Play reliz uchun `android/key.properties` va `docs/ANDROID_RELEASE.md`).

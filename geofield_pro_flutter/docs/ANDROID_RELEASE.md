@@ -42,4 +42,4 @@ Minifikatsiya yoqilgan. Agar relizda Firestore, Gson yoki refleksiya bo‘yicha 
 
 ## CI va artefakt
 
-GitHub Actions reliz AAB yig‘ish va `app-release.aab` artefaktini saqlaydi. **Imzoli** do‘konga yuklash uchun: repoda `key.properties` bo‘lmasa artefakt odatda debug imzo (ichki trak) yoki siz o‘rnatgan **GitHub secrets** orqali imzo siyosatiga tayanadi; produksiya odatda lokal yoki alohida imzolash oqimida bajariladi.
+GitHub Actions: **Secrets** (`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_STORE_PASSWORD`, `ANDROID_KEYSTORE_KEY_PASSWORD`, `ANDROID_KEY_ALIAS`) sozlangan bo‘lsa — `app-release.aab` artefakt. Aks holda **debug APK** (`app-debug-ci`) yig‘iladi — Play uchun emas, analyze/build yashil holatni saqlash uchun. Mahalliy Play yuklash: `android/key.properties` + `flutter build appbundle --release`. Batafsil: [BOOTSTRAP](BOOTSTRAP.md) dagi «GitHub Actions».
