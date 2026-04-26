@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "36261437268",
+    "project_id": "geofield-pro-8529f",
+    "storage_bucket": "geofield-pro-8529f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:36261437268:android:3c161d7c50a494a136f2c1",
+        "android_client_info": {
+          "package_name": "com.aurum.geofieldpro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBisL9VcAUKyDUkIyFryNKCewsncpP6Dyo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

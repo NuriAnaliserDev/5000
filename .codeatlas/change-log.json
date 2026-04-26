@@ -55,5 +55,81 @@
       "servicesAffected": 1
     },
     "primaryGraphId": "flow:geotag_pro_flutter\\build\\unit_test_assets\\packages\\wakelock_plus\\assets\\no_sleep.js:_classCallCheck"
+  },
+  {
+    "id": "cl_1777183677665_tyug",
+    "timestamp": "2026-04-26T06:07:57.665Z",
+    "filePath": "geofield_pro_flutter\\build\\app\\intermediates\\flutter\\debug\\flutter_assets\\packages\\wakelock_plus\\assets\\no_sleep.js",
+    "changedFunctions": [
+      "_classCallCheck"
+    ],
+    "newFunctions": [
+      "_classCallCheck"
+    ],
+    "deletedFunctions": [],
+    "impactSummary": {
+      "directImpacts": 0,
+      "transitiveImpacts": 0,
+      "clustersAffected": 0,
+      "servicesAffected": 1
+    },
+    "primaryGraphId": "flow:geofield_pro_flutter\\build\\app\\intermediates\\flutter\\debug\\flutter_assets\\packages\\wakelock_plus\\assets\\no_sleep.js:_classCallCheck"
+  },
+  {
+    "id": "cl_1777183688845_6fzk",
+    "timestamp": "2026-04-26T06:08:08.845Z",
+    "filePath": "geofield_pro_flutter\\build\\app\\intermediates\\assets\\debug\\mergeDebugAssets\\flutter_assets\\packages\\wakelock_plus\\assets\\no_sleep.js",
+    "changedFunctions": [
+      "_classCallCheck"
+    ],
+    "newFunctions": [
+      "_classCallCheck"
+    ],
+    "deletedFunctions": [],
+    "impactSummary": {
+      "directImpacts": 0,
+      "transitiveImpacts": 0,
+      "clustersAffected": 0,
+      "servicesAffected": 1
+    },
+    "primaryGraphId": "flow:geofield_pro_flutter\\build\\app\\intermediates\\assets\\debug\\mergeDebugAssets\\flutter_assets\\packages\\wakelock_plus\\assets\\no_sleep.js:_classCallCheck"
+  },
+  {
+    "id": "cl_1777184069077_ygag",
+    "timestamp": "2026-04-26T06:14:29.077Z",
+    "filePath": "geofield_pro_flutter\\build\\app\\intermediates\\flutter\\release\\flutter_assets\\packages\\wakelock_plus\\assets\\no_sleep.js",
+    "changedFunctions": [
+      "_classCallCheck"
+    ],
+    "newFunctions": [
+      "_classCallCheck"
+    ],
+    "deletedFunctions": [],
+    "impactSummary": {
+      "directImpacts": 0,
+      "transitiveImpacts": 0,
+      "clustersAffected": 0,
+      "servicesAffected": 1
+    },
+    "primaryGraphId": "flow:geofield_pro_flutter\\build\\app\\intermediates\\flutter\\release\\flutter_assets\\packages\\wakelock_plus\\assets\\no_sleep.js:_classCallCheck"
+  },
+  {
+    "id": "cl_1777184192164_lnv1",
+    "timestamp": "2026-04-26T06:16:32.164Z",
+    "filePath": "geofield_pro_flutter\\build\\app\\intermediates\\assets\\release\\mergeReleaseAssets\\flutter_assets\\packages\\wakelock_plus\\assets\\no_sleep.js",
+    "changedFunctions": [
+      "_classCallCheck"
+    ],
+    "newFunctions": [
+      "_classCallCheck"
+    ],
+    "deletedFunctions": [],
+    "impactSummary": {
+      "directImpacts": 0,
+      "transitiveImpacts": 0,
+      "clustersAffected": 0,
+      "servicesAffected": 1
+    },
+    "primaryGraphId": "flow:geofield_pro_flutter\\build\\app\\intermediates\\assets\\release\\mergeReleaseAssets\\flutter_assets\\packages\\wakelock_plus\\assets\\no_sleep.js:_classCallCheck"
   }
 ]

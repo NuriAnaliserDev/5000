@@ -1,0 +1,7 @@
+# Nusxa olib `key.properties` nomiga saqlang (`android/key.properties`, gitda yo‘q).
+# `storeFile` yo‘li android app modulidan nisbiy: `../` = `android/` papkasi.
+
+storePassword=your-keystore-password
+keyPassword=your-key-password
+keyAlias=upload
+storeFile=../upload-keystore.jks
