@@ -1,0 +1,9 @@
+# Agent / IDE holati (commit qilinmasin)
+.codeatlas/
+
+# Mahalliy muhit
+.env
+.env.*
+
+# JetBrains (ildizda .idea bo‘lsa)
+.idea/

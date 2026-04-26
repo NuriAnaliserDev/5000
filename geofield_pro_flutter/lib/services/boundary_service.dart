@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io' as io;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
@@ -35,6 +36,8 @@ class BoundaryImportResult {
 class BoundaryService extends ChangeNotifier {
   List<BoundaryPolygon> _boundaries = [];
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  String? get _currentUid => FirebaseAuth.instance.currentUser?.uid;
 
   List<BoundaryPolygon> get boundaries => _boundaries;
 
@@ -93,8 +96,15 @@ class BoundaryService extends ChangeNotifier {
       zoneType: zoneType,
       description: description,
     );
+    final uid = _currentUid;
+    if (uid == null) {
+      throw Exception("Chegara qo‘shish uchun avval tizimga kiring.");
+    }
     try {
-      await _firestore.collection('global_boundaries').add(polygon.toMap());
+      await _firestore.collection('global_boundaries').add({
+        ...polygon.toMap(),
+        'createdByUid': uid,
+      });
     } catch (e) {
       debugPrint("addPolygonFromPoints error: $e");
       rethrow;
@@ -206,6 +216,10 @@ class BoundaryService extends ChangeNotifier {
       int skipped = 0;
       bool normalized = false;
       final List<LatLng> allFit = [];
+      final importUid = _currentUid;
+      if (importUid == null) {
+        throw Exception("Import uchun avval tizimga kiring.");
+      }
 
       for (final p in newPolys) {
         final normalizedPolygon = _normalizePolygonIfNeeded(p);
@@ -216,7 +230,10 @@ class BoundaryService extends ChangeNotifier {
         if (!identical(normalizedPolygon, p)) {
           normalized = true;
         }
-        await _firestore.collection('global_boundaries').add(normalizedPolygon.toMap());
+        await _firestore.collection('global_boundaries').add({
+          ...normalizedPolygon.toMap(),
+          'createdByUid': importUid,
+        });
         allFit.addAll(normalizedPolygon.points);
         imported++;
       }

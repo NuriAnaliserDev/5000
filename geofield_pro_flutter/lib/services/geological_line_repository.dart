@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
 import '../models/geological_line.dart';
 
@@ -89,8 +90,13 @@ class GeologicalLineRepository extends ChangeNotifier {
   }
 
   Future<void> _uploadLine(GeologicalLine line) async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
     try {
-      await _firestore.collection('geological_lines').doc(line.id).set(line.toMap());
+      await _firestore.collection('geological_lines').doc(line.id).set({
+        ...line.toMap(),
+        'ownerUid': uid,
+      }, SetOptions(merge: true));
     } catch (e) {
       debugPrint('Error uploading line: $e');
     }

@@ -17,21 +17,9 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
-// Firebase Android Auth (reCAPTCHA) uchun "Web client" ID: google-services.jsonda bo‘lmasa ham shu string yetarli.
-val firebaseSecretsFile = rootProject.file("firebase_secrets.properties")
-val firebaseSecrets = Properties()
-if (firebaseSecretsFile.exists()) {
-    firebaseSecrets.load(FileInputStream(firebaseSecretsFile))
-}
-val localPropertiesFile = rootProject.file("local.properties")
-val localProjectProps = Properties()
-if (localPropertiesFile.exists()) {
-    localProjectProps.load(FileInputStream(localPropertiesFile))
-}
-val defaultWebClientId: String? =
-    firebaseSecrets.getProperty("defaultWebClientId")?.trim()?.takeIf { it.isNotEmpty() }
-        ?: localProjectProps.getProperty("firebase.defaultWebClientId")?.trim()?.takeIf { it.isNotEmpty() }
-        ?: System.getenv("FIREBASE_DEFAULT_WEB_CLIENT_ID")?.trim()?.takeIf { it.isNotEmpty() }
+// default_web_client_id string resursi: com.google.gms.google-services plarugini
+// google-services.json (OAuth) dan bitta marta hosil qiladi. Qo'lda resValue qo'shish
+// mergeDebugResourcesda "Duplicate resources" (dublikat) beradi.
 
 android {
     namespace = "com.aurum.geofieldpro"
@@ -56,10 +44,6 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-
-        defaultWebClientId?.let { clientId ->
-            resValue("string", "default_web_client_id", clientId)
-        }
     }
 
     signingConfigs {
@@ -75,12 +59,9 @@ android {
 
     buildTypes {
         release {
-            signingConfig =
-                if (keystorePropertiesFile.exists()) {
-                    signingConfigs.getByName("release")
-                } else {
-                    signingConfigs.getByName("debug")
-                }
+            if (keystorePropertiesFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -91,11 +72,31 @@ android {
     }
 }
 
+// Play/reliz: key.properties bo‘lmasa release APK/AAB grafigi ishlamasin.
+gradle.taskGraph.whenReady {
+    fun isReleaseApkOrBundleTask(name: String): Boolean {
+        if (name == "assembleRelease" || name == "bundleRelease" || name == "packageRelease") return true
+        if (name.startsWith("assemble") && name.endsWith("Release")) return true
+        if (name.startsWith("bundle") && name.endsWith("Release")) return true
+        if (name.startsWith("package") && name.endsWith("Release")) return true
+        return false
+    }
+    val wantsRelease = allTasks.any { isReleaseApkOrBundleTask(it.name) }
+    if (wantsRelease && !keystorePropertiesFile.exists()) {
+        throw GradleException(
+            "Release yig‘ish uchun android/key.properties kerak (Play uchun debug imzo taqiqlanadi). " +
+                "Qo‘llanma: geofield_pro_flutter/docs/ANDROID_RELEASE.md",
+        )
+    }
+}
+
 flutter {
     source = "../.."
 }
 
 dependencies {
+    // Firebase Android (BOM) — Flutter Firebase loyha bog‘liqliklari pubspec orqali
+    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
     // reCAPTCHA / Google Sign-In bilan bog‘liq auth oqimlari
     implementation("com.google.android.gms:play-services-auth:21.2.0")

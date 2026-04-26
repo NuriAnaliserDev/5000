@@ -53,14 +53,26 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // Global chegaralar (DXF/KML importidan keladigan poligonlar).
-    // Har qanday avtorizatsiyalangan foydalanuvchi yangisini qo‘sha oladi
-    // va o‘zgartirishi mumkin. O‘chirish esa — tegishli yozuv egasi
-    // yoki admin tomonidan amalga oshiriladi.
+    // Global chegaralar — createdByUid yozuv egasi yoki admin tahrirlaydi/o‘chiradi.
+    // createdByUid yo‘q (legacy) hujjatlar: faqat admin.
     match /global_boundaries/{doc} {
       allow read: if isAuthed();
-      allow create, update: if isAuthed();
-      allow delete: if isAuthed();
+      allow create: if isAuthed()
+        && request.resource.data.createdByUid == request.auth.uid;
+      allow update: if isAuthed() && (
+        isAdmin()
+        || (
+          'createdByUid' in resource.data
+          && resource.data.createdByUid == request.auth.uid
+        )
+      );
+      allow delete: if isAuthed() && (
+        isAdmin()
+        || (
+          'createdByUid' in resource.data
+          && resource.data.createdByUid == request.auth.uid
+        )
+      );
     }
 
     match /global_lines/{doc} {
@@ -68,19 +80,46 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // Geologik chiziqlar — har bir avtorizatsiyalangan foydalanuvchi
-    // o‘qishi va yozishi mumkin (jamoaviy linework).
+    // Geologik chiziqlar — ownerUid egasi yoki admin; legacy: faqat admin.
     match /geological_lines/{doc} {
       allow read: if isAuthed();
-      allow create, update: if isAuthed();
-      allow delete: if isAuthed();
+      allow create: if isAuthed()
+        && request.resource.data.ownerUid == request.auth.uid;
+      allow update: if isAuthed() && (
+        isAdmin()
+        || (
+          'ownerUid' in resource.data
+          && resource.data.ownerUid == request.auth.uid
+        )
+      );
+      allow delete: if isAuthed() && (
+        isAdmin()
+        || (
+          'ownerUid' in resource.data
+          && resource.data.ownerUid == request.auth.uid
+        )
+      );
     }
 
-    // Xarita ustiga qo‘yiladigan strike/dip annotatsiyalari.
+    // Strike/dip annotatsiyalari — ownerUid egasi yoki admin; legacy: faqat admin.
     match /map_structure_annotations/{doc} {
       allow read: if isAuthed();
-      allow create, update: if isAuthed();
-      allow delete: if isAuthed();
+      allow create: if isAuthed()
+        && request.resource.data.ownerUid == request.auth.uid;
+      allow update: if isAuthed() && (
+        isAdmin()
+        || (
+          'ownerUid' in resource.data
+          && resource.data.ownerUid == request.auth.uid
+        )
+      );
+      allow delete: if isAuthed() && (
+        isAdmin()
+        || (
+          'ownerUid' in resource.data
+          && resource.data.ownerUid == request.auth.uid
+        )
+      );
     }
 
     // Ommaviy e'lonlar / bildirishnomalar. Yozish — faqat admin
@@ -99,7 +138,8 @@ service cloud.firestore {
                     && resource.data.senderId == request.auth.uid;
     }
 
-    // Kon hisobotlari: yaratish faqat o‘z UID bilan; o‘qish — dashboard (autentifikatsiyadan o‘tganlar).
+    // Kon hisobotlari: tasdiqlash/rad — admin; muallif faqat pending holatda tahrir/o‘chirish.
+    // authorUid yo‘q legacy: update/delete faqat admin.
     match /daily_mine_reports/{doc} {
       allow read: if isAuthed();
       allow create: if isAuthed()
@@ -108,9 +148,24 @@ service cloud.firestore {
         && 'authorName' in request.resource.data
         && 'status' in request.resource.data
         && 'parsedData' in request.resource.data;
-      allow update: if isAuthed();
-      // Rad etish / tozalash: kichik jamoa; kerak bo‘lsa keyinroq faqat muallif yoki admin qilib toraytirasiz.
-      allow delete: if isAuthed();
+      allow update: if isAuthed() && (
+        isAdmin()
+        || (
+          'authorUid' in resource.data
+          && resource.data.authorUid == request.auth.uid
+          && resource.data.status == 'pending'
+          && request.resource.data.authorUid == resource.data.authorUid
+          && request.resource.data.status == 'pending'
+        )
+      );
+      allow delete: if isAuthed() && (
+        isAdmin()
+        || (
+          'authorUid' in resource.data
+          && resource.data.authorUid == request.auth.uid
+          && resource.data.status == 'pending'
+        )
+      );
     }
 
     // Guruh hujjati — faqat konsoldan; ilova faqat messages yozadi.

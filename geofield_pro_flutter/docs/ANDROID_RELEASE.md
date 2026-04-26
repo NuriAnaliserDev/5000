@@ -1,5 +1,7 @@
 # Android reliz (AAB/APK)
 
+**Holat (reliz “qattiqlashtirish” treki):** Gradle `applicationId`, Kotlin paket, `google-services` `package_name`, `web_verification` user-agent, iOS bundle, CI reliz AAB, imzo shabloni va hujjatlar repoda bajarilgan. **Sizning qadmingiz (prod):** Firebase Consoleda `com.aurum.geofieldpro` uchun Android ilova qo‘shilganini tasdiqlang va (kerak bo‘lsa) `google-services.json` + `flutterfire configure` orqali `firebase_options.dart`ni yangi `mobilesdk_app_id` bilan almashtiring.
+
 **Ilova ID:** `com.aurum.geofieldpro` — `android/app/build.gradle.kts` dagi `applicationId` va `android/app/google-services.json` dagi `package_name` bir xil bo‘lishi shart.
 
 ## Firebase va `google-services.json`
@@ -27,7 +29,7 @@ flutter build appbundle --release
 # yoki tezkor sinov: flutter build apk --release
 ```
 
-Agar `key.properties` bo‘lmasa, loyiha hozirgi sozlash bo‘yicha reliz build **debug** imzo ishlatadi (faqat ichki test; Play yuklash uchun to‘g‘ri emas).
+Agar `android/key.properties` bo‘lmasa, **`assembleRelease` / `bundleRelease` buildlari Gradle xatosi bilan to‘xtaydi** — tasodifiy debug-imzoli Play artefakti chiqmasin. Ichki `assembleDebug` ga ta’sir qilmaydi. Play uchun `key.properties` va keystore ni [yuqoridagi](#imzo-play-store) bo‘lim bo‘yicha sozlang.
 
 ## R8 / ProGuard
 

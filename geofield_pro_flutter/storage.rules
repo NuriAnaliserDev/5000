@@ -1,0 +1,20 @@
+rules_version = '2';
+
+// GeoField Pro — Firebase Storage. Deploy: firebase deploy --only storage
+//
+// users/{uid}/... — CloudSyncService stantsiya fotolari/audio.
+// chats/{groupId}/{file} — guruh ilovasi; a’zolikni Storage rulesda tekshirish qiyin —
+// kelajakda App Check yoki Cloud Function orqali qattiqroq qilish mumkin.
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /users/{userId}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    match /chats/{groupId}/{fileName} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+  }
+}

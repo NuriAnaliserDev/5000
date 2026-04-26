@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/map_structure_annotation.dart';
@@ -51,11 +52,16 @@ class MapStructureRepository extends ChangeNotifier {
     await _box!.put(a.id, a);
     _items = _box!.values.toList();
     notifyListeners();
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
     try {
       await _firestore
           .collection('map_structure_annotations')
           .doc(a.id)
-          .set(a.toMap());
+          .set({
+            ...a.toMap(),
+            'ownerUid': uid,
+          }, SetOptions(merge: true));
     } catch (e) {
       debugPrint('MapStructureRepository upload: $e');
     }

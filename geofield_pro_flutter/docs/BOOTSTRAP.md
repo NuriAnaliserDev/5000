@@ -16,3 +16,11 @@ Barcha mantiqi `lib/app/app_bootstrap.dart` faylida: `runAppBootstrap()`.
 
 - `lib/main.dart` faqat `runApp(const AppBootstrapShell())` chaqiradi.
 - [app_bootstrap_shell.dart](lib/app/app_bootstrap_shell.dart) `runAppBootstrap` natijasini kutiladi, muvaffaqiyatda `MultiProvider` + [GeoFieldProApp](lib/app/geo_field_pro_app.dart) beriladi; xato matni debug rejimda stack qo‘shilishi mumkin.
+
+## Reliz / identifikator (texnik yordam)
+
+Android paket, imzo, Play tayyorligi: [ANDROID_RELEASE](ANDROID_RELEASE.md) va [PLAY_CHECKLIST](PLAY_CHECKLIST.md). Firebase `google-services.json` loyihada `com.aurum.geofieldpro` ga mos tursin — tafsilotlar shu hujjatlarda.
+
+## Firebase fayllari (maxfiylik)
+
+Quyidagilar `.gitignore` ro‘yxatida va repoda **kuzatilmasligi** ma’qul: `lib/firebase_options.dart`, `android/app/google-services.json`, iOS bo‘lsa `ios/Runner/GoogleService-Info.plist`. Yangi ishchi nusxa: `cd geofield_pro_flutter` dan keyin [FlutterFire CLI](https://firebase.flutter.dev/docs/cli/) bilan `flutterfire configure` (Firebase loyihasiga kirish kerak); sozlangan fayllar mahalliy diskda qoladi.
