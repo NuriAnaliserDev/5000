@@ -4,7 +4,9 @@ import 'package:hive/hive.dart';
 import 'hive_db.dart';
 
 class SettingsController extends ChangeNotifier {
-  SettingsController() : _box = Hive.box(HiveDb.settingsBox);
+  SettingsController() : _box = Hive.box(HiveDb.settingsBox) {
+    _runGeologicalArDefaultOffMigration();
+  }
 
   final Box _box;
 
@@ -13,6 +15,9 @@ class SettingsController extends ChangeNotifier {
   static const _languageKey = 'language';
   static const _ecoModeKey = 'ecoMode';
   static const _geologicalArKey = 'geologicalArEnabled';
+  /// Bir martalik: avvalgi standart (AR yoqilgan) tufayli qora ekran/snapshot muammolaridan chiqish.
+  static const _geologicalArMigratedDefaultOffKey =
+      'geologicalArMigratedDefaultOff202605';
   static const _expertModeKey = 'expertMode';
   static const _userNameKey = 'currentUserName';
   static const _isFirstRunKey = 'isFirstRun';
@@ -105,7 +110,16 @@ class SettingsController extends ChangeNotifier {
 
   /// Android/iOS: geologik kamera — ARCore/ARKit qatlam (oddiy kamera o‘rniga).
   bool get geologicalArEnabled =>
-      _box.get(_geologicalArKey, defaultValue: true) as bool;
+      _box.get(_geologicalArKey, defaultValue: false) as bool;
+
+  void _runGeologicalArDefaultOffMigration() {
+    if (_box.get(_geologicalArMigratedDefaultOffKey, defaultValue: false)
+        as bool) {
+      return;
+    }
+    _box.put(_geologicalArKey, false);
+    _box.put(_geologicalArMigratedDefaultOffKey, true);
+  }
 
   set geologicalArEnabled(bool value) {
     _box.put(_geologicalArKey, value);

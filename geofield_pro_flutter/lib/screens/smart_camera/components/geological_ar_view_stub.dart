@@ -11,10 +11,12 @@ class GeologicalArView extends StatefulWidget {
     super.key,
     required this.onControllerReady,
     required this.onDisposed,
+    this.onArSessionStalled,
   });
 
   final ValueChanged<GeologicalArSessionController> onControllerReady;
   final VoidCallback onDisposed;
+  final VoidCallback? onArSessionStalled;
 
   @override
   State<GeologicalArView> createState() => _GeologicalArViewStateStub();

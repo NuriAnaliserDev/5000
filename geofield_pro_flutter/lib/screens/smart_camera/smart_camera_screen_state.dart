@@ -50,9 +50,14 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
 
   GeologicalArSessionController? _arSessionController;
 
+  /// AR oynasi yopilgach (yoki muvaffaqiyatsiz tugagach) kamera ochiladi; qisqa kutish ARCore/ARKit kamera tutqichini bo‘shatishi uchun.
+  bool _pendingDelayedCameraInitAfterAr = false;
+  Timer? _delayedCameraInitTimer;
+  Future<void>? _cameraInitInFlight;
+
   bool get _geologicalArActive =>
       _cameraMode == CameraMode.geological &&
-      (_settings?.geologicalArEnabled ?? true) &&
+      (_settings?.geologicalArEnabled ?? false) &&
       geologicalArSupportedPlatform();
 
   /// [context.read] oqim/pauza oynasida ishlatilmasin — deaktiv elementda Provider xatosi.
@@ -102,10 +107,12 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
         enableAudio: false,
       );
       _cameraInitFuture = _cameraController!.initialize();
+      await _cameraInitFuture;
       if (mounted) {
         setState(() {});
       }
     } catch (e) {
+      _disposeCameraOnly();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${context.locRead('camera_error')}: $e')),
@@ -664,9 +671,36 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
   }
 
   void _disposeCameraOnly() {
+    _delayedCameraInitTimer?.cancel();
+    _delayedCameraInitTimer = null;
     _cameraController?.dispose();
     _cameraController = null;
     _cameraInitFuture = null;
+  }
+
+  static const _kCameraResumeDelayAfterAr = Duration(milliseconds: 480);
+
+  void _scheduleCameraInitAfterArRelease() {
+    _delayedCameraInitTimer?.cancel();
+    _delayedCameraInitTimer = Timer(_kCameraResumeDelayAfterAr, () {
+      _delayedCameraInitTimer = null;
+      if (!mounted || _geologicalArActive || _cameraController != null) {
+        return;
+      }
+      _beginCameraInitIfNeeded();
+    });
+  }
+
+  void _beginCameraInitIfNeeded() {
+    if (_cameraController != null || _geologicalArActive || !mounted) {
+      return;
+    }
+    if (_cameraInitInFlight != null) {
+      return;
+    }
+    _cameraInitInFlight = _initCamera().whenComplete(() {
+      _cameraInitInFlight = null;
+    });
   }
 
   void _syncCameraToMode() {
@@ -674,13 +708,22 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
       return;
     }
     if (_geologicalArActive) {
+      _delayedCameraInitTimer?.cancel();
+      _delayedCameraInitTimer = null;
       _disposeCameraOnly();
       return;
     }
     unawaited(_disableHardwareTorch());
-    if (_cameraController == null) {
-      _initCamera();
+    if (_cameraController != null) {
+      _pendingDelayedCameraInitAfterAr = false;
+      return;
     }
+    if (_pendingDelayedCameraInitAfterAr) {
+      _pendingDelayedCameraInitAfterAr = false;
+      _scheduleCameraInitAfterArRelease();
+      return;
+    }
+    _beginCameraInitIfNeeded();
   }
 
   Widget _buildCameraPreview() {
@@ -699,6 +742,26 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
           }
           setState(() => _arSessionController = null);
         },
+        onArSessionStalled: () {
+          if (!mounted) {
+            return;
+          }
+          final s = _settings;
+          if (s != null && s.geologicalArEnabled) {
+            _pendingDelayedCameraInitAfterAr = true;
+            s.geologicalArEnabled = false;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content:
+                    Text(context.locRead('camera_ar_session_stalled')),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+            setState(() {});
+            WidgetsBinding.instance
+                .addPostFrameCallback((_) => _syncCameraToMode());
+          }
+        },
       );
     }
     if (_cameraController == null || _cameraInitFuture == null) {
@@ -712,7 +775,24 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
           return const Center(
               child: CircularProgressIndicator(color: Color(0xFF1976D2)));
         }
-        return CameraPreview(_cameraController!);
+        if (snapshot.hasError) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(
+                '${context.locRead('camera_error')}: ${snapshot.error}',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white70),
+              ),
+            ),
+          );
+        }
+        final cam = _cameraController;
+        if (cam == null || !cam.value.isInitialized) {
+          return const Center(
+              child: CircularProgressIndicator(color: Color(0xFF1976D2)));
+        }
+        return CameraPreview(cam);
       },
     );
   }
@@ -827,7 +907,12 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
             CameraTopBar(
               cameraMode: _cameraMode,
               onModeChanged: (mode) {
+                final leavingArUi =
+                    _geologicalArActive && mode == CameraMode.document;
                 setState(() => _cameraMode = mode);
+                if (leavingArUi) {
+                  _pendingDelayedCameraInitAfterAr = true;
+                }
                 WidgetsBinding.instance
                     .addPostFrameCallback((_) => _syncCameraToMode());
               },
@@ -881,6 +966,9 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
                   onHudToggle: (v) => setState(() => _showHud = v),
                   onGeologicalArChanged: (v) {
                     context.read<SettingsController>().geologicalArEnabled = v;
+                    if (!v) {
+                      _pendingDelayedCameraInitAfterAr = true;
+                    }
                     setState(() {});
                     WidgetsBinding.instance
                         .addPostFrameCallback((_) => _syncCameraToMode());

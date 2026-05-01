@@ -925,8 +925,14 @@ abstract class GeoFieldStrings {
   /// No description provided for @camera_ar_geology_subtitle.
   ///
   /// In en, this message translates to:
-  /// **'ARCore / ARKit session with a 3D slab in front of the camera. First run may need internet to load the marker model.'**
+  /// **'Experimental. ARCore/ARKit: black screen, failed capture, or no flashlight can happen on some devices — leave off and use the normal camera for reliable work. First run may need internet for the marker model.'**
   String get camera_ar_geology_subtitle;
+
+  /// No description provided for @camera_ar_session_stalled.
+  ///
+  /// In en, this message translates to:
+  /// **'AR did not start in time. Geological AR was turned off automatically. Use the normal camera, or turn AR on again in PRO if your device supports it.'**
+  String get camera_ar_session_stalled;
 
   /// No description provided for @camera_ar_tap_plane_hint.
   ///

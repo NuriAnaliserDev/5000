@@ -453,7 +453,11 @@ class GeoFieldStringsEn extends GeoFieldStrings {
 
   @override
   String get camera_ar_geology_subtitle =>
-      'ARCore / ARKit session with a 3D slab in front of the camera. First run may need internet to load the marker model.';
+      'Experimental. ARCore/ARKit: black screen, failed capture, or no flashlight can happen on some devices — leave off and use the normal camera for reliable work. First run may need internet for the marker model.';
+
+  @override
+  String get camera_ar_session_stalled =>
+      'AR did not start in time. Geological AR was turned off automatically. Use the normal camera, or turn AR on again in PRO if your device supports it.';
 
   @override
   String get camera_ar_tap_plane_hint =>

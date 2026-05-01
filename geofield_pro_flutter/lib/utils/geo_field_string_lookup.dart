@@ -75,8 +75,9 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'camera_ar_anchor_failed': return s.camera_ar_anchor_failed;
     case 'camera_ar_geology_subtitle': return s.camera_ar_geology_subtitle;
     case 'camera_ar_geology_title': return s.camera_ar_geology_title;
-    case 'camera_ar_node_failed': return s.camera_ar_node_failed;
     case 'camera_ar_no_plane_hit': return s.camera_ar_no_plane_hit;
+    case 'camera_ar_node_failed': return s.camera_ar_node_failed;
+    case 'camera_ar_session_stalled': return s.camera_ar_session_stalled;
     case 'camera_ar_snapshot_failed': return s.camera_ar_snapshot_failed;
     case 'camera_ar_tap_plane_hint': return s.camera_ar_tap_plane_hint;
     case 'camera_ar_torch_unavailable': return s.camera_ar_torch_unavailable;
@@ -89,9 +90,9 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'camera_header_document': return s.camera_header_document;
     case 'camera_header_geology': return s.camera_header_geology;
     case 'camera_heading_info_line': return s.camera_heading_info_line;
-    case 'camera_plane_attitude_subtitle': return s.camera_plane_attitude_subtitle;
     case 'camera_mode_document': return s.camera_mode_document;
     case 'camera_mode_geology': return s.camera_mode_geology;
+    case 'camera_plane_attitude_subtitle': return s.camera_plane_attitude_subtitle;
     case 'camera_pro_sheet_hint': return s.camera_pro_sheet_hint;
     case 'camera_pro_short_label': return s.camera_pro_short_label;
     case 'camera_scale_label': return s.camera_scale_label;
@@ -356,6 +357,9 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'rose_diagram_subtitle': return s.rose_diagram_subtitle;
     case 'rose_diagram_title': return s.rose_diagram_title;
     case 'route_name_prefix': return s.route_name_prefix;
+    case 'route_not_found_back': return s.route_not_found_back;
+    case 'route_not_found_body': return s.route_not_found_body;
+    case 'route_not_found_title': return s.route_not_found_title;
     case 'route_saved_snack': return s.route_saved_snack;
     case 'routes': return s.routes;
     case 'rtk_fixed': return s.rtk_fixed;
@@ -383,6 +387,7 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'settings': return s.settings;
     case 'share': return s.share;
     case 'signal_searching': return s.signal_searching;
+    case 'snackbar_undo_restore': return s.snackbar_undo_restore;
     case 'snap_to_grid_label': return s.snap_to_grid_label;
     case 'sos_cancel': return s.sos_cancel;
     case 'sos_cancel_failed': return s.sos_cancel_failed;
@@ -392,6 +397,14 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'sos_queue_cancel': return s.sos_queue_cancel;
     case 'sos_queue_cleared': return s.sos_queue_cleared;
     case 'sos_sent': return s.sos_sent;
+    case 'splash_error_local_db': return s.splash_error_local_db;
+    case 'splash_status_firebase': return s.splash_status_firebase;
+    case 'splash_status_local_db': return s.splash_status_local_db;
+    case 'splash_status_offline_tiles': return s.splash_status_offline_tiles;
+    case 'splash_status_profile': return s.splash_status_profile;
+    case 'splash_status_ready': return s.splash_status_ready;
+    case 'splash_status_session': return s.splash_status_session;
+    case 'splash_status_wmm': return s.splash_status_wmm;
     case 'start': return s.start;
     case 'station_project_label': return s.station_project_label;
     case 'station_saved': return s.station_saved;

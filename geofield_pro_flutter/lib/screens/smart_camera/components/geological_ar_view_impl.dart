@@ -79,10 +79,14 @@ class GeologicalArView extends StatefulWidget {
     super.key,
     required this.onControllerReady,
     required this.onDisposed,
+    this.onArSessionStalled,
   });
 
   final ValueChanged<GeologicalArSessionController> onControllerReady;
   final VoidCallback onDisposed;
+
+  /// ARCore/ARKit oynasi ~12s ichida [onControllerReady] bermasa chaqiriladi.
+  final VoidCallback? onArSessionStalled;
 
   @override
   State<GeologicalArView> createState() => _GeologicalArViewState();
@@ -96,6 +100,7 @@ class _GeologicalArViewState extends State<GeologicalArView> {
   ARNode? _beddingNode;
   ARPlaneAnchor? _placedAnchor;
   Timer? _ticker;
+  Timer? _stallTimer;
   bool _reportedReady = false;
 
   /// Kamera bilan harakatlanuvchi rejim (anchor qo‘yilgunicha).
@@ -132,7 +137,19 @@ class _GeologicalArViewState extends State<GeologicalArView> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _stallTimer = Timer(const Duration(seconds: 12), () {
+      if (!mounted || _reportedReady) {
+        return;
+      }
+      widget.onArSessionStalled?.call();
+    });
+  }
+
+  @override
   void dispose() {
+    _stallTimer?.cancel();
     _stopFollowCameraTicker();
     _controller.bindSession(null);
     unawaited(_arSession?.dispose());
@@ -170,6 +187,8 @@ class _GeologicalArViewState extends State<GeologicalArView> {
       return;
     }
     if (!_reportedReady) {
+      _stallTimer?.cancel();
+      _stallTimer = null;
       _reportedReady = true;
       widget.onControllerReady(_controller);
     }

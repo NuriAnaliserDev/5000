@@ -453,7 +453,11 @@ class GeoFieldStringsUz extends GeoFieldStrings {
 
   @override
   String get camera_ar_geology_subtitle =>
-      'ARCore / ARKit: kamera oldida 3D belgi. Birinchi marta kichik 3D model tarmoqdan yuklanadi.';
+      'Tajribaviy. ARCore/ARKit: ba’zi qurilmalarda qora ekran, surat ololmaslik yoki fonar ishlamasligi bo‘lishi mumkin — barqaror ishlash uchun o‘chiq qoldiring, oddiy kameradan foydalaning. Birinchi yurishda belgi modeli uchun tarmoq kerak bo‘lishi mumkin.';
+
+  @override
+  String get camera_ar_session_stalled =>
+      'AR vaqtida ishga tushmadi. Geologik AR avtomatik o‘chirildi. Oddiy kameradan foydalaning yoki qurilma qo‘llab-quvvatlasa PRO da AR ni qayta yoqing.';
 
   @override
   String get camera_ar_tap_plane_hint =>

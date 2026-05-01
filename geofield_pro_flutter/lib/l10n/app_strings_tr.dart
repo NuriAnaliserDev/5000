@@ -454,7 +454,11 @@ class GeoFieldStringsTr extends GeoFieldStrings {
 
   @override
   String get camera_ar_geology_subtitle =>
-      'ARCore / ARKit: kamera önünde 3B işaret. İlk açılışta küçük model indirilebilir.';
+      'Deneysel. ARCore/ARKit: bazı cihazlarda siyah ekran, yakalama hatası veya flaş çalışmaması olabilir — güvenilir çalışma için kapalı bırakıp normal kamerayı kullanın. İlk açılışta işaret modeli için internet gerekebilir.';
+
+  @override
+  String get camera_ar_session_stalled =>
+      'AR zamanında başlamadı. Jeolojik AR otomatik kapatıldı. Normal kamerayı kullanın veya cihazınız destekliyorsa PRO’da AR’yi yeniden açın.';
 
   @override
   String get camera_ar_tap_plane_hint =>
