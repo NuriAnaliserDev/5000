@@ -2,6 +2,7 @@
 String mimeTypeForImagePath(String path) {
   final lower = path.split('?').first.toLowerCase();
   if (lower.endsWith('.png')) return 'image/png';
+  if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) return 'image/jpeg';
   if (lower.endsWith('.webp')) return 'image/webp';
   if (lower.endsWith('.gif')) return 'image/gif';
   if (lower.endsWith('.bmp')) return 'image/bmp';

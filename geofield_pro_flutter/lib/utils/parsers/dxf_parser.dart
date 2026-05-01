@@ -1,9 +1,15 @@
 import 'dart:math' as math;
 import 'package:latlong2/latlong.dart';
 import '../../models/boundary_polygon.dart';
+import 'dxf_coordinate_inference.dart';
 
 class DxfParser {
-  static List<BoundaryPolygon> parse(String content, String filename) {
+  static List<BoundaryPolygon> parse(
+    String content,
+    String filename, {
+    double? hintLatitude,
+    double? hintLongitude,
+  }) {
     try {
       final lead = content.trimLeft();
       if (lead.startsWith('AutoCAD Binary DXF')) {
@@ -109,7 +115,11 @@ class DxfParser {
         ));
       }
 
-      return extracted;
+      return DxfCoordinateInference.applyHints(
+        extracted,
+        hintLat: hintLatitude,
+        hintLng: hintLongitude,
+      );
     } catch (e) {
       throw Exception('DXF oqishda xatolik: $e');
     }

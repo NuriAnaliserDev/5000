@@ -185,17 +185,18 @@ class SosService extends ChangeNotifier {
   Future<bool> cancelMyActiveSos() async {
     _myActiveSosDocumentId ??= await _latestActiveSosIdForCurrentUser();
     final id = _myActiveSosDocumentId;
-    if (id == null) {
-      return false;
+
+    var serverOk = false;
+    if (id != null && _firestore != null) {
+      serverOk = await _deactivateSosOnServer(id);
+    } else {
+      serverOk = true;
     }
-    final ok = await _deactivateSosOnServer(id);
-    if (ok) {
-      if (_myActiveSosDocumentId == id) {
-        _myActiveSosDocumentId = null;
-        notifyListeners();
-      }
-    }
-    return ok;
+
+    _myActiveSosDocumentId = null;
+    notifyListeners();
+
+    return serverOk;
   }
 
   Future<void> _trySendSms({

@@ -92,6 +92,8 @@
   "camera_scale_label": "Masshtab",
   "camera_close_label": "Yopish",
   "camera_heading_info_line": "GPS aniqligi va sensor",
+  "camera_azimuth_subtitle": "Telefon ustki cheti — shimolga nisbatan (soat yo‘nalishi)",
+  "camera_plane_attitude_subtitle": "Strike/Dip: ekranni qatlam tekisligiga parallel ushlang",
   "camera_voice_mic_hint": "Mikrofon: bosib ovozli eslatma yozing (surat saqlanganda qo‘shiladi).",
   "viewer_3d_legend": "Oq nuqta: stansiya joyi. Sariq/orange: strike/dip bo‘yicha qatlam tekisligi. Barmoq bilan aylantiring, +/− yaqinlashtiring. To‘q ro‘ng ≈ qalinroq dip.",
   "viewer_3d_no_data": "Stansiya yo‘q — dala stansiyalari qo‘shilganda 3D tekisliklar ko‘rinadi.",

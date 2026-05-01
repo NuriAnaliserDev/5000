@@ -76,10 +76,22 @@ class StereonetEngine {
     final vy = cosPl * cos(trendRad);
     final vz = sin(plungeRad);
 
-    final helper = (vz.abs() < 0.9) ? const [0.0, 0.0, 1.0] : const [1.0, 0.0, 0.0];
-    var ex = helper[1] * vz - helper[2] * vy;
-    var ey = helper[2] * vx - helper[0] * vz;
-    var ez = helper[0] * vy - helper[1] * vx;
+    // v bilan gorizontal bo‘lmagan yordam vektori (gram–Schmidt uchun)
+    final double hx;
+    final double hy;
+    final double hz;
+    if (vz.abs() < 0.9) {
+      hx = 0.0;
+      hy = 0.0;
+      hz = 1.0;
+    } else {
+      hx = 1.0;
+      hy = 0.0;
+      hz = 0.0;
+    }
+    var ex = hy * vz - hz * vy;
+    var ey = hz * vx - hx * vz;
+    var ez = hx * vy - hy * vx;
     final eNorm = sqrt(ex * ex + ey * ey + ez * ez);
     ex /= eNorm;
     ey /= eNorm;
@@ -177,7 +189,8 @@ class StereonetEngine {
       if (mag == 0) {
         points.add(Offset.zero);
       } else {
-        points.add(Offset(xR / mag * rOut, yR / mag * rOut));
+        // [projectPole] / alpha95: stereografik y tenglamasi — yuqoriga `-cos(trend)`.
+        points.add(Offset(xR / mag * rOut, -yR / mag * rOut));
       }
     }
     return points;

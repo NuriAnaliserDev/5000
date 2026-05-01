@@ -51,6 +51,12 @@ class GeoConstants {
   static const double utmMinLat = -80.0;
   static const double utmMaxLat = 84.0;
 
+  /// UTM inversiyasidagi uzunlik qisqichi (markaziy meridiandan maksimal chetlik, gradus).
+  /// Zona kengligi 6° bo‘lib, markazdan teorik chek ±3°; bu yerda ~±3.85° —
+  /// transform narxi, chekka effektlar va `[toLatLngFromUtmMeters]` ichidagi
+  /// qisqichning zonadan chiqmasligini taminlash uchun biroz zaxira.
+  static const double utmInverseLngHalfWidthDeg = 3.85;
+
   // ── Konvertatsiya ─────────────────────────────────────────────────────────
   /// Radian → daraja koeffitsiyenti: 180/π.
   static const double radToDeg = 180.0 / 3.141592653589793;

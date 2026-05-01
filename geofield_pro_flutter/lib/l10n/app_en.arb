@@ -92,6 +92,8 @@
   "camera_scale_label": "Zoom",
   "camera_close_label": "Close",
   "camera_heading_info_line": "GPS accuracy & sensor info",
+  "camera_azimuth_subtitle": "Phone top edge, clockwise from true north",
+  "camera_plane_attitude_subtitle": "Strike/dip: hold the screen parallel to the plane",
   "camera_voice_mic_hint": "Mic: tap to record a voice note for this station (saved when you save the shot).",
   "viewer_3d_legend": "Each point: station location. Orange fill: bedding plane from strike/dip. Drag to rotate the view, use +/− to zoom. Darker orange ≈ steeper dip.",
   "viewer_3d_no_data": "No stations yet — add field stations to see 3D planes.",

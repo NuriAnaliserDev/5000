@@ -264,6 +264,14 @@ class GeoFieldStringsEn extends GeoFieldStrings {
   String get camera_heading_info_line => 'GPS accuracy & sensor info';
 
   @override
+  String get camera_azimuth_subtitle =>
+      'Phone top edge, clockwise from true north';
+
+  @override
+  String get camera_plane_attitude_subtitle =>
+      'Strike/dip: hold the screen parallel to the plane';
+
+  @override
   String get camera_voice_mic_hint =>
       'Mic: tap to record a voice note for this station (saved when you save the shot).';
 

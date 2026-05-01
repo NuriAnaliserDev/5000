@@ -299,7 +299,10 @@ class BoundaryService extends ChangeNotifier {
 
   // ─── FILE IMPORT (DXF / KML) ───────────────────────────────────────────────
 
-  Future<BoundaryImportResult?> importFileFromWeb() async {
+  Future<BoundaryImportResult?> importFileFromWeb({
+    double? hintLatitude,
+    double? hintLongitude,
+  }) async {
     try {
       FilePickerResult? result = await FilePicker.pickFiles(
         type: FileType.custom,
@@ -321,7 +324,12 @@ class BoundaryService extends ChangeNotifier {
         if (ext == 'kml') {
           newPolys = KmlParser.parse(content, filename);
         } else if (ext == 'dxf') {
-          newPolys = DxfParser.parse(content, filename);
+          newPolys = DxfParser.parse(
+            content,
+            filename,
+            hintLatitude: hintLatitude,
+            hintLongitude: hintLongitude,
+          );
         } else {
           newPolys = GeojsonImportParser.parse(content, filename);
         }

@@ -915,7 +915,12 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     try {
       final ok = await showGisImportPrecheckDialog(context);
       if (!ok || !mounted) return;
-      final r = await boundary.importFileFromWeb();
+      final pos = context.read<LocationService>().currentPosition;
+      final center = _mapController.camera.center;
+      final r = await boundary.importFileFromWeb(
+        hintLatitude: pos?.latitude ?? center.latitude,
+        hintLongitude: pos?.longitude ?? center.longitude,
+      );
       if (!mounted) return;
       if (r == null) {
         return;

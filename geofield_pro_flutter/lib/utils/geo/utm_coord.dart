@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 
+import 'package:latlong2/latlong.dart';
+
 import 'geo_constants.dart';
 
 /// UTM (Universal Transverse Mercator) koordinata strukturasi.
@@ -176,6 +178,128 @@ class UtmCoord {
       northing: northing,
       meridianConvergence: gammaRad * GeoConstants.radToDeg,
       pointScaleFactor: kScale,
+    );
+  }
+
+  /// UTM (sharqiy/shimoliy, metr) → WGS-84.
+  ///
+  /// Dikkat: [fromLatLng] janubda ham `northing` 10M dan kichik bo‘lishi mumkin
+  /// (10M + manfiy meridian qismi), shuning uchun `northing >= 10M` bilan yarim
+  /// shar ajratish xato bo‘ladi — ikki kenglik oraliqi tekshiriladi.
+  static LatLng toLatLngFromUtmMeters({
+    required int zone,
+    required double easting,
+    required double northing,
+    double? hintLatitude,
+  }) {
+    if (zone < 1 || zone > 60) {
+      return const LatLng(0, 0);
+    }
+    final lng0 = (zone - 1) * GeoConstants.utmZoneWidthDeg - 180.0 + 3.0;
+
+    final candNorth =
+        _utmBinaryLatSearch(easting, northing, lng0, 0.0, GeoConstants.utmMaxLat);
+    final candSouth = _utmBinaryLatSearch(easting, northing, lng0, -80.0, 0.0);
+
+    double errOf(LatLng c) {
+      final u = UtmCoord.fromLatLng(c.latitude, c.longitude);
+      if (!u.isValid) return double.infinity;
+      final de = u.easting - easting;
+      final dn = u.northing - northing;
+      return de * de + dn * dn;
+    }
+
+    final errN = errOf(candNorth);
+    final errS = errOf(candSouth);
+
+    LatLng best;
+    if (hintLatitude != null) {
+      if (hintLatitude < -5 && errS < errN) {
+        best = candSouth;
+      } else if (hintLatitude > 5 && errN < errS) {
+        best = candNorth;
+      } else {
+        best = errN < errS ? candNorth : candSouth;
+      }
+    } else {
+      best = errN < errS ? candNorth : candSouth;
+    }
+
+    var lat = best.latitude;
+    var lng = best.longitude;
+
+    const lngClamp = GeoConstants.utmInverseLngHalfWidthDeg;
+    for (var p = 0; p < 14; p++) {
+      final u = UtmCoord.fromLatLng(lat, lng);
+      if (!u.isValid) break;
+      final dE = easting - u.easting;
+      final dN = northing - u.northing;
+      if (dE * dE + dN * dN < 1e-4) break;
+      const h = 1e-6;
+      final uLat = UtmCoord.fromLatLng(lat + h, lng);
+      final uLng = UtmCoord.fromLatLng(lat, lng + h);
+      if (!uLat.isValid || !uLng.isValid) break;
+      final dEdLat = (uLat.easting - u.easting) / h;
+      final dNdLat = (uLat.northing - u.northing) / h;
+      final dEdLng = (uLng.easting - u.easting) / h;
+      final dNdLng = (uLng.northing - u.northing) / h;
+      final det = dEdLat * dNdLng - dEdLng * dNdLat;
+      if (det.abs() < 1e-22) break;
+      lat += 0.45 * (dNdLng * dE - dEdLng * dN) / det;
+      lng += 0.45 * (-dNdLat * dE + dEdLat * dN) / det;
+      lat = lat.clamp(GeoConstants.utmMinLat, GeoConstants.utmMaxLat);
+      lng = lng.clamp(lng0 - lngClamp, lng0 + lngClamp);
+    }
+
+    return LatLng(
+      lat.clamp(GeoConstants.utmMinLat, GeoConstants.utmMaxLat),
+      lng.clamp(-180.0, 180.0),
+    );
+  }
+
+  static LatLng _utmBinaryLatSearch(
+    double easting,
+    double northing,
+    double lng0,
+    double lo,
+    double hi,
+  ) {
+    var a = lo;
+    var b = hi;
+    for (var i = 0; i < 72; i++) {
+      final mid = (a + b) / 2;
+      var lng = lng0 +
+          (easting - GeoConstants.utmFalseEasting) /
+              (111320.0 * math.cos(mid * GeoConstants.degToRad).clamp(0.05, 1.0));
+      lng = lng.clamp(
+        lng0 - GeoConstants.utmInverseLngHalfWidthDeg,
+        lng0 + GeoConstants.utmInverseLngHalfWidthDeg,
+      );
+      final u = UtmCoord.fromLatLng(mid, lng);
+      if (!u.isValid) {
+        b = mid;
+        continue;
+      }
+      // Kenglik oshishi bilan UTM `northing` (janubda ham, 10M+Qo formula bilan)
+      // monoton o‘sadi; shuning uchun shimol (0..84) va janub (-80..0) oralig‘ida
+      // bir xil taqqoslash: kichikroq `northing` → pastroq kenglikdan yuqoriga siljish.
+      if (u.northing < northing) {
+        a = mid;
+      } else {
+        b = mid;
+      }
+    }
+
+    final lat = (a + b) / 2;
+    final lng = lng0 +
+        (easting - GeoConstants.utmFalseEasting) /
+            (111320.0 * math.cos(lat * GeoConstants.degToRad).clamp(0.05, 1.0));
+    return LatLng(
+      lat.clamp(GeoConstants.utmMinLat, GeoConstants.utmMaxLat),
+      lng.clamp(
+        lng0 - GeoConstants.utmInverseLngHalfWidthDeg,
+        lng0 + GeoConstants.utmInverseLngHalfWidthDeg,
+      ),
     );
   }
 }

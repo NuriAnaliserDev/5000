@@ -26,13 +26,12 @@ import '../../utils/geology_utils.dart';
 import '../../utils/image_utils.dart';
 import '../../utils/status_semantics.dart';
 
-import '../components/ar_strike_dip_overlay.dart';
-
 import 'components/camera_bottom_controls.dart';
 import 'components/camera_heading_hud.dart';
 import 'components/camera_overlays.dart';
 import 'components/camera_side_controls.dart';
 import 'components/camera_top_bar.dart';
+import 'components/focus_mode_geology_overlay.dart';
 
 part 'smart_camera_screen_state.dart';
 

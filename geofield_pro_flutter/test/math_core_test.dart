@@ -58,6 +58,32 @@ void main() {
       expect(m['zone'], u.zone);
       expect(m['easting'], u.easting);
     });
+
+    test('UTM metr → lat/lng (Toshkent atrofi, teskarilik)', () {
+      final u = UtmCoord.fromLatLng(41.3111, 69.2797);
+      expect(u.isValid, isTrue);
+      final back = UtmCoord.toLatLngFromUtmMeters(
+        zone: u.zone,
+        easting: u.easting,
+        northing: u.northing,
+        hintLatitude: 41,
+      );
+      expect((back.latitude - 41.3111).abs(), lessThan(0.0001));
+      expect((back.longitude - 69.2797).abs(), lessThan(0.0001));
+    });
+
+    test('UTM metr → lat/lng (Sidney, hintLatitude bilan)', () {
+      final u = UtmCoord.fromLatLng(-33.8688, 151.2093);
+      expect(u.isValid, isTrue);
+      final back = UtmCoord.toLatLngFromUtmMeters(
+        zone: u.zone,
+        easting: u.easting,
+        northing: u.northing,
+        hintLatitude: -34,
+      );
+      expect((back.latitude - (-33.8688)).abs(), lessThan(0.0001));
+      expect((back.longitude - 151.2093).abs(), lessThan(0.0001));
+    });
   });
 
   group('ThicknessCalculator', () {
@@ -188,6 +214,18 @@ void main() {
       expect(t, greaterThan(2025.9));
       expect(t, lessThan(2026.1));
     });
+
+    test('hisob sanasi WMM epoch oralig\'ida (GeoConstants)', () {
+      final d = DateTime.utc(2026, 1, 1);
+      final y = WmmModel.decimalYear(d);
+      expect(
+        y,
+        inInclusiveRange(
+          GeoConstants.wmmEpoch,
+          GeoConstants.wmmEpoch + GeoConstants.wmmValidYears,
+        ),
+      );
+    });
   });
 
   group('GeologyValidator', () {
@@ -203,26 +241,22 @@ void main() {
         );
 
     test('bo‘sh nom', () {
-      final s = baseStation()..name = '   ';
+      final s = baseStation().copyWith(name: '   ');
       expect(GeologyValidator.validateStation(s), isNotNull);
     });
 
     test('to‘g‘ri strike/dip — null (OK)', () {
-      final s = baseStation()..dipDirection = 135;
+      final s = baseStation().copyWith(dipDirection: 135);
       expect(GeologyValidator.validateStation(s), isNull);
     });
 
     test('dip direction strike bilan nomuvofiq', () {
-      final s = baseStation()
-        ..dip = 20
-        ..dipDirection = 0; // 45+90=135 kutiladi
+      final s = baseStation().copyWith(dip: 20, dipDirection: 0);
       expect(GeologyValidator.validateStation(s), isNotNull);
     });
 
     test('(0,0) koordinata rad etiladi', () {
-      final s = baseStation()
-        ..lat = 0
-        ..lng = 0;
+      final s = baseStation().copyWith(lat: 0, lng: 0);
       expect(GeologyValidator.validateStation(s), isNotNull);
     });
 
@@ -253,8 +287,8 @@ void main() {
     });
 
     test('findDuplicateSampleId: takror', () {
-      final a = baseStation()..name = 'S1'..sampleId = 'G-1';
-      final b = baseStation()..name = 'S2'..sampleId = 'G-1';
+      final a = baseStation().copyWith(name: 'S1', sampleId: 'G-1');
+      final b = baseStation().copyWith(name: 'S2', sampleId: 'G-1');
       expect(GeologyValidator.findDuplicateSampleId([a, b]), isNotNull);
     });
   });

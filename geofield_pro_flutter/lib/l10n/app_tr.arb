@@ -92,6 +92,8 @@
   "camera_scale_label": "Yakınlaştır",
   "camera_close_label": "Kapat",
   "camera_heading_info_line": "GPS doğruluğu ve sensör",
+  "camera_azimuth_subtitle": "Telefon üst kenarı — gerçek kuzeye göre (saat yönü)",
+  "camera_plane_attitude_subtitle": "Strike/dip: ekranı dözleme düzlemine paralel tutun",
   "camera_voice_mic_hint": "Mikrofon: Bu istasyon için ses notu kaydedin (kaydet ile birlikte saklanır).",
   "viewer_3d_legend": "Nokta: istasyon konumu. Turuncu: strike/dip düzlemi. Sürükleyerek döndürün, +/− ile yakınlaştırın. Koyu turuncu ≈ daha dik dip.",
   "viewer_3d_no_data": "İstasyon yok — 3D için saha istasyonu ekleyin.",

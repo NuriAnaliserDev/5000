@@ -67,13 +67,11 @@ class ThicknessCalculator {
   /// 3-usul: Palmer (1918) — qiyalik (slope) va arbitrary traverse azimuti.
   ///
   /// Yer yuzasi tekis emas va traverse strike'ga ⊥ emas.
-  /// To'liq formula:
-  ///   TT = W × (sin α · cos β · sin δ ± cos α · sin δ · cos β)
-  ///        = W × sin δ × (sin α · cos β ± cos α · cos β)
-  ///        = W × sin δ × cos β × (sin α ± cos α)  ← noto'g'ri
   ///
-  /// To'g'ri Palmer formulasi (unit vektor bo'yicha):
+  /// Palmer (1918) — quyidagi ifoda modul bilan qo‘llanadi
+  /// (`dippingGround` jismoniy implementatsiyasi):
   ///   TT = |W × (cos β · sin δ · cos α ± sin α · cos δ)|
+  /// (yoyilmagan algebraik qisqartirishlardan qoching — chalkashadi).
   ///
   /// - [outcropWidth] W — traverse bo'ylab o'lchangan kenglik (metr).
   /// - [trueDip] δ — haqiqiy dip (daraja).

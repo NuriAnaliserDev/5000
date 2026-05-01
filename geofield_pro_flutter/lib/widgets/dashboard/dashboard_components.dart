@@ -111,7 +111,11 @@ class DashboardQuickTools extends StatelessWidget {
     try {
       final ok = await showGisImportPrecheckDialog(context);
       if (!ok || !context.mounted) return;
-      final r = await boundary.importFileFromWeb();
+      final pos = context.read<LocationService>().currentPosition;
+      final r = await boundary.importFileFromWeb(
+        hintLatitude: pos?.latitude,
+        hintLongitude: pos?.longitude,
+      );
       if (!context.mounted) return;
       if (r == null) return;
       showGisImportResultSnackbar(context, s, r);

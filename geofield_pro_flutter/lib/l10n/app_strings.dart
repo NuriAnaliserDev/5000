@@ -586,6 +586,18 @@ abstract class GeoFieldStrings {
   /// **'GPS accuracy & sensor info'**
   String get camera_heading_info_line;
 
+  /// No description provided for @camera_azimuth_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone top edge, clockwise from true north'**
+  String get camera_azimuth_subtitle;
+
+  /// No description provided for @camera_plane_attitude_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Strike/dip: hold the screen parallel to the plane'**
+  String get camera_plane_attitude_subtitle;
+
   /// No description provided for @camera_voice_mic_hint.
   ///
   /// In en, this message translates to:

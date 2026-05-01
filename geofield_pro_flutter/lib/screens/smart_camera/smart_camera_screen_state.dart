@@ -624,11 +624,12 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
     }
     final live = _mag != null && _gravity != null;
     return IgnorePointer(
-      child: ArStrikeDipOverlay(
+      child: FocusModeGeologyOverlay(
         pitch: live ? _pitch : _lastHudPitch,
         roll: live ? _roll : _lastHudRoll,
         strike: live ? _strike : _lastHudStrike,
         dip: live ? _dip : _lastHudDip,
+        azimuth: _azimuth,
         isDark: isDark,
       ),
     );

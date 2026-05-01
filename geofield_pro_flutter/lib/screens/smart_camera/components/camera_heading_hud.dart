@@ -71,6 +71,19 @@ class CameraHeadingHud extends StatelessWidget {
                     ],
                   ),
                 ),
+                const SizedBox(height: 4),
+                Text(
+                  context.loc('camera_azimuth_subtitle'),
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    height: 1.2,
+                    color: textColor.withValues(alpha: 0.78),
+                    shadows: const [
+                      Shadow(color: Colors.black45, blurRadius: 2),
+                    ],
+                  ),
+                ),
                 const SizedBox(height: 6),
                 Text(
                   acc != null

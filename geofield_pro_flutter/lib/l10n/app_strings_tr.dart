@@ -264,6 +264,14 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get camera_heading_info_line => 'GPS doğruluğu ve sensör';
 
   @override
+  String get camera_azimuth_subtitle =>
+      'Telefon üst kenarı — gerçek kuzeye göre (saat yönü)';
+
+  @override
+  String get camera_plane_attitude_subtitle =>
+      'Strike/dip: ekranı dözleme düzlemine paralel tutun';
+
+  @override
   String get camera_voice_mic_hint =>
       'Mikrofon: Bu istasyon için ses notu kaydedin (kaydet ile birlikte saklanır).';
 

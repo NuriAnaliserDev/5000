@@ -264,6 +264,14 @@ class GeoFieldStringsUz extends GeoFieldStrings {
   String get camera_heading_info_line => 'GPS aniqligi va sensor';
 
   @override
+  String get camera_azimuth_subtitle =>
+      'Telefon ustki cheti — shimolga nisbatan (soat yo‘nalishi)';
+
+  @override
+  String get camera_plane_attitude_subtitle =>
+      'Strike/Dip: ekranni qatlam tekisligiga parallel ushlang';
+
+  @override
   String get camera_voice_mic_hint =>
       'Mikrofon: bosib ovozli eslatma yozing (surat saqlanganda qo‘shiladi).';
 

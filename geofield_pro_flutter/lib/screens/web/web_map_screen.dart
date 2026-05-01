@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../services/boundary_service.dart';
+import '../../services/location_service.dart';
 import '../../models/boundary_polygon.dart';
 import '../../l10n/app_strings.dart';
 import '../../utils/firebase_ready.dart';
@@ -186,7 +187,12 @@ class _WebMapScreenState extends State<WebMapScreen> {
     try {
       final ok = await showGisImportPrecheckDialog(context);
       if (!ok || !mounted) return;
-      final r = await context.read<BoundaryService>().importFileFromWeb();
+      final pos = context.read<LocationService>().currentPosition;
+      final c = _mapController.camera.center;
+      final r = await context.read<BoundaryService>().importFileFromWeb(
+        hintLatitude: pos?.latitude ?? c.latitude,
+        hintLongitude: pos?.longitude ?? c.longitude,
+      );
       if (!mounted) return;
       if (r == null) return;
       if (s != null) {

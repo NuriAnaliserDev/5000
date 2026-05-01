@@ -73,6 +73,7 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'calibration_instruction': return s.calibration_instruction;
     case 'camera': return s.camera;
     case 'camera_azimuth_short': return s.camera_azimuth_short;
+    case 'camera_azimuth_subtitle': return s.camera_azimuth_subtitle;
     case 'camera_close_label': return s.camera_close_label;
     case 'camera_error': return s.camera_error;
     case 'camera_focus_mode_title': return s.camera_focus_mode_title;
@@ -80,6 +81,7 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'camera_header_document': return s.camera_header_document;
     case 'camera_header_geology': return s.camera_header_geology;
     case 'camera_heading_info_line': return s.camera_heading_info_line;
+    case 'camera_plane_attitude_subtitle': return s.camera_plane_attitude_subtitle;
     case 'camera_mode_document': return s.camera_mode_document;
     case 'camera_mode_geology': return s.camera_mode_geology;
     case 'camera_pro_sheet_hint': return s.camera_pro_sheet_hint;
