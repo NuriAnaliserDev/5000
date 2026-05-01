@@ -3,13 +3,17 @@ import 'dart:io';
 
 import 'package:ar_flutter_plugin_plus/ar_flutter_plugin_plus.dart';
 import 'package:ar_flutter_plugin_plus/datatypes/config_planedetection.dart';
+import 'package:ar_flutter_plugin_plus/datatypes/hittest_result_types.dart';
 import 'package:ar_flutter_plugin_plus/datatypes/node_types.dart';
 import 'package:ar_flutter_plugin_plus/managers/ar_anchor_manager.dart';
 import 'package:ar_flutter_plugin_plus/managers/ar_location_manager.dart';
 import 'package:ar_flutter_plugin_plus/managers/ar_object_manager.dart';
 import 'package:ar_flutter_plugin_plus/managers/ar_session_manager.dart';
+import 'package:ar_flutter_plugin_plus/models/ar_anchor.dart';
+import 'package:ar_flutter_plugin_plus/models/ar_hittest_result.dart';
 import 'package:ar_flutter_plugin_plus/models/ar_node.dart';
 import 'package:flutter/material.dart';
+import 'package:geofield_pro_flutter/utils/app_localizations.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:vector_math/vector_math_64.dart' hide Colors;
 
@@ -47,7 +51,7 @@ class GeologicalArSessionController {
   }
 }
 
-/// Geologik kamera — ARCore / ARKit orqali kuzatuvchi tekislik va oldinda qatlam belgisi.
+/// Geologik kamera — ARCore / ARKit: tekislikka anchor, yoki kamera oldida kuzatuv.
 class GeologicalArView extends StatefulWidget {
   const GeologicalArView({
     super.key,
@@ -65,17 +69,49 @@ class GeologicalArView extends StatefulWidget {
 class _GeologicalArViewState extends State<GeologicalArView> {
   final GeologicalArSessionController _controller = GeologicalArSessionController();
   ARSessionManager? _arSession;
+  ARObjectManager? _objectManager;
+  ARAnchorManager? _anchorManager;
   ARNode? _beddingNode;
+  ARPlaneAnchor? _placedAnchor;
   Timer? _ticker;
   bool _reportedReady = false;
 
-  /// Yengil GLB (bir marta tarmoqdan; keyin kesh). Khronos namunasi.
+  /// Kamera bilan harakatlanuvchi rejim (anchor qo‘yilgunicha).
+  bool _followCamera = true;
+
   static const _kBeddingModelUri =
       'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0/Box/glTF-Binary/Box.glb';
 
+  static const _kSlabScale = [0.42, 0.42, 0.03];
+
+  ARNode _makeBeddingNode() {
+    return ARNode(
+      type: NodeType.webGLB,
+      uri: _kBeddingModelUri,
+      scale: Vector3(_kSlabScale[0], _kSlabScale[1], _kSlabScale[2]),
+      transformation: Matrix4.identity(),
+    );
+  }
+
+  void _startFollowCameraTicker() {
+    if (!_followCamera) {
+      return;
+    }
+    _ticker?.cancel();
+    _ticker = Timer.periodic(const Duration(milliseconds: 90), (_) {
+      unawaited(_syncBeddingPlane());
+    });
+    unawaited(_syncBeddingPlane());
+  }
+
+  void _stopFollowCameraTicker() {
+    _ticker?.cancel();
+    _ticker = null;
+  }
+
   @override
   void dispose() {
-    _ticker?.cancel();
+    _stopFollowCameraTicker();
     _controller.bindSession(null);
     unawaited(_arSession?.dispose());
     widget.onDisposed();
@@ -85,30 +121,28 @@ class _GeologicalArViewState extends State<GeologicalArView> {
   Future<void> _onARViewCreated(
     ARSessionManager session,
     ARObjectManager objects,
-    ARAnchorManager _,
-    ARLocationManager __,
+    ARAnchorManager anchorManager,
+    ARLocationManager _,
   ) async {
     _arSession = session;
+    _objectManager = objects;
+    _anchorManager = anchorManager;
     _controller.bindSession(session);
+
+    session.onPlaneOrPointTap = _onPlaneOrPointTap;
 
     await session.onInitialize(
       showFeaturePoints: false,
       showPlanes: true,
       showWorldOrigin: false,
-      handleTaps: false,
+      handleTaps: true,
       handlePans: false,
       handleRotation: false,
     );
     await objects.onInitialize();
 
-    final node = ARNode(
-      type: NodeType.webGLB,
-      uri: _kBeddingModelUri,
-      scale: Vector3(0.42, 0.42, 0.03),
-      transformation: Matrix4.identity(),
-    );
-    _beddingNode = node;
-    await objects.addNode(node);
+    _beddingNode = _makeBeddingNode();
+    await objects.addNode(_beddingNode!);
 
     if (!mounted) {
       return;
@@ -117,21 +151,104 @@ class _GeologicalArViewState extends State<GeologicalArView> {
       _reportedReady = true;
       widget.onControllerReady(_controller);
     }
+    setState(() {});
 
-    _ticker?.cancel();
-    _ticker = Timer.periodic(const Duration(milliseconds: 90), (_) {
-      unawaited(_syncBeddingPlane());
-    });
-    unawaited(_syncBeddingPlane());
+    _followCamera = true;
+    _startFollowCameraTicker();
+  }
+
+  void _onPlaneOrPointTap(List<ARHitTestResult> hits) {
+    unawaited(_handlePlaneTap(hits));
+  }
+
+  Future<void> _handlePlaneTap(List<ARHitTestResult> hits) async {
+    final objects = _objectManager;
+    final anchors = _anchorManager;
+    final session = _arSession;
+    if (objects == null || anchors == null || session == null) {
+      return;
+    }
+
+    final planeHits =
+        hits.where((h) => h.type == ARHitTestResultType.plane).toList();
+    if (planeHits.isEmpty) {
+      if (mounted) {
+        session.onError(context.locRead('camera_ar_no_plane_hit'));
+      }
+      return;
+    }
+
+    _stopFollowCameraTicker();
+
+    final node = _beddingNode;
+    if (node != null) {
+      objects.removeNode(node);
+    }
+    final oldAnchor = _placedAnchor;
+    if (oldAnchor != null) {
+      anchors.removeAnchor(oldAnchor);
+    }
+    _placedAnchor = null;
+    _beddingNode = null;
+
+    if (!mounted) {
+      return;
+    }
+
+    final hit = planeHits.first;
+    final anchor = ARPlaneAnchor(transformation: hit.worldTransform);
+    final didAdd = await anchors.addAnchor(anchor);
+    if (didAdd != true) {
+      if (mounted) {
+        session.onError(context.locRead('camera_ar_anchor_failed'));
+        await _restoreFollowCameraMode(objects);
+      }
+      return;
+    }
+
+    final anchoredNode = _makeBeddingNode();
+    anchoredNode.position = Vector3.zero();
+    anchoredNode.rotation = Matrix3.identity();
+    final ok = await objects.addNode(anchoredNode, planeAnchor: anchor);
+    if (ok != true) {
+      anchors.removeAnchor(anchor);
+      if (mounted) {
+        session.onError(context.locRead('camera_ar_node_failed'));
+        await _restoreFollowCameraMode(objects);
+      }
+      return;
+    }
+
+    _placedAnchor = anchor;
+    _beddingNode = anchoredNode;
+    _followCamera = false;
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  Future<void> _restoreFollowCameraMode(ARObjectManager objects) async {
+    _placedAnchor = null;
+    _followCamera = true;
+    _beddingNode = _makeBeddingNode();
+    await objects.addNode(_beddingNode!);
+    if (mounted) {
+      _startFollowCameraTicker();
+      setState(() {});
+    }
   }
 
   Future<void> _syncBeddingPlane() async {
-    final node = _beddingNode;
-    final session = _arSession;
-    if (node == null || session == null || !mounted) {
+    if (!_followCamera) {
       return;
     }
-    final cam = await session.getCameraPose();
+    final node = _beddingNode;
+    final arSession = _arSession;
+    if (node == null || arSession == null || !mounted) {
+      return;
+    }
+    final cam = await arSession.getCameraPose();
     if (cam == null) {
       return;
     }
@@ -143,7 +260,7 @@ class _GeologicalArViewState extends State<GeologicalArView> {
     node.transform = Matrix4.compose(
       center,
       Quaternion.fromRotation(R),
-      Vector3(0.42, 0.42, 0.03),
+      Vector3(_kSlabScale[0], _kSlabScale[1], _kSlabScale[2]),
     );
   }
 
@@ -152,9 +269,44 @@ class _GeologicalArViewState extends State<GeologicalArView> {
     if (!geologicalArSupportedPlatform()) {
       return const ColoredBox(color: Colors.black);
     }
-    return ARView(
-      onARViewCreated: _onARViewCreated,
-      planeDetectionConfig: PlaneDetectionConfig.horizontalAndVertical,
+
+    final showTapHint =
+        _reportedReady && _followCamera && _arSession != null;
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        ARView(
+          onARViewCreated: _onARViewCreated,
+          planeDetectionConfig: PlaneDetectionConfig.horizontalAndVertical,
+        ),
+        if (showTapHint)
+          Positioned(
+            left: 12,
+            right: 12,
+            bottom: 20,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.55),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.white24),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                child: Text(
+                  context.locRead('camera_ar_tap_plane_hint'),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    height: 1.35,
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

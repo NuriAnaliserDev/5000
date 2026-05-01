@@ -928,6 +928,30 @@ abstract class GeoFieldStrings {
   /// **'ARCore / ARKit session with a 3D slab in front of the camera. First run may need internet to load the marker model.'**
   String get camera_ar_geology_subtitle;
 
+  /// No description provided for @camera_ar_tap_plane_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Move the phone until a grid appears, then tap the surface to lock the slab there. Tap again to move it.'**
+  String get camera_ar_tap_plane_hint;
+
+  /// No description provided for @camera_ar_no_plane_hit.
+  ///
+  /// In en, this message translates to:
+  /// **'No surface found at that tap. Try a tracked plane (grid) or move the device.'**
+  String get camera_ar_no_plane_hit;
+
+  /// No description provided for @camera_ar_anchor_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not attach to the surface. Try again.'**
+  String get camera_ar_anchor_failed;
+
+  /// No description provided for @camera_ar_node_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not place the marker. Try again.'**
+  String get camera_ar_node_failed;
+
   /// No description provided for @cancel.
   ///
   /// In en, this message translates to:

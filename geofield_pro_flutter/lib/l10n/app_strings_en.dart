@@ -456,6 +456,21 @@ class GeoFieldStringsEn extends GeoFieldStrings {
       'ARCore / ARKit session with a 3D slab in front of the camera. First run may need internet to load the marker model.';
 
   @override
+  String get camera_ar_tap_plane_hint =>
+      'Move the phone until a grid appears, then tap the surface to lock the slab there. Tap again to move it.';
+
+  @override
+  String get camera_ar_no_plane_hit =>
+      'No surface found at that tap. Try a tracked plane (grid) or move the device.';
+
+  @override
+  String get camera_ar_anchor_failed =>
+      'Could not attach to the surface. Try again.';
+
+  @override
+  String get camera_ar_node_failed => 'Could not place the marker. Try again.';
+
+  @override
   String get cancel => 'Cancel';
 
   @override

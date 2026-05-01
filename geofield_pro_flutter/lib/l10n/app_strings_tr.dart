@@ -457,6 +457,21 @@ class GeoFieldStringsTr extends GeoFieldStrings {
       'ARCore / ARKit: kamera önünde 3B işaret. İlk açılışta küçük model indirilebilir.';
 
   @override
+  String get camera_ar_tap_plane_hint =>
+      'Telefonu hareket ettirin — ızgara görünene kadar; sonra yüzeye dokunun — işaret orada kilitlenir. Tekrar dokunuş — yeri değiştirir.';
+
+  @override
+  String get camera_ar_no_plane_hit =>
+      'Bu noktada yüzey bulunamadı. Takip edilen düzlem (ızgara) üzerinde tekrar deneyin.';
+
+  @override
+  String get camera_ar_anchor_failed => 'Yüzeye bağlanamadı. Tekrar deneyin.';
+
+  @override
+  String get camera_ar_node_failed =>
+      'İşaret yerleştirilemedi. Tekrar deneyin.';
+
+  @override
   String get cancel => 'İptal';
 
   @override

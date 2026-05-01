@@ -456,6 +456,22 @@ class GeoFieldStringsUz extends GeoFieldStrings {
       'ARCore / ARKit: kamera oldida 3D belgi. Birinchi marta kichik 3D model tarmoqdan yuklanadi.';
 
   @override
+  String get camera_ar_tap_plane_hint =>
+      'Telefonni siljiting — panjara (grid) paydo bo‘lguncha; keyin tekislikka teging — belgi shu yerda qotadi. Qayta tegish — boshqa joyga ko‘chirish.';
+
+  @override
+  String get camera_ar_no_plane_hit =>
+      'Bu nuqtada tekislik topilmadi. Kuzatiladigan tekislik (panjara) ustida qayta urinib ko‘ring.';
+
+  @override
+  String get camera_ar_anchor_failed =>
+      'Yuzaga bog‘lab bo‘lmadi. Qayta urinib ko‘ring.';
+
+  @override
+  String get camera_ar_node_failed =>
+      'Belgini qo‘yib bo‘lmadi. Qayta urinib ko‘ring.';
+
+  @override
   String get cancel => 'Bekor qilish';
 
   @override
