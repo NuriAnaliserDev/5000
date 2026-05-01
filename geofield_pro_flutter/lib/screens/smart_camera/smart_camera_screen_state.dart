@@ -60,6 +60,24 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
       (_settings?.geologicalArEnabled ?? false) &&
       geologicalArSupportedPlatform();
 
+  /// IndexedStack: boshqa tab ochiqida vidjet ochilgan bo‘lsa ham kamera/AR ishlamasin.
+  bool get _cameraSurfaceActive =>
+      !widget.embedded || widget.tabVisible;
+
+  /// Tab ko‘rinishi yoki hayotiy sikl — faqat ochiq tabda sessiya ishga tushadi.
+  void _ensureCameraMatchesMode() {
+    if (!mounted) {
+      return;
+    }
+    if (!_cameraSurfaceActive) {
+      _delayedCameraInitTimer?.cancel();
+      _delayedCameraInitTimer = null;
+      _disposeCameraOnly();
+      return;
+    }
+    _syncCameraToMode();
+  }
+
   /// [context.read] oqim/pauza oynasida ishlatilmasin — deaktiv elementda Provider xatosi.
   SettingsController? _settings;
   LocationService? _locationService;
@@ -97,6 +115,12 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
   Future<void> _initCamera() async {
     try {
       final cameras = await availableCameras();
+      if (!mounted || !_cameraSurfaceActive) {
+        return;
+      }
+      if (cameras.isEmpty) {
+        throw StateError('availableCameras empty');
+      }
       final backCamera = cameras.firstWhere(
         (c) => c.lensDirection == CameraLensDirection.back,
         orElse: () => cameras.first,
@@ -108,6 +132,10 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
       );
       _cameraInitFuture = _cameraController!.initialize();
       await _cameraInitFuture;
+      if (!mounted || !_cameraSurfaceActive) {
+        _disposeCameraOnly();
+        return;
+      }
       if (mounted) {
         setState(() {});
       }
@@ -370,8 +398,16 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
         }
         file = XFile(path);
       } else {
-        await _cameraInitFuture;
-        file = await _cameraController!.takePicture();
+        final fut = _cameraInitFuture;
+        if (fut != null) {
+          await fut;
+        }
+        final cam = _cameraController;
+        if (cam == null || !cam.value.isInitialized) {
+          if (!mounted) return;
+          throw StateError(context.locRead('camera_error'));
+        }
+        file = await cam.takePicture();
       }
 
       // Mavjud stansiyaga rasm: hujjat rejimida bo'lsa ham rasm sifatida qo'shiladi;
@@ -727,6 +763,9 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
   }
 
   Widget _buildCameraPreview() {
+    if (!_cameraSurfaceActive) {
+      return const ColoredBox(color: Colors.black);
+    }
     if (_geologicalArActive) {
       return GeologicalArView(
         key: const ValueKey<Object>('geological_ar_view'),
@@ -759,7 +798,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
             );
             setState(() {});
             WidgetsBinding.instance
-                .addPostFrameCallback((_) => _syncCameraToMode());
+                .addPostFrameCallback((_) => _ensureCameraMatchesMode());
           }
         },
       );
@@ -857,7 +896,24 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkShowTutorial();
-      _syncCameraToMode();
+      _ensureCameraMatchesMode();
+    });
+  }
+
+  @override
+  void didUpdateWidget(SmartCameraScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!widget.embedded) {
+      return;
+    }
+    if (oldWidget.tabVisible == widget.tabVisible) {
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      _ensureCameraMatchesMode();
     });
   }
 
@@ -887,7 +943,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
       _stopSensors();
     } else if (state == AppLifecycleState.resumed) {
       _startSensors();
-      _syncCameraToMode();
+      _ensureCameraMatchesMode();
     }
   }
 
@@ -914,7 +970,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
                   _pendingDelayedCameraInitAfterAr = true;
                 }
                 WidgetsBinding.instance
-                    .addPostFrameCallback((_) => _syncCameraToMode());
+                    .addPostFrameCallback((_) => _ensureCameraMatchesMode());
               },
               isDark: isDark,
               glassBorder: glassBorder,
@@ -970,8 +1026,8 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
                       _pendingDelayedCameraInitAfterAr = true;
                     }
                     setState(() {});
-                    WidgetsBinding.instance
-                        .addPostFrameCallback((_) => _syncCameraToMode());
+                    WidgetsBinding.instance.addPostFrameCallback(
+                        (_) => _ensureCameraMatchesMode());
                   },
                   onFlashModeChanged: (mode) => _setFlashMode(mode),
                   onZoomChanged: _applyZoom,

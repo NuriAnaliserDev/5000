@@ -44,10 +44,15 @@ class SmartCameraScreen extends StatefulWidget {
   final int? stationId;
   final bool embedded;
 
+  /// [MainTabShell] / IndexedStack: faqat tanlangan tabda kamera yoki AR ishga tushadi.
+  /// Boshqa tab ochiq turganida ham vidjet quriladi — bu flag «ko‘rinmas» holatda texnikani yopadi.
+  final bool tabVisible;
+
   const SmartCameraScreen({
     super.key,
     this.stationId,
     this.embedded = false,
+    this.tabVisible = true,
   });
 
   @override

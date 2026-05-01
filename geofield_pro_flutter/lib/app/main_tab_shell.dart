@@ -124,6 +124,7 @@ class MainTabShellState extends State<MainTabShell> {
               SmartCameraScreen(
                 key: ValueKey<int?>(_cameraStationId),
                 embedded: true,
+                tabVisible: _index == 2,
                 stationId: _cameraStationId,
               ),
             ),
