@@ -1,7 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../l10n/app_strings.dart';
 import '../../../models/station.dart';
+import '../../../services/station_repository.dart';
 import '../../../utils/app_localizations.dart';
 import '../../../utils/app_scroll_physics.dart';
 import '../../../utils/geology_utils.dart';
@@ -20,6 +22,7 @@ class _TrendsTabState extends State<TrendsTab> {
   late int _maxDipCount;
   late double _avgStrike;
   late FisherStats _stats;
+  int? _lastRepoGen;
 
   @override
   void initState() {
@@ -55,6 +58,11 @@ class _TrendsTabState extends State<TrendsTab> {
 
   @override
   Widget build(BuildContext context) {
+    final gen = context.watch<StationRepository>().dataGeneration;
+    if (_lastRepoGen != gen) {
+      _lastRepoGen = gen;
+      _compute(widget.stations);
+    }
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return ListView(

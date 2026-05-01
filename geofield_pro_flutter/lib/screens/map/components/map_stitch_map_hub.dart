@@ -9,7 +9,7 @@ import '../../../l10n/app_strings.dart';
 import '../../../services/track_service.dart';
 import '../../../utils/app_localizations.dart';
 
-/// Stitch xarita: bitta «dala vositalari» (ochilganda yoyiladigan menyu) + burchakda kichik Ultra Pro.
+/// Stitch xarita: yuqorida (GPS osti) yoki pastda — dala menyusi + Ultra Pro.
 class MapStitchMapHub extends StatelessWidget {
   const MapStitchMapHub({
     super.key,
@@ -27,6 +27,7 @@ class MapStitchMapHub extends StatelessWidget {
     required this.onFieldNotes,
     required this.onProjectLayers,
     required this.onToggleTrack,
+    this.anchorTop = false,
   });
 
   final bool menuOpen;
@@ -43,18 +44,22 @@ class MapStitchMapHub extends StatelessWidget {
   final VoidCallback onFieldNotes;
   final VoidCallback onProjectLayers;
   final Future<void> Function() onToggleTrack;
+  /// `true` — tugmalar GPS / qidiruv blokining ostida (2-rasmdagi tartib).
+  final bool anchorTop;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment:
+          anchorTop ? CrossAxisAlignment.start : CrossAxisAlignment.end,
       children: [
         _MapFieldSpeedDial(
           menuOpen: menuOpen,
           onMenuOpenChanged: onMenuOpenChanged,
           drawTutorialKey: drawTutorialKey,
           followGps: followGps,
+          anchorTop: anchorTop,
           onDraw: onDraw,
           onAddStation: onAddStation,
           onFollowToggle: onFollowToggle,
@@ -133,6 +138,7 @@ class _MapFieldSpeedDial extends StatefulWidget {
     required this.onMenuOpenChanged,
     this.drawTutorialKey,
     required this.followGps,
+    this.anchorTop = false,
     required this.onDraw,
     required this.onAddStation,
     required this.onFollowToggle,
@@ -148,6 +154,7 @@ class _MapFieldSpeedDial extends StatefulWidget {
   final ValueChanged<bool> onMenuOpenChanged;
   final GlobalKey? drawTutorialKey;
   final bool followGps;
+  final bool anchorTop;
   final VoidCallback onDraw;
   final VoidCallback onAddStation;
   final VoidCallback onFollowToggle;
@@ -293,36 +300,44 @@ class _MapFieldSpeedDialState extends State<_MapFieldSpeedDial>
     final dy = math.sin(angle) * r * progress;
     const double fabR = 28;
     final trackActive = item.kind == _DialActionKind.track && trackOn;
-    return Positioned(
-      right: fabR - dx,
-      bottom: fabR + dy,
-      child: IgnorePointer(
-        ignoring: progress < 0.08,
-        child: Opacity(
-          opacity: progress,
-          child: Transform.scale(
-            scale: 0.5 + 0.5 * progress,
-            alignment: Alignment.center,
-            child: Tooltip(
-              message: item.label,
-              child: Material(
-                color: trackActive ? Colors.red.shade800 : const Color(0xFF1976D2),
-                shape: const CircleBorder(),
-                elevation: 3,
-                child: InkWell(
-                  customBorder: const CircleBorder(),
-                  onTap: () => _onItemTapped(item),
-                  child: SizedBox(
-                    width: 44,
-                    height: 44,
-                    child: Icon(item.icon, color: Colors.white, size: 20),
-                  ),
+    final radial = IgnorePointer(
+      ignoring: progress < 0.08,
+      child: Opacity(
+        opacity: progress,
+        child: Transform.scale(
+          scale: 0.5 + 0.5 * progress,
+          alignment: Alignment.center,
+          child: Tooltip(
+            message: item.label,
+            child: Material(
+              color: trackActive ? Colors.red.shade800 : const Color(0xFF1976D2),
+              shape: const CircleBorder(),
+              elevation: 3,
+              child: InkWell(
+                customBorder: const CircleBorder(),
+                onTap: () => _onItemTapped(item),
+                child: SizedBox(
+                  width: 44,
+                  height: 44,
+                  child: Icon(item.icon, color: Colors.white, size: 20),
                 ),
               ),
             ),
           ),
         ),
       ),
+    );
+    if (widget.anchorTop) {
+      return Positioned(
+        right: fabR - dx,
+        top: fabR + dy,
+        child: radial,
+      );
+    }
+    return Positioned(
+      right: fabR - dx,
+      bottom: fabR + dy,
+      child: radial,
     );
   }
 
@@ -340,7 +355,7 @@ class _MapFieldSpeedDialState extends State<_MapFieldSpeedDial>
       height: 244,
       child: Stack(
         clipBehavior: Clip.none,
-        alignment: Alignment.bottomRight,
+        alignment: widget.anchorTop ? Alignment.topRight : Alignment.bottomRight,
         children: [
           AnimatedBuilder(
             animation: _curve,
@@ -348,6 +363,8 @@ class _MapFieldSpeedDialState extends State<_MapFieldSpeedDial>
               final t = _curve.value.clamp(0.0, 1.0);
               return Stack(
                 clipBehavior: Clip.none,
+                alignment:
+                    widget.anchorTop ? Alignment.topRight : Alignment.bottomRight,
                 children: [
                   for (var i = 0; i < actions.length; i++)
                     if (t >= 0.03) _body(i, actions.length, actions[i], t, trackOn),
@@ -357,7 +374,8 @@ class _MapFieldSpeedDialState extends State<_MapFieldSpeedDial>
           ),
           Positioned(
             right: 0,
-            bottom: 0,
+            top: widget.anchorTop ? 0 : null,
+            bottom: widget.anchorTop ? null : 0,
             child: Material(
               key: widget.drawTutorialKey,
               color: const Color(0xFF1565C0),

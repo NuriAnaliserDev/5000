@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../models/station.dart';
+import '../../../services/station_repository.dart';
 import '../../../utils/app_localizations.dart';
 import '../../../utils/app_scroll_physics.dart';
 import '../../../utils/geology_utils.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PERFORMANCE FIX: StatefulWidget bilan hisob-kitoblar faqat ma'lumot
-// o'zgarganda bajariladi — build() har chaqirilganda emas.
-// Avvalgi holat: circularMean + fisherStats + circularStdDev har rebuild'da
-// qayta hisoblanar edi. Endi faqat didUpdateWidget da yangilanadi.
+// Statistika: [_StationStats] Yangilanishi — [StationRepository.dataGeneration]
+// orqali (Hive obyekti tahrirlanganda ham strike/dip qayta o‘qiladi).
 // ─────────────────────────────────────────────────────────────────────────────
 class StatisticsTab extends StatefulWidget {
   const StatisticsTab({super.key, required this.stations});
@@ -19,8 +19,10 @@ class StatisticsTab extends StatefulWidget {
 }
 
 class _StatisticsTabState extends State<StatisticsTab> {
-  // Pre-computed values — faqat stansiyalar o'zgarganda yangilanadi
+  // Pre-computed values — Hive stansiyasi tahrirlanda ham yangilanishi uchun
+  // faqat ro'yxat uzunligi/key emas, [StationRepository.dataGeneration] garov.
   late _StationStats _stats;
+  int? _statsGeneration;
 
   @override
   void initState() {
@@ -31,23 +33,19 @@ class _StatisticsTabState extends State<StatisticsTab> {
   @override
   void didUpdateWidget(StatisticsTab oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Faqat stansiyalar ro'yxati o'zgarganda qayta hisoblash
-    if (!_listEquals(oldWidget.stations, widget.stations)) {
+    if (oldWidget.stations.length != widget.stations.length) {
       _stats = _StationStats.compute(widget.stations);
+      _statsGeneration = null;
     }
-  }
-
-  bool _listEquals(List<Station> a, List<Station> b) {
-    if (a.length != b.length) return false;
-    if (identical(a, b)) return true;
-    for (int i = 0; i < a.length; i++) {
-      if (a[i].key != b[i].key) return false;
-    }
-    return true;
   }
 
   @override
   Widget build(BuildContext context) {
+    final dataGen = context.watch<StationRepository>().dataGeneration;
+    if (_statsGeneration != dataGen) {
+      _statsGeneration = dataGen;
+      _stats = _StationStats.compute(widget.stations);
+    }
     final onSurf = Theme.of(context).colorScheme.onSurface;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor = isDark ? const Color(0xFF181818) : Colors.grey.shade100;

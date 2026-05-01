@@ -1,7 +1,9 @@
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../models/station.dart';
+import '../../../services/station_repository.dart';
 import '../../../utils/app_localizations.dart';
 import '../../../utils/app_scroll_physics.dart';
 import '../../../utils/rose_strike_binning.dart';
@@ -28,6 +30,7 @@ class _RoseTabState extends State<RoseTab> {
   /// 0..(binCount/2-1) — strike aksial (0–180°) bo‘yicha, 10° va 190° bir xil bin.
   late int _dominantHalfBin;
   late double _axialBinWidthDeg;
+  int? _lastRepoGen;
 
   @override
   void initState() {
@@ -62,6 +65,11 @@ class _RoseTabState extends State<RoseTab> {
 
   @override
   Widget build(BuildContext context) {
+    final gen = context.watch<StationRepository>().dataGeneration;
+    if (_lastRepoGen != gen) {
+      _lastRepoGen = gen;
+      _compute();
+    }
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final onSurf = Theme.of(context).colorScheme.onSurface;
     final halfBins = _binCount ~/ 2;

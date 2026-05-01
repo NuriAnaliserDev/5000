@@ -629,6 +629,9 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     }
     final hideSideRails = _isDrawingMode || _isStructurePlaceMode;
     final bottomInset = AppBottomNavBar.overlayClearanceAboveNav(context);
+    final pad = MediaQuery.paddingOf(context);
+    // MapStitchTopCluster osti: qidiruv + GPS pill — dala menyusi shu yonidan ochiladi.
+    final mapFieldHubTop = pad.top + 8 + 58 + 8 + 44 + 6;
 
     return Stack(
       clipBehavior: Clip.none,
@@ -644,8 +647,9 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
         if (!hideSideRails)
           Positioned(
             right: 6,
-            bottom: bottomInset + 8,
+            top: mapFieldHubTop,
             child: MapStitchMapHub(
+              anchorTop: true,
               menuOpen: _mapFieldMenuOpen,
               onMenuOpenChanged: (v) => setState(() => _mapFieldMenuOpen = v),
               drawTutorialKey: _drawButtonKey,

@@ -2,7 +2,6 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../l10n/app_strings.dart';
-import '../../../models/station.dart';
 import '../../../services/station_repository.dart';
 import '../../../utils/app_card.dart';
 import '../../../utils/geology_utils.dart';
@@ -22,23 +21,23 @@ class FisherReliabilityTile extends StatefulWidget {
 }
 
 class _FisherReliabilityTileState extends State<FisherReliabilityTile> {
-  int? _cachedLen;
+  int? _cachedDataGeneration;
   FisherStats? _stats;
 
-  void _maybeRecompute(List<Station> stations) {
-    final n = stations.length;
-    if (_cachedLen == n && _stats != null) {
+  void _maybeRecompute(StationRepository repo) {
+    final gen = repo.dataGeneration;
+    if (_cachedDataGeneration == gen && _stats != null) {
       return;
     }
-    _cachedLen = n;
-    final strikes = stations.map((s) => s.strike).toList();
+    _cachedDataGeneration = gen;
+    final strikes = repo.stations.map((s) => s.strike).toList();
     _stats = GeologyUtils.fisherStats(strikes);
   }
 
   @override
   Widget build(BuildContext context) {
-    final stations = context.watch<StationRepository>().stations;
-    _maybeRecompute(stations);
+    final repo = context.watch<StationRepository>();
+    _maybeRecompute(repo);
     if (_stats == null) {
       return const SizedBox.shrink();
     }
