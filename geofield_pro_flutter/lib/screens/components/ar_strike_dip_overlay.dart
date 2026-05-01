@@ -9,6 +9,9 @@ class ArStrikeDipOverlay extends StatelessWidget {
   final double strike;
   final double dip;
   final bool isDark;
+  /// O‘ngdagi suzuvchi panel (masalan kamera yon tug‘malari) ostida qolmasligi uchun.
+  final double leftCalloutInset;
+  final double rightCalloutInset;
 
   const ArStrikeDipOverlay({
     super.key,
@@ -17,6 +20,8 @@ class ArStrikeDipOverlay extends StatelessWidget {
     required this.strike,
     required this.dip,
     this.isDark = true,
+    this.leftCalloutInset = 10,
+    this.rightCalloutInset = 10,
   });
 
   static String _bearing8(double deg) {
@@ -97,7 +102,7 @@ class ArStrikeDipOverlay extends StatelessWidget {
               ),
             ),
             Positioned(
-              left: 10,
+              left: leftCalloutInset,
               top: h * (instrumentY - 0.08),
               child: _StrikeDipCallout(
                 text: '${context.locRead('strike_label')}: ${strike.toStringAsFixed(0)}°',
@@ -105,7 +110,7 @@ class ArStrikeDipOverlay extends StatelessWidget {
               ),
             ),
             Positioned(
-              right: 10,
+              right: rightCalloutInset,
               top: h * (instrumentY + 0.00),
               child: _StrikeDipCallout(
                 text: '${context.locRead('dip_label')}: ${dip.toStringAsFixed(0)}° $dipDir',
@@ -192,7 +197,7 @@ class _StrikeDipCallout extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.52),
+        color: Colors.black.withValues(alpha: 0.68),
         borderRadius: BorderRadius.circular(11),
         border: Border.all(color: borderColor, width: 1.2),
         boxShadow: [

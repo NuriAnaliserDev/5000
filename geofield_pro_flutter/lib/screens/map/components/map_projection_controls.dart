@@ -8,31 +8,39 @@ class MapProjectionControls extends StatelessWidget {
   final VoidCallback onToggleProjections;
   final ValueChanged<double> onDepthChanged;
 
+  /// Stitch xarita: chapdagi mini-FABni yashirish (yoqish/o‘chirish Pro vositalar orqali).
+  final bool suppressFloatingToggle;
+
   const MapProjectionControls({
     super.key,
     required this.showProjections,
     required this.projectionDepth,
     required this.onToggleProjections,
     required this.onDepthChanged,
+    this.suppressFloatingToggle = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    if (suppressFloatingToggle && !showProjections) {
+      return const SizedBox.shrink();
+    }
     return Stack(
       children: [
-        Positioned(
-          left: 10,
-          top: 195,
-          child: FloatingActionButton(
-            mini: true,
-            heroTag: 'projToggle',
-            backgroundColor:
-                showProjections ? Colors.green.shade700 : Colors.white,
-            onPressed: onToggleProjections,
-            child: Icon(Icons.layers_outlined,
-                color: showProjections ? Colors.white : Colors.black87),
+        if (!suppressFloatingToggle)
+          Positioned(
+            left: 10,
+            top: 195,
+            child: FloatingActionButton(
+              mini: true,
+              heroTag: 'projToggle',
+              backgroundColor:
+                  showProjections ? Colors.green.shade700 : Colors.white,
+              onPressed: onToggleProjections,
+              child: Icon(Icons.layers_outlined,
+                  color: showProjections ? Colors.white : Colors.black87),
+            ),
           ),
-        ),
         if (showProjections)
           Positioned(
             left: 16,

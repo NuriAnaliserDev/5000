@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'dart:ui' show FontFeature, ImageFilter;
+
 import 'package:provider/provider.dart';
+
+import '../../../app/app_theme.dart';
 import '../../../services/location_service.dart';
 import '../../../utils/app_localizations.dart';
 import '../../../utils/app_card.dart';
@@ -35,43 +39,54 @@ class CameraTopBar extends StatelessWidget {
         top: 0,
         left: 0,
         right: 0,
-        child: Material(
-          color: Colors.black,
-          child: Padding(
-            padding: EdgeInsets.only(top: pad.top),
-            child: SizedBox(
-              height: 48,
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF64B5F6), size: 20),
-                    onPressed: () => Navigator.of(context).maybePop(),
-                  ),
-                  Expanded(
-                    child: Text(
-                      context.loc('camera_focus_mode_title'),
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14,
-                        height: 1.15,
+        child: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: AppTheme.stitchBlueDeep.withValues(alpha: 0.58),
+                border: Border(
+                  bottom: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+                ),
+              ),
+              child: Padding(
+                padding: EdgeInsets.only(top: pad.top),
+                child: SizedBox(
+                  height: 48,
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.arrow_back_ios_new_rounded,
+                            color: AppTheme.stitchBlue.withValues(alpha: 0.95), size: 20),
+                        onPressed: () => Navigator.of(context).maybePop(),
                       ),
-                    ),
+                      Expanded(
+                        child: Text(
+                          context.loc('camera_focus_mode_title'),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
+                            height: 1.15,
+                          ),
+                        ),
+                      ),
+                      if (allowDocumentMode)
+                        IconButton(
+                          key: modeToggleKey,
+                          icon: Icon(Icons.description_outlined,
+                              color: Colors.white.withValues(alpha: 0.92), size: 22),
+                          tooltip: context.loc('camera_mode_document'),
+                          onPressed: () => onModeChanged(CameraMode.document),
+                        )
+                      else
+                        const SizedBox(width: 48),
+                    ],
                   ),
-                  if (allowDocumentMode)
-                    IconButton(
-                      key: modeToggleKey,
-                      icon: const Icon(Icons.description_outlined,
-                          color: Color(0xFF90CAF9), size: 22),
-                      tooltip: context.loc('camera_mode_document'),
-                      onPressed: () => onModeChanged(CameraMode.document),
-                    )
-                  else
-                    const SizedBox(width: 48),
-                ],
+                ),
               ),
             ),
           ),

@@ -54,7 +54,7 @@ import 'map/components/map_gps_hud.dart';
 import 'map/components/map_legend.dart';
 import 'map/components/map_top_bar.dart';
 import 'map/components/map_stitch_top_cluster.dart';
-import 'map/components/map_stitch_side_dock.dart';
+import 'map/components/map_stitch_map_hub.dart';
 import 'map/components/map_live_track_stats.dart';
 import 'map/components/map_sos_button.dart';
 import 'map/components/map_track_fab.dart';

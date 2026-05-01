@@ -1,34 +1,45 @@
 @echo off
-:: Loyiha papkasiga o'tish
-cd /d "C:\5000\geofield_pro_flutter"
+setlocal EnableDelayedExpansion
+:: Batch fayl qayerda turgan bo'lsa, shu loyiha ildiziga o'tish (pubspec.yaml shu yerda)
+cd /d "%~dp0"
 
-:: ADB manzili (Siz ko'rsatgan Desktopdagi joy)
-set ADB_EXE="C:\Users\New\Desktop\platform-tools\adb.exe"
+:: ADB (o'zgartiring agar boshqa joyda bo'lsa)
+set "ADB_EXE=C:\platform-tools\adb.exe"
 
 echo -------------------------------------------------------
-echo TELEFONDA LOGLARNI KO'RISH (DEBUG)
+echo TELEFONDA LOGLARNI KO'RISH (DEBUG^)
+echo Loyiha: %CD%
 echo -------------------------------------------------------
-echo 1. Telefoningizda Wi-Fi debugging yoqilganligini tekshiring.
-echo 2. IP manzil va PORTni kiriting.
+echo 1. Telefoningizda Wi-Fi debugging yoqing.
+echo 2. Telefon ekranidagi "IP manzil va port"ni kiriting.
+echo    (Masalan: 192.168.13.65:40185^)
 echo.
 
-set /p FULL_ADDRESS="Manzilni kiriting (Masalan: 192.168.13.63:37253): "
-
-echo.
-echo Ulanmoqda: %FULL_ADDRESS%...
-%ADB_EXE% disconnect
-%ADB_EXE% connect %FULL_ADDRESS%
-
-echo.
-echo Ilova yuklanmoqda va loglar boshlanmoqda...
-:: pubspec.yaml borligini tekshirish
-if not exist pubspec.yaml (
-    echo Xatolik: pubspec.yaml topilmadi!
+if not exist "%ADB_EXE%" (
+    echo Xatolik: ADB topilmadi: %ADB_EXE%
+    echo platform-tools yuklab, yo'lni skript boshida to'g'rilang.
     pause
-    exit /b
+    exit /b 1
 )
 
-:: Ilovani yurgizish
-call flutter run -d %FULL_ADDRESS%
+if not exist "pubspec.yaml" (
+    echo Xatolik: pubspec.yaml topilmadi!
+    echo Joriy papka: %CD%
+    echo Bu .bat faylni geofield_pro_flutter ildiziga qo'ying.
+    pause
+    exit /b 1
+)
+
+set /p FULL_ADDRESS="Manzilni kiriting: "
+
+echo.
+echo Ulanmoqda: !FULL_ADDRESS!...
+"%ADB_EXE%" disconnect
+"%ADB_EXE%" connect !FULL_ADDRESS!
+
+echo.
+echo 3. Dastur o'rnatilmoqda va loglar boshlanmoqda...
+call flutter run -d !FULL_ADDRESS!
 
 pause
+endlocal

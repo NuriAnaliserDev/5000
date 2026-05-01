@@ -1,14 +1,17 @@
-import 'dart:ui';
+import 'dart:math' as math;
 
 import 'package:camera/camera.dart' show FlashMode;
 import 'package:flutter/material.dart';
+import 'dart:ui' show ImageFilter;
+
+import '../../../app/app_theme.dart';
 import '../../../app/app_router.dart';
 import '../../../utils/app_localizations.dart';
 import '../smart_camera_screen.dart';
 import 'camera_pro_settings_sheet.dart';
 
-/// O‘ng tomondagi vertikal «shisha» panel — mockup: PRO, chiroq, masshtab, yopish.
-class CameraSideControls extends StatelessWidget {
+/// O‘ng tomonda bitta tugma; bosilganda Pro / chiroq / masshtab / yopish yoyiladi.
+class CameraSideControls extends StatefulWidget {
   final CameraMode cameraMode;
   final bool showScale;
   final bool highSensitivityHorizon;
@@ -53,151 +56,224 @@ class CameraSideControls extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final showPro = cameraMode == CameraMode.geological;
+  State<CameraSideControls> createState() => _CameraSideControlsState();
+}
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(36),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-        child: Container(
-          width: 74,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.14),
-            borderRadius: BorderRadius.circular(36),
-            border: Border.all(color: glassBorder),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.35),
-                blurRadius: 18,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (showPro) ...[
-                _sideBtn(
-                  key: menuButtonKey,
-                  icon: Icons.workspace_premium_rounded,
-                  label: context.locRead('camera_pro_short_label'),
-                  tooltip: context.locRead('map_pro_tools_title'),
-                  semanticLabel: context.locRead('map_pro_tools_title'),
-                  onTap: () {
-                    showModalBottomSheet<void>(
-                      context: context,
-                      showDragHandle: true,
-                      isScrollControlled: true,
-                      builder: (ctx) => CameraProSettingsSheet(
-                        showScale: showScale,
-                        highSensitivityHorizon: highSensitivityHorizon,
-                        expertMode: expertMode,
-                        showHud: showHud,
-                        onShowScaleChanged: onShowScaleChanged,
-                        onHighSenseChanged: onHighSenseChanged,
-                        onExpertModeChanged: onExpertModeChanged,
-                        onHudToggle: onHudToggle,
-                        textColor: textColor,
-                        sensorLockButtonKey: sensorLockButtonKey,
-                      ),
-                    );
-                  },
+class _CamDialItem {
+  final String tooltip;
+  final IconData icon;
+  final VoidCallback onTap;
+  final bool active;
+  final Key? itemKey;
+
+  const _CamDialItem({
+    required this.tooltip,
+    required this.icon,
+    required this.onTap,
+    this.active = false,
+    this.itemKey,
+  });
+}
+
+class _CameraSideControlsState extends State<CameraSideControls>
+    with SingleTickerProviderStateMixin {
+  bool _open = false;
+  late final AnimationController _ctrl;
+  late final CurvedAnimation _curve;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _curve = CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack);
+  }
+
+  @override
+  void dispose() {
+    _curve.dispose();
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  void _setOpen(bool v) {
+    setState(() => _open = v);
+    if (v) {
+      _ctrl.forward();
+    } else {
+      _ctrl.reverse();
+    }
+  }
+
+  void _toggle() {
+    _setOpen(!_open);
+  }
+
+  void _run(VoidCallback fn) {
+    _setOpen(false);
+    Future<void>.delayed(const Duration(milliseconds: 70), () {
+      if (mounted) {
+        fn();
+      }
+    });
+  }
+
+  Widget _miniSatellite(_CamDialItem item, int i, int n, double t) {
+    final u = n <= 1 ? 0.5 : i / (n - 1);
+    final angle = math.pi * (1.0 - u * (1.0 / 3.2));
+    const double r = 86;
+    final dx = math.cos(angle) * r * t;
+    final dy = math.sin(angle) * r * t;
+    const double fabR = 26;
+    return Positioned(
+      right: fabR - dx,
+      bottom: fabR + dy,
+      child: Transform.scale(
+        key: item.itemKey,
+        scale: 0.35 + 0.65 * t,
+        child: Opacity(
+          opacity: t.clamp(0.0, 1.0),
+          child: Tooltip(
+            message: item.tooltip,
+            child: Material(
+              color: item.active ? AppTheme.stitchBlue : widget.glassColor,
+              shape: const CircleBorder(),
+              child: InkWell(
+                customBorder: const CircleBorder(),
+                onTap: () => _run(item.onTap),
+                child: SizedBox(
+                  width: 44,
+                  height: 44,
+                  child: Icon(
+                    item.icon,
+                    color: item.active ? Colors.white : widget.textColor,
+                    size: 20,
+                  ),
                 ),
-                const SizedBox(height: 12),
-              ],
-              _sideBtn(
-                icon: flashMode == FlashMode.off ? Icons.flashlight_off_outlined : Icons.flashlight_on_outlined,
-                label: context.loc('camera_torch_label'),
-                active: flashMode != FlashMode.off,
-                onTap: () {
-                  final next = flashMode == FlashMode.off ? FlashMode.torch : FlashMode.off;
-                  onFlashModeChanged(next);
-                },
               ),
-              const SizedBox(height: 12),
-              _sideBtn(
-                icon: Icons.zoom_in_rounded,
-                label: context.loc('camera_scale_label'),
-                onTap: () => onZoomChanged((zoom + 0.5).clamp(1.0, 8.0)),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  '${zoom.toStringAsFixed(1)}×',
-                  style: TextStyle(color: textColor, fontSize: 10, fontWeight: FontWeight.w800),
-                ),
-              ),
-              const SizedBox(height: 12),
-              _sideBtn(
-                icon: Icons.close_rounded,
-                label: context.loc('camera_close_label'),
-                onTap: () async {
-                  final nav = Navigator.of(context);
-                  final didPop = await nav.maybePop();
-                  if (!didPop && context.mounted) {
-                    nav.pushReplacementNamed(AppRouter.dashboard);
-                  }
-                },
-              ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _sideBtn({
-    Key? key,
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    bool active = false,
-    String? tooltip,
-    String? semanticLabel,
-  }) {
-    Widget child = GestureDetector(
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+  @override
+  Widget build(BuildContext context) {
+    final showPro = widget.cameraMode == CameraMode.geological;
+    final items = <_CamDialItem>[
+      if (showPro)
+        _CamDialItem(
+          tooltip: context.locRead('map_pro_tools_title'),
+          icon: Icons.workspace_premium_rounded,
+          itemKey: widget.menuButtonKey,
+          onTap: () {
+            showModalBottomSheet<void>(
+              context: context,
+              showDragHandle: true,
+              isScrollControlled: true,
+              builder: (ctx) => CameraProSettingsSheet(
+                showScale: widget.showScale,
+                highSensitivityHorizon: widget.highSensitivityHorizon,
+                expertMode: widget.expertMode,
+                showHud: widget.showHud,
+                onShowScaleChanged: widget.onShowScaleChanged,
+                onHighSenseChanged: widget.onHighSenseChanged,
+                onExpertModeChanged: widget.onExpertModeChanged,
+                onHudToggle: widget.onHudToggle,
+                textColor: widget.textColor,
+                sensorLockButtonKey: widget.sensorLockButtonKey,
+              ),
+            );
+          },
+        ),
+      _CamDialItem(
+        tooltip: context.loc('camera_torch_label'),
+        icon: widget.flashMode == FlashMode.off
+            ? Icons.flashlight_off_outlined
+            : Icons.flashlight_on_outlined,
+        active: widget.flashMode != FlashMode.off,
+        onTap: () {
+          final next =
+              widget.flashMode == FlashMode.off ? FlashMode.torch : FlashMode.off;
+          widget.onFlashModeChanged(next);
+        },
+      ),
+      _CamDialItem(
+        tooltip:
+            '${context.loc('camera_scale_label')} (${widget.zoom.toStringAsFixed(1)}×)',
+        icon: Icons.zoom_in_rounded,
+        onTap: () =>
+            widget.onZoomChanged((widget.zoom + 0.5).clamp(1.0, 8.0)),
+      ),
+      _CamDialItem(
+        tooltip: context.loc('camera_close_label'),
+        icon: Icons.close_rounded,
+        onTap: () {
+          _setOpen(false);
+          final nav = Navigator.of(context);
+          Future<void>.delayed(const Duration(milliseconds: 70), () async {
+            if (!mounted) {
+              return;
+            }
+            final didPop = await nav.maybePop();
+            if (!didPop && mounted) {
+              nav.pushReplacementNamed(AppRouter.dashboard);
+            }
+          });
+        },
+      ),
+    ];
+
+    return SizedBox(
+      width: 210,
+      height: 268,
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.bottomRight,
         children: [
-          Container(
-            key: key,
-            padding: const EdgeInsets.all(11),
-            decoration: BoxDecoration(
-              color: active ? const Color(0xFF1976D2) : glassColor,
-              shape: BoxShape.circle,
-              border: Border.all(color: glassBorder),
-            ),
-            child: Icon(icon, color: active ? Colors.white : textColor, size: 22),
+          AnimatedBuilder(
+            animation: _curve,
+            builder: (context, _) {
+              final t = _curve.value;
+              return Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  for (var i = 0; i < items.length; i++)
+                    _miniSatellite(items[i], i, items.length, t),
+                ],
+              );
+            },
           ),
-          const SizedBox(height: 5),
-          SizedBox(
-            width: 72,
-            child: Text(
-              label,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 9,
-                color: textColor,
-                fontWeight: FontWeight.w700,
-                height: 1.05,
-                shadows: const [Shadow(color: Colors.black54, blurRadius: 4)],
+          Positioned(
+            right: 0,
+            bottom: 0,
+            child: ClipOval(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                child: Material(
+                  color: Colors.white.withValues(alpha: 0.16),
+                  child: InkWell(
+                    customBorder: const CircleBorder(),
+                    onTap: _toggle,
+                    child: SizedBox(
+                      width: 58,
+                      height: 58,
+                      child: Icon(
+                        _open ? Icons.close_rounded : Icons.tune_rounded,
+                        color: widget.textColor,
+                        size: 26,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
         ],
       ),
     );
-    if (semanticLabel != null) {
-      child = Semantics(label: semanticLabel, button: true, child: child);
-    }
-    if (tooltip != null) {
-      child = Tooltip(message: tooltip, child: child);
-    }
-    return child;
   }
 }

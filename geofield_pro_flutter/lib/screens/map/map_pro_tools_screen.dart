@@ -10,6 +10,7 @@ enum MapProToolAction {
   slice,
   structure,
   startDrawing,
+  toggleEraser,
   openFieldWorkshop,
   threeD,
   stereonet,
@@ -79,6 +80,11 @@ class MapProToolsScreen extends StatelessWidget {
             icon: Icons.edit_road,
             title: s.layer_drawings,
             onTap: () => _pop(context, MapProToolAction.startDrawing),
+          ),
+          _Tile(
+            icon: Icons.auto_fix_off,
+            title: s.map_eraser_tooltip,
+            onTap: () => _pop(context, MapProToolAction.toggleEraser),
           ),
           _Tile(
             icon: Icons.view_in_ar,

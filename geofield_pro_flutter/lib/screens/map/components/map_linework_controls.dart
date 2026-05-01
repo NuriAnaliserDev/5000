@@ -22,6 +22,9 @@ class MapLineworkControls extends StatelessWidget {
   final VoidCallback onSave;
   final VoidCallback onToggleEraser;
 
+  /// Stitch xarita: chizish o‘ng relsdan; yonidagi dublikat mini-FABlarni yashirish.
+  final bool suppressIdleSideRail;
+
   const MapLineworkControls({
     super.key,
     required this.isDrawingMode,
@@ -41,11 +44,15 @@ class MapLineworkControls extends StatelessWidget {
     required this.onCancel,
     required this.onSave,
     required this.onToggleEraser,
+    this.suppressIdleSideRail = false,
   });
 
   @override
   Widget build(BuildContext context) {
     if (!isDrawingMode) {
+      if (suppressIdleSideRail) {
+        return const SizedBox.shrink();
+      }
       return Positioned(
         right: 10,
         top: 92,

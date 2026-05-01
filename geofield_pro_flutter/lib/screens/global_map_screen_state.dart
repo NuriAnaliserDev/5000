@@ -26,6 +26,9 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
   double _drawingLayerOpacity = 1.0;
   bool _showLayerDrawer = false;
 
+  /// Xarita «dala vositalari» radial menyusi ochiq/yopiq.
+  bool _mapFieldMenuOpen = false;
+
   String? _editingPolygonId;
   int? _selectedVertexIndex;
   bool _isVertexEditMode = false;
@@ -396,6 +399,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
               drawButtonKey: _drawButtonKey,
               canRedo: _redoStack.isNotEmpty,
               isEraserMode: _isEraserMode,
+              suppressIdleSideRail: !widget.fieldWorkshopMode,
               onStartDrawing: _startLineDrawing,
               onLineTypeChanged: (type) => setState(() => _selectedLineType = type),
               onToggleCurve: () => setState(() => _isCurvedMode = !_isCurvedMode),
@@ -416,28 +420,12 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                 _redoStack.clear();
               }),
               onSave: _saveDrawing,
-              onToggleEraser: () => setState(() {
-                _isEraserMode = !_isEraserMode;
-                if (_isEraserMode) {
-                  _isDrawingMode = false;
-                  _isSliceMode = false;
-                  _isStructurePlaceMode = false;
-                  _drawingPoints.clear();
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(context.loc('map_eraser_hint')),
-                        behavior: SnackBarBehavior.floating,
-                        duration: const Duration(seconds: 3),
-                      ),
-                    );
-                  }
-                }
-              }),
+              onToggleEraser: _toggleEraserMode,
             ),
             MapProjectionControls(
               showProjections: _showProjections,
               projectionDepth: _projectionDepth,
+              suppressFloatingToggle: !widget.fieldWorkshopMode,
               onToggleProjections: () => setState(() => _showProjections = !_showProjections),
               onDepthChanged: (v) => setState(() => _projectionDepth = v),
             ),
@@ -565,8 +553,30 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     _startLineDrawing();
   }
 
+  void _toggleEraserMode() {
+    setState(() {
+      _isEraserMode = !_isEraserMode;
+      if (_isEraserMode) {
+        _isDrawingMode = false;
+        _isSliceMode = false;
+        _isStructurePlaceMode = false;
+        _drawingPoints.clear();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(context.loc('map_eraser_hint')),
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      }
+    });
+  }
+
   void _startLineDrawing() {
     setState(() {
+      _mapFieldMenuOpen = false;
       _isMeasureMode = false;
       _measurePoints.clear();
       _isDrawingMode = true;
@@ -576,6 +586,40 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
       _drawingPoints.clear();
       _redoStack.clear();
     });
+  }
+
+  Future<void> _toggleMapTracking() async {
+    final trackSvc = context.read<TrackService>();
+    final s = GeoFieldStrings.of(context);
+    if (s == null) {
+      return;
+    }
+    HapticFeedback.mediumImpact();
+    if (trackSvc.isTracking) {
+      await trackSvc.stopTracking();
+      return;
+    }
+    final name =
+        'Trek-${DateTime.now().toIso8601String().substring(0, 19)}'.replaceAll(':', '.');
+    await trackSvc.startTracking(name);
+    if (!mounted) {
+      return;
+    }
+    if (!trackSvc.isTracking) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(s.track_start_failed),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(s.tracking_started_snack),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   Widget _buildStitchMapChrome({required dynamic currentPos}) {
@@ -589,33 +633,47 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     return Stack(
       clipBehavior: Clip.none,
       children: [
+        if (_mapFieldMenuOpen)
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: () => setState(() => _mapFieldMenuOpen = false),
+              behavior: HitTestBehavior.opaque,
+              child: const ColoredBox(color: Colors.transparent),
+            ),
+          ),
         if (!hideSideRails)
-          MapStitchRightRail(
-            onDraw: _startLineDrawing,
-            onAddStation: () => Navigator.of(context).pushNamed('/station'),
-            onFollowToggle: () {
-              setState(() {
-                _followGps = !_followGps;
-              });
-              if (_followGps) {
-                HapticFeedback.selectionClick();
-                _goToMyLocation(currentPos);
-              }
-            },
-            followActive: _followGps,
-            onMyLocation: () => _goToMyLocation(currentPos),
+          Positioned(
+            right: 6,
+            bottom: bottomInset + 8,
+            child: MapStitchMapHub(
+              menuOpen: _mapFieldMenuOpen,
+              onMenuOpenChanged: (v) => setState(() => _mapFieldMenuOpen = v),
+              drawTutorialKey: _drawButtonKey,
+              followGps: _followGps,
+              onOpenProTools: _openMapProTools,
+              onDraw: _startLineDrawing,
+              onAddStation: () => Navigator.of(context).pushNamed('/station'),
+              onFollowToggle: () {
+                setState(() {
+                  _followGps = !_followGps;
+                  _mapFieldMenuOpen = false;
+                });
+                if (_followGps) {
+                  HapticFeedback.selectionClick();
+                  _goToMyLocation(currentPos);
+                }
+              },
+              onMyLocation: () => _goToMyLocation(currentPos),
+              onStrikeDip: _toggleStructureMode,
+              onSampling: () => Navigator.of(context).pushNamed('/station'),
+              onFieldNotes: () => Navigator.of(context).pushNamed('/camera'),
+              onProjectLayers: () => setState(() {
+                _mapFieldMenuOpen = false;
+                _showLayerDrawer = true;
+              }),
+              onToggleTrack: _toggleMapTracking,
+            ),
           ),
-        Positioned(
-          right: 4,
-          bottom: bottomInset - 8,
-          child: MapStitchRadialDock(
-            onProTools: _openMapProTools,
-            onStrikeDip: _toggleStructureMode,
-            onSampling: () => Navigator.of(context).pushNamed('/station'),
-            onFieldNotes: () => Navigator.of(context).pushNamed('/camera'),
-            onProjectLayers: () => setState(() => _showLayerDrawer = true),
-          ),
-        ),
         Positioned(
           left: 8,
           bottom: bottomInset + 24,
@@ -900,6 +958,9 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
       case MapProToolAction.startDrawing:
         _workshopStartDrawing();
         break;
+      case MapProToolAction.toggleEraser:
+        _toggleEraserMode();
+        break;
       case MapProToolAction.openFieldWorkshop:
         _openFieldWorkshop();
         break;
@@ -1071,6 +1132,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
   void _toggleStructureMode() {
     final s = GeoFieldStrings.of(context);
     setState(() {
+      _mapFieldMenuOpen = false;
       _isMeasureMode = false;
       _measurePoints.clear();
       _isStructurePlaceMode = !_isStructurePlaceMode;

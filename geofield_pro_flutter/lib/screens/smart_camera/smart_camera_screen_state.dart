@@ -14,6 +14,11 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
   double _roll = 0;
   double? _headingDeg;
 
+  double _lastHudPitch = 0;
+  double _lastHudRoll = 0;
+  double _lastHudStrike = 0;
+  double _lastHudDip = 0;
+
   StreamSubscription<MagnetometerEvent>? _magSub;
   StreamSubscription<CompassEvent>? _compassSub;
   MagnetometerEvent? _mag;
@@ -222,6 +227,11 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
       HapticFeedback.lightImpact();
     }
     _wasLeveled = isLeveled;
+
+    _lastHudPitch = _pitch;
+    _lastHudRoll = _roll;
+    _lastHudStrike = _strike;
+    _lastHudDip = _dip;
 
     if (mounted && now.difference(_lastUiUpdate).inMilliseconds >= 80) {
       _lastUiUpdate = now;
@@ -609,16 +619,18 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
   }
 
   Widget _buildLevelIndicator() {
-    if (_gravity == null || _cameraMode == CameraMode.document) {
+    if (_cameraMode == CameraMode.document) {
       return const SizedBox.shrink();
     }
+    final live = _mag != null && _gravity != null;
     return IgnorePointer(
       child: ArStrikeDipOverlay(
-        pitch: _pitch,
-        roll: _roll,
-        strike: _strike,
-        dip: _dip,
+        pitch: live ? _pitch : _lastHudPitch,
+        roll: live ? _roll : _lastHudRoll,
+        strike: live ? _strike : _lastHudStrike,
+        dip: live ? _dip : _lastHudDip,
         isDark: isDark,
+        rightCalloutInset: 100,
       ),
     );
   }
@@ -731,16 +743,14 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
               ),
             if (_cameraMode == CameraMode.geological && _showHud) ...[
               _buildLevelIndicator(),
-              if (_expertMode) ...[
-                CameraHeadingHud(
-                  azimuth: _azimuth,
-                  glassColor: glassColor,
-                  glassBorder: glassBorder,
-                  textColor: textColor,
-                  bottomInset:
-                      AppBottomNavBar.overlayClearanceAboveNav(context) + 148,
-                ),
-              ],
+              CameraHeadingHud(
+                azimuth: _azimuth,
+                glassColor: glassColor,
+                glassBorder: glassBorder,
+                textColor: textColor,
+                bottomInset:
+                    AppBottomNavBar.overlayClearanceAboveNav(context) + 148,
+              ),
             ],
             if (_cameraMode == CameraMode.document) ...[
               const CameraDocumentViewfinder(),
