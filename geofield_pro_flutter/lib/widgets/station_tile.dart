@@ -38,7 +38,7 @@ class StationTile extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(14),
         onTap: onTap ??
-            () => Navigator.of(context).pushNamed('/station', arguments: station.key),
+            () => Navigator.of(context, rootNavigator: true).pushNamed('/station', arguments: station.key),
         onLongPress: onLongPress,
         child: Padding(
           padding: const EdgeInsets.all(12),

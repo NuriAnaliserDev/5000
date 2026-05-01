@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../../app/main_tab_navigation.dart';
 /// Kichik xarita ko'rinishi — hozirgi joylashuvni ko'rsatadi.
 ///
 /// Faqat [userLatLng] + [mapStyle] o'zgarishiga bog'liq (Selector
@@ -30,7 +31,7 @@ class DashboardMiniMapBox extends StatelessWidget {
         : Colors.black.withValues(alpha: 0.06);
 
     return GestureDetector(
-      onTap: () => Navigator.of(context).pushNamed('/map'),
+      onTap: () => MainTabNavigation.openMap(context),
       child: Container(
         height: 180,
         clipBehavior: Clip.antiAlias,

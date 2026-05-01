@@ -159,6 +159,20 @@ class StereonetEngine {
     return grid;
   }
 
+  /// Pole markazida, +X sharq, +Y shimol (Flutter: ekranda yuqori `-dy` bilan mos).
+  /// [azimuthDeg] — telefon shimoli (soat bo‘yicha) geologik frame ga aylantirish.
+  static Offset rotateStereonetByAzimuth(
+    Offset stereonetOffset,
+    double azimuthDeg,
+  ) {
+    final th = azimuthDeg * pi / 180.0;
+    final xm = stereonetOffset.dx;
+    final ym = -stereonetOffset.dy;
+    final xr = xm * cos(th) - ym * sin(th);
+    final yr = xm * sin(th) + ym * cos(th);
+    return Offset(xr, -yr);
+  }
+
   static List<Offset> calculateGreatCircle({
     required double strike,
     required double dip,
@@ -168,17 +182,19 @@ class StereonetEngine {
     final points = <Offset>[];
     final dipDir = (strike + 90) % 360;
     final ddRad = (90 - dipDir) * pi / 180;
-    final dipRad = dip * pi / 180;
+    final dipRad = dip.clamp(0.0, 90.0) * pi / 180;
+    final sinD = sin(dipRad);
 
-    for (int i = -90; i <= 90; i++) {
-      final beta = i * pi / 180;
+    // 0.5° qadam: yuqori yarim sfera kesishlarida "tirtiq" kamayadi.
+    for (int i = -180; i <= 180; i++) {
+      final beta = i * 0.5 * pi / 180;
       final xS = cos(beta);
       final yS = sin(beta) * cos(dipRad);
-      final zS = -sin(beta) * sin(dipRad);
+      final zS = -sin(beta) * sinD;
       final xR = xS * cos(ddRad) - yS * sin(ddRad);
       final yR = xS * sin(ddRad) + yS * cos(ddRad);
       if (zS > 0) continue;
-      final theta = acos(-zS);
+      final theta = acos((-zS).clamp(-1.0, 1.0));
       double rOut;
       if (proj == StereonetProjection.wulff) {
         rOut = radius * tan(theta / 2);
@@ -186,13 +202,53 @@ class StereonetEngine {
         rOut = radius * sqrt(2) * sin(theta / 2);
       }
       final mag = sqrt(xR * xR + yR * yR);
-      if (mag == 0) {
+      if (mag < 1e-12) {
         points.add(Offset.zero);
-      } else {
-        // [projectPole] / alpha95: stereografik y tenglamasi — yuqoriga `-cos(trend)`.
-        points.add(Offset(xR / mag * rOut, -yR / mag * rOut));
+        continue;
       }
+      var px = xR / mag * rOut;
+      var py = -yR / mag * rOut;
+      var h = sqrt(px * px + py * py);
+      if (h > radius) {
+        final s = radius / h;
+        px *= s;
+        py *= s;
+      }
+      points.add(Offset(px, py));
     }
     return points;
+  }
+
+  /// Geologik chiziq: [trendDeg] — shimoldan soat strelkasi bo‘yicha (0° = N),
+  /// [plungeDeg] — gorizontal ostidagi moyil (0° = gorizontal, 90° = tik pastga).
+  /// Tik chiziq (plunge=90°) proyeksiya markazida — [Offset.zero] (UI da chiziq yo‘q).
+  static Offset projectLineation({
+    required double trendDeg,
+    required double plungeDeg,
+    required double radius,
+    required StereonetProjection proj,
+  }) {
+    final trendRad = trendDeg * pi / 180.0;
+    final plungeRad = plungeDeg * pi / 180.0;
+    var dx = cos(plungeRad) * sin(trendRad);
+    var dy = cos(plungeRad) * cos(trendRad);
+    var dz = sin(plungeRad);
+    if (dz < 0) {
+      dx = -dx;
+      dy = -dy;
+      dz = -dz;
+    }
+    final theta = acos(dz.clamp(-1.0, 1.0));
+    double rOut;
+    if (proj == StereonetProjection.wulff) {
+      rOut = radius * tan(theta / 2);
+    } else {
+      rOut = radius * sqrt(2) * sin(theta / 2);
+    }
+    final mag = sqrt(dx * dx + dy * dy);
+    if (mag < 1e-9) {
+      return Offset.zero;
+    }
+    return Offset(dx / mag * rOut, -dy / mag * rOut);
   }
 }

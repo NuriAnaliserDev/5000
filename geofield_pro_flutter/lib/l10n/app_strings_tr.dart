@@ -1270,6 +1270,48 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get statistics_label => 'İstatistikler';
 
   @override
+  String station_deleted_snack(String name) {
+    return '“$name” silindi.';
+  }
+
+  @override
+  String get snackbar_undo_restore => 'Geri yükle';
+
+  @override
+  String get splash_error_local_db =>
+      'Yerel veritabanı açılamadı. Uygulamayı yeniden başlatın.';
+
+  @override
+  String get splash_status_firebase => 'Bulut başlatılıyor…';
+
+  @override
+  String get splash_status_local_db => 'Yerel veritabanı…';
+
+  @override
+  String get splash_status_offline_tiles => 'Çevrimdışı haritalar…';
+
+  @override
+  String get splash_status_profile => 'Profil…';
+
+  @override
+  String get splash_status_ready => 'Hazır';
+
+  @override
+  String get splash_status_session => 'Oturum geri yükleniyor…';
+
+  @override
+  String get splash_status_wmm => 'Manyetik model…';
+
+  @override
+  String get route_not_found_title => 'Sayfa bulunamadı';
+
+  @override
+  String get route_not_found_body => 'Bu ekran yok veya bağlantı geçersiz.';
+
+  @override
+  String get route_not_found_back => 'Ana ekrana dön';
+
+  @override
   String get stereonet_density_hint_label => 'Yoğunluk ısı haritası';
 
   @override

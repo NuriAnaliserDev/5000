@@ -1,10 +1,13 @@
-# Asosiy tablar va «orqaga» (ixtiyoriy loyiha qarori)
+# Asosiy tablar va marshrutlar
 
-Hozirgi usul: [`app_nav_bar.dart`](../lib/utils/app_nav_bar.dart) `pushReplacementNamed` — tab o‘zgarishida avvalgi `Navigator` jamlanmasi almashtiriladi (stack «tab orasida» saqlanmaydi). Bu kichik o‘zgarishlarda yetarli.
+## Mobil (joriy)
 
-Agar product **tab holatini doim saqlab qolish** yoki chuqurroq back yo‘lini xohlasa, taxminan ikki yo‘l:
+[`MainTabShell`](../lib/app/main_tab_shell.dart): bitta `Scaffold`, `body` ichida `IndexedStack` (Dashboard, Xarita, Kamera, Arxiv) va har bir tab uchun alohida [`Navigator`](https://api.flutter.dev/flutter/widgets/Navigator-class.html) (`GlobalKey<NavigatorState>`). Pastki [`AppBottomNavBar`](../lib/utils/app_nav_bar.dart) `useShellNavigation: true` bilan tab indeksini almashtiradi (`pushReplacementNamed` emas).
 
-1. **Shell**: bitta `Scaffold` + `body: IndexedStack` / `PageView` — asosiy 5 ekran bitta ota ichida, bottom nav `index` o‘zgartiradi. Back stack talab qilmasa, loyiha soddaroq.
-2. **`go_router` + `StatefulShellRoute`**: yagona yo‘l deklaratsiyasi, tablar `branch` sifatida; refaktor hajmi katta, lekin Flutter ijtimoiy diagrammalarda ko‘p uchraydigan model.
+- Tablar orasida vidjetlar tirik qoladi (xarita/kamera holati saqlanadi).
+- Har bir tab ichidagi `push`/`pop` (masalan, xaritadan stansiya) o‘sha tab `Navigator`ida saqlanadi. Ilova darajasidagi marshrutlar (`/station`, `/painter`, …) odatda `Navigator.of(context, rootNavigator: true)` orqali [`MaterialApp.onGenerateRoute`](../lib/app/app_router.dart)ga uchraydi.
+- Shell tashqarisidagi ekranlar (masalan, chat) uchun [`MainTabNavigation`](../lib/app/main_tab_navigation.dart) shell bo‘lmasa avvalgi kabi `pushNamed` qiladi.
 
-Qaysi variant tanlanishi alohida PR va mahsulot qaroriga bog‘liq.
+## Keyingi qadam (ixtiyoriy)
+
+**`go_router` + `StatefulShellRoute`**: yagona URL/deep link modeli kerak bo‘lsa — refaktor katta, lekin rasmiy Flutter pattern.

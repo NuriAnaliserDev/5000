@@ -10,8 +10,15 @@ import 'app_localizations.dart';
 /// Xabarlar, admin/sozlamalar va (expert) masshtab — "Yana" ostida.
 class AppBottomNavBar extends StatelessWidget {
   final String activeRoute;
+  final bool useShellNavigation;
+  final void Function(String route)? onShellTabSelected;
 
-  const AppBottomNavBar({super.key, required this.activeRoute});
+  const AppBottomNavBar({
+    super.key,
+    required this.activeRoute,
+    this.useShellNavigation = false,
+    this.onShellTabSelected,
+  });
 
   /// Pastki suzuvchi nav + tizim chizig‘i — Snackbar, FAB, TabBarView zaxirasi.
   static double overlayClearanceAboveNav(BuildContext context) {
@@ -73,6 +80,8 @@ class AppBottomNavBar extends StatelessWidget {
                     label: context.loc('dashboard'),
                     route: '/dashboard',
                     isActive: activeRoute == '/dashboard',
+                    useShellNavigation: useShellNavigation,
+                    onShellTabSelected: onShellTabSelected,
                   ),
                   _navItem(
                     context,
@@ -80,6 +89,8 @@ class AppBottomNavBar extends StatelessWidget {
                     label: context.loc('map'),
                     route: '/map',
                     isActive: activeRoute == '/map',
+                    useShellNavigation: useShellNavigation,
+                    onShellTabSelected: onShellTabSelected,
                   ),
                   _navItem(
                     context,
@@ -87,6 +98,8 @@ class AppBottomNavBar extends StatelessWidget {
                     label: context.loc('camera'),
                     route: '/camera',
                     isActive: activeRoute == '/camera',
+                    useShellNavigation: useShellNavigation,
+                    onShellTabSelected: onShellTabSelected,
                   ),
                   _navItem(
                     context,
@@ -94,6 +107,8 @@ class AppBottomNavBar extends StatelessWidget {
                     label: context.loc('archive'),
                     route: '/archive',
                     isActive: activeRoute == '/archive',
+                    useShellNavigation: useShellNavigation,
+                    onShellTabSelected: onShellTabSelected,
                   ),
                   _moreItem(
                     context,
@@ -116,6 +131,8 @@ class AppBottomNavBar extends StatelessWidget {
     required String label,
     required String route,
     bool isActive = false,
+    required bool useShellNavigation,
+    required void Function(String route)? onShellTabSelected,
   }) {
     final scheme = Theme.of(context).colorScheme;
     final inactive = scheme.onSurfaceVariant;
@@ -134,6 +151,10 @@ class AppBottomNavBar extends StatelessWidget {
               highlightColor: activeColor.withValues(alpha: 0.06),
               onTap: () {
                 if (isActive) return;
+                if (useShellNavigation && onShellTabSelected != null) {
+                  onShellTabSelected(route);
+                  return;
+                }
                 Navigator.of(context).pushReplacementNamed(route);
               },
               child: SizedBox(

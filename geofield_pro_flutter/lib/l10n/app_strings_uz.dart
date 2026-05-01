@@ -1271,6 +1271,48 @@ class GeoFieldStringsUz extends GeoFieldStrings {
   String get statistics_label => 'Statistika';
 
   @override
+  String station_deleted_snack(String name) {
+    return '«$name» o‘chirildi.';
+  }
+
+  @override
+  String get snackbar_undo_restore => 'Qaytarish';
+
+  @override
+  String get splash_error_local_db =>
+      'Mahalliy baza ochilmadi. Ilovani qayta ishga tushiring.';
+
+  @override
+  String get splash_status_firebase => 'Bulutni ishga tushirish…';
+
+  @override
+  String get splash_status_local_db => 'Mahalliy baza…';
+
+  @override
+  String get splash_status_offline_tiles => 'Oflayn xaritalar…';
+
+  @override
+  String get splash_status_profile => 'Profil…';
+
+  @override
+  String get splash_status_ready => 'Tayyor';
+
+  @override
+  String get splash_status_session => 'Sessiya tiklanmoqda…';
+
+  @override
+  String get splash_status_wmm => 'Magnetik model…';
+
+  @override
+  String get route_not_found_title => 'Sahifa topilmadi';
+
+  @override
+  String get route_not_found_body => 'Bu ekran yo‘q yoki havola yaroqsiz.';
+
+  @override
+  String get route_not_found_back => 'Asosiyga qaytish';
+
+  @override
   String get stereonet_density_hint_label => 'Kamb issiqlik xaritasi';
 
   @override

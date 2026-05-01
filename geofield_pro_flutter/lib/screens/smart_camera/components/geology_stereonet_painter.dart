@@ -5,6 +5,7 @@ import 'package:geofield_pro_flutter/utils/geological_plane_projector.dart';
 import 'package:geofield_pro_flutter/utils/geology_utils.dart';
 
 /// Stereonet uslubidagi ikki tekislik (qizil/ko‘k) + halqalar + tooltiplar.
+/// Tekisliklar: [StereonetEngine.calculateGreatCircle] (Schmidt, past yarim sfera).
 /// Dip yo‘nalishi: [GeologyUtils.calculateDipDirection].
 class StereonetPlaneData {
   final double strikeDeg;
@@ -30,7 +31,8 @@ class StereonetPlaneData {
 class StereonetOverlayLayer extends StatelessWidget {
   final StereonetPlaneData data;
 
-  /// Sun’iy gorizont: roll / pitch ([computeFocusModeGeometry]). `null` bo‘lsa tekislik siljimasdan chiziladi.
+  /// Sun’iy gorizont: roll/pitch ([computeFocusModeGeometry]). Stereografik doira roll bilan
+  /// aylanmaydi (qog‘oz stereonet bilan solishtirish); faqat gorizont chizig‘i roll qiladi.
   final FocusModeOverlayGeometry? motion;
 
   /// Instrument markazi (0–1): crosshair bilan mos, odatda `0.34`.
@@ -66,26 +68,70 @@ class _StereonetPainter extends CustomPainter {
   final FocusModeOverlayGeometry? motion;
   final double centerYFactor;
 
+  static const StereonetProjection _proj = StereonetProjection.schmidt;
+
   double _north(double angleDeg) => _rad(angleDeg - data.azimuthDeg);
+
+  /// [motion] da `compassRotationRad` bilan bir xil ma’no: shimol telefon frame ga.
+  Offset _mapStereonetToCanvas(Offset stereonetOffset, double cx, double cy) {
+    final o = StereonetEngine.rotateStereonetByAzimuth(
+      stereonetOffset,
+      data.azimuthDeg,
+    );
+    return Offset(cx + o.dx, cy + o.dy);
+  }
+
+  Path? _greatCirclePath(
+    List<Offset> geoRelative,
+    double cx,
+    double cy,
+    double netR,
+  ) {
+    if (geoRelative.length < 2) return null;
+    final path = Path();
+    var moved = false;
+    Offset? prev;
+    final jumpTh = netR * 0.18;
+    for (final p in geoRelative) {
+      final cur = _mapStereonetToCanvas(p, cx, cy);
+      if (!moved) {
+        path.moveTo(cur.dx, cur.dy);
+        moved = true;
+      } else {
+        if (prev != null && (cur - prev).distance > jumpTh) {
+          path.moveTo(cur.dx, cur.dy);
+        } else {
+          path.lineTo(cur.dx, cur.dy);
+        }
+      }
+      prev = cur;
+    }
+    return moved ? path : null;
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
     final cxScreen = size.width / 2;
     final cyScreen = size.height * centerYFactor;
-    final rx = size.width * 0.36;
-    final ry = rx * 0.77;
+    final netR = size.width * 0.36;
 
     final g = motion;
     if (g != null) {
+      // Stereonet geografik frame da: roll qo‘llanmaydi (qog‘oz stereonet bilan solishtirish).
+      canvas.save();
+      canvas.translate(cxScreen, cyScreen);
+      canvas.translate(0, g.pitchOffsetPx);
+      _drawStereonetContent(canvas, size, 0, 0, netR);
+      canvas.restore();
+
       canvas.save();
       canvas.translate(cxScreen, cyScreen);
       canvas.rotate(-g.rollRad);
       canvas.translate(0, g.pitchOffsetPx);
       _drawHorizonLine(canvas, size);
-      _drawStereonetContent(canvas, size, 0, 0, rx, ry);
       canvas.restore();
     } else {
-      _drawStereonetContent(canvas, size, cxScreen, cyScreen, rx, ry);
+      _drawStereonetContent(canvas, size, cxScreen, cyScreen, netR);
     }
   }
 
@@ -99,30 +145,34 @@ class _StereonetPainter extends CustomPainter {
     );
   }
 
-  /// Barcha stereonet unsurlari markaz `(cx, cy)` atrofida.
   void _drawStereonetContent(
     Canvas canvas,
     Size size,
     double cx,
     double cy,
-    double rx,
-    double ry,
+    double netR,
   ) {
-    _drawRings(canvas, cx, cy, rx, ry);
-    _drawCardinalMarkers(canvas, cx, cy, rx, ry);
-    _drawRedPlane(canvas, cx, cy, rx, ry);
-    _drawBluePlane(canvas, cx, cy, rx, ry);
-    _drawTooltips(canvas, cx, cy, rx, ry, size);
+    _drawRings(canvas, cx, cy, netR);
+    canvas.save();
+    canvas.clipPath(
+      Path()
+        ..addOval(
+          Rect.fromCircle(center: Offset(cx, cy), radius: netR),
+        ),
+    );
+    _drawVerticalPlaneGreatCircle(canvas, cx, cy, netR);
+    _drawBedPlaneGreatCircle(canvas, cx, cy, netR);
+    _drawDipLine(canvas, cx, cy, netR);
+    canvas.restore();
+    _drawCardinalMarkers(canvas, cx, cy, netR);
+    _drawTooltips(canvas, cx, cy, netR, size);
   }
 
-  void _drawRings(Canvas canvas, double cx, double cy, double rx, double ry) {
+  void _drawRings(Canvas canvas, double cx, double cy, double netR) {
     void ring(double scale, double opacity, double width) {
-      canvas.drawOval(
-        Rect.fromCenter(
-          center: Offset(cx, cy),
-          width: rx * 2 * scale,
-          height: ry * 2 * scale,
-        ),
+      canvas.drawCircle(
+        Offset(cx, cy),
+        netR * scale,
         Paint()
           ..color = Colors.white.withValues(alpha: opacity)
           ..style = PaintingStyle.stroke
@@ -139,16 +189,15 @@ class _StereonetPainter extends CustomPainter {
     Canvas canvas,
     double cx,
     double cy,
-    double rx,
-    double ry,
+    double netR,
   ) {
     void card(double deg, String letter, _CardinalStyle style) {
       final a = _north(deg);
       _drawLabel(
         canvas,
         letter,
-        cx + rx * 1.05 * math.sin(a),
-        cy - ry * 1.05 * math.cos(a),
+        cx + netR * 1.05 * math.sin(a),
+        cy - netR * 1.05 * math.cos(a),
         style: style,
       );
     }
@@ -183,96 +232,80 @@ class _StereonetPainter extends CustomPainter {
     tp.paint(canvas, Offset(x - tp.width / 2, y - tp.height / 2));
   }
 
-  void _drawRedPlane(
+  /// Qatlam tekisligi — Schmidt great circle (past yarim sfera).
+  void _drawBedPlaneGreatCircle(
     Canvas canvas,
     double cx,
     double cy,
-    double rx,
-    double ry,
+    double netR,
   ) {
-    final center = _north(data.strikeDeg);
-    final half = _rad(data.dipDeg * 0.45 + 12);
-
-    _drawPlane(
-      canvas,
-      cx,
-      cy,
-      rx,
-      ry,
-      centerAngle: center,
-      halfSpread: half,
-      fillColor: const Color(0xFFE53935).withValues(alpha: 0.42),
-      strokeColor: const Color(0xFFE53935).withValues(alpha: 0.88),
+    final pts = StereonetEngine.calculateGreatCircle(
+      strike: data.strikeDeg,
+      dip: data.dipDeg,
+      radius: netR,
+      proj: _proj,
     );
-  }
-
-  void _drawBluePlane(
-    Canvas canvas,
-    double cx,
-    double cy,
-    double rx,
-    double ry,
-  ) {
-    final center = _north(data.dipDirectionDeg);
-    final half = _rad(data.dipDeg * 0.45 + 12);
-
-    _drawPlane(
-      canvas,
-      cx,
-      cy,
-      rx,
-      ry,
-      centerAngle: center,
-      halfSpread: half,
-      fillColor: const Color(0xFF1E88E5).withValues(alpha: 0.38),
-      strokeColor: const Color(0xFF1E88E5).withValues(alpha: 0.88),
-    );
-  }
-
-  void _drawPlane(
-    Canvas canvas,
-    double cx,
-    double cy,
-    double rx,
-    double ry, {
-    required double centerAngle,
-    required double halfSpread,
-    required Color fillColor,
-    required Color strokeColor,
-  }) {
-    const steps = 48;
-    final path = Path()..moveTo(cx, cy);
-    for (int i = 0; i <= steps; i++) {
-      final a = (centerAngle - halfSpread) + (2 * halfSpread) * i / steps;
-      path.lineTo(
-        cx + rx * 0.94 * math.sin(a),
-        cy - ry * 0.94 * math.cos(a),
-      );
-    }
-    path.close();
-
+    final path = _greatCirclePath(pts, cx, cy, netR);
+    if (path == null) return;
+    final stroke = const Color(0xFFE53935).withValues(alpha: 0.92);
     canvas.drawPath(
       path,
       Paint()
-        ..color = fillColor
-        ..style = PaintingStyle.fill,
-    );
-    canvas.drawPath(
-      path,
-      Paint()
-        ..color = strokeColor
+        ..color = stroke
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.8,
+        ..strokeWidth = 2.6
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round,
     );
+  }
+
+  /// Dip yo‘nalishidagi vertikal tekislik (strike ⟂ dip dir., dip = 90°).
+  void _drawVerticalPlaneGreatCircle(
+    Canvas canvas,
+    double cx,
+    double cy,
+    double netR,
+  ) {
+    final strikeVert = (data.dipDirectionDeg - 90.0 + 360.0) % 360.0;
+    final pts = StereonetEngine.calculateGreatCircle(
+      strike: strikeVert,
+      dip: 90,
+      radius: netR,
+      proj: _proj,
+    );
+    final path = _greatCirclePath(pts, cx, cy, netR);
+    if (path == null) return;
+    final stroke = const Color(0xFF1E88E5).withValues(alpha: 0.88);
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = stroke
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.2
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round,
+    );
+  }
+
+  /// Qatlam bo‘yicha eng qiya chiziq (dip yo‘nalishi, moyil = dip).
+  void _drawDipLine(Canvas canvas, double cx, double cy, double netR) {
+    if (data.dipDeg <= 0) return;
+    final rel = StereonetEngine.projectLineation(
+      trendDeg: data.dipDirectionDeg,
+      plungeDeg: data.dipDeg,
+      radius: netR,
+      proj: _proj,
+    );
+    if (rel.distance < 1.0) return;
+    final tip = _mapStereonetToCanvas(rel, cx, cy);
+    final stroke = const Color(0xFFE53935).withValues(alpha: 0.95);
     canvas.drawLine(
       Offset(cx, cy),
-      Offset(
-        cx + rx * 0.94 * math.sin(centerAngle),
-        cy - ry * 0.94 * math.cos(centerAngle),
-      ),
+      tip,
       Paint()
-        ..color = strokeColor
-        ..strokeWidth = 2.4,
+        ..color = stroke
+        ..strokeWidth = 2.5
+        ..strokeCap = StrokeCap.round,
     );
   }
 
@@ -280,19 +313,18 @@ class _StereonetPainter extends CustomPainter {
     Canvas canvas,
     double cx,
     double cy,
-    double rx,
-    double ry,
+    double netR,
     Size size,
   ) {
     final tipPositions = [
-      Offset(cx - rx * 0.88, cy - ry * 0.75),
-      Offset(cx + rx * 0.18, cy - ry * 0.90),
-      Offset(cx + rx * 0.72, cy - ry * 0.22),
+      Offset(cx - netR * 0.88, cy - netR * 0.75),
+      Offset(cx + netR * 0.18, cy - netR * 0.90),
+      Offset(cx + netR * 0.72, cy - netR * 0.22),
     ];
     final anchors = [
-      Offset(cx - rx * 0.38, cy - ry * 0.30),
-      Offset(cx + rx * 0.28, cy - ry * 0.35),
-      Offset(cx + rx * 0.62, cy + ry * 0.05),
+      Offset(cx - netR * 0.38, cy - netR * 0.30),
+      Offset(cx + netR * 0.28, cy - netR * 0.35),
+      Offset(cx + netR * 0.62, cy + netR * 0.05),
     ];
 
     final label =

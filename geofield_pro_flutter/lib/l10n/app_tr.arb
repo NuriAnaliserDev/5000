@@ -429,6 +429,26 @@
   "stations_count": "İSTASYONLAR",
   "stations_suffix": "istasyon",
   "statistics_label": "İstatistikler",
+  "station_deleted_snack": "“{name}” silindi.",
+  "@station_deleted_snack": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "snackbar_undo_restore": "Geri yükle",
+  "splash_error_local_db": "Yerel veritabanı açılamadı. Uygulamayı yeniden başlatın.",
+  "splash_status_firebase": "Bulut başlatılıyor…",
+  "splash_status_local_db": "Yerel veritabanı…",
+  "splash_status_offline_tiles": "Çevrimdışı haritalar…",
+  "splash_status_profile": "Profil…",
+  "splash_status_ready": "Hazır",
+  "splash_status_session": "Oturum geri yükleniyor…",
+  "splash_status_wmm": "Manyetik model…",
+  "route_not_found_title": "Sayfa bulunamadı",
+  "route_not_found_body": "Bu ekran yok veya bağlantı geçersiz.",
+  "route_not_found_back": "Ana ekrana dön",
   "stereonet_density_hint_label": "Yoğunluk ısı haritası",
   "stereonet_density_hint_value": "yoğun bölgede nokta daha fazladır",
   "stereonet_mean": "Ortalama kutup",

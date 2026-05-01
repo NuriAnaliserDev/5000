@@ -2482,6 +2482,84 @@ abstract class GeoFieldStrings {
   /// **'Statistics'**
   String get statistics_label;
 
+  /// No description provided for @station_deleted_snack.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} was deleted.'**
+  String station_deleted_snack(String name);
+
+  /// No description provided for @snackbar_undo_restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get snackbar_undo_restore;
+
+  /// No description provided for @splash_error_local_db.
+  ///
+  /// In en, this message translates to:
+  /// **'Local database could not be opened. Try restarting the app.'**
+  String get splash_error_local_db;
+
+  /// No description provided for @splash_status_firebase.
+  ///
+  /// In en, this message translates to:
+  /// **'Initializing cloud…'**
+  String get splash_status_firebase;
+
+  /// No description provided for @splash_status_local_db.
+  ///
+  /// In en, this message translates to:
+  /// **'Local database…'**
+  String get splash_status_local_db;
+
+  /// No description provided for @splash_status_offline_tiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline maps…'**
+  String get splash_status_offline_tiles;
+
+  /// No description provided for @splash_status_profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile…'**
+  String get splash_status_profile;
+
+  /// No description provided for @splash_status_ready.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get splash_status_ready;
+
+  /// No description provided for @splash_status_session.
+  ///
+  /// In en, this message translates to:
+  /// **'Restoring session…'**
+  String get splash_status_session;
+
+  /// No description provided for @splash_status_wmm.
+  ///
+  /// In en, this message translates to:
+  /// **'Magnetic model…'**
+  String get splash_status_wmm;
+
+  /// No description provided for @route_not_found_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Page not found'**
+  String get route_not_found_title;
+
+  /// No description provided for @route_not_found_body.
+  ///
+  /// In en, this message translates to:
+  /// **'This screen does not exist or the link is invalid.'**
+  String get route_not_found_body;
+
+  /// No description provided for @route_not_found_back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to main'**
+  String get route_not_found_back;
+
   /// No description provided for @stereonet_density_hint_label.
   ///
   /// In en, this message translates to:

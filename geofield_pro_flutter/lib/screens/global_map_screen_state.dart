@@ -342,7 +342,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                 ),
                 MapStationLayer(
                   stations: stations,
-                  onStationTap: (s) => Navigator.of(context).pushNamed('/station', arguments: s.key as int?),
+                  onStationTap: (s) => Navigator.of(context, rootNavigator: true).pushNamed('/station', arguments: s.key as int?),
                 ),
                 if (widget.initLocation != null)
                   MarkerLayer(
@@ -444,7 +444,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                 if (!_isVertexEditMode) { _editingPolygonId = null; _selectedVertexIndex = null; }
               }),
               onImportGis: _importGisFromMap,
-              onOpenExportArchive: () => Navigator.of(context).pushNamed('/archive'),
+              onOpenExportArchive: () => MainTabNavigation.openArchive(context),
               onExportGeoJson: _exportMapGeoJson,
               mapLayersToggleTutorialKey: _downloadButtonKey,
             ),
@@ -488,7 +488,9 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
       ),
       bottomNavigationBar: widget.fieldWorkshopMode
           ? null
-          : const AppBottomNavBar(activeRoute: '/map'),
+          : (widget.embedded
+              ? null
+              : const AppBottomNavBar(activeRoute: '/map')),
     );
   }
 
@@ -656,7 +658,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
               followGps: _followGps,
               onOpenProTools: _openMapProTools,
               onDraw: _startLineDrawing,
-              onAddStation: () => Navigator.of(context).pushNamed('/station'),
+              onAddStation: () => Navigator.of(context, rootNavigator: true).pushNamed('/station'),
               onFollowToggle: () {
                 setState(() {
                   _followGps = !_followGps;
@@ -669,8 +671,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
               },
               onMyLocation: () => _goToMyLocation(currentPos),
               onStrikeDip: _toggleStructureMode,
-              onSampling: () => Navigator.of(context).pushNamed('/station'),
-              onFieldNotes: () => Navigator.of(context).pushNamed('/camera'),
+              onSampling: () => Navigator.of(context, rootNavigator: true).pushNamed('/station'),
+              onFieldNotes: () => MainTabNavigation.openCamera(context),
               onProjectLayers: () => setState(() {
                 _mapFieldMenuOpen = false;
                 _showLayerDrawer = true;
@@ -821,7 +823,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
 
   void _openFieldWorkshop() {
     HapticFeedback.selectionClick();
-    Navigator.of(context).pushNamed(
+    Navigator.of(context, rootNavigator: true).pushNamed(
       AppRouter.fieldWorkshop,
       arguments: <String, dynamic>{
         'lat': _centerLat,
@@ -975,14 +977,14 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
         break;
       case MapProToolAction.threeD:
         final c = _mapController.camera.center;
-        Navigator.of(context).push(
+        Navigator.of(context, rootNavigator: true).push(
           MaterialPageRoute<void>(
             builder: (ctx) => ThreeDViewerScreen(centerPoint: c),
           ),
         );
         break;
       case MapProToolAction.stereonet:
-        Navigator.of(context).pushNamed(AppRouter.analysis);
+        Navigator.of(context, rootNavigator: true).pushNamed(AppRouter.analysis);
         break;
       case MapProToolAction.copyUtm:
         _copyUtmCenterToClipboard();
@@ -1807,7 +1809,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     final start = _drawingPoints[0];
     final end = _drawingPoints[1];
     setState(() { _isSliceMode = false; _drawingPoints = []; });
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => CrossSectionScreen(start: start, end: end)));
+    Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => CrossSectionScreen(start: start, end: end)));
   }
 
   void _moveVertex(LatLng newPos) {

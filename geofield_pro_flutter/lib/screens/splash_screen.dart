@@ -10,6 +10,7 @@ import '../services/auth_service.dart';
 import '../services/hive_db.dart';
 import '../services/settings_controller.dart';
 import '../services/user_flags_service.dart';
+import '../l10n/app_strings.dart';
 import '../utils/wmm/wmm_model.dart';
 import '../utils/firebase_ready.dart';
 import 'error_screen.dart';
@@ -29,7 +30,19 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _bootstrap();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _bootstrap();
+      }
+    });
+  }
+
+  GeoFieldStrings get _loc {
+    final s = GeoFieldStrings.of(context);
+    if (s == null) {
+      throw StateError('GeoFieldStrings missing on SplashScreen');
+    }
+    return s;
   }
 
   Future<void> _bootstrap() async {
@@ -40,13 +53,13 @@ class _SplashScreenState extends State<SplashScreen> {
     try {
       setState(() {
         _progress = 0.3;
-        _statusLabel = 'Firebase init...';
+        _statusLabel = _loc.splash_status_firebase;
       });
       await Future<void>.delayed(const Duration(milliseconds: 80));
       if (Firebase.apps.isNotEmpty) {
         Firebase.app();
         setState(() {
-          _statusLabel = 'Sessiya...';
+          _statusLabel = _loc.splash_status_session;
         });
         // Saqlangan kirish: ba'zida [currentUser] keyinroq to'ldiriladi; authState
         // birinchi hodisasini 8 sekundgacha kutamiz (internet sekin bo‘lishi mumkin).
@@ -68,16 +81,16 @@ class _SplashScreenState extends State<SplashScreen> {
 
       setState(() {
         _progress = 0.5;
-        _statusLabel = 'Local DB...';
+        _statusLabel = _loc.splash_status_local_db;
       });
       await Future<void>.delayed(const Duration(milliseconds: 50));
       if (!Hive.isBoxOpen(HiveDb.stationsBox)) {
-        throw StateError('Mahalliy baza ochildi — qayta urinib ko‘ring');
+        throw StateError(_loc.splash_error_local_db);
       }
 
       setState(() {
         _progress = 0.7;
-        _statusLabel = 'Offline tiles...';
+        _statusLabel = _loc.splash_status_offline_tiles;
       });
       if (!kIsWeb) {
         await Future<void>.delayed(const Duration(milliseconds: 120));
@@ -87,7 +100,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
       setState(() {
         _progress = 0.9;
-        _statusLabel = 'WMM model...';
+        _statusLabel = _loc.splash_status_wmm;
       });
       WmmModel.embedded().declination(
         lat: 41.0,
@@ -97,7 +110,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
       setState(() {
         _progress = 0.95;
-        _statusLabel = 'Profil...';
+        _statusLabel = _loc.splash_status_profile;
       });
       if (mounted) {
         await _syncOnboardingForLoggedInUser();
@@ -105,7 +118,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
       setState(() {
         _progress = 1.0;
-        _statusLabel = 'Tayyor';
+        _statusLabel = _loc.splash_status_ready;
       });
       await Future<void>.delayed(const Duration(milliseconds: 200));
 

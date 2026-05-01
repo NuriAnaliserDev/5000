@@ -67,6 +67,7 @@ import 'map/map_tile_config.dart';
 import 'map/map_polygon_builders.dart';
 import 'three_d_viewer_screen.dart';
 import '../app/app_router.dart';
+import '../app/main_tab_navigation.dart';
 
 part 'global_map_screen_state.dart';
 
@@ -74,7 +75,15 @@ class GlobalMapScreen extends StatefulWidget {
   final Map<String, dynamic>? initLocation;
   /// `true` — alohida marshrut: Pro maydon (qatlam, GIS, chizim, struktura bitta fokus).
   final bool fieldWorkshopMode;
-  const GlobalMapScreen({super.key, this.initLocation, this.fieldWorkshopMode = false});
+  /// `true` — [MainTabShell] ostida; pastki tab bar tashqi scaffoldda.
+  final bool embedded;
+
+  const GlobalMapScreen({
+    super.key,
+    this.initLocation,
+    this.fieldWorkshopMode = false,
+    this.embedded = false,
+  });
 
   @override
   State<GlobalMapScreen> createState() => _GlobalMapScreenState();

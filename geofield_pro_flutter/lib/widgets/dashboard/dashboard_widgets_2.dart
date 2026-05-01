@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../utils/app_localizations.dart';
+import '../../app/main_tab_navigation.dart';
 import '../../models/station.dart';
 import '../../services/settings_controller.dart';
 import '../../utils/app_card.dart';
@@ -142,7 +143,7 @@ class DashboardRecentHeader extends StatelessWidget {
           ),
           const Spacer(),
           TextButton(
-            onPressed: () => Navigator.of(context).pushNamed('/archive'),
+            onPressed: () => MainTabNavigation.openArchive(context),
             child: Text(
               context.loc('dashboard_view_all'),
               style: TextStyle(

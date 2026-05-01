@@ -27,7 +27,6 @@ import '../../utils/image_utils.dart';
 import '../../utils/status_semantics.dart';
 
 import 'components/camera_bottom_controls.dart';
-import 'components/camera_heading_hud.dart';
 import 'components/camera_overlays.dart';
 import 'components/camera_side_controls.dart';
 import 'components/camera_top_bar.dart';
@@ -40,8 +39,13 @@ enum CameraMode { geological, document }
 /// Kamera + sensor mantiqi [smart_camera_screen_state.dart] part faylida (qatorlar bo‘yicha bo‘lingan).
 class SmartCameraScreen extends StatefulWidget {
   final int? stationId;
+  final bool embedded;
 
-  const SmartCameraScreen({super.key, this.stationId});
+  const SmartCameraScreen({
+    super.key,
+    this.stationId,
+    this.embedded = false,
+  });
 
   @override
   State<SmartCameraScreen> createState() => SmartCameraScreenState();

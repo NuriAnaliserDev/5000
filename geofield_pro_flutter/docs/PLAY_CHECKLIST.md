@@ -13,7 +13,7 @@ Do‘konda nazorat yoki tavsif matnlarida quyidagilarni yoritishni unutmang (so�
 ## Ofis tavsif va kontent siyosati
 
 - Ilova nomi va brend: **GeoField Pro** (yoki sizdagi yuridik matn) bilan dastur ichidagi nom mos bo‘lsin.
-- Tashqi `feature graphic` / skrinshotlar: Play Material dizayn rejasiga muvofiq, **logo** muhim elementlari (mask cheti) chetda qirqilmasin. Do‘konda katta yorliq/markaz simvol uchun **1024×1024+** (kvadrat) manbaga ega bo‘lgan alohida asset tavsiya etiladi; `flutter_launcher_icons` hozirgi `assets/logo.png` dan parcha/adapter yaratadi (hozirgi fayl odatda 669×373 o‘lchamda — ikon muhitida yaxshilab tekshirib oling).
+- Tashqi `feature graphic` / skrinshotlar: Play Material dizayn rejasiga muvofiq, **logo** muhim elementlari (mask cheti) chetda qirqilmasin. **Manba:** `assets/logo.png` (kvadrat, shaffof fon bo‘lishi mumkin). Ikonlar: `dart run flutter_launcher_icons` (Android adaptive fon `pubspec`da, iOS `remove_alpha_ios`).
 
 ## Texnik
 

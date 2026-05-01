@@ -56,4 +56,30 @@ void main() {
     expect(find.text(uz.nav_more), findsOneWidget);
     expect(find.text(uz.scale_short), findsNothing);
   });
+
+  testWidgets('useShellNavigation: tab bosilganda push o‘rniga callback',
+      (tester) async {
+    String? tappedRoute;
+    await tester.pumpWidget(
+      ChangeNotifierProvider<SettingsController>.value(
+        value: settings,
+        child: MaterialApp(
+          localizationsDelegates: GeoFieldStrings.localizationsDelegates,
+          supportedLocales: GeoFieldStrings.supportedLocales,
+          locale: const Locale('uz'),
+          home: Scaffold(
+            bottomNavigationBar: AppBottomNavBar(
+              activeRoute: '/dashboard',
+              useShellNavigation: true,
+              onShellTabSelected: (r) => tappedRoute = r,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.map_rounded));
+    await tester.pumpAndSettle();
+    expect(tappedRoute, '/map');
+  });
 }

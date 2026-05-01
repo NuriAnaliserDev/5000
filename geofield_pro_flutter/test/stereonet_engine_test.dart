@@ -141,5 +141,98 @@ void main() {
       );
       expect(pts, isNotEmpty);
     });
+
+    test('barcha nuqtalar primitive radius ichida (Schmidt)', () {
+      const r0 = 100.0;
+      for (final dip in [0.0, 15.0, 45.0, 89.0]) {
+        for (final strike in [0.0, 33.0, 120.0, 333.0]) {
+          final pts = StereonetEngine.calculateGreatCircle(
+            strike: strike,
+            dip: dip,
+            radius: r0,
+            proj: StereonetProjection.schmidt,
+          );
+          for (final p in pts) {
+            final h = math.sqrt(p.dx * p.dx + p.dy * p.dy);
+            expect(h, lessThanOrEqualTo(r0 + 1e-6));
+          }
+        }
+      }
+    });
+
+    test('gorizontal qatlam (dip=0) — katta yoy', () {
+      final pts = StereonetEngine.calculateGreatCircle(
+        strike: 45,
+        dip: 0,
+        radius: 100,
+        proj: StereonetProjection.schmidt,
+      );
+      expect(pts.length, greaterThan(100));
+      for (final p in pts) {
+        final h = math.sqrt(p.dx * p.dx + p.dy * p.dy);
+        expect(h, inInclusiveRange(99.0, 101.0));
+      }
+    });
+
+    test('vertikal (dip=90) — diametr: markazdan o‘tuvchi to‘g‘ri chiziq', () {
+      final pts = StereonetEngine.calculateGreatCircle(
+        strike: 0,
+        dip: 90,
+        radius: 100,
+        proj: StereonetProjection.schmidt,
+      );
+      expect(pts.length, greaterThan(20));
+      // Barcha nuqtalar bir xil `x/y` nisbatida (2D da bir to‘g‘ri chiziq).
+      final a = pts.first;
+      expect(a.dx.abs() + a.dy.abs() > 1e-6, isTrue);
+      for (final p in pts.skip(1)) {
+        final cross = a.dx * p.dy - a.dy * p.dx;
+        expect(cross.abs(), lessThan(2.0));
+      }
+    });
+  });
+
+  group('StereonetEngine.rotateStereonetByAzimuth', () {
+    test('shimol (0,-R) +90° azimut — g‘arb (-R,0)', () {
+      const r = 100.0;
+      final o = StereonetEngine.rotateStereonetByAzimuth(
+        const Offset(0, -r),
+        90,
+      );
+      expect(o.dx, closeTo(-r, 1e-6));
+      expect(o.dy, closeTo(0, 1e-6));
+    });
+
+    test('0° azimut — o‘zgarishsiz', () {
+      final o = StereonetEngine.rotateStereonetByAzimuth(
+        const Offset(12, -34),
+        0,
+      );
+      expect(o.dx, closeTo(12, 1e-9));
+      expect(o.dy, closeTo(-34, 1e-9));
+    });
+  });
+
+  group('StereonetEngine.projectLineation', () {
+    test('gorizontal (plunge=0) — primitive chekki yaqin', () {
+      final o = StereonetEngine.projectLineation(
+        trendDeg: 90,
+        plungeDeg: 0,
+        radius: 100,
+        proj: StereonetProjection.schmidt,
+      );
+      final r = math.sqrt(o.dx * o.dx + o.dy * o.dy);
+      expect(r, inInclusiveRange(95, 105));
+    });
+
+    test('tik pastga (plunge=90) — markaz atrofida', () {
+      final o = StereonetEngine.projectLineation(
+        trendDeg: 45,
+        plungeDeg: 90,
+        radius: 100,
+        proj: StereonetProjection.schmidt,
+      );
+      expect(o.dx * o.dx + o.dy * o.dy, lessThan(1.0));
+    });
   });
 }

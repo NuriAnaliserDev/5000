@@ -9,6 +9,7 @@ import '../services/chat_repository.dart';
 import '../services/location_service.dart';
 import '../services/cloud_sync_service.dart';
 import '../models/chat_message.dart';
+import '../app/main_tab_navigation.dart';
 
 class ChatScreen extends StatefulWidget {
   final String groupId;
@@ -276,10 +277,14 @@ class _ChatScreenState extends State<ChatScreen> {
               const SizedBox(height: 6),
               GestureDetector(
                 onTap: () {
-                  Navigator.of(context).pushNamed('/map', arguments: {
-                    'lat': msg.lat,
-                    'lng': msg.lng,
-                  });
+                  MainTabNavigation.selectTab(
+                    context,
+                    MainTabNavigation.map,
+                    mapLocation: {
+                      'lat': msg.lat,
+                      'lng': msg.lng,
+                    },
+                  );
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

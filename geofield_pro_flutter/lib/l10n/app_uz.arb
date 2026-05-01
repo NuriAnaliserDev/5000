@@ -429,6 +429,26 @@
   "stations_count": "STANSIYALAR",
   "stations_suffix": "stansiya",
   "statistics_label": "Statistika",
+  "station_deleted_snack": "«{name}» o‘chirildi.",
+  "@station_deleted_snack": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "snackbar_undo_restore": "Qaytarish",
+  "splash_error_local_db": "Mahalliy baza ochilmadi. Ilovani qayta ishga tushiring.",
+  "splash_status_firebase": "Bulutni ishga tushirish…",
+  "splash_status_local_db": "Mahalliy baza…",
+  "splash_status_offline_tiles": "Oflayn xaritalar…",
+  "splash_status_profile": "Profil…",
+  "splash_status_ready": "Tayyor",
+  "splash_status_session": "Sessiya tiklanmoqda…",
+  "splash_status_wmm": "Magnetik model…",
+  "route_not_found_title": "Sahifa topilmadi",
+  "route_not_found_body": "Bu ekran yo‘q yoki havola yaroqsiz.",
+  "route_not_found_back": "Asosiyga qaytish",
   "stereonet_density_hint_label": "Kamb issiqlik xaritasi",
   "stereonet_density_hint_value": "qalin mintaqada nuqtalar ko‘p",
   "stereonet_mean": "O‘rtacha (Mean)",

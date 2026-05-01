@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+
+import '../../../app/main_tab_navigation.dart';
 import '../../../services/settings_controller.dart';
 import '../../../services/cloud_sync_service.dart';
 import '../../../services/station_repository.dart';
@@ -122,7 +124,7 @@ class DashboardDesktopHeader extends StatelessWidget {
     return Row(
       children: [
         ElevatedButton.icon(
-          onPressed: () => Navigator.pushNamed(context, '/camera'),
+          onPressed: () => MainTabNavigation.openCamera(context),
           icon: const Icon(Icons.add, size: 20),
           label: Text(context.loc('new_station_btn')),
           style: ElevatedButton.styleFrom(

@@ -1268,6 +1268,49 @@ class GeoFieldStringsEn extends GeoFieldStrings {
   String get statistics_label => 'Statistics';
 
   @override
+  String station_deleted_snack(String name) {
+    return '$name was deleted.';
+  }
+
+  @override
+  String get snackbar_undo_restore => 'Restore';
+
+  @override
+  String get splash_error_local_db =>
+      'Local database could not be opened. Try restarting the app.';
+
+  @override
+  String get splash_status_firebase => 'Initializing cloud…';
+
+  @override
+  String get splash_status_local_db => 'Local database…';
+
+  @override
+  String get splash_status_offline_tiles => 'Offline maps…';
+
+  @override
+  String get splash_status_profile => 'Profile…';
+
+  @override
+  String get splash_status_ready => 'Ready';
+
+  @override
+  String get splash_status_session => 'Restoring session…';
+
+  @override
+  String get splash_status_wmm => 'Magnetic model…';
+
+  @override
+  String get route_not_found_title => 'Page not found';
+
+  @override
+  String get route_not_found_body =>
+      'This screen does not exist or the link is invalid.';
+
+  @override
+  String get route_not_found_back => 'Back to main';
+
+  @override
   String get stereonet_density_hint_label => 'Density heatmap';
 
   @override

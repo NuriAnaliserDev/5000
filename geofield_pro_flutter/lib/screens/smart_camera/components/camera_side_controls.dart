@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'dart:ui' show ImageFilter;
 
 import '../../../app/app_theme.dart';
-import '../../../app/app_router.dart';
+import '../../../app/main_tab_navigation.dart';
 import '../../../utils/app_localizations.dart';
 import '../smart_camera_screen.dart';
 import 'camera_pro_settings_sheet.dart';
@@ -224,8 +224,9 @@ class _CameraSideControlsState extends State<CameraSideControls>
               return;
             }
             final didPop = await nav.maybePop();
-            if (!didPop && mounted) {
-              nav.pushReplacementNamed(AppRouter.dashboard);
+            if (!mounted) return;
+            if (!didPop && context.mounted) {
+              MainTabNavigation.openDashboard(context);
             }
           });
         },

@@ -18,6 +18,7 @@ import '../services/ai/ai_rate_limiter.dart';
 import '../utils/app_localizations.dart';
 import '../utils/rocks_list.dart';
 import '../utils/munsell_data.dart';
+import '../app/main_tab_navigation.dart';
 
 // Components
 import 'station/components/station_app_bar.dart';
@@ -463,9 +464,9 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
               onAddGallery: _pickFromGallery,
               onDeletePhoto: _deletePhoto,
               onViewPhoto: (p) =>
-                  Navigator.of(context).pushNamed('/painter', arguments: p),
+                  Navigator.of(context, rootNavigator: true).pushNamed('/painter', arguments: p),
               onOpenPainter: (p) =>
-                  Navigator.of(context).pushNamed('/painter', arguments: p),
+                  Navigator.of(context, rootNavigator: true).pushNamed('/painter', arguments: p),
               onPlayAudio: _playAudio,
             ),
           ),
@@ -478,14 +479,19 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
   /// [photoPaths] yangilangan bo'lsa ham [setState] eski [Station] qoladi.
   Future<void> _openCameraForStation() async {
     final id = _station?.key;
-    await Navigator.of(context).pushNamed('/camera', arguments: id);
-    if (!mounted || id == null) {
-      return;
-    }
-    final repo = context.read<StationRepository>();
-    final fresh = repo.getById(id);
-    if (fresh != null) {
-      setState(() => _station = fresh);
+    final sid = id is int ? id : null;
+    if (sid == null) return;
+    MainTabNavigation.openCamera(context, stationId: sid);
+    for (final d
+        in [const Duration(milliseconds: 1200), const Duration(seconds: 4)]) {
+      Future<void>.delayed(d, () {
+        if (!mounted) return;
+        final repo = context.read<StationRepository>();
+        final fresh = repo.getById(sid);
+        if (fresh != null) {
+          setState(() => _station = fresh);
+        }
+      });
     }
   }
 

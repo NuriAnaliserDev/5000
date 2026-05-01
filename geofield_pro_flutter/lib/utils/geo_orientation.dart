@@ -25,12 +25,24 @@ class Vec3 {
 }
 
 class GeoOrientationResult {
-  final double azimuth;    // 0–360° (true north corrected)
-  final double dip;        // 0–90°
-  final double strike;     // 0–360° (right-hand rule)
+  /// Telefon `+Y` ning gorizontal proyeksiyasi (magnit shimoldan soat bo‘yicha),
+  /// [declination] qo‘shilgach **true north** (0–360°).
+  final double azimuth;
+
+  /// Gorizontdan past qatlam burchagi (0–90°).
+  final double dip;
+
+  /// O‘ng qo‘l qoidasi bo‘yicha chasbar, true north ga nisbatan (0–360°).
+  final double strike;
+
+  /// Qo‘llanilgan magnit deklinatsiya (WMM yoki qo‘lda).
   final double declination;
-  final double pitch;      // –90 to +90 (for artificial horizon)
-  final double roll;       // –180 to +180 (for artificial horizon)
+
+  /// Sun’iy gorizont: old-orqa qiyalik (–90…90).
+  final double pitch;
+
+  /// Sun’iy gorizont: yon tomonga qiyalik (–180…180).
+  final double roll;
 
   GeoOrientationResult({
     required this.azimuth,
@@ -43,6 +55,10 @@ class GeoOrientationResult {
 }
 
 /// Calculates accurate geological orientation.
+///
+/// Focus Mode stereonet/strike HUD: natija odatda HUD ga to‘g‘ridan-to‘g‘ri beriladi;
+/// `azimuth` va `strike` allaqachon true north — stereonetda `declination` ni ikki marta
+/// qo‘llamaslik kerak.
 ///
 /// Android sensor coordinate system:
 ///   X – points RIGHT along the screen

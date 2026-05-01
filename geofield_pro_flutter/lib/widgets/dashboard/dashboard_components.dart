@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../app/app_router.dart';
+import '../../app/main_tab_navigation.dart';
 import '../../l10n/app_strings.dart';
 import '../../models/station.dart';
 import '../../services/boundary_service.dart';
@@ -45,28 +46,29 @@ class DashboardQuickTools extends StatelessWidget {
             Icons.map_rounded,
             context.loc('map'),
             primary,
-            () => Navigator.pushNamed(context, '/map'),
+            () => MainTabNavigation.openMap(context),
           ),
           _buildQuickToolItem(
             context,
             Icons.photo_camera_rounded,
             context.loc('camera'),
             primary,
-            () => Navigator.pushNamed(context, '/camera'),
+            () => MainTabNavigation.openCamera(context),
           ),
           _buildQuickToolItem(
             context,
             Icons.maps_home_work_rounded,
             GeoFieldStrings.of(context)?.field_workshop_title ?? 'Field workshop',
             const Color(0xFF2E7D32),
-            () => Navigator.pushNamed(context, AppRouter.fieldWorkshop),
+            () => Navigator.of(context, rootNavigator: true)
+                .pushNamed(AppRouter.fieldWorkshop),
           ),
           _buildQuickToolItem(
             context,
             Icons.alt_route_rounded,
             context.loc('map_track_fab_aria'),
             primary,
-            () => Navigator.pushNamed(context, '/map'),
+            () => MainTabNavigation.openMap(context),
           ),
           _buildQuickToolItem(
             context,
@@ -97,7 +99,7 @@ class DashboardQuickTools extends StatelessWidget {
             Icons.file_download_outlined,
             context.loc('dashboard_data_export'),
             primary,
-            () => Navigator.pushNamed(context, '/archive'),
+            () => MainTabNavigation.openArchive(context),
           ),
         ],
       ),
@@ -132,7 +134,8 @@ class DashboardQuickTools extends StatelessWidget {
   }
 
   Future<void> _openCameraForVoice(BuildContext context) async {
-    await Navigator.pushNamed(context, '/camera');
+    MainTabNavigation.openCamera(context);
+    await Future<void>.delayed(const Duration(milliseconds: 400));
     if (!context.mounted) return;
     final s = GeoFieldStrings.of(context)?.voice_open_camera_hint;
     if (s == null) return;

@@ -49,7 +49,10 @@ int _dashboardSettingsToken(SettingsController s) => Object.hash(
 }
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  const DashboardScreen({super.key, this.embedded = false});
+
+  /// `true` — [MainTabShell] ichida; pastki nav tashqi [Scaffold] beradi.
+  final bool embedded;
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -107,7 +110,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             },
           ),
         ),
-        bottomNavigationBar: MediaQuery.of(context).size.width <= 900
+        bottomNavigationBar: !widget.embedded &&
+                MediaQuery.of(context).size.width <= 900
             ? const AppBottomNavBar(activeRoute: '/dashboard')
             : null,
       ),

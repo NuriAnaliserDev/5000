@@ -27,7 +27,9 @@ class FocusModeOverlayGeometry {
 
   final double dipDeg;
 
-  /// Haqiqiy shimol halqada: `-azimut` (soat yo‘nalishida, radian).
+  /// Haqiqiy shimol halqada: `-azimut` (rad).
+  /// Stereonet chizimi: telefon azimuti `+orientation.azimuth` bilan geologik frame ga aylanadi;
+  /// bu yerda `-azimuthRad` halqa uchun.
   final double compassRotationRad;
 
   /// Telefon deyarlik gorizontal (`g ∥ ±Z`) — strike yo‘nalishi [fallbackStrikeDeg] dan.

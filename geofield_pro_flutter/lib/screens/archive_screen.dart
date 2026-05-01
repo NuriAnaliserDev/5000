@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+import '../l10n/app_strings.dart';
+import '../app/main_tab_navigation.dart';
 import '../models/station.dart';
 import '../models/track_data.dart';
 import '../services/station_repository.dart';
@@ -16,7 +18,9 @@ import 'archive/tabs/stations_tab.dart';
 import 'archive/tabs/tracks_tab.dart';
 
 class ArchiveScreen extends StatefulWidget {
-  const ArchiveScreen({super.key});
+  const ArchiveScreen({super.key, this.embedded = false});
+
+  final bool embedded;
 
   @override
   State<ArchiveScreen> createState() => _ArchiveScreenState();
@@ -73,8 +77,13 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(context.loc('success_saved')),
-        action: SnackBarAction(label: context.loc('cancel'), onPressed: () => repo.addStation(backup)),
+        content: Text(
+          GeoFieldStrings.of(context)!.station_deleted_snack(s.name),
+        ),
+        action: SnackBarAction(
+          label: GeoFieldStrings.of(context)!.snackbar_undo_restore,
+          onPressed: () => repo.addStation(backup),
+        ),
         duration: const Duration(seconds: 5),
         behavior: SnackBarBehavior.floating,
         margin: EdgeInsets.only(
@@ -468,7 +477,7 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
                       if (_isSelectionMode) {
                         setState(() => _selectedStationKeys.contains(key) ? _selectedStationKeys.remove(key) : _selectedStationKeys.add(key));
                       } else {
-                        Navigator.of(context).pushNamed('/station', arguments: key);
+                        Navigator.of(context, rootNavigator: true).pushNamed('/station', arguments: key);
                       }
                     },
                     onStationLongPress: (key) {
@@ -490,7 +499,7 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
                       if (_isTrackSelectionMode) {
                         setState(() => _selectedTrackKeys.contains(key) ? _selectedTrackKeys.remove(key) : _selectedTrackKeys.add(key));
                       } else {
-                        Navigator.of(context).pushNamed('/map');
+                        MainTabNavigation.openMap(context);
                       }
                     },
                     onTrackLongPress: (key) {
@@ -509,7 +518,8 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
           ),
         ],
       ),
-      bottomNavigationBar: const AppBottomNavBar(activeRoute: '/archive'),
+      bottomNavigationBar:
+          widget.embedded ? null : const AppBottomNavBar(activeRoute: '/archive'),
       floatingActionButton: (isSelecting && selCount > 0)
         ? Padding(
           padding: EdgeInsets.only(bottom: AppBottomNavBar.overlayClearanceAboveNav(context)),

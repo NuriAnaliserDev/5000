@@ -429,6 +429,26 @@
   "stations_count": "STATIONS",
   "stations_suffix": "stations",
   "statistics_label": "Statistics",
+  "station_deleted_snack": "{name} was deleted.",
+  "@station_deleted_snack": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "snackbar_undo_restore": "Restore",
+  "splash_error_local_db": "Local database could not be opened. Try restarting the app.",
+  "splash_status_firebase": "Initializing cloud…",
+  "splash_status_local_db": "Local database…",
+  "splash_status_offline_tiles": "Offline maps…",
+  "splash_status_profile": "Profile…",
+  "splash_status_ready": "Ready",
+  "splash_status_session": "Restoring session…",
+  "splash_status_wmm": "Magnetic model…",
+  "route_not_found_title": "Page not found",
+  "route_not_found_body": "This screen does not exist or the link is invalid.",
+  "route_not_found_back": "Back to main",
   "stereonet_density_hint_label": "Density heatmap",
   "stereonet_density_hint_value": "thicker zone means more points",
   "stereonet_mean": "Mean Pole",

@@ -20,6 +20,7 @@ import '../screens/splash_screen.dart';
 import '../screens/station_summary_screen.dart';
 import '../screens/smart_camera/smart_camera_screen.dart';
 import '../services/auth_service.dart';
+import '../l10n/app_strings.dart';
 import '../screens/web/web_dashboard_main.dart';
 import '../screens/web/web_login_screen.dart';
 
@@ -148,9 +149,41 @@ class AppRouter {
 
   static Route<dynamic> _notFound() {
     return AppPageRoutes.material<void>(
-      (_) => const Scaffold(
-        body: Center(child: Text('Route not found')),
-      ),
+      (context) {
+        final loc = GeoFieldStrings.of(context);
+        final title = loc?.route_not_found_title ?? 'Page not found';
+        final body = loc?.route_not_found_body ?? '';
+        final back = loc?.route_not_found_back ?? 'Back';
+        return Scaffold(
+          appBar: AppBar(title: Text(title)),
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      body,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    const SizedBox(height: 24),
+                    FilledButton(
+                      onPressed: () {
+                        Navigator.of(context)
+                            .pushReplacementNamed(AppRouter.dashboard);
+                      },
+                      child: Text(back),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

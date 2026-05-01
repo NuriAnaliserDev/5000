@@ -37,7 +37,6 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
   FlashMode _flashMode = FlashMode.off;
   bool _showScale = false;
   bool _showHud = true;
-  bool _expertMode = true;
   bool _highSensitivityHorizon = false;
   double? _lastAccuracy;
   int _compassQuality = 100;
@@ -341,7 +340,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
         if (!mounted) {
           return;
         }
-        Navigator.of(context)
+        Navigator.of(context, rootNavigator: true)
             .pushNamed('/auto-table-review', arguments: file.path);
         return;
       }
@@ -454,7 +453,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(context.locRead('station_saved')),
           behavior: SnackBarBehavior.floating));
-      Navigator.of(context).pushReplacementNamed('/station', arguments: id);
+      Navigator.of(context, rootNavigator: true).pushReplacementNamed('/station', arguments: id);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -630,6 +629,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
         strike: live ? _strike : _lastHudStrike,
         dip: live ? _dip : _lastHudDip,
         azimuth: _azimuth,
+        gravity: live ? _gravity : null,
         isDark: isDark,
       ),
     );
@@ -663,7 +663,6 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
     if (!_appliedInitialUserPrefs) {
       _appliedInitialUserPrefs = true;
       _showCalibrationHint = !_settings!.hasDismissedCalibration;
-      _expertMode = _settings!.expertMode;
     }
   }
 
@@ -717,9 +716,12 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
 
   @override
   Widget build(BuildContext context) {
+    final expertMode = context.watch<SettingsController>().expertMode;
     return Scaffold(
       backgroundColor: Colors.black,
-      bottomNavigationBar: const AppBottomNavBar(activeRoute: '/camera'),
+      bottomNavigationBar: widget.embedded
+          ? null
+          : const AppBottomNavBar(activeRoute: '/camera'),
       body: SafeArea(
         child: Stack(
           children: [
@@ -741,17 +743,8 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
                 right: 0,
                 child: Center(child: _buildGuideChip()),
               ),
-            if (_cameraMode == CameraMode.geological && _showHud) ...[
+            if (_cameraMode == CameraMode.geological && _showHud)
               _buildLevelIndicator(),
-              CameraHeadingHud(
-                azimuth: _azimuth,
-                glassColor: glassColor,
-                glassBorder: glassBorder,
-                textColor: textColor,
-                bottomInset:
-                    AppBottomNavBar.overlayClearanceAboveNav(context) + 148,
-              ),
-            ],
             if (_cameraMode == CameraMode.document) ...[
               const CameraDocumentViewfinder(),
               _buildDocumentHint(),
@@ -767,7 +760,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
                   cameraMode: _cameraMode,
                   showScale: _showScale,
                   highSensitivityHorizon: _highSensitivityHorizon,
-                  expertMode: _expertMode,
+                  expertMode: expertMode,
                   showHud: _showHud,
                   flashMode: _flashMode,
                   zoom: _zoom,
@@ -780,7 +773,6 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
                       setState(() => _highSensitivityHorizon = v),
                   onExpertModeChanged: (v) {
                     context.read<SettingsController>().expertMode = v;
-                    setState(() => _expertMode = v);
                   },
                   onHudToggle: (v) => setState(() => _showHud = v),
                   onFlashModeChanged: (mode) => _setFlashMode(mode),

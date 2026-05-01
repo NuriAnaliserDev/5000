@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../screens/auth_screen.dart';
-import '../screens/dashboard_screen.dart';
 import '../screens/desktop/desktop_shell.dart';
+import 'main_tab_shell.dart';
 import '../screens/web/web_dashboard_main.dart';
 import '../screens/web/web_login_screen.dart';
 import '../services/auth_service.dart';
@@ -17,7 +17,7 @@ bool _isDesktopExe() {
       defaultTargetPlatform == TargetPlatform.linux;
 }
 
-/// Web: dashboard login. Desktop (.exe): [DesktopShell]. Mobil: [DashboardScreen].
+/// Web: dashboard login. Desktop (.exe): [DesktopShell]. Mobil: [MainTabShell].
 class PlatformGate extends StatelessWidget {
   const PlatformGate({super.key});
 
@@ -37,6 +37,6 @@ class PlatformGate extends StatelessWidget {
           : const AuthScreen();
     }
 
-    return const DashboardScreen();
+    return const MainTabShell();
   }
 }
