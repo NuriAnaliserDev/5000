@@ -79,6 +79,15 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
   double get _dipStrikeSmooth => _highSensitivityHorizon ? 0.34 : 0.30;
   double get _horizonSmooth => _highSensitivityHorizon ? 0.60 : 0.40;
 
+  Future<void> _disableHardwareTorch() async {
+    if (kIsWeb) {
+      return;
+    }
+    try {
+      await TorchLight.disableTorch();
+    } catch (_) {}
+  }
+
   // ——— Kamera + sensor ———
   Future<void> _initCamera() async {
     try {
@@ -342,7 +351,15 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
       if (_geologicalArActive) {
         final path = await _arSessionController?.captureToTempFile();
         if (path == null) {
-          throw StateError('AR snapshot failed');
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(context.locRead('camera_ar_snapshot_failed')),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+          return;
         }
         file = XFile(path);
       } else {
@@ -573,6 +590,36 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
   }
 
   Future<void> _setFlashMode(FlashMode mode) async {
+    if (_geologicalArActive) {
+      if (kIsWeb) {
+        return;
+      }
+      try {
+        if (mode == FlashMode.torch) {
+          final ok = await TorchLight.isTorchAvailable();
+          if (ok) {
+            await TorchLight.enableTorch();
+          } else {
+            throw StateError('no_torch');
+          }
+        } else {
+          await TorchLight.disableTorch();
+        }
+        if (mounted) {
+          setState(() => _flashMode = mode);
+        }
+      } catch (_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(context.locRead('camera_ar_torch_unavailable')),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
+      return;
+    }
     try {
       await _cameraController?.setFlashMode(mode);
       if (mounted) {
@@ -630,6 +677,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
       _disposeCameraOnly();
       return;
     }
+    unawaited(_disableHardwareTorch());
     if (_cameraController == null) {
       _initCamera();
     }
@@ -639,8 +687,18 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
     if (_geologicalArActive) {
       return GeologicalArView(
         key: const ValueKey<Object>('geological_ar_view'),
-        onControllerReady: (c) => _arSessionController = c,
-        onDisposed: () => _arSessionController = null,
+        onControllerReady: (c) {
+          if (!mounted) {
+            return;
+          }
+          setState(() => _arSessionController = c);
+        },
+        onDisposed: () {
+          if (!mounted) {
+            return;
+          }
+          setState(() => _arSessionController = null);
+        },
       );
     }
     if (_cameraController == null || _cameraInitFuture == null) {
@@ -734,6 +792,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
     WidgetsBinding.instance.removeObserver(this);
     _recordTimer?.cancel();
     _stopSensors();
+    unawaited(_disableHardwareTorch());
     _disposeCameraOnly();
     _recorder.dispose();
     super.dispose();
@@ -743,6 +802,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.inactive ||
         state == AppLifecycleState.paused) {
+      unawaited(_disableHardwareTorch());
       _disposeCameraOnly();
       _stopSensors();
     } else if (state == AppLifecycleState.resumed) {
@@ -785,7 +845,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
                 right: 0,
                 child: Center(child: _buildGuideChip()),
               ),
-            if (_cameraMode == CameraMode.geological && _showHud)
+            if (_cameraMode == CameraMode.geological && _showHud && !_geologicalArActive)
               _buildLevelIndicator(),
             if (_cameraMode == CameraMode.document) ...[
               const CameraDocumentViewfinder(),

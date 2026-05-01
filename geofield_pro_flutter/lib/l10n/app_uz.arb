@@ -153,6 +153,8 @@
   "camera_ar_no_plane_hit": "Bu nuqtada tekislik topilmadi. Kuzatiladigan tekislik (panjara) ustida qayta urinib ko‘ring.",
   "camera_ar_anchor_failed": "Yuzaga bog‘lab bo‘lmadi. Qayta urinib ko‘ring.",
   "camera_ar_node_failed": "Belgini qo‘yib bo‘lmadi. Qayta urinib ko‘ring.",
+  "camera_ar_snapshot_failed": "AR surati olinmadi. Sahnani kuting yoki PRO da AR ni o‘chirib oddiy kameradan foydalaning.",
+  "camera_ar_torch_unavailable": "Bu yerda fonar ishlamasligi mumkin (ba’zi qurilmalarda AR kamerani band qiladi). Fonar uchun PRO da AR ni o‘ching.",
   "cancel": "Bekor qilish",
   "cleavage": "Klivaj (Cleavage)",
   "close": "Yopish",

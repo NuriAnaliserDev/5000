@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:ar_flutter_plugin_plus/ar_flutter_plugin_plus.dart';
 import 'package:ar_flutter_plugin_plus/datatypes/config_planedetection.dart';
@@ -33,21 +34,42 @@ class GeologicalArSessionController {
     if (sm == null) {
       return null;
     }
-    try {
-      final img = await sm.snapshot();
-      if (img is! MemoryImage) {
-        return null;
+    final dir = await getTemporaryDirectory();
+    for (var attempt = 0; attempt < 6; attempt++) {
+      try {
+        final img = await sm.snapshot();
+        if (img is! MemoryImage) {
+          debugPrint('AR capture: snapshot returned ${img.runtimeType}');
+        } else {
+          final bytes = img.bytes;
+          if (bytes.isEmpty) {
+            debugPrint('AR capture: empty bytes');
+          } else {
+            final ext = _arSnapshotFileExtension(bytes);
+            final f = File(
+              '${dir.path}${Platform.pathSeparator}geofield_ar_${DateTime.now().millisecondsSinceEpoch}.$ext',
+            );
+            await f.writeAsBytes(bytes);
+            return f.path;
+          }
+        }
+      } catch (e, st) {
+        debugPrint('AR capture attempt $attempt: $e\n$st');
       }
-      final dir = await getTemporaryDirectory();
-      final f = File(
-        '${dir.path}${Platform.pathSeparator}geofield_ar_${DateTime.now().millisecondsSinceEpoch}.jpg',
-      );
-      await f.writeAsBytes(img.bytes);
-      return f.path;
-    } catch (e, st) {
-      debugPrint('AR capture: $e\n$st');
-      return null;
+      await Future<void>.delayed(Duration(milliseconds: 120 + attempt * 80));
     }
+    return null;
+  }
+
+  static String _arSnapshotFileExtension(Uint8List bytes) {
+    if (bytes.length >= 8 &&
+        bytes[0] == 0x89 &&
+        bytes[1] == 0x50 &&
+        bytes[2] == 0x4E &&
+        bytes[3] == 0x47) {
+      return 'png';
+    }
+    return 'jpg';
   }
 }
 

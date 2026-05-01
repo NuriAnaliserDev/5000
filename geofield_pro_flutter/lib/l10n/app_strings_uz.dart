@@ -472,6 +472,14 @@ class GeoFieldStringsUz extends GeoFieldStrings {
       'Belgini qo‘yib bo‘lmadi. Qayta urinib ko‘ring.';
 
   @override
+  String get camera_ar_snapshot_failed =>
+      'AR surati olinmadi. Sahnani kuting yoki PRO da AR ni o‘chirib oddiy kameradan foydalaning.';
+
+  @override
+  String get camera_ar_torch_unavailable =>
+      'Bu yerda fonar ishlamasligi mumkin (ba’zi qurilmalarda AR kamerani band qiladi). Fonar uchun PRO da AR ni o‘ching.';
+
+  @override
   String get cancel => 'Bekor qilish';
 
   @override

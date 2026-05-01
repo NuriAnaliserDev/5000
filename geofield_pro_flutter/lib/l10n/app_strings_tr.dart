@@ -472,6 +472,14 @@ class GeoFieldStringsTr extends GeoFieldStrings {
       'İşaret yerleştirilemedi. Tekrar deneyin.';
 
   @override
+  String get camera_ar_snapshot_failed =>
+      'AR ekran görüntüsü alınamadı. Sahneyi bekleyin veya PRO’da AR’yi kapatıp normal kamerayı kullanın.';
+
+  @override
+  String get camera_ar_torch_unavailable =>
+      'Burada flaş bazen çalışmaz (bazı cihazlarda AR kamerayı kullanır). Flaş için PRO’da AR’yi kapatın.';
+
+  @override
   String get cancel => 'İptal';
 
   @override

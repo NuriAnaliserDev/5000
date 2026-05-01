@@ -471,6 +471,14 @@ class GeoFieldStringsEn extends GeoFieldStrings {
   String get camera_ar_node_failed => 'Could not place the marker. Try again.';
 
   @override
+  String get camera_ar_snapshot_failed =>
+      'AR screenshot failed. Wait until the scene is visible, or turn off AR in PRO and use the normal camera.';
+
+  @override
+  String get camera_ar_torch_unavailable =>
+      'Flashlight cannot be used here (camera busy with AR on some devices). Turn off AR in PRO to use torch from the main camera.';
+
+  @override
   String get cancel => 'Cancel';
 
   @override

@@ -952,6 +952,18 @@ abstract class GeoFieldStrings {
   /// **'Could not place the marker. Try again.'**
   String get camera_ar_node_failed;
 
+  /// No description provided for @camera_ar_snapshot_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'AR screenshot failed. Wait until the scene is visible, or turn off AR in PRO and use the normal camera.'**
+  String get camera_ar_snapshot_failed;
+
+  /// No description provided for @camera_ar_torch_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Flashlight cannot be used here (camera busy with AR on some devices). Turn off AR in PRO to use torch from the main camera.'**
+  String get camera_ar_torch_unavailable;
+
   /// No description provided for @cancel.
   ///
   /// In en, this message translates to:
