@@ -630,7 +630,6 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
         strike: live ? _strike : _lastHudStrike,
         dip: live ? _dip : _lastHudDip,
         isDark: isDark,
-        rightCalloutInset: 100,
       ),
     );
   }

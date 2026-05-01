@@ -1,4 +1,6 @@
 import 'dart:math' as math;
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import '../../utils/app_localizations.dart';
 import '../../utils/geology_utils.dart';
@@ -9,9 +11,6 @@ class ArStrikeDipOverlay extends StatelessWidget {
   final double strike;
   final double dip;
   final bool isDark;
-  /// O‘ngdagi suzuvchi panel (masalan kamera yon tug‘malari) ostida qolmasligi uchun.
-  final double leftCalloutInset;
-  final double rightCalloutInset;
 
   const ArStrikeDipOverlay({
     super.key,
@@ -20,8 +19,6 @@ class ArStrikeDipOverlay extends StatelessWidget {
     required this.strike,
     required this.dip,
     this.isDark = true,
-    this.leftCalloutInset = 10,
-    this.rightCalloutInset = 10,
   });
 
   static String _bearing8(double deg) {
@@ -102,22 +99,6 @@ class ArStrikeDipOverlay extends StatelessWidget {
               ),
             ),
             Positioned(
-              left: leftCalloutInset,
-              top: h * (instrumentY - 0.08),
-              child: _StrikeDipCallout(
-                text: '${context.locRead('strike_label')}: ${strike.toStringAsFixed(0)}°',
-                borderColor: Colors.redAccent.withValues(alpha: 0.65),
-              ),
-            ),
-            Positioned(
-              right: rightCalloutInset,
-              top: h * (instrumentY + 0.00),
-              child: _StrikeDipCallout(
-                text: '${context.locRead('dip_label')}: ${dip.toStringAsFixed(0)}° $dipDir',
-                borderColor: const Color(0xFF64B5F6).withValues(alpha: 0.85),
-              ),
-            ),
-            Positioned(
               left: 0,
               right: 0,
               top: h * instrumentY - 18,
@@ -138,6 +119,98 @@ class ArStrikeDipOverlay extends StatelessWidget {
                       ),
                     ),
                   ],
+                ),
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              top: h * instrumentY + 4,
+              child: Center(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+                    child: Container(
+                      constraints: const BoxConstraints(maxWidth: 228),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.20),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.45)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.35),
+                            blurRadius: 14,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 3,
+                                height: 36,
+                                margin: const EdgeInsets.only(right: 10, top: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.redAccent.shade200,
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  '${context.locRead('strike_label')}: ${strike.toStringAsFixed(0)}°',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w900,
+                                    height: 1.25,
+                                    shadows: const [
+                                      Shadow(color: Colors.black54, blurRadius: 5),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 3,
+                                height: 32,
+                                margin: const EdgeInsets.only(right: 10, top: 2),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF64B5F6),
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  '${context.locRead('dip_label')}: ${dip.toStringAsFixed(0)}° $dipDir',
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.96),
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w800,
+                                    height: 1.25,
+                                    shadows: const [
+                                      Shadow(color: Colors.black54, blurRadius: 4),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -179,43 +252,6 @@ class ArStrikeDipOverlay extends StatelessWidget {
           ],
         );
       },
-    );
-  }
-}
-
-class _StrikeDipCallout extends StatelessWidget {
-  final String text;
-  final Color borderColor;
-
-  const _StrikeDipCallout({
-    required this.text,
-    required this.borderColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.68),
-        borderRadius: BorderRadius.circular(11),
-        border: Border.all(color: borderColor, width: 1.2),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.45),
-            blurRadius: 10,
-          ),
-        ],
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 12,
-          fontWeight: FontWeight.w800,
-          shadows: [Shadow(color: Colors.black54, blurRadius: 4)],
-        ),
-      ),
     );
   }
 }
@@ -347,24 +383,6 @@ class _VirtualPlanePainter extends CustomPainter {
         gridPaint,
       );
     }
-
-    final textPainter = TextPainter(
-      text: TextSpan(
-        text: '${dip.toStringAsFixed(0)}°',
-        style: TextStyle(
-          color: color.withValues(alpha: 0.9),
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-          shadows: [Shadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 4)],
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-
-    textPainter.paint(
-      canvas,
-      Offset(-textPainter.width / 2, (topY + botY) / 2 - textPainter.height / 2),
-    );
 
     final arrowPaint = Paint()
       ..color = color.withValues(alpha: 0.8)

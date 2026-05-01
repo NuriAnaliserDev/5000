@@ -88,7 +88,7 @@ class _CameraSideControlsState extends State<CameraSideControls>
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    _curve = CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack);
+    _curve = CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic);
   }
 
   @override
@@ -121,35 +121,40 @@ class _CameraSideControlsState extends State<CameraSideControls>
   }
 
   Widget _miniSatellite(_CamDialItem item, int i, int n, double t) {
+    final progress = t.clamp(0.0, 1.0);
     final u = n <= 1 ? 0.5 : i / (n - 1);
-    final angle = math.pi * (1.0 - u * (1.0 / 3.2));
-    const double r = 86;
-    final dx = math.cos(angle) * r * t;
-    final dy = math.sin(angle) * r * t;
-    const double fabR = 26;
+    final angle = math.pi * (0.97 - u * 0.48);
+    const double r = 92;
+    final dx = math.cos(angle) * r * progress;
+    final dy = math.sin(angle) * r * progress;
+    const double fabR = 29;
     return Positioned(
       right: fabR - dx,
       bottom: fabR + dy,
-      child: Transform.scale(
-        key: item.itemKey,
-        scale: 0.35 + 0.65 * t,
+      child: IgnorePointer(
+        ignoring: progress < 0.1,
         child: Opacity(
-          opacity: t.clamp(0.0, 1.0),
-          child: Tooltip(
-            message: item.tooltip,
-            child: Material(
-              color: item.active ? AppTheme.stitchBlue : widget.glassColor,
-              shape: const CircleBorder(),
-              child: InkWell(
-                customBorder: const CircleBorder(),
-                onTap: () => _run(item.onTap),
-                child: SizedBox(
-                  width: 44,
-                  height: 44,
-                  child: Icon(
-                    item.icon,
-                    color: item.active ? Colors.white : widget.textColor,
-                    size: 20,
+          opacity: progress,
+          child: Transform.scale(
+            key: item.itemKey,
+            scale: 0.5 + 0.5 * progress,
+            alignment: Alignment.center,
+            child: Tooltip(
+              message: item.tooltip,
+              child: Material(
+                color: item.active ? AppTheme.stitchBlue : widget.glassColor,
+                shape: const CircleBorder(),
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: () => _run(item.onTap),
+                  child: SizedBox(
+                    width: 44,
+                    height: 44,
+                    child: Icon(
+                      item.icon,
+                      color: item.active ? Colors.white : widget.textColor,
+                      size: 20,
+                    ),
                   ),
                 ),
               ),
@@ -237,12 +242,12 @@ class _CameraSideControlsState extends State<CameraSideControls>
           AnimatedBuilder(
             animation: _curve,
             builder: (context, _) {
-              final t = _curve.value;
+              final t = _curve.value.clamp(0.0, 1.0);
               return Stack(
                 clipBehavior: Clip.none,
                 children: [
                   for (var i = 0; i < items.length; i++)
-                    _miniSatellite(items[i], i, items.length, t),
+                    if (t >= 0.03) _miniSatellite(items[i], i, items.length, t),
                 ],
               );
             },

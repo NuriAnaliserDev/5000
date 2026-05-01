@@ -174,7 +174,7 @@ class _MapFieldSpeedDialState extends State<_MapFieldSpeedDial>
       vsync: this,
       duration: const Duration(milliseconds: 320),
     );
-    _curve = CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack);
+    _curve = CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic);
     if (widget.menuOpen) {
       _ctrl.value = 1;
     }
@@ -285,33 +285,38 @@ class _MapFieldSpeedDialState extends State<_MapFieldSpeedDial>
   }
 
   Widget _body(int i, int n, _DialItem item, double t, bool trackOn) {
+    final progress = t.clamp(0.0, 1.0);
     final u = n <= 1 ? 0.5 : i / (n - 1);
-    final angle = math.pi * (1.0 - u * (1.0 / 3.0));
-    const double r = 108;
-    final dx = math.cos(angle) * r * t;
-    final dy = math.sin(angle) * r * t;
+    final angle = math.pi * (0.97 - u * 0.48);
+    const double r = 120;
+    final dx = math.cos(angle) * r * progress;
+    final dy = math.sin(angle) * r * progress;
     const double fabR = 28;
     final trackActive = item.kind == _DialActionKind.track && trackOn;
     return Positioned(
       right: fabR - dx,
       bottom: fabR + dy,
-      child: Transform.scale(
-        scale: 0.35 + 0.65 * t,
+      child: IgnorePointer(
+        ignoring: progress < 0.08,
         child: Opacity(
-          opacity: t.clamp(0.0, 1.0),
-          child: Tooltip(
-            message: item.label,
-            child: Material(
-              color: trackActive ? Colors.red.shade800 : const Color(0xFF1976D2),
-              shape: const CircleBorder(),
-              elevation: 3,
-              child: InkWell(
-                customBorder: const CircleBorder(),
-                onTap: () => _onItemTapped(item),
-                child: SizedBox(
-                  width: 44,
-                  height: 44,
-                  child: Icon(item.icon, color: Colors.white, size: 20),
+          opacity: progress,
+          child: Transform.scale(
+            scale: 0.5 + 0.5 * progress,
+            alignment: Alignment.center,
+            child: Tooltip(
+              message: item.label,
+              child: Material(
+                color: trackActive ? Colors.red.shade800 : const Color(0xFF1976D2),
+                shape: const CircleBorder(),
+                elevation: 3,
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: () => _onItemTapped(item),
+                  child: SizedBox(
+                    width: 44,
+                    height: 44,
+                    child: Icon(item.icon, color: Colors.white, size: 20),
+                  ),
                 ),
               ),
             ),
@@ -340,12 +345,12 @@ class _MapFieldSpeedDialState extends State<_MapFieldSpeedDial>
           AnimatedBuilder(
             animation: _curve,
             builder: (context, _) {
-              final t = _curve.value;
+              final t = _curve.value.clamp(0.0, 1.0);
               return Stack(
                 clipBehavior: Clip.none,
                 children: [
                   for (var i = 0; i < actions.length; i++)
-                    _body(i, actions.length, actions[i], t, trackOn),
+                    if (t >= 0.03) _body(i, actions.length, actions[i], t, trackOn),
                 ],
               );
             },
