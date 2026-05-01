@@ -26,6 +26,20 @@ service cloud.firestore {
         && userRole() in ['admin', 'geologist_senior'];
     }
 
+    /// Legacy: maydon yo‘q — faqat bitta kalit qo‘shiladi, qiymat == auth.uid.
+    /// Keyin oddiy egaga oid update qoidalari ishlaydi.
+    function legacyClaimGlobalBoundary() {
+      return !('createdByUid' in resource.data)
+        && request.resource.data.createdByUid == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['createdByUid']);
+    }
+
+    function legacyClaimOwnerUid() {
+      return !('ownerUid' in resource.data)
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['ownerUid']);
+    }
+
     match /users/{uid} {
       allow read: if isAuthed() && request.auth.uid == uid;
       allow write: if isAuthed() && request.auth.uid == uid;
@@ -36,6 +50,19 @@ service cloud.firestore {
 
       match /tracks/{trackId} {
         allow read, write: if isAuthed() && request.auth.uid == uid;
+      }
+
+      // Smena jurnali (GPS trek) — mobil CloudSync shu yo‘l bilan yozadi.
+      match /shift_logs/{logId} {
+        allow read: if isAuthed();
+        allow create: if isAuthed()
+          && request.auth.uid == uid
+          && request.resource.data.uid == uid;
+        allow update: if isAuthed()
+          && request.auth.uid == uid
+          && resource.data.uid == uid
+          && request.resource.data.uid == uid;
+        allow delete: if isAuthed() && request.auth.uid == uid;
       }
     }
 
@@ -53,8 +80,8 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // Global chegaralar — createdByUid yozuv egasi yoki admin tahrirlaydi/o‘chiradi.
-    // createdByUid yo‘q (legacy) hujjatlar: faqat admin.
+    // Global chegaralar — createdByUid yozuv egasi yoki admin.
+    // Legacy (createdByUid yo‘q): klient bir marta faqat ushbu maydonni qo‘shishi mumkin (claim).
     match /global_boundaries/{doc} {
       allow read: if isAuthed();
       allow create: if isAuthed()
@@ -64,7 +91,9 @@ service cloud.firestore {
         || (
           'createdByUid' in resource.data
           && resource.data.createdByUid == request.auth.uid
+          && request.resource.data.createdByUid == resource.data.createdByUid
         )
+        || legacyClaimGlobalBoundary()
       );
       allow delete: if isAuthed() && (
         isAdmin()
@@ -80,7 +109,7 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // Geologik chiziqlar — ownerUid egasi yoki admin; legacy: faqat admin.
+    // Geologik chiziqlar — ownerUid egasi yoki admin; legacy: faqat ownerUid ni claim qilish (bitta maydon).
     match /geological_lines/{doc} {
       allow read: if isAuthed();
       allow create: if isAuthed()
@@ -90,7 +119,9 @@ service cloud.firestore {
         || (
           'ownerUid' in resource.data
           && resource.data.ownerUid == request.auth.uid
+          && request.resource.data.ownerUid == resource.data.ownerUid
         )
+        || legacyClaimOwnerUid()
       );
       allow delete: if isAuthed() && (
         isAdmin()
@@ -101,7 +132,7 @@ service cloud.firestore {
       );
     }
 
-    // Strike/dip annotatsiyalari — ownerUid egasi yoki admin; legacy: faqat admin.
+    // Strike/dip annotatsiyalari — ownerUid egasi yoki admin; legacy: claim (bitta maydon).
     match /map_structure_annotations/{doc} {
       allow read: if isAuthed();
       allow create: if isAuthed()
@@ -111,7 +142,9 @@ service cloud.firestore {
         || (
           'ownerUid' in resource.data
           && resource.data.ownerUid == request.auth.uid
+          && request.resource.data.ownerUid == resource.data.ownerUid
         )
+        || legacyClaimOwnerUid()
       );
       allow delete: if isAuthed() && (
         isAdmin()

@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../services/boundary_service.dart';
 import '../../models/boundary_polygon.dart';
 import '../../l10n/app_strings.dart';
+import '../../utils/firebase_ready.dart';
 import '../../utils/gis_import_feedback.dart';
 import '../../widgets/gis_import_precheck_dialog.dart';
 import 'components/web_map_drawing_panel.dart';
@@ -34,9 +35,9 @@ class _WebMapScreenState extends State<WebMapScreen> {
   // ─── Editing State ────────────────────────────────────────────────────────
   BoundaryPolygon? _editingPolygon;
 
-  // ─── Firebase Streams ─────────────────────────────────────────────────────
-  Stream<QuerySnapshot> get _shiftsStream =>
-      FirebaseFirestore.instance.collection('shift_logs').snapshots();
+  // ─── Firebase Streams (mobil bilan bir xil: users/*/shift_logs) ───────────
+  Stream<QuerySnapshot<Map<String, dynamic>>>? get _shiftsStreamOrNull =>
+      firestoreOrNull?.collectionGroup('shift_logs').snapshots();
 
   @override
   void dispose() {
@@ -267,7 +268,7 @@ class _WebMapScreenState extends State<WebMapScreen> {
                   const SizedBox(height: 12),
                   Expanded(
                     child: WebMapShiftLogsPanel(
-                      shiftsStream: _shiftsStream,
+                      shiftsStream: _shiftsStreamOrNull,
                       surfaceColor: surfaceColor,
                       mapController: _mapController,
                     ),
@@ -294,89 +295,103 @@ class _WebMapScreenState extends State<WebMapScreen> {
   }
 
   Widget _buildMap(List<BoundaryPolygon> boundaries) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: _shiftsStream,
+    final stream = _shiftsStreamOrNull;
+    if (stream == null) {
+      return _buildMapInner(boundaries, shiftDocs: const []);
+    }
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+      stream: stream,
       builder: (context, shiftSnap) {
-        final List<Marker> markers = [];
-        final List<Polyline> polylines = [];
-        final List<Polygon> polygons = [];
-
-        // 1. Boundary Polygons
-        for (final b in boundaries) {
-          if (b.points.length >= 3) {
-          final isSelected = _editingPolygon?.id == b.id;
-          polygons.add(Polygon(
-            points: b.points,
-            color: b.displayColor.withValues(alpha: isSelected ? 0.35 : 0.15),
-            borderColor: b.displayColor.withValues(alpha: isSelected ? 1.0 : 0.7),
-            borderStrokeWidth: isSelected ? 3.0 : 2.0,
-          ));
-          }
-        }
-        for (final b in boundaries) {
-          if (b.points.length == 2) {
-            final isSelected = _editingPolygon?.id == b.id;
-            polylines.add(Polyline(
-              points: b.points,
-              color: b.displayColor.withValues(alpha: isSelected ? 0.85 : 0.55),
-              strokeWidth: isSelected ? 4.0 : 3.0,
-            ));
-          }
-        }
-
-        // 2. Shift Tracks (Heatmap style)
-        if (shiftSnap.hasData) {
-          for (var doc in shiftSnap.data!.docs) {
-            final data = doc.data() as Map<String, dynamic>?;
-            if (data != null && data['points'] != null) {
-              final ptsList = data['points'] as List;
-              final pts = ptsList
-                  .map((p) => LatLng(p['lat'] as double, p['lng'] as double))
-                  .toList();
-              if (pts.isNotEmpty) {
-                polylines.add(Polyline(points: pts, strokeWidth: 3.0, color: Colors.redAccent.withValues(alpha: 0.6)));
-              }
-            }
-          }
-        }
-
-        // 3. Drawing Preview
-        if (_drawingPoints.isNotEmpty) {
-          if (_drawingPoints.length >= 2) {
-            polylines.add(Polyline(
-              points: [..._drawingPoints, _drawingPoints.first],
-              strokeWidth: 2.5,
-              color: _selectedZoneType.color.withValues(alpha: 0.8),
-            ));
-          }
-          for (final pt in _drawingPoints) {
-            markers.add(Marker(
-              point: pt,
-              width: 12,
-              height: 12,
-              child: Container(decoration: BoxDecoration(color: _selectedZoneType.color, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2))),
-            ));
-          }
-        }
-
-        return FlutterMap(
-          mapController: _mapController,
-          options: MapOptions(
-            initialCenter: const LatLng(41.2995, 69.2401),
-            initialZoom: 13,
-            onTap: _isDrawingMode ? (tapPos, latLng) => setState(() => _drawingPoints.add(latLng)) : null,
-          ),
-          children: [
-            TileLayer(
-              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName: 'com.geofield.pro.flutter',
-            ),
-            PolygonLayer(polygons: polygons),
-            PolylineLayer(polylines: polylines),
-            MarkerLayer(markers: markers),
-          ],
-        );
+        final docs = shiftSnap.data?.docs ?? const <QueryDocumentSnapshot<Map<String, dynamic>>>[];
+        return _buildMapInner(boundaries, shiftDocs: docs);
       },
+    );
+  }
+
+  Widget _buildMapInner(
+    List<BoundaryPolygon> boundaries, {
+    required List<QueryDocumentSnapshot<Map<String, dynamic>>> shiftDocs,
+  }) {
+    final List<Marker> markers = [];
+    final List<Polyline> polylines = [];
+    final List<Polygon> polygons = [];
+
+    for (final b in boundaries) {
+      if (b.points.length >= 3) {
+        final isSelected = _editingPolygon?.id == b.id;
+        polygons.add(Polygon(
+          points: b.points,
+          color: b.displayColor.withValues(alpha: isSelected ? 0.35 : 0.15),
+          borderColor: b.displayColor.withValues(alpha: isSelected ? 1.0 : 0.7),
+          borderStrokeWidth: isSelected ? 3.0 : 2.0,
+        ));
+      }
+    }
+    for (final b in boundaries) {
+      if (b.points.length == 2) {
+        final isSelected = _editingPolygon?.id == b.id;
+        polylines.add(Polyline(
+          points: b.points,
+          color: b.displayColor.withValues(alpha: isSelected ? 0.85 : 0.55),
+          strokeWidth: isSelected ? 4.0 : 3.0,
+        ));
+      }
+    }
+
+    for (final doc in shiftDocs) {
+      final data = doc.data();
+      if (data['points'] != null) {
+        final ptsList = data['points'] as List;
+        final pts = ptsList
+            .map((p) => LatLng(p['lat'] as double, p['lng'] as double))
+            .toList();
+        if (pts.isNotEmpty) {
+          polylines
+              .add(Polyline(points: pts, strokeWidth: 3.0, color: Colors.redAccent.withValues(alpha: 0.6)));
+        }
+      }
+    }
+
+    if (_drawingPoints.isNotEmpty) {
+      if (_drawingPoints.length >= 2) {
+        polylines.add(Polyline(
+          points: [..._drawingPoints, _drawingPoints.first],
+          strokeWidth: 2.5,
+          color: _selectedZoneType.color.withValues(alpha: 0.8),
+        ));
+      }
+      for (final pt in _drawingPoints) {
+        markers.add(Marker(
+          point: pt,
+          width: 12,
+          height: 12,
+          child: Container(
+            decoration: BoxDecoration(
+              color: _selectedZoneType.color,
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 2),
+            ),
+          ),
+        ));
+      }
+    }
+
+    return FlutterMap(
+      mapController: _mapController,
+      options: MapOptions(
+        initialCenter: const LatLng(41.2995, 69.2401),
+        initialZoom: 13,
+        onTap: _isDrawingMode ? (tapPos, latLng) => setState(() => _drawingPoints.add(latLng)) : null,
+      ),
+      children: [
+        TileLayer(
+          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          userAgentPackageName: 'com.geofield.pro.flutter',
+        ),
+        PolygonLayer(polygons: polygons),
+        PolylineLayer(polylines: polylines),
+        MarkerLayer(markers: markers),
+      ],
     );
   }
 

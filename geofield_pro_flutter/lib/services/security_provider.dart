@@ -67,8 +67,7 @@ class SecurityProvider with ChangeNotifier {
   }
 
   Future<void> disableSecurity() async {
-    // In a real app, you might want a more thorough wipe
-    await _service.savePin('');
+    await _service.clearPin();
     await _service.setBiometricsEnabled(false);
     _hasPin = false;
     _isBioEnabled = false;

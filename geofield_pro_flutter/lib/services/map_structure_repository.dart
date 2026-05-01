@@ -52,6 +52,22 @@ class MapStructureRepository extends ChangeNotifier {
     });
   }
 
+  /// Legacy annotatsiya: `ownerUid` bo‘lmasa, avval claim.
+  Future<void> _ensureAnnotationOwnerClaim(String docId) async {
+    final fs = _firestore;
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (fs == null || uid == null || !isFirebaseCoreReady) return;
+    try {
+      final snap = await fs.collection('map_structure_annotations').doc(docId).get();
+      if (!snap.exists) return;
+      final v = snap.data()?['ownerUid'];
+      if (v != null && v.toString().isNotEmpty) return;
+      await fs.collection('map_structure_annotations').doc(docId).update({'ownerUid': uid});
+    } catch (e) {
+      debugPrint('MapStructureRepository._ensureAnnotationOwnerClaim: $e');
+    }
+  }
+
   Future<void> addAnnotation(MapStructureAnnotation a) async {
     await _box!.put(a.id, a);
     _items = _box!.values.toList();
@@ -78,6 +94,7 @@ class MapStructureRepository extends ChangeNotifier {
     final fs = _firestore;
     if (fs == null) return;
     try {
+      await _ensureAnnotationOwnerClaim(id);
       await fs.collection('map_structure_annotations').doc(id).delete();
     } catch (e) {
       debugPrint('MapStructureRepository delete remote: $e');

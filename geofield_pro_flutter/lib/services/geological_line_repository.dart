@@ -67,6 +67,22 @@ class GeologicalLineRepository extends ChangeNotifier {
     _uploadLine(line);
   }
 
+  /// Legacy: `ownerUid` bo‘lmasa, bitta maydon bilan claim (Firestore qoidasi).
+  Future<void> _ensureLineOwnerClaim(String docId) async {
+    final fs = _firestore;
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (fs == null || uid == null || !isFirebaseCoreReady) return;
+    try {
+      final snap = await fs.collection('geological_lines').doc(docId).get();
+      if (!snap.exists) return;
+      final v = snap.data()?['ownerUid'];
+      if (v != null && v.toString().isNotEmpty) return;
+      await fs.collection('geological_lines').doc(docId).update({'ownerUid': uid});
+    } catch (e) {
+      debugPrint('_ensureLineOwnerClaim: $e');
+    }
+  }
+
   /// Delete a line by its id.
   Future<void> deleteLine(String id) async {
     await _box!.delete(id);
@@ -75,6 +91,7 @@ class GeologicalLineRepository extends ChangeNotifier {
     final fs = _firestore;
     if (fs == null) return;
     try {
+      await _ensureLineOwnerClaim(id);
       await fs.collection('geological_lines').doc(id).delete();
     } catch (e) {
       debugPrint('Error deleting line from Firestore: $e');
@@ -103,6 +120,7 @@ class GeologicalLineRepository extends ChangeNotifier {
     final fs = _firestore;
     if (fs == null) return;
     try {
+      await _ensureLineOwnerClaim(line.id);
       await fs.collection('geological_lines').doc(line.id).set({
         ...line.toMap(),
         'ownerUid': uid,

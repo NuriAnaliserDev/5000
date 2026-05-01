@@ -1,0 +1,12 @@
+{
+  "name": "geofield-firestore-scripts",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "firebase-admin": "^13.0.0"
+  },
+  "scripts": {
+    "backfill:dry": "node firestore_backfill_ownership.mjs --dry-run",
+    "backfill:apply": "node firestore_backfill_ownership.mjs"
+  }
+}

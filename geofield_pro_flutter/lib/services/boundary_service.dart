@@ -23,6 +23,10 @@ class BoundaryImportResult {
   final String extension;
   final int importedCount;
   final int skippedCount;
+  /// WGS-84 tekshiruvidan keyin rad etilgan (UTM/koordinata buzilgan)
+  final int skippedInvalidCoordinates;
+  /// Nuqtalar soni kamida 2 emas
+  final int skippedTooFewPoints;
   final bool normalizedCoordinates;
   /// Xarita oynasini ushbu importga yig‘ish (bo‘sh bo‘lmasa).
   final List<LatLng> fitPoints;
@@ -31,6 +35,8 @@ class BoundaryImportResult {
     required this.extension,
     required this.importedCount,
     required this.skippedCount,
+    this.skippedInvalidCoordinates = 0,
+    this.skippedTooFewPoints = 0,
     required this.normalizedCoordinates,
     this.fitPoints = const [],
   });
@@ -53,6 +59,24 @@ class BoundaryService extends ChangeNotifier {
       return FirebaseAuth.instance.currentUser?.uid;
     } catch (_) {
       return null;
+    }
+  }
+
+  /// Legacy chegaralar: `createdByUid` bo‘lmasa, avvalo faqat shu maydonni yozadi (Firestore claim qoidasi).
+  Future<void> _ensureGlobalBoundaryCreatorClaim(String docId) async {
+    final fs = _firestore;
+    final uid = _currentUid;
+    if (fs == null || uid == null) return;
+    try {
+      final snap = await fs.collection('global_boundaries').doc(docId).get();
+      if (!snap.exists) return;
+      final data = snap.data();
+      if (data == null) return;
+      final v = data['createdByUid'];
+      if (v != null && v.toString().isNotEmpty) return;
+      await fs.collection('global_boundaries').doc(docId).update({'createdByUid': uid});
+    } catch (e) {
+      debugPrint('_ensureGlobalBoundaryCreatorClaim: $e');
     }
   }
 
@@ -181,6 +205,7 @@ class BoundaryService extends ChangeNotifier {
     final fs = _firestore;
     if (fs == null) return;
     try {
+      await _ensureGlobalBoundaryCreatorClaim(firestoreId);
       await fs.collection('global_boundaries').doc(firestoreId).update({
         'name': name,
         'zoneType': zoneType.firestoreKey,
@@ -202,6 +227,7 @@ class BoundaryService extends ChangeNotifier {
     final fs = _firestore;
     if (fs == null) return;
     try {
+      await _ensureGlobalBoundaryCreatorClaim(polygonId);
       await fs.collection('global_boundaries').doc(polygonId).delete();
     } catch (e) {
       debugPrint("deletePolygon error: $e");
@@ -216,6 +242,7 @@ class BoundaryService extends ChangeNotifier {
         final id = b.firestoreId;
         if (id != null) {
           try {
+            await _ensureGlobalBoundaryCreatorClaim(id);
             await fs.collection('global_boundaries').doc(id).delete();
           } catch (e) {
             debugPrint("clearAllPolygons error: $e");
@@ -261,6 +288,7 @@ class BoundaryService extends ChangeNotifier {
     final fs = _firestore;
     if (fs == null) return;
     try {
+      await _ensureGlobalBoundaryCreatorClaim(polygonId);
       await fs.collection('global_boundaries').doc(polygonId).update({
         'points': newPoints.map((p) => {'lat': p.latitude, 'lng': p.longitude}).toList(),
       });
@@ -322,6 +350,8 @@ class BoundaryService extends ChangeNotifier {
 
       int imported = 0;
       int skipped = 0;
+      int skippedInvalid = 0;
+      int skippedFew = 0;
       bool normalized = false;
       final List<LatLng> allFit = [];
       final importUid = _currentUid;
@@ -329,7 +359,13 @@ class BoundaryService extends ChangeNotifier {
 
       for (final p in newPolys) {
         final normalizedPolygon = _normalizePolygonIfNeeded(p);
-        if (normalizedPolygon == null || normalizedPolygon.points.length < 2) {
+        if (normalizedPolygon == null) {
+          skippedInvalid++;
+          skipped++;
+          continue;
+        }
+        if (normalizedPolygon.points.length < 2) {
+          skippedFew++;
           skipped++;
           continue;
         }
@@ -366,6 +402,8 @@ class BoundaryService extends ChangeNotifier {
         extension: ext,
         importedCount: imported,
         skippedCount: skipped,
+        skippedInvalidCoordinates: skippedInvalid,
+        skippedTooFewPoints: skippedFew,
         normalizedCoordinates: normalized,
         fitPoints: allFit,
       );

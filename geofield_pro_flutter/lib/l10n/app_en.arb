@@ -199,6 +199,20 @@
   "gis_import_choose_file": "Choose file",
   "gis_import_empty_result": "No GIS layers were imported. Check the file, or use ASCII DXF in WGS-84 (longitude/latitude). KML/GeoJSON are often easier for a quick test.",
   "gis_import_normalized_hint": "Some vertex coordinates were auto-swapped to valid latitude/longitude — check placement on the map.",
+  "gis_import_skipped_stats": "Skipped: {invalid} invalid coordinates (e.g. UTM instead of WGS-84°), {few} too few points.",
+  "@gis_import_skipped_stats": {
+    "placeholders": {
+      "invalid": { "type": "int" },
+      "few": { "type": "int" }
+    }
+  },
+  "gis_import_all_skipped_result": "Nothing imported: {invalid} invalid coordinates, {few} too few points. Prefer WGS-84 geographic or KML/GeoJSON.",
+  "@gis_import_all_skipped_result": {
+    "placeholders": {
+      "invalid": { "type": "int" },
+      "few": { "type": "int" }
+    }
+  },
   "echo_mode_on": "POWER SAVER: ACTIVE",
   "eco_mode": "Eco Mode",
   "edit_coordinates": "Edit Coordinates (Lat / Lon)",

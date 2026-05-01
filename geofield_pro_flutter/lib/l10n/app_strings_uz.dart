@@ -613,6 +613,16 @@ class GeoFieldStringsUz extends GeoFieldStrings {
       'Ba\'zi nuqtalar avtomatik enlem/boylam sifatida tuzatildi — xaritada joylashuvni tekshiring.';
 
   @override
+  String gis_import_skipped_stats(int invalid, int few) {
+    return 'O\'tkazib yuborilgan: $invalid yaroqsiz koordinata (masalan UTM, WGS-84 emas), $few kam nuqta.';
+  }
+
+  @override
+  String gis_import_all_skipped_result(int invalid, int few) {
+    return 'Import bo\'lmadi: $invalid yaroqsiz koordinata, $few kam nuqta. WGS-84 yoki KML/GeoJSON ishlating.';
+  }
+
+  @override
   String get echo_mode_on => 'TEJAMKOR REJIM: FAOL';
 
   @override

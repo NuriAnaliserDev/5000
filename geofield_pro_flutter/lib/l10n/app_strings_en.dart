@@ -612,6 +612,16 @@ class GeoFieldStringsEn extends GeoFieldStrings {
       'Some vertex coordinates were auto-swapped to valid latitude/longitude — check placement on the map.';
 
   @override
+  String gis_import_skipped_stats(int invalid, int few) {
+    return 'Skipped: $invalid invalid coordinates (e.g. UTM instead of WGS-84°), $few too few points.';
+  }
+
+  @override
+  String gis_import_all_skipped_result(int invalid, int few) {
+    return 'Nothing imported: $invalid invalid coordinates, $few too few points. Prefer WGS-84 geographic or KML/GeoJSON.';
+  }
+
+  @override
   String get echo_mode_on => 'POWER SAVER: ACTIVE';
 
   @override

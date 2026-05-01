@@ -614,6 +614,16 @@ class GeoFieldStringsTr extends GeoFieldStrings {
       'Bazı köşeler otomatik enlem/boylam olarak düzeltildi — konumu haritada doğrulayın.';
 
   @override
+  String gis_import_skipped_stats(int invalid, int few) {
+    return 'Atlanan: $invalid geçersiz koordinat (ör. UTM, WGS-84 değil), $few yetersiz nokta.';
+  }
+
+  @override
+  String gis_import_all_skipped_result(int invalid, int few) {
+    return 'İçe aktarılamadı: $invalid geçersiz koordinat, $few yetersiz nokta. WGS-84 veya KML/GeoJSON kullanın.';
+  }
+
+  @override
   String get echo_mode_on => 'EKO MOD: AKTİF';
 
   @override

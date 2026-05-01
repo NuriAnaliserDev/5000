@@ -1,0 +1,5 @@
+node_modules/
+backfill.config.json
+*-firebase-adminsdk*.json
+.env
+.env.*

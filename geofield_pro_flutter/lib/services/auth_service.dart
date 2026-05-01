@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
@@ -29,6 +32,9 @@ class AuthService extends ChangeNotifier {
     auth.authStateChanges().listen((user) {
       _currentUser = user;
       notifyListeners();
+      if (user != null) {
+        unawaited(ensureFirestoreUserProfileIfMissing(user));
+      }
     });
   }
 
@@ -46,6 +52,32 @@ class AuthService extends ChangeNotifier {
     return 'User';
   }
 
+  /// `users/{uid}` bo‘lmasa yaratadi — Firestore qoidalaridagi `isAdmin()` uchun `role` maydoni.
+  /// Mavjud hujjatga tegmaydi (faqat yo‘q bo‘lsa).
+  static Future<void> ensureFirestoreUserProfileIfMissing(User user) async {
+    if (!isFirebaseCoreReady) return;
+    final fs = firestoreOrNull;
+    if (fs == null) return;
+    try {
+      final ref = fs.collection('users').doc(user.uid);
+      final snap = await ref.get();
+      if (snap.exists) return;
+      final dn = user.displayName?.trim();
+      final em = user.email?.trim();
+      await ref.set(
+        {
+          if (em != null && em.isNotEmpty) 'email': em,
+          'displayName': (dn != null && dn.isNotEmpty) ? dn : displayNameFromUser(user),
+          'role': 'geologist',
+          'createdAt': FieldValue.serverTimestamp(),
+        },
+        SetOptions(merge: true),
+      );
+    } catch (e) {
+      debugPrint('AuthService.ensureFirestoreUserProfileIfMissing: $e');
+    }
+  }
+
   Future<String?> login(String email, String password) async {
     final auth = _auth;
     if (auth == null) return _firebaseUnavailable;
@@ -54,6 +86,8 @@ class AuthService extends ChangeNotifier {
         email: email.trim(),
         password: password,
       );
+      final u = auth.currentUser;
+      if (u != null) await ensureFirestoreUserProfileIfMissing(u);
       return null;
     } on FirebaseAuthException catch (e) {
       switch (e.code) {
@@ -101,6 +135,8 @@ class AuthService extends ChangeNotifier {
         await cred.user!.updateDisplayName(name);
         await cred.user!.reload();
       }
+      final u = auth.currentUser;
+      if (u != null) await ensureFirestoreUserProfileIfMissing(u);
       return null;
     } on FirebaseAuthException catch (e) {
       switch (e.code) {
@@ -175,12 +211,5 @@ class AuthService extends ChangeNotifier {
     return "Firebase Android uchun Web client ID (default_web_client_id) qo'shilmagan. "
         "android/firebase_secrets.properties.example faylida yo'riqnomaga qarang, "
         "so'zlangan kalitni qo'ying yoki muhit o'zgaruvchisidan FIREBASE_DEFAULT_WEB_CLIENT_ID bering.";
-  }
-
-  void devLogin() {
-    assert(() {
-      debugPrint('[DEV] devLogin() chaqirildi — faqat debug mode');
-      return true;
-    }());
   }
 }

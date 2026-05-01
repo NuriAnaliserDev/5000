@@ -1228,6 +1228,18 @@ abstract class GeoFieldStrings {
   /// **'Some vertex coordinates were auto-swapped to valid latitude/longitude — check placement on the map.'**
   String get gis_import_normalized_hint;
 
+  /// No description provided for @gis_import_skipped_stats.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped: {invalid} invalid coordinates (e.g. UTM instead of WGS-84°), {few} too few points.'**
+  String gis_import_skipped_stats(int invalid, int few);
+
+  /// No description provided for @gis_import_all_skipped_result.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing imported: {invalid} invalid coordinates, {few} too few points. Prefer WGS-84 geographic or KML/GeoJSON.'**
+  String gis_import_all_skipped_result(int invalid, int few);
+
   /// No description provided for @echo_mode_on.
   ///
   /// In en, this message translates to:

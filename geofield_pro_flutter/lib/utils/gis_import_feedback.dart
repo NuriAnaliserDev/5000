@@ -10,7 +10,11 @@ void showGisImportResultSnackbar(
   BoundaryImportResult result,
 ) {
   final messenger = ScaffoldMessenger.of(context);
-  if (result.importedCount == 0) {
+  final inv = result.skippedInvalidCoordinates;
+  final few = result.skippedTooFewPoints;
+  final skipped = result.skippedCount;
+
+  if (result.importedCount == 0 && skipped == 0) {
     messenger.showSnackBar(
       SnackBar(
         content: Text(strings.gis_import_empty_result),
@@ -20,7 +24,23 @@ void showGisImportResultSnackbar(
     );
     return;
   }
-  var msg = strings.gis_import_done(result.importedCount, result.skippedCount);
+
+  if (result.importedCount == 0 && skipped > 0) {
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(strings.gis_import_all_skipped_result(inv, few)),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 8),
+        backgroundColor: Colors.orange.shade800,
+      ),
+    );
+    return;
+  }
+
+  var msg = strings.gis_import_done(result.importedCount, skipped);
+  if (skipped > 0) {
+    msg = '$msg\n${strings.gis_import_skipped_stats(inv, few)}';
+  }
   if (result.normalizedCoordinates) {
     msg = '$msg\n${strings.gis_import_normalized_hint}';
   }
@@ -28,7 +48,7 @@ void showGisImportResultSnackbar(
     SnackBar(
       content: Text(msg),
       behavior: SnackBarBehavior.floating,
-      duration: Duration(seconds: result.normalizedCoordinates ? 6 : 4),
+      duration: Duration(seconds: result.normalizedCoordinates || skipped > 0 ? 8 : 4),
     ),
   );
 }

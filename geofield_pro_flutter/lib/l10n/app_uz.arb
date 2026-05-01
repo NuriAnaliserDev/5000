@@ -199,6 +199,20 @@
   "gis_import_choose_file": "Fayl tanlash",
   "gis_import_empty_result": "Hech qanday GIS qatlam import qilinmadi. Faylni tekshiring yoki ASCII DXF (WGS-84, boylam/enlem) ishlating. Tez tekshiruv uchun KML/GeoJSON qulay.",
   "gis_import_normalized_hint": "Ba'zi nuqtalar avtomatik enlem/boylam sifatida tuzatildi — xaritada joylashuvni tekshiring.",
+  "gis_import_skipped_stats": "O'tkazib yuborilgan: {invalid} yaroqsiz koordinata (masalan UTM, WGS-84 emas), {few} kam nuqta.",
+  "@gis_import_skipped_stats": {
+    "placeholders": {
+      "invalid": { "type": "int" },
+      "few": { "type": "int" }
+    }
+  },
+  "gis_import_all_skipped_result": "Import bo'lmadi: {invalid} yaroqsiz koordinata, {few} kam nuqta. WGS-84 yoki KML/GeoJSON ishlating.",
+  "@gis_import_all_skipped_result": {
+    "placeholders": {
+      "invalid": { "type": "int" },
+      "few": { "type": "int" }
+    }
+  },
   "echo_mode_on": "TEJAMKOR REJIM: FAOL",
   "eco_mode": "Tejamkor rejim",
   "edit_coordinates": "Koordinatalarni tahrirlash (Lat / Lon)",

@@ -3,8 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../../../l10n/app_strings.dart';
+
 class WebMapShiftLogsPanel extends StatelessWidget {
-  final Stream<QuerySnapshot> shiftsStream;
+  final Stream<QuerySnapshot>? shiftsStream;
   final Color surfaceColor;
   final MapController mapController;
 
@@ -40,9 +42,38 @@ class WebMapShiftLogsPanel extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: shiftsStream,
-              builder: (context, snapshot) {
+            child: Builder(
+              builder: (context) {
+                final stream = shiftsStream;
+                if (stream == null) {
+                  final s = GeoFieldStrings.of(context);
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Text(
+                        s?.firebase_local_only_banner ??
+                            'Firebase ishlamayapti — smena jurnali mavjud emas.',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 11, color: Colors.grey),
+                      ),
+                    ),
+                  );
+                }
+                return StreamBuilder<QuerySnapshot>(
+                  stream: stream,
+                  builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Text(
+                        '${snapshot.error}',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 11, color: Colors.redAccent),
+                      ),
+                    ),
+                  );
+                }
                 if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
                 final docs = snapshot.data!.docs;
                 if (docs.isEmpty) {
@@ -86,6 +117,8 @@ class WebMapShiftLogsPanel extends StatelessWidget {
                         },
                       ),
                     );
+                  },
+                );
                   },
                 );
               },

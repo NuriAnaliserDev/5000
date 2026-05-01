@@ -199,6 +199,20 @@
   "gis_import_choose_file": "Dosya seç",
   "gis_import_empty_result": "Hiçbir GIS katmanı içe aktarılamadı. Dosyayı kontrol edin veya WGS-84 (boylam/enlem) ASCII DXF kullanın. Hızlı test için KML/GeoJSON daha kolaydır.",
   "gis_import_normalized_hint": "Bazı köşeler otomatik enlem/boylam olarak düzeltildi — konumu haritada doğrulayın.",
+  "gis_import_skipped_stats": "Atlanan: {invalid} geçersiz koordinat (ör. UTM, WGS-84 değil), {few} yetersiz nokta.",
+  "@gis_import_skipped_stats": {
+    "placeholders": {
+      "invalid": { "type": "int" },
+      "few": { "type": "int" }
+    }
+  },
+  "gis_import_all_skipped_result": "İçe aktarılamadı: {invalid} geçersiz koordinat, {few} yetersiz nokta. WGS-84 veya KML/GeoJSON kullanın.",
+  "@gis_import_all_skipped_result": {
+    "placeholders": {
+      "invalid": { "type": "int" },
+      "few": { "type": "int" }
+    }
+  },
   "echo_mode_on": "EKO MOD: AKTİF",
   "eco_mode": "Eko Mod",
   "edit_coordinates": "Koordinatları Düzenle (Enlem / Boylam)",

@@ -40,9 +40,19 @@ class SecurityService {
   }
 
   /// Yangi PIN saqlash. Har doim hashlanadi (PBKDF2-SHA256, 100k iter).
+  /// Bo‘sh PIN — xavfsizlikni o‘chirish bilan bir xil: xotiradan o‘chiriladi.
   Future<void> savePin(String pin) async {
+    if (pin.isEmpty) {
+      await clearPin();
+      return;
+    }
     final hashed = PinHasher.hashPin(pin);
     await _storage.write(key: _pinKey, value: hashed);
+  }
+
+  /// PIN ni to‘liq olib tashlash (`hasPin` → false).
+  Future<void> clearPin() async {
+    await _storage.delete(key: _pinKey);
   }
 
   /// PIN tekshirish. Agar saqlangan qiymat legacy (ochiq) bo‘lsa, muvaffaqiyatli
