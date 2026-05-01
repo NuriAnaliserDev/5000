@@ -147,6 +147,8 @@
   "camera_mode_document": "Rapor",
   "camera_mode_geology": "Jeolojik",
   "camera_pro_sheet_hint": "Cetvel, yatay, uzman ve HUD (jeoloji modu).",
+  "camera_ar_geology_title": "AR tabaka düzlemi",
+  "camera_ar_geology_subtitle": "ARCore / ARKit: kamera önünde 3B işaret. İlk açılışta küçük model indirilebilir.",
   "cancel": "İptal",
   "cleavage": "Dilinim",
   "close": "Kapat",

@@ -66,6 +66,8 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>GeoField Pro kamera, AR jeologik rejim va suratlar uchun kameradan foydalanadi.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>GeoField Pro ma'lumotlarni himoya qilish uchun FaceID'dan foydalanadi.</string>
 </dict>

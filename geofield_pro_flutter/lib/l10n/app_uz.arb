@@ -147,6 +147,8 @@
   "camera_mode_document": "Hisobot",
   "camera_mode_geology": "Geologik",
   "camera_pro_sheet_hint": "Chiziq, gorizontal, ekspert o‘lchamlari, HUD (geologiya rejimi).",
+  "camera_ar_geology_title": "AR qatlam (bedding)",
+  "camera_ar_geology_subtitle": "ARCore / ARKit: kamera oldida 3D belgi. Birinchi marta kichik 3D model tarmoqdan yuklanadi.",
   "cancel": "Bekor qilish",
   "cleavage": "Klivaj (Cleavage)",
   "close": "Yopish",

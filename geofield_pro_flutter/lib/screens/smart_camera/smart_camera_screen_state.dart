@@ -48,6 +48,13 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
   final GlobalKey _shutterButtonKey = GlobalKey();
   final GlobalKey _menuButtonKey = GlobalKey();
 
+  GeologicalArSessionController? _arSessionController;
+
+  bool get _geologicalArActive =>
+      _cameraMode == CameraMode.geological &&
+      (_settings?.geologicalArEnabled ?? true) &&
+      geologicalArSupportedPlatform();
+
   /// [context.read] oqim/pauza oynasida ishlatilmasin — deaktiv elementda Provider xatosi.
   SettingsController? _settings;
   LocationService? _locationService;
@@ -331,8 +338,17 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
     try {
       setState(() => _isBusy = true);
       final settings = context.read<SettingsController>();
-      await _cameraInitFuture;
-      var file = await _cameraController!.takePicture();
+      late XFile file;
+      if (_geologicalArActive) {
+        final path = await _arSessionController?.captureToTempFile();
+        if (path == null) {
+          throw StateError('AR snapshot failed');
+        }
+        file = XFile(path);
+      } else {
+        await _cameraInitFuture;
+        file = await _cameraController!.takePicture();
+      }
 
       // Mavjud stansiyaga rasm: hujjat rejimida bo'lsa ham rasm sifatida qo'shiladi;
       // AI hujjat tahlili — faqat «yangi stansiya» oqimida (stationId == null).
@@ -600,7 +616,33 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
     }
   }
 
+  void _disposeCameraOnly() {
+    _cameraController?.dispose();
+    _cameraController = null;
+    _cameraInitFuture = null;
+  }
+
+  void _syncCameraToMode() {
+    if (!mounted) {
+      return;
+    }
+    if (_geologicalArActive) {
+      _disposeCameraOnly();
+      return;
+    }
+    if (_cameraController == null) {
+      _initCamera();
+    }
+  }
+
   Widget _buildCameraPreview() {
+    if (_geologicalArActive) {
+      return GeologicalArView(
+        key: const ValueKey<Object>('geological_ar_view'),
+        onControllerReady: (c) => _arSessionController = c,
+        onDisposed: () => _arSessionController = null,
+      );
+    }
     if (_cameraController == null || _cameraInitFuture == null) {
       return const Center(
           child: CircularProgressIndicator(color: Color(0xFF1976D2)));
@@ -673,11 +715,11 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
       _cameraMode = CameraMode.geological;
     }
     WidgetsBinding.instance.addObserver(this);
-    _initCamera();
     _startSensors();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkShowTutorial();
+      _syncCameraToMode();
     });
   }
 
@@ -692,31 +734,27 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
     WidgetsBinding.instance.removeObserver(this);
     _recordTimer?.cancel();
     _stopSensors();
-    _cameraController?.dispose();
+    _disposeCameraOnly();
     _recorder.dispose();
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    final c = _cameraController;
-    if (c == null || !c.value.isInitialized) {
-      return;
-    }
     if (state == AppLifecycleState.inactive ||
         state == AppLifecycleState.paused) {
-      _cameraController?.dispose();
-      _cameraInitFuture = null;
+      _disposeCameraOnly();
       _stopSensors();
     } else if (state == AppLifecycleState.resumed) {
-      _initCamera();
       _startSensors();
+      _syncCameraToMode();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final expertMode = context.watch<SettingsController>().expertMode;
+    final settings = context.watch<SettingsController>();
+    final expertMode = settings.expertMode;
     return Scaffold(
       backgroundColor: Colors.black,
       bottomNavigationBar: widget.embedded
@@ -728,7 +766,11 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
             Positioned.fill(child: _buildCameraPreview()),
             CameraTopBar(
               cameraMode: _cameraMode,
-              onModeChanged: (mode) => setState(() => _cameraMode = mode),
+              onModeChanged: (mode) {
+                setState(() => _cameraMode = mode);
+                WidgetsBinding.instance
+                    .addPostFrameCallback((_) => _syncCameraToMode());
+              },
               isDark: isDark,
               glassBorder: glassBorder,
               textColor: textColor,
@@ -762,6 +804,8 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
                   highSensitivityHorizon: _highSensitivityHorizon,
                   expertMode: expertMode,
                   showHud: _showHud,
+                  geologicalArEnabled: settings.geologicalArEnabled,
+                  showGeologicalArOption: geologicalArSupportedPlatform(),
                   flashMode: _flashMode,
                   zoom: _zoom,
                   isDark: isDark,
@@ -775,6 +819,12 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
                     context.read<SettingsController>().expertMode = v;
                   },
                   onHudToggle: (v) => setState(() => _showHud = v),
+                  onGeologicalArChanged: (v) {
+                    context.read<SettingsController>().geologicalArEnabled = v;
+                    setState(() {});
+                    WidgetsBinding.instance
+                        .addPostFrameCallback((_) => _syncCameraToMode());
+                  },
                   onFlashModeChanged: (mode) => _setFlashMode(mode),
                   onZoomChanged: _applyZoom,
                   sensorLockButtonKey: _sensorLockButtonKey,

@@ -449,6 +449,13 @@ class GeoFieldStringsEn extends GeoFieldStrings {
       'Ruler, horizon gain, expert overlays, and HUD (geology mode).';
 
   @override
+  String get camera_ar_geology_title => 'AR bedding plane';
+
+  @override
+  String get camera_ar_geology_subtitle =>
+      'ARCore / ARKit session with a 3D slab in front of the camera. First run may need internet to load the marker model.';
+
+  @override
   String get cancel => 'Cancel';
 
   @override

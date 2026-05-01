@@ -72,6 +72,8 @@ String? lookupGeoFieldString(GeoFieldStrings s, String key) {
     case 'calculate': return s.calculate;
     case 'calibration_instruction': return s.calibration_instruction;
     case 'camera': return s.camera;
+    case 'camera_ar_geology_subtitle': return s.camera_ar_geology_subtitle;
+    case 'camera_ar_geology_title': return s.camera_ar_geology_title;
     case 'camera_azimuth_short': return s.camera_azimuth_short;
     case 'camera_azimuth_subtitle': return s.camera_azimuth_subtitle;
     case 'camera_close_label': return s.camera_close_label;

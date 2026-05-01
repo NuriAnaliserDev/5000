@@ -450,6 +450,13 @@ class GeoFieldStringsTr extends GeoFieldStrings {
       'Cetvel, yatay, uzman ve HUD (jeoloji modu).';
 
   @override
+  String get camera_ar_geology_title => 'AR tabaka düzlemi';
+
+  @override
+  String get camera_ar_geology_subtitle =>
+      'ARCore / ARKit: kamera önünde 3B işaret. İlk açılışta küçük model indirilebilir.';
+
+  @override
   String get cancel => 'İptal';
 
   @override

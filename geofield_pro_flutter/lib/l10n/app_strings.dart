@@ -916,6 +916,18 @@ abstract class GeoFieldStrings {
   /// **'Ruler, horizon gain, expert overlays, and HUD (geology mode).'**
   String get camera_pro_sheet_hint;
 
+  /// No description provided for @camera_ar_geology_title.
+  ///
+  /// In en, this message translates to:
+  /// **'AR bedding plane'**
+  String get camera_ar_geology_title;
+
+  /// No description provided for @camera_ar_geology_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'ARCore / ARKit session with a 3D slab in front of the camera. First run may need internet to load the marker model.'**
+  String get camera_ar_geology_subtitle;
+
   /// No description provided for @cancel.
   ///
   /// In en, this message translates to:

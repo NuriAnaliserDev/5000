@@ -449,6 +449,13 @@ class GeoFieldStringsUz extends GeoFieldStrings {
       'Chiziq, gorizontal, ekspert o‘lchamlari, HUD (geologiya rejimi).';
 
   @override
+  String get camera_ar_geology_title => 'AR qatlam (bedding)';
+
+  @override
+  String get camera_ar_geology_subtitle =>
+      'ARCore / ARKit: kamera oldida 3D belgi. Birinchi marta kichik 3D model tarmoqdan yuklanadi.';
+
+  @override
   String get cancel => 'Bekor qilish';
 
   @override

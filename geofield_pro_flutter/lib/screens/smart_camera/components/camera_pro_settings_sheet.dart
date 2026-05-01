@@ -11,10 +11,13 @@ class CameraProSettingsSheet extends StatelessWidget {
     required this.highSensitivityHorizon,
     required this.expertMode,
     required this.showHud,
+    required this.geologicalArEnabled,
+    required this.showGeologicalArOption,
     required this.onShowScaleChanged,
     required this.onHighSenseChanged,
     required this.onExpertModeChanged,
     required this.onHudToggle,
+    required this.onGeologicalArChanged,
     required this.textColor,
     this.sensorLockButtonKey,
   });
@@ -23,10 +26,13 @@ class CameraProSettingsSheet extends StatelessWidget {
   final bool highSensitivityHorizon;
   final bool expertMode;
   final bool showHud;
+  final bool geologicalArEnabled;
+  final bool showGeologicalArOption;
   final ValueChanged<bool> onShowScaleChanged;
   final ValueChanged<bool> onHighSenseChanged;
   final ValueChanged<bool> onExpertModeChanged;
   final ValueChanged<bool> onHudToggle;
+  final ValueChanged<bool> onGeologicalArChanged;
   final Color textColor;
   final GlobalKey? sensorLockButtonKey;
 
@@ -92,6 +98,23 @@ class CameraProSettingsSheet extends StatelessWidget {
               color: textColor,
             ),
           ),
+          if (showGeologicalArOption) ...[
+            SwitchListTile.adaptive(
+              value: geologicalArEnabled,
+              onChanged: onGeologicalArChanged,
+              title: Text(
+                context.locRead('camera_ar_geology_title'),
+                style: _tileStyle(textColor),
+              ),
+              subtitle: Text(
+                context.locRead('camera_ar_geology_subtitle'),
+                style: t.textTheme.bodySmall?.copyWith(
+                  color: t.colorScheme.onSurface.withValues(alpha: 0.58),
+                ),
+              ),
+              secondary: Icon(Icons.view_in_ar, color: textColor),
+            ),
+          ],
         ],
       ),
     );

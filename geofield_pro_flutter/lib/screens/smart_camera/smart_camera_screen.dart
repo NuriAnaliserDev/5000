@@ -31,6 +31,7 @@ import 'components/camera_overlays.dart';
 import 'components/camera_side_controls.dart';
 import 'components/camera_top_bar.dart';
 import 'components/focus_mode_geology_overlay.dart';
+import 'components/geological_ar_view.dart';
 
 part 'smart_camera_screen_state.dart';
 

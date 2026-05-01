@@ -40,7 +40,7 @@ android {
         // Play Store va google-services.json dagi package_name bilan bir xil bo‘lishi kerak
         applicationId = "com.aurum.geofieldpro"
 
-        minSdk = flutter.minSdkVersion
+        minSdk = maxOf(flutter.minSdkVersion, 24)
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

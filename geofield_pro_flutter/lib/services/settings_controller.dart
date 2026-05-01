@@ -12,6 +12,7 @@ class SettingsController extends ChangeNotifier {
   static const _projectsListKey = 'projectsList';
   static const _languageKey = 'language';
   static const _ecoModeKey = 'ecoMode';
+  static const _geologicalArKey = 'geologicalArEnabled';
   static const _expertModeKey = 'expertMode';
   static const _userNameKey = 'currentUserName';
   static const _isFirstRunKey = 'isFirstRun';
@@ -99,6 +100,15 @@ class SettingsController extends ChangeNotifier {
 
   set ecoMode(bool value) {
     _box.put(_ecoModeKey, value);
+    notifyListeners();
+  }
+
+  /// Android/iOS: geologik kamera — ARCore/ARKit qatlam (oddiy kamera o‘rniga).
+  bool get geologicalArEnabled =>
+      _box.get(_geologicalArKey, defaultValue: true) as bool;
+
+  set geologicalArEnabled(bool value) {
+    _box.put(_geologicalArKey, value);
     notifyListeners();
   }
 

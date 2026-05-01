@@ -17,6 +17,8 @@ class CameraSideControls extends StatefulWidget {
   final bool highSensitivityHorizon;
   final bool expertMode;
   final bool showHud;
+  final bool geologicalArEnabled;
+  final bool showGeologicalArOption;
   final FlashMode flashMode;
   final double zoom;
   final bool isDark;
@@ -27,6 +29,7 @@ class CameraSideControls extends StatefulWidget {
   final Function(bool) onHighSenseChanged;
   final Function(bool) onExpertModeChanged;
   final Function(bool) onHudToggle;
+  final Function(bool) onGeologicalArChanged;
   final Function(FlashMode) onFlashModeChanged;
   final Function(double) onZoomChanged;
   final GlobalKey sensorLockButtonKey;
@@ -39,6 +42,8 @@ class CameraSideControls extends StatefulWidget {
     required this.highSensitivityHorizon,
     required this.expertMode,
     required this.showHud,
+    required this.geologicalArEnabled,
+    required this.showGeologicalArOption,
     required this.flashMode,
     required this.zoom,
     required this.isDark,
@@ -49,6 +54,7 @@ class CameraSideControls extends StatefulWidget {
     required this.onHighSenseChanged,
     required this.onExpertModeChanged,
     required this.onHudToggle,
+    required this.onGeologicalArChanged,
     required this.onFlashModeChanged,
     required this.onZoomChanged,
     required this.sensorLockButtonKey,
@@ -184,10 +190,13 @@ class _CameraSideControlsState extends State<CameraSideControls>
                 highSensitivityHorizon: widget.highSensitivityHorizon,
                 expertMode: widget.expertMode,
                 showHud: widget.showHud,
+                geologicalArEnabled: widget.geologicalArEnabled,
+                showGeologicalArOption: widget.showGeologicalArOption,
                 onShowScaleChanged: widget.onShowScaleChanged,
                 onHighSenseChanged: widget.onHighSenseChanged,
                 onExpertModeChanged: widget.onExpertModeChanged,
                 onHudToggle: widget.onHudToggle,
+                onGeologicalArChanged: widget.onGeologicalArChanged,
                 textColor: widget.textColor,
                 sensorLockButtonKey: widget.sensorLockButtonKey,
               ),
