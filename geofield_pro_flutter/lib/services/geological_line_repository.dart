@@ -1,9 +1,12 @@
-import 'package:flutter/foundation.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'dart:async';
+import 'package:flutter/foundation.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
 import '../models/geological_line.dart';
+import '../utils/firebase_ready.dart';
 
 /// Repository for geological linework features (faults, contacts, etc.)
 /// Backed by a Hive box for offline-first storage.
@@ -14,20 +17,22 @@ class GeologicalLineRepository extends ChangeNotifier {
   List<GeologicalLine> _lines = [];
   List<GeologicalLine> get lines => List.unmodifiable(_lines);
 
-  final _firestore = FirebaseFirestore.instance;
+  FirebaseFirestore? get _firestore => firestoreOrNull;
   StreamSubscription? _remoteSubscription;
 
   Future<void> init() async {
     _box = await Hive.openBox<GeologicalLine>(_boxName);
     _lines = _box!.values.toList();
     notifyListeners();
-    
+
     _initRemoteSync();
   }
 
   void _initRemoteSync() {
     _remoteSubscription?.cancel();
-    _remoteSubscription = _firestore
+    final fs = _firestore;
+    if (fs == null) return;
+    _remoteSubscription = fs
         .collection('geological_lines')
         .snapshots()
         .listen((snapshot) async {
@@ -67,8 +72,10 @@ class GeologicalLineRepository extends ChangeNotifier {
     await _box!.delete(id);
     _lines = _box!.values.toList();
     notifyListeners();
+    final fs = _firestore;
+    if (fs == null) return;
     try {
-      await _firestore.collection('geological_lines').doc(id).delete();
+      await fs.collection('geological_lines').doc(id).delete();
     } catch (e) {
       debugPrint('Error deleting line from Firestore: $e');
     }
@@ -90,10 +97,13 @@ class GeologicalLineRepository extends ChangeNotifier {
   }
 
   Future<void> _uploadLine(GeologicalLine line) async {
+    if (!isFirebaseCoreReady) return;
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
+    final fs = _firestore;
+    if (fs == null) return;
     try {
-      await _firestore.collection('geological_lines').doc(line.id).set({
+      await fs.collection('geological_lines').doc(line.id).set({
         ...line.toMap(),
         'ownerUid': uid,
       }, SetOptions(merge: true));

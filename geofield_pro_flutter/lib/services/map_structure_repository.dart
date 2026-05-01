@@ -4,7 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+
 import '../models/map_structure_annotation.dart';
+import '../utils/firebase_ready.dart';
 
 /// Xaritadagi qo‘lda qo‘yilgan strike/dip belgilar (offline + Firestore).
 class MapStructureRepository extends ChangeNotifier {
@@ -14,7 +16,7 @@ class MapStructureRepository extends ChangeNotifier {
   List<MapStructureAnnotation> _items = [];
   List<MapStructureAnnotation> get annotations => List.unmodifiable(_items);
 
-  final _firestore = FirebaseFirestore.instance;
+  FirebaseFirestore? get _firestore => firestoreOrNull;
   StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _remoteSub;
 
   Future<void> init() async {
@@ -26,7 +28,9 @@ class MapStructureRepository extends ChangeNotifier {
 
   void _attachRemote() {
     _remoteSub?.cancel();
-    _remoteSub = _firestore
+    final fs = _firestore;
+    if (fs == null) return;
+    _remoteSub = fs
         .collection('map_structure_annotations')
         .snapshots()
         .listen((snap) async {
@@ -52,16 +56,16 @@ class MapStructureRepository extends ChangeNotifier {
     await _box!.put(a.id, a);
     _items = _box!.values.toList();
     notifyListeners();
+    if (!isFirebaseCoreReady) return;
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
+    final fs = _firestore;
+    if (fs == null) return;
     try {
-      await _firestore
-          .collection('map_structure_annotations')
-          .doc(a.id)
-          .set({
-            ...a.toMap(),
-            'ownerUid': uid,
-          }, SetOptions(merge: true));
+      await fs.collection('map_structure_annotations').doc(a.id).set({
+        ...a.toMap(),
+        'ownerUid': uid,
+      }, SetOptions(merge: true));
     } catch (e) {
       debugPrint('MapStructureRepository upload: $e');
     }
@@ -71,8 +75,10 @@ class MapStructureRepository extends ChangeNotifier {
     await _box!.delete(id);
     _items = _box!.values.toList();
     notifyListeners();
+    final fs = _firestore;
+    if (fs == null) return;
     try {
-      await _firestore.collection('map_structure_annotations').doc(id).delete();
+      await fs.collection('map_structure_annotations').doc(id).delete();
     } catch (e) {
       debugPrint('MapStructureRepository delete remote: $e');
     }

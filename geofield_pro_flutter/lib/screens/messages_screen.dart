@@ -63,7 +63,12 @@ class _MessagesScreenState extends State<MessagesScreen> {
               ),
             )
           : ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding: EdgeInsets.fromLTRB(
+                16,
+                10,
+                16,
+                10 + AppBottomNavBar.listScrollEndGap(context),
+              ),
               itemCount: groups.length,
               itemBuilder: (context, index) {
                 final group = groups[index];

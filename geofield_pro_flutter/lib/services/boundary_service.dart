@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io' as io;
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:file_picker/file_picker.dart';
@@ -8,8 +9,10 @@ import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:uuid/uuid.dart';
 
 import '../models/boundary_polygon.dart';
+import '../utils/firebase_ready.dart';
 import '../utils/parsers/dxf_parser.dart';
 import '../utils/parsers/geojson_import_parser.dart';
 import '../utils/parsers/gpkg_import_parser.dart';
@@ -34,20 +37,37 @@ class BoundaryImportResult {
 }
 
 class BoundaryService extends ChangeNotifier {
-  List<BoundaryPolygon> _boundaries = [];
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  static const _uuid = Uuid();
 
-  String? get _currentUid => FirebaseAuth.instance.currentUser?.uid;
+  /// Firestore’dan kelgan qatlam
+  List<BoundaryPolygon> _cloudBoundaries = [];
 
-  List<BoundaryPolygon> get boundaries => _boundaries;
+  /// Login / Firebase bo‘lmasa yoki import lokal saqlangan
+  final List<BoundaryPolygon> _localBoundaries = [];
+
+  FirebaseFirestore? get _firestore => firestoreOrNull;
+
+  String? get _currentUid {
+    if (!isFirebaseCoreReady) return null;
+    try {
+      return FirebaseAuth.instance.currentUser?.uid;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  List<BoundaryPolygon> get boundaries =>
+      List<BoundaryPolygon>.unmodifiable([..._cloudBoundaries, ..._localBoundaries]);
 
   BoundaryService() {
     _initCloudSync();
   }
 
   void _initCloudSync() {
-    _firestore.collection('global_boundaries').snapshots().listen((snapshot) {
-      _boundaries = snapshot.docs
+    final fs = _firestore;
+    if (fs == null) return;
+    fs.collection('global_boundaries').snapshots().listen((snapshot) {
+      _cloudBoundaries = snapshot.docs
           .map((doc) => BoundaryPolygon.fromMap(
                 doc.data(),
                 id: doc.id,
@@ -59,15 +79,26 @@ class BoundaryService extends ChangeNotifier {
     });
   }
 
+  static String _decodeImportText(Uint8List bytes) {
+    if (bytes.length >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF) {
+      return utf8.decode(bytes.sublist(3));
+    }
+    try {
+      return utf8.decode(bytes, allowMalformed: false);
+    } catch (_) {
+      return latin1.decode(bytes, allowInvalid: true);
+    }
+  }
+
   BoundaryPolygon? getActiveBoundary(LatLng point) {
-    for (var b in _boundaries) {
+    for (var b in boundaries) {
       if (b.containsPoint(point)) return b;
     }
     return null;
   }
 
   BoundaryPolygon? getBoundaryAt(LatLng point) {
-    for (var b in _boundaries) {
+    for (var b in boundaries) {
       if (b.containsPoint(point)) return b;
     }
     return null;
@@ -89,6 +120,24 @@ class BoundaryService extends ChangeNotifier {
     if (points.length < 3) {
       throw Exception("Polygon kamida 3 nuqtadan iborat bo'lishi kerak.");
     }
+    final uid = _currentUid;
+    final fs = _firestore;
+
+    if (uid == null || fs == null) {
+      _localBoundaries.add(
+        BoundaryPolygon(
+          localId: _uuid.v4(),
+          name: name,
+          points: points,
+          sourceFile: 'drawn',
+          zoneType: zoneType,
+          description: description,
+        ),
+      );
+      notifyListeners();
+      return;
+    }
+
     final polygon = BoundaryPolygon(
       name: name,
       points: points,
@@ -96,12 +145,8 @@ class BoundaryService extends ChangeNotifier {
       zoneType: zoneType,
       description: description,
     );
-    final uid = _currentUid;
-    if (uid == null) {
-      throw Exception("Chegara qo‘shish uchun avval tizimga kiring.");
-    }
     try {
-      await _firestore.collection('global_boundaries').add({
+      await fs.collection('global_boundaries').add({
         ...polygon.toMap(),
         'createdByUid': uid,
       });
@@ -117,8 +162,26 @@ class BoundaryService extends ChangeNotifier {
     required ZoneType zoneType,
     String? description,
   }) async {
+    final li = _localBoundaries.indexWhere((b) => b.id == firestoreId);
+    if (li >= 0) {
+      final poly = _localBoundaries[li];
+      final newPts = List<LatLng>.from(poly.points);
+      _localBoundaries[li] = BoundaryPolygon(
+        firestoreId: poly.firestoreId,
+        localId: poly.localId,
+        name: name,
+        points: newPts,
+        sourceFile: poly.sourceFile,
+        zoneType: zoneType,
+        description: description,
+      );
+      notifyListeners();
+      return;
+    }
+    final fs = _firestore;
+    if (fs == null) return;
     try {
-      await _firestore.collection('global_boundaries').doc(firestoreId).update({
+      await fs.collection('global_boundaries').doc(firestoreId).update({
         'name': name,
         'zoneType': zoneType.firestoreKey,
         'description': description,
@@ -126,34 +189,79 @@ class BoundaryService extends ChangeNotifier {
       });
     } catch (e) {
       debugPrint("updatePolygon error: $e");
-      rethrow;
     }
   }
 
-  Future<void> deletePolygon(String firestoreId) async {
+  Future<void> deletePolygon(String polygonId) async {
+    final before = _localBoundaries.length;
+    _localBoundaries.removeWhere((b) => b.id == polygonId);
+    if (_localBoundaries.length != before) {
+      notifyListeners();
+      return;
+    }
+    final fs = _firestore;
+    if (fs == null) return;
     try {
-      await _firestore.collection('global_boundaries').doc(firestoreId).delete();
+      await fs.collection('global_boundaries').doc(polygonId).delete();
     } catch (e) {
       debugPrint("deletePolygon error: $e");
-      rethrow;
     }
   }
 
   Future<void> clearAllPolygons() async {
-    for (var b in _boundaries) {
-      if (b.firestoreId != null) {
-        await deletePolygon(b.firestoreId!);
+    _localBoundaries.clear();
+    final fs = _firestore;
+    if (fs != null) {
+      for (final b in List<BoundaryPolygon>.from(_cloudBoundaries)) {
+        final id = b.firestoreId;
+        if (id != null) {
+          try {
+            await fs.collection('global_boundaries').doc(id).delete();
+          } catch (e) {
+            debugPrint("clearAllPolygons error: $e");
+          }
+        }
       }
     }
+    notifyListeners();
   }
 
-  Future<void> updatePolygonVertex(String firestoreId, int vertexIndex, LatLng newPos) async {
-    final poly = _boundaries.firstWhere((b) => b.firestoreId == firestoreId);
-    final newPoints = List<LatLng>.from(poly.points);
+  Future<void> updatePolygonVertex(String polygonId, int vertexIndex, LatLng newPos) async {
+    final li = _localBoundaries.indexWhere((b) => b.id == polygonId);
+    if (li >= 0) {
+      final poly = _localBoundaries[li];
+      if (vertexIndex < 0 || vertexIndex >= poly.points.length) return;
+      final newPoints = List<LatLng>.from(poly.points);
+      newPoints[vertexIndex] = newPos;
+      _localBoundaries[li] = BoundaryPolygon(
+        firestoreId: poly.firestoreId,
+        localId: poly.localId,
+        name: poly.name,
+        points: newPoints,
+        sourceFile: poly.sourceFile,
+        zoneType: poly.zoneType,
+        description: poly.description,
+      );
+      notifyListeners();
+      return;
+    }
+
+    BoundaryPolygon? cloudPoly;
+    for (final b in _cloudBoundaries) {
+      if (b.firestoreId == polygonId) {
+        cloudPoly = b;
+        break;
+      }
+    }
+    if (cloudPoly == null) return;
+    if (vertexIndex < 0 || vertexIndex >= cloudPoly.points.length) return;
+    final newPoints = List<LatLng>.from(cloudPoly.points);
     newPoints[vertexIndex] = newPos;
-    
+
+    final fs = _firestore;
+    if (fs == null) return;
     try {
-      await _firestore.collection('global_boundaries').doc(firestoreId).update({
+      await fs.collection('global_boundaries').doc(polygonId).update({
         'points': newPoints.map((p) => {'lat': p.latitude, 'lng': p.longitude}).toList(),
       });
     } catch (e) {
@@ -181,7 +289,7 @@ class BoundaryService extends ChangeNotifier {
 
       List<BoundaryPolygon> newPolys = [];
       if (ext == 'kml' || ext == 'dxf' || ext == 'geojson' || ext == 'json') {
-        final content = utf8.decode(file.bytes!);
+        final content = _decodeImportText(Uint8List.fromList(file.bytes!));
         if (ext == 'kml') {
           newPolys = KmlParser.parse(content, filename);
         } else if (ext == 'dxf') {
@@ -217,9 +325,7 @@ class BoundaryService extends ChangeNotifier {
       bool normalized = false;
       final List<LatLng> allFit = [];
       final importUid = _currentUid;
-      if (importUid == null) {
-        throw Exception("Import uchun avval tizimga kiring.");
-      }
+      final fs = _firestore;
 
       for (final p in newPolys) {
         final normalizedPolygon = _normalizePolygonIfNeeded(p);
@@ -230,12 +336,30 @@ class BoundaryService extends ChangeNotifier {
         if (!identical(normalizedPolygon, p)) {
           normalized = true;
         }
-        await _firestore.collection('global_boundaries').add({
-          ...normalizedPolygon.toMap(),
-          'createdByUid': importUid,
-        });
+        if (importUid != null && fs != null) {
+          await fs.collection('global_boundaries').add({
+            ...normalizedPolygon.toMap(),
+            'createdByUid': importUid,
+          });
+        } else {
+          _localBoundaries.add(
+            BoundaryPolygon(
+              localId: _uuid.v4(),
+              name: normalizedPolygon.name,
+              points: normalizedPolygon.points,
+              sourceFile: normalizedPolygon.sourceFile,
+              zoneType: normalizedPolygon.zoneType,
+              description: normalizedPolygon.description,
+            ),
+          );
+        }
         allFit.addAll(normalizedPolygon.points);
         imported++;
+      }
+      if (importUid == null || fs == null) {
+        if (imported > 0) {
+          notifyListeners();
+        }
       }
 
       return BoundaryImportResult(
@@ -281,6 +405,7 @@ class BoundaryService extends ChangeNotifier {
       description: polygon.description,
       zoneType: polygon.zoneType,
       firestoreId: polygon.firestoreId,
+      localId: polygon.localId,
     );
   }
 }

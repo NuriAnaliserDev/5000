@@ -113,7 +113,7 @@ class _ScaleAssistantScreenState extends State<ScaleAssistantScreen> {
       ),
       body: SingleChildScrollView(
         physics: AppScrollPhysics.list(),
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
+        padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + AppBottomNavBar.listScrollEndGap(context)),
         child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

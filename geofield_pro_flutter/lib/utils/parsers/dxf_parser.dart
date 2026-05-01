@@ -5,7 +5,18 @@ import '../../models/boundary_polygon.dart';
 class DxfParser {
   static List<BoundaryPolygon> parse(String content, String filename) {
     try {
-      final normalized = content.replaceAll('\r\n', '\n').split('\n');
+      final lead = content.trimLeft();
+      if (lead.startsWith('AutoCAD Binary DXF')) {
+        throw Exception(
+          'Binary DXF is not supported. Save as ASCII DXF from your CAD software and try again.',
+        );
+      }
+      final normalized = content
+          .replaceAll('\r\n', '\n')
+          .split('\n')
+          .map((l) => l.trim())
+          .where((l) => l.isNotEmpty)
+          .toList();
       final entities = <Map<String, List<String>>>[];
 
       Map<String, List<String>>? current;
@@ -28,11 +39,13 @@ class DxfParser {
         entities.add(current);
       }
 
+      final expanded = _expandClassicPolylines(entities);
+
       final blockDefs = <String, Map<String, dynamic>>{};
       bool inBlock = false;
       String? currentBlockName;
 
-      for (final entity in entities) {
+      for (final entity in expanded) {
         final type = entity['__type']!.first;
         if (type == 'BLOCK') {
           final name = entity['2']?.first;
@@ -73,7 +86,7 @@ class DxfParser {
 
       final extracted = <BoundaryPolygon>[];
       inBlock = false;
-      for (final entity in entities) {
+      for (final entity in expanded) {
         final type = entity['__type']!.first;
         if (type == 'BLOCK') {
           inBlock = true;
@@ -100,6 +113,84 @@ class DxfParser {
     } catch (e) {
       throw Exception('DXF oqishda xatolik: $e');
     }
+  }
+
+  /// Avtokad klassik `POLYLINE` + `VERTEX` + `SEQEND` zanjirini LWPOLYLINE-ga aylantiradi.
+  static List<Map<String, List<String>>> _expandClassicPolylines(
+    List<Map<String, List<String>>> entities,
+  ) {
+    final out = <Map<String, List<String>>>[];
+    for (var i = 0; i < entities.length; i++) {
+      final e = entities[i];
+      final t = e['__type']!.first;
+      if (t == 'POLYLINE') {
+        final seqEndIdx = _findSeqEndAfterPolyline(entities, i);
+        if (seqEndIdx != null) {
+          final syn = _classicPolylineToLw(e, entities, i + 1, seqEndIdx);
+          if (syn != null) {
+            out.add(syn);
+            i = seqEndIdx;
+            continue;
+          }
+        }
+      }
+      if (t == 'VERTEX' || t == 'SEQEND') {
+        continue;
+      }
+      out.add(e);
+    }
+    return out;
+  }
+
+  /// `POLYLINE` dan keyin faqat `VERTEX` va oxirida `SEQEND` bo‘lsa, `SEQEND` indeksi.
+  static int? _findSeqEndAfterPolyline(
+    List<Map<String, List<String>>> entities,
+    int polylineIndex,
+  ) {
+    if (polylineIndex >= entities.length) return null;
+    if (entities[polylineIndex]['__type']!.first != 'POLYLINE') return null;
+    var j = polylineIndex + 1;
+    while (j < entities.length) {
+      final t = entities[j]['__type']!.first;
+      if (t == 'VERTEX') {
+        j++;
+      } else if (t == 'SEQEND') {
+        return j;
+      } else {
+        return null;
+      }
+    }
+    return null;
+  }
+
+  static Map<String, List<String>>? _classicPolylineToLw(
+    Map<String, List<String>> polyEnt,
+    List<Map<String, List<String>>> entities,
+    int firstVertexIndex,
+    int seqEndIndex,
+  ) {
+    final xs = <String>[];
+    final ys = <String>[];
+    final bulges = <String>[];
+    for (var j = firstVertexIndex; j < seqEndIndex; j++) {
+      if (entities[j]['__type']!.first != 'VERTEX') return null;
+      final vx = entities[j]['10']?.first;
+      final vy = entities[j]['20']?.first;
+      if (vx == null || vy == null) continue;
+      xs.add(vx);
+      ys.add(vy);
+      final b = entities[j]['42']?.first;
+      bulges.add((b != null && b.isNotEmpty) ? b : '0');
+    }
+    if (xs.length < 2) return null;
+    final flags = polyEnt['70'] ?? ['0'];
+    return {
+      '__type': ['LWPOLYLINE'],
+      '10': xs,
+      '20': ys,
+      '70': flags,
+      '42': bulges,
+    };
   }
 
   static List<LatLng> _pointsFromDxfEntity(

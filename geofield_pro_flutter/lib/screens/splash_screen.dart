@@ -11,6 +11,7 @@ import '../services/hive_db.dart';
 import '../services/settings_controller.dart';
 import '../services/user_flags_service.dart';
 import '../utils/wmm/wmm_model.dart';
+import '../utils/firebase_ready.dart';
 import 'error_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -124,6 +125,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   /// Tizimda allaqachon sessiya bo‘lsa — Firestore’dan «onboarding o‘tgan» sozlamasini olish.
   Future<void> _syncOnboardingForLoggedInUser() async {
+    if (!isFirebaseCoreReady) return;
     final u = FirebaseAuth.instance.currentUser;
     if (u == null) return;
     final completed = await UserFlagsService.getOnboardingCompleted(u.uid);
@@ -140,7 +142,14 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void _goNext() {
     final settings = context.read<SettingsController>();
-    final user = FirebaseAuth.instance.currentUser;
+    User? user;
+    if (isFirebaseCoreReady) {
+      try {
+        user = FirebaseAuth.instance.currentUser;
+      } catch (_) {
+        user = null;
+      }
+    }
     final rememberedUid = settings.lastAuthUid;
 
     if (user != null) {

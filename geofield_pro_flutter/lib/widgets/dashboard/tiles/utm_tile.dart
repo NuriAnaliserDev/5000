@@ -3,7 +3,7 @@ import '../../../utils/geology_utils.dart';
 import '../../../utils/app_card.dart';
 import '../../../utils/app_localizations.dart';
 
-/// UTM va aniqlik — [Selector] orqali faqat lat/lng/accuracy o'zgaganda qayta quriladi.
+/// UTM, ACC yashil «pill» va lat/lng — Stitch xarita kartasiga yaqin.
 class UTMTile extends StatelessWidget {
   final double latitude;
   final double longitude;
@@ -21,34 +21,52 @@ class UTMTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final utm = GeologyUtils.toUTM(latitude, longitude);
+    final scheme = Theme.of(context).colorScheme;
     return AppCard(
       padding: const EdgeInsets.all(16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.grid_3x3_rounded, size: 14, color: Colors.blue),
-              const SizedBox(width: 8),
-              Text(
-                context.loc('utm_coordinates'),
-                style: const TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey),
+              Expanded(
+                child: Text(
+                  'UTM: $utm',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.2,
+                    color: scheme.onSurface,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2E7D32).withValues(alpha: 0.85),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
+                ),
+                child: Text(
+                  '${context.loc('acc_label')}: ${accuracyMeters.toStringAsFixed(1)}m',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ],
           ),
-          const Spacer(),
-          SelectableText(
-            utm,
-            style: const TextStyle(
-                fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 1),
-          ),
-          const Spacer(),
+          const SizedBox(height: 12),
           Text(
-            '${context.loc('acc_label')}: ${accuracyMeters.toStringAsFixed(1)}m | Lat: ${latitude.toStringAsFixed(6)}°, Lng: ${longitude.toStringAsFixed(6)}°',
-            style: const TextStyle(fontSize: 9, color: Colors.grey),
+            'Lat: ${latitude.toStringAsFixed(6)}° | Lng: ${longitude.toStringAsFixed(6)}°',
+            style: TextStyle(
+              fontSize: 12,
+              color: scheme.onSurfaceVariant,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),

@@ -12,29 +12,6 @@ class GeoFieldStringsEn extends GeoFieldStrings {
   String get about_app => 'About App';
 
   @override
-  String get fab_reset_title => 'Reset button positions';
-
-  @override
-  String get fab_reset_desc =>
-      'Return the draggable buttons on map and camera screens to their default positions';
-
-  @override
-  String get fab_reset_prompt =>
-      'Which screen\'s button layout do you want to reset?';
-
-  @override
-  String get fab_reset_map => 'Map';
-
-  @override
-  String get fab_reset_camera => 'Camera';
-
-  @override
-  String get fab_reset_all => 'All';
-
-  @override
-  String get fab_reset_done => 'Button positions restored';
-
-  @override
   String get map_my_location => 'My location';
 
   @override
@@ -61,8 +38,7 @@ class GeoFieldStringsEn extends GeoFieldStrings {
       'Search failed: no internet or server did not respond';
 
   @override
-  String get map_drag_mode_hint =>
-      'Drag mode: slide the button to its new position (6 seconds)';
+  String get map_search_locations_hint => 'Search Locations...';
 
   @override
   String get acc_label => 'ACC';
@@ -105,6 +81,9 @@ class GeoFieldStringsEn extends GeoFieldStrings {
 
   @override
   String get admin => 'Admin';
+
+  @override
+  String get admin_full_title => 'Admin & Settings';
 
   @override
   String get all_projects => 'All Projects';
@@ -177,6 +156,15 @@ class GeoFieldStringsEn extends GeoFieldStrings {
   String get analysis_with_gps => 'With GPS';
 
   @override
+  String get analysis_tab_rose => 'Rose';
+
+  @override
+  String get analysis_tab_stereonet => 'Stereonet';
+
+  @override
+  String get analysis_tab_trends => 'Trends';
+
+  @override
   String get analytics_weekly => 'ANALYTICS (7 DAYS)';
 
   @override
@@ -230,6 +218,9 @@ class GeoFieldStringsEn extends GeoFieldStrings {
   String get azimuth_label => 'Heading (Azimuth)';
 
   @override
+  String get camera_azimuth_short => 'Azimuth';
+
+  @override
   String get bedding => 'Bedding';
 
   @override
@@ -250,6 +241,27 @@ class GeoFieldStringsEn extends GeoFieldStrings {
 
   @override
   String get camera_error => 'Camera Error';
+
+  @override
+  String get camera_focus_mode_title => 'Geological Camera — Focus Mode';
+
+  @override
+  String get camera_guide_button => 'Guide';
+
+  @override
+  String get camera_voice_record_label => 'Record voice note';
+
+  @override
+  String get camera_torch_label => 'Light';
+
+  @override
+  String get camera_scale_label => 'Zoom';
+
+  @override
+  String get camera_close_label => 'Close';
+
+  @override
+  String get camera_heading_info_line => 'GPS accuracy & sensor info';
 
   @override
   String get camera_voice_mic_hint =>
@@ -498,6 +510,12 @@ class GeoFieldStringsEn extends GeoFieldStrings {
   String get dashboard => 'Main';
 
   @override
+  String get dashboard_hero_title => 'Pro Geological Home';
+
+  @override
+  String get dashboard_view_all => 'All';
+
+  @override
   String get delete => 'Delete';
 
   @override
@@ -570,10 +588,28 @@ class GeoFieldStringsEn extends GeoFieldStrings {
 
   @override
   String get dxf_notice_body =>
-      'For DXF import, the drawing must use GPS geographic projection (WGS-84 Lat/Lng). Otherwise, it can be placed incorrectly on the map.';
+      'For DXF import use ASCII (text) DXF, not binary. Coordinates must be WGS-84 geographic decimal degrees: X = longitude, Y = latitude. UTM/local meter drawings will be misplaced — reproject to WGS84 in CAD/GIS first.';
 
   @override
-  String get dxf_notice_title => 'DXF Notice';
+  String get dxf_notice_title => 'About DXF import';
+
+  @override
+  String get gis_import_precheck_title => 'GIS import — formats & DXF';
+
+  @override
+  String get gis_import_precheck_body =>
+      'After Choose file you will pick a file from your device.\n\n• Supported: KML, GeoJSON (.geojson or .json), DXF, Shapefile (.shp), GeoPackage (.gpkg).\n• Web browser: .gpkg is not supported (no SQLite).\n\nDXF (important):\n• File must be ASCII DXF (not Binary DXF). In AutoCAD, use Save As and select ASCII DXF if offered.\n• Coordinates must be WGS-84 geographic (decimal degrees): X = longitude, Y = latitude. UTM or local meters will appear wrong — reproject to WGS84 before import.\n\nCloud: without login or if Firebase is unavailable, imported layers stay on this device only.';
+
+  @override
+  String get gis_import_choose_file => 'Choose file';
+
+  @override
+  String get gis_import_empty_result =>
+      'No GIS layers were imported. Check the file, or use ASCII DXF in WGS-84 (longitude/latitude). KML/GeoJSON are often easier for a quick test.';
+
+  @override
+  String get gis_import_normalized_hint =>
+      'Some vertex coordinates were auto-swapped to valid latitude/longitude — check placement on the map.';
 
   @override
   String get echo_mode_on => 'POWER SAVER: ACTIVE';
@@ -597,7 +633,13 @@ class GeoFieldStringsEn extends GeoFieldStrings {
   String get expert_mode => 'Professional mode';
 
   @override
+  String get general_settings_section => 'General settings';
+
+  @override
   String get export_csv => 'Export CSV';
+
+  @override
+  String get export_actions_section => 'Export & actions';
 
   @override
   String get export_stations_excel => 'Export stations (Excel)';
@@ -646,6 +688,10 @@ class GeoFieldStringsEn extends GeoFieldStrings {
   String get filter => 'Filter';
 
   @override
+  String get firebase_local_only_banner =>
+      'Local mode: Firebase did not start. Field data is saved on device; sign-in and cloud sync are unavailable until the network and configuration are fixed.';
+
+  @override
   String get fisher_dispersion => 'HIGH DISPERSION ⚠️';
 
   @override
@@ -653,6 +699,9 @@ class GeoFieldStringsEn extends GeoFieldStrings {
 
   @override
   String get fisher_stable => 'STABLE TREND ✅';
+
+  @override
+  String get fisher_gauge_high => 'High reliability';
 
   @override
   String get fisher_stats => 'Fisher statistics';
@@ -681,6 +730,24 @@ class GeoFieldStringsEn extends GeoFieldStrings {
 
   @override
   String get map_track_fab_aria => 'Record GPS route (track)';
+
+  @override
+  String get map_ultra_pro_tooltip => 'Ultra Pro Multi-Tool';
+
+  @override
+  String get map_start_stop_tracking => 'Start/Stop Tracking';
+
+  @override
+  String get map_radial_strike_dip => 'Manual Strike/Dip';
+
+  @override
+  String get map_radial_sampling => 'Sampling';
+
+  @override
+  String get map_radial_field_notes => 'Field Notes';
+
+  @override
+  String get map_radial_project_layers => 'Project Layers';
 
   @override
   String get track_start_failed =>
@@ -944,10 +1011,13 @@ class GeoFieldStringsEn extends GeoFieldStrings {
   String get poor_accuracy_warn => 'Poor Accuracy';
 
   @override
-  String get power_saver => 'Tejamkor rejim (Power Saver)';
+  String get power_saver => 'Power saver mode';
 
   @override
   String get professional_tag => 'PROFESSIONAL';
+
+  @override
+  String get profile_section_label => 'Profile';
 
   @override
   String get project => 'Project';
@@ -993,6 +1063,9 @@ class GeoFieldStringsEn extends GeoFieldStrings {
 
   @override
   String get results_count => 'results';
+
+  @override
+  String get role_geologist_admin => 'Geologist-Administrator';
 
   @override
   String get rock_classification => 'Rock Classification';
@@ -1082,6 +1155,9 @@ class GeoFieldStringsEn extends GeoFieldStrings {
   String get session => 'Session';
 
   @override
+  String get session_pause_tooltip => 'Pause route';
+
+  @override
   String get settings => 'Settings';
 
   @override
@@ -1143,10 +1219,6 @@ class GeoFieldStringsEn extends GeoFieldStrings {
 
   @override
   String get messages_no_groups => 'No groups yet';
-
-  @override
-  String get map_fab_drag_long_press_hint =>
-      'Long-press the grip strip to move this control';
 
   @override
   String get sos_cancel_failed =>

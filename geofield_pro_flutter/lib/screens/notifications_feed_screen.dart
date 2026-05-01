@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../l10n/app_strings.dart';
+import '../utils/firebase_ready.dart';
 
 /// Dashboarddan yoki admin tomondan [geofield_broadcasts] ga yoziladigan ommaviy e'lonlar.
 ///
@@ -40,11 +41,24 @@ class _NotificationsFeedScreenState extends State<NotificationsFeedScreen> {
           ),
         ],
       ),
-      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        stream: FirebaseFirestore.instance
-            .collection('geofield_broadcasts')
-            .snapshots(),
-        builder: (context, snap) {
+      body: Builder(
+        builder: (context) {
+          final fs = firestoreOrNull;
+          if (fs == null) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Text(
+                  s.firebase_local_only_banner,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: isDark ? Colors.white70 : Colors.black87),
+                ),
+              ),
+            );
+          }
+          return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+            stream: fs.collection('geofield_broadcasts').snapshots(),
+            builder: (context, snap) {
           if (snap.hasError) {
             return Center(
               child: Padding(
@@ -124,6 +138,8 @@ class _NotificationsFeedScreenState extends State<NotificationsFeedScreen> {
                 ),
               );
             },
+          );
+        },
           );
         },
       ),

@@ -69,7 +69,7 @@ class WebMapZoneListPanel extends StatelessWidget {
                     separatorBuilder: (_, __) => const Divider(height: 1, indent: 14, endIndent: 14),
                     itemBuilder: (context, index) {
                       final b = boundaries[index];
-                      final isSelected = editingPolygon?.firestoreId == b.firestoreId;
+                      final isSelected = editingPolygon?.id == b.id;
                       return ListTile(
                         selected: isSelected,
                         selectedTileColor: b.displayColor.withValues(alpha: 0.08),

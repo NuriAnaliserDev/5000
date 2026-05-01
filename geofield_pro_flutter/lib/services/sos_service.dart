@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'sos/sos_queue.dart';
+import '../utils/firebase_ready.dart';
 
 /// SMS fallback hook — `url_launcher` bilan to‘ldiriladi (ilova init'ida
 /// o‘rnatiladi). Qiymat: `sms:<number>?body=<url-encoded>` URIni ochadigan
@@ -46,8 +47,15 @@ class EmergencySignal {
 /// Shuningdek, [smsFallback] = `true` bo‘lsa, SMS orqali ham signal
 /// yuborishga uriniladi (url_launcher + `sms:` sxema).
 class SosService extends ChangeNotifier {
-  final _firestore = FirebaseFirestore.instance;
-  final _auth = FirebaseAuth.instance;
+  FirebaseFirestore? get _firestore => firestoreOrNull;
+  FirebaseAuth? get _auth {
+    if (!isFirebaseCoreReady) return null;
+    try {
+      return FirebaseAuth.instance;
+    } catch (_) {
+      return null;
+    }
+  }
 
   /// Tashqi chaqiruv uchun (masalan admin-panel yoki status widget).
   bool lastSendQueued = false;
@@ -66,7 +74,9 @@ class SosService extends ChangeNotifier {
   SosSmsHandler? smsHandler;
 
   Stream<List<EmergencySignal>> get emergencySignals {
-    return _firestore
+    final fs = _firestore;
+    if (fs == null) return Stream.value([]);
+    return fs
         .collection('emergency_signals')
         .where('isActive', isEqualTo: true)
         .where('timestamp',
@@ -85,14 +95,17 @@ class SosService extends ChangeNotifier {
     bool smsFallback = false,
     String? emergencyNumber,
   }) async {
-    final user = _auth.currentUser;
+    final auth = _auth;
+    final user = auth?.currentUser;
     if (user == null) return;
 
     lastSendQueued = false;
     _myActiveSosDocumentId = null;
 
     try {
-      final ref = await _firestore.collection('emergency_signals').add({
+      final fs = _firestore;
+      if (fs == null) throw StateError('no-firestore');
+      final ref = await fs.collection('emergency_signals').add({
         'senderUid': user.uid,
         'senderName': name,
         'lat': position.latitude,
@@ -126,10 +139,12 @@ class SosService extends ChangeNotifier {
   /// Ilovada saqlanmagan bo‘lsa ham, foydalanuvchining oxirgi faol SOS
   /// hujjatini topadi (qayta kirganda `myActiveSosDocumentId` tiklash uchun).
   Future<String?> _latestActiveSosIdForCurrentUser() async {
-    final user = _auth.currentUser;
+    final user = _auth?.currentUser;
     if (user == null) return null;
+    final fs = _firestore;
+    if (fs == null) return null;
     try {
-      final snap = await _firestore
+      final snap = await fs
           .collection('emergency_signals')
           .where('senderUid', isEqualTo: user.uid)
           .limit(25)
@@ -204,8 +219,10 @@ class SosService extends ChangeNotifier {
 
   /// Faqat server `isActive: false` qilgandagina mahalliy holat tozalanadi.
   Future<bool> _deactivateSosOnServer(String signalId) async {
+    final fs = _firestore;
+    if (fs == null) return false;
     try {
-      await _firestore
+      await fs
           .collection('emergency_signals')
           .doc(signalId)
           .update({'isActive': false});

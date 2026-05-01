@@ -30,6 +30,7 @@ import '../models/map_structure_annotation.dart';
 import '../models/measurement.dart';
 import '../models/boundary_polygon.dart';
 import '../utils/gis_geojson_export.dart';
+import '../utils/gis_import_feedback.dart';
 import '../utils/linework_utils.dart';
 import '../utils/map_geodesy.dart';
 import '../utils/spatial_calculator.dart';
@@ -39,6 +40,7 @@ import '../utils/app_nav_bar.dart';
 import '../utils/app_localizations.dart';
 import '../utils/overlay_fab_layout.dart';
 import '../widgets/common/draggable_fab.dart';
+import '../widgets/gis_import_precheck_dialog.dart';
 import '../widgets/map/map_search_sheet.dart';
 import 'cross_section_screen.dart';
 
@@ -51,6 +53,8 @@ import 'map/components/map_sos_signals_layer.dart';
 import 'map/components/map_gps_hud.dart';
 import 'map/components/map_legend.dart';
 import 'map/components/map_top_bar.dart';
+import 'map/components/map_stitch_top_cluster.dart';
+import 'map/components/map_stitch_side_dock.dart';
 import 'map/components/map_live_track_stats.dart';
 import 'map/components/map_sos_button.dart';
 import 'map/components/map_track_fab.dart';
@@ -380,9 +384,9 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                 
                 PolygonLayer(
                   polygons: [
-                    ...boundaries.map<Polygon>(
-                      (b) => mapPolygonForBoundary(b, currentPos, _gisLayerOpacity),
-                    ),
+                    ...boundaries
+                        .where((b) => b.points.length >= 3)
+                        .map<Polygon>((b) => mapPolygonForBoundary(b, currentPos, _gisLayerOpacity)),
                     ...geoLines
                         .where((l) => l.isClosed)
                         .map((l) => mapPolygonForGeologicalLine(l)),
@@ -393,6 +397,17 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                          borderColor: Colors.transparent,
                          borderStrokeWidth: 0,
                        ),
+                  ],
+                ),
+                PolylineLayer(
+                  polylines: [
+                    ...boundaries.where((b) => b.points.length == 2).map(
+                          (b) => Polyline(
+                            points: b.points,
+                            color: b.displayColor.withValues(alpha: math.max(0.75, _gisLayerOpacity)),
+                            strokeWidth: 3,
+                          ),
+                        ),
                   ],
                 ),
                 MapStructureMarkersLayer(
@@ -418,32 +433,38 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                 const MapSosSignalsLayer(),
                 _buildUserLocationMarker(currentPos),
               ],
-            ), 
-            const MapGpsHud(),
-            MapLegend(stations: stations, currentPos: currentPos, mapController: _mapController),
-            MapTopBar(
-              stationsCount: stations.length,
-              settings: settings,
-              onStylePressed: () => _showMapStyleSelector(context, settings),
-              onSearchPressed: _openSearch,
-              leading: widget.fieldWorkshopMode
-                  ? IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Color(0xFF1976D2)),
-                      onPressed: () => Navigator.of(context).maybePop(),
-                      tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-                    )
-                  : null,
-              titleOverride: widget.fieldWorkshopMode
-                  ? (GeoFieldStrings.of(context)?.field_workshop_title ?? 'Field workshop')
-                  : null,
-              secondaryLineOverride: widget.fieldWorkshopMode
-                  ? '${settings.currentProject} · ${stations.length} ${context.loc('stations')}'
-                  : null,
             ),
+            if (widget.fieldWorkshopMode) const MapGpsHud(),
+            MapLegend(stations: stations, currentPos: currentPos, mapController: _mapController),
+            if (widget.fieldWorkshopMode)
+              MapTopBar(
+                stationsCount: stations.length,
+                settings: settings,
+                onStylePressed: () => _showMapStyleSelector(context, settings),
+                onSearchPressed: _openSearch,
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Color(0xFF1976D2)),
+                  onPressed: () => Navigator.of(context).maybePop(),
+                  tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                ),
+                titleOverride: GeoFieldStrings.of(context)?.field_workshop_title ?? 'Field workshop',
+                secondaryLineOverride:
+                    '${settings.currentProject} · ${stations.length} ${context.loc('stations')}',
+              )
+            else
+              MapStitchTopCluster(
+                stationsCount: stations.length,
+                settings: settings,
+                onStylePressed: () => _showMapStyleSelector(context, settings),
+                onSearchPressed: _openSearch,
+              ),
             if (widget.fieldWorkshopMode && _workshopInfoBanner) _buildWorkshopInfoBanner(),
             if (widget.fieldWorkshopMode) _buildFieldWorkshopToolRail(),
             if (currentTrack != null) MapLiveTrackStats(track: trackSvc.currentTrack!),
-            _buildMapFloatingLayer(currentPos: currentPos),
+            if (widget.fieldWorkshopMode)
+              _buildMapFloatingLayer(currentPos: currentPos)
+            else
+              _buildStitchMapChrome(currentPos: currentPos),
             MapLineworkControls(
               isDrawingMode: _isDrawingMode,
               selectedLineType: _selectedLineType,
@@ -453,16 +474,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
               drawButtonKey: _drawButtonKey,
               canRedo: _redoStack.isNotEmpty,
               isEraserMode: _isEraserMode,
-              onStartDrawing: () => setState(() {
-                _isMeasureMode = false;
-                _measurePoints.clear();
-                _isDrawingMode = true;
-                _isSliceMode = false;
-                _isStructurePlaceMode = false;
-                _isEraserMode = false;
-                _drawingPoints.clear();
-                _redoStack.clear();
-              }),
+              onStartDrawing: _startLineDrawing,
               onLineTypeChanged: (type) => setState(() => _selectedLineType = type),
               onToggleCurve: () => setState(() => _isCurvedMode = !_isCurvedMode),
               onToggleSnap: () => setState(() => _isSnapEnabled = !_isSnapEnabled),
@@ -628,6 +640,10 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
   }
 
   void _workshopStartDrawing() {
+    _startLineDrawing();
+  }
+
+  void _startLineDrawing() {
     setState(() {
       _isMeasureMode = false;
       _measurePoints.clear();
@@ -635,9 +651,78 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
       _isSliceMode = false;
       _isStructurePlaceMode = false;
       _isEraserMode = false;
-      _drawingPoints = [];
+      _drawingPoints.clear();
       _redoStack.clear();
     });
+  }
+
+  Widget _buildStitchMapChrome({required dynamic currentPos}) {
+    final s = GeoFieldStrings.of(context);
+    if (s == null) {
+      return const SizedBox.shrink();
+    }
+    final hideSideRails = _isDrawingMode || _isStructurePlaceMode;
+    final bottomInset = AppBottomNavBar.overlayClearanceAboveNav(context);
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        if (!hideSideRails)
+          MapStitchRightRail(
+            onDraw: _startLineDrawing,
+            onAddStation: () => Navigator.of(context).pushNamed('/station'),
+            onFollowToggle: () {
+              setState(() {
+                _followGps = !_followGps;
+              });
+              if (_followGps) {
+                HapticFeedback.selectionClick();
+                _goToMyLocation(currentPos);
+              }
+            },
+            followActive: _followGps,
+            onMyLocation: () => _goToMyLocation(currentPos),
+          ),
+        Positioned(
+          right: 4,
+          bottom: bottomInset - 8,
+          child: MapStitchRadialDock(
+            onProTools: _openMapProTools,
+            onStrikeDip: _toggleStructureMode,
+            onSampling: () => Navigator.of(context).pushNamed('/station'),
+            onFieldNotes: () => Navigator.of(context).pushNamed('/camera'),
+            onProjectLayers: () => setState(() => _showLayerDrawer = true),
+          ),
+        ),
+        Positioned(
+          left: 8,
+          bottom: bottomInset + 24,
+          child: const MapSosButton(),
+        ),
+        if (hideSideRails)
+          Positioned(
+            left: 12,
+            bottom: bottomInset + 120,
+            child: Material(
+              elevation: 6,
+              borderRadius: BorderRadius.circular(28),
+              color: _isStructurePlaceMode
+                  ? Colors.amber.shade800
+                  : const Color(0xFF1A2028),
+              child: IconButton(
+                tooltip: s.map_structure_mode_tooltip,
+                onPressed: _toggleStructureMode,
+                icon: Icon(
+                  Icons.architecture,
+                  color: _isStructurePlaceMode
+                      ? Colors.white
+                      : Colors.amber.shade200,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
   }
 
   void _toggleMeasureMode() {
@@ -844,6 +929,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     final boundary = context.read<BoundaryService>();
     final s = GeoFieldStrings.of(context);
     try {
+      final ok = await showGisImportPrecheckDialog(context);
+      if (!ok || !mounted) return;
       final r = await boundary.importFileFromWeb();
       if (!mounted) return;
       if (r == null) {
@@ -859,12 +946,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
         );
       }
       if (s != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(s.gis_import_done(r.importedCount, r.skippedCount)),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        showGisImportResultSnackbar(context, s, r);
       }
     } catch (e) {
       if (mounted) {
@@ -942,7 +1024,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     _applyMapProToolResult(action);
   }
 
-  /// Barcha suzuvchi tugmalar — bitta [DraggableFabLayer] (z-order aralashmasin).
+  /// Barcha suzuvchi tugmalar — bitta [DraggableFabLayer].
   Widget _buildMapFloatingLayer({required dynamic currentPos}) {
     // Faqat chizim / qo‘lda struktura: chizim paneli bilan to‘qnashadigan
     // qo‘shimcha yon FABlarni yig‘amiz. Kesim va o‘lchovda to‘liq to‘plam
@@ -957,11 +1039,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     if (hideSideFabsForLineUi) {
       structureFab = DraggableFab(
         key: const ValueKey('map_fab_structure'),
-        screen: 'map',
-        id: 'structure',
         defaultOffset: OverlayFabLayout.mapStructure,
         size: OverlayFabLayout.mapStructureSize,
-        dragMode: DragTriggerMode.longPress,
         child: Material(
           elevation: 6,
           borderRadius: BorderRadius.circular(28),
@@ -986,11 +1065,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     if (!widget.fieldWorkshopMode && !hideSideFabsForLineUi) {
       proFab = DraggableFab(
         key: const ValueKey('map_fab_pro'),
-        screen: 'map',
-        id: 'pro_tools',
         defaultOffset: OverlayFabLayout.mapProTools,
         size: OverlayFabLayout.mapProToolsSize,
-        dragMode: DragTriggerMode.longPress,
         child: Material(
           elevation: 6,
           borderRadius: BorderRadius.circular(28),
@@ -1013,37 +1089,21 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
         if (proFab != null) proFab,
         DraggableFab(
           key: const ValueKey('map_fab_sos'),
-          screen: 'map',
-          id: 'sos',
           defaultOffset: OverlayFabLayout.mapSos,
           size: OverlayFabLayout.mapSosSize,
           unconstrained: true,
-          longPressDragHandleWidth: OverlayFabLayout.mapSosDragHandleWidth,
-          longPressDragHandle: Tooltip(
-            message: context.locRead('map_fab_drag_long_press_hint'),
-            child: const RotatedBox(
-              quarterTurns: 1,
-              child: Icon(Icons.drag_handle, size: 18, color: Colors.white38),
-            ),
-          ),
           child: const MapSosButton(),
         ),
         const DraggableFab(
           key: ValueKey('map_fab_track'),
-          screen: 'map',
-          id: 'track',
           defaultOffset: OverlayFabLayout.mapTrack,
           size: OverlayFabLayout.mapTrackSize,
-          dragMode: DragTriggerMode.longPress,
           child: MapTrackFab(),
         ),
         DraggableFab(
           key: const ValueKey('map_fab_my_location'),
-          screen: 'map',
-          id: 'my_location',
           defaultOffset: OverlayFabLayout.mapMyLocation,
           size: OverlayFabLayout.mapMyLocationSize,
-          dragMode: DragTriggerMode.longPress,
           child: Tooltip(
             message: context.loc('map_my_location'),
             child: FloatingActionButton.small(
@@ -1056,11 +1116,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
         ),
         DraggableFab(
           key: const ValueKey('map_fab_follow_gps'),
-          screen: 'map',
-          id: 'follow_gps',
           defaultOffset: OverlayFabLayout.mapFollowGps,
           size: OverlayFabLayout.mapFollowGpsSize,
-          dragMode: DragTriggerMode.longPress,
           child: Tooltip(
             message: context.loc('map_follow_gps'),
             child: FloatingActionButton.small(
@@ -1188,7 +1245,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
       final picked = boundarySvc.getBoundaryAt(point);
       if (picked != null) {
         setState(() {
-           _editingPolygonId = picked.firestoreId;
+           _editingPolygonId = picked.id;
            _selectedVertexIndex = 0;
         });
       }

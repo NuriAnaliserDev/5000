@@ -94,12 +94,20 @@ class MapLayerDrawer extends StatelessWidget {
                   _buildSlider(context, context.loc('layer_gis_kml'), gisLayerOpacity, onGisOpacityChanged),
                   _buildSlider(context, context.loc('layer_drawings'), drawingLayerOpacity, onDrawingOpacityChanged),
                   const Divider(color: Colors.white10),
-                  TextButton.icon(
-                    onPressed: onImportGis,
-                    icon: const Icon(Icons.file_upload, size: 14, color: Color(0xFF81C784)),
-                    label: Text(
-                      context.loc('map_layer_import_gis'),
-                      style: const TextStyle(fontSize: 10, color: Color(0xFF81C784), fontWeight: FontWeight.bold),
+                  Tooltip(
+                    message: context.loc('dxf_notice_body'),
+                    waitDuration: const Duration(milliseconds: 400),
+                    child: TextButton.icon(
+                      onPressed: onImportGis,
+                      icon: const Icon(Icons.file_upload, size: 14, color: Color(0xFF81C784)),
+                      label: Text(
+                        context.loc('map_layer_import_gis'),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Color(0xFF81C784),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                   TextButton.icon(

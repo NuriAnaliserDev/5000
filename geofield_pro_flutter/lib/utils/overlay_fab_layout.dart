@@ -11,7 +11,7 @@ abstract final class OverlayFabLayout {
   static const Size mapProToolsSize = Size(56, 56);
 
   static const Offset mapSos = Offset(-12, -40);
-  static const Size mapSosSize = Size(100, 200);
+  static const Size mapSosSize = Size(100, 260);
 
   static const Offset mapTrack = Offset(-12, -168);
   static const Size mapTrackSize = Size(56, 56);
@@ -21,8 +21,6 @@ abstract final class OverlayFabLayout {
 
   static const Offset mapFollowGps = Offset(-12, -318);
   static const Size mapFollowGpsSize = Size(48, 48);
-
-  static const double mapSosDragHandleWidth = 22;
 
   // ─── Kamera (screen: camera) ───
   static const Offset cameraSidePanel = Offset(-82, 170);

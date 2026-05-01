@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui' show ImageFilter;
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -20,18 +21,15 @@ import '../../services/track_service.dart';
 import '../../services/tutorial_service.dart';
 import '../../utils/app_localizations.dart';
 import '../../utils/app_nav_bar.dart';
-import '../../utils/overlay_fab_layout.dart';
 import '../../utils/geo_orientation.dart';
 import '../../utils/geology_utils.dart';
 import '../../utils/image_utils.dart';
 import '../../utils/status_semantics.dart';
-import '../../widgets/common/draggable_fab.dart';
+
 import '../components/ar_strike_dip_overlay.dart';
 
 import 'components/camera_bottom_controls.dart';
-import 'components/camera_gps_hud.dart';
 import 'components/camera_heading_hud.dart';
-import 'components/camera_orientation_hud.dart';
 import 'components/camera_overlays.dart';
 import 'components/camera_side_controls.dart';
 import 'components/camera_top_bar.dart';

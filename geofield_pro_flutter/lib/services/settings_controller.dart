@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart' show Offset;
 import 'package:hive/hive.dart';
 
 import 'hive_db.dart';
@@ -246,36 +245,6 @@ class SettingsController extends ChangeNotifier {
       _box.delete(_customMbtilesPathKey);
     } else {
       _box.put(_customMbtilesPathKey, value);
-    }
-    notifyListeners();
-  }
-
-  // =========================================================================
-  // Floating FAB pozitsiyalari — har bir tugma (id) uchun foydalanuvchi qo‘l bilan
-  // joylashtirgan (Offset) koordinatasi. Uzun bosganda FAB olinadi, qo‘yganda
-  // yangi joyda saqlanadi.
-  // Format: `fab_pos_<screen>_<id>_x` va `_y`
-  // =========================================================================
-
-  Offset? getFabPosition(String screen, String id) {
-    final x = _box.get('fab_pos_${screen}_${id}_x') as double?;
-    final y = _box.get('fab_pos_${screen}_${id}_y') as double?;
-    if (x == null || y == null) return null;
-    return Offset(x, y);
-  }
-
-  void setFabPosition(String screen, String id, Offset offset) {
-    _box.put('fab_pos_${screen}_${id}_x', offset.dx);
-    _box.put('fab_pos_${screen}_${id}_y', offset.dy);
-    notifyListeners();
-  }
-
-  void resetFabPositions(String screen) {
-    final keys = _box.keys
-        .where((k) => k is String && k.startsWith('fab_pos_${screen}_'))
-        .toList();
-    for (final k in keys) {
-      _box.delete(k);
     }
     notifyListeners();
   }

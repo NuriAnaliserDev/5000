@@ -42,13 +42,20 @@ class MapTopBar extends StatelessWidget {
                 children: [
                   Text(
                     titleOverride ?? settings.currentProject,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
                     secondaryLineOverride ?? '$stationsCount ${context.loc('stations')}',
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -56,12 +63,12 @@ class MapTopBar extends StatelessWidget {
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.layers_outlined, color: Color(0xFF1976D2)),
+              icon: Icon(Icons.layers_outlined, color: Theme.of(context).colorScheme.primary),
               onPressed: onStylePressed,
               tooltip: context.loc('map_style'),
             ),
             IconButton(
-              icon: const Icon(Icons.search, color: Color(0xFF1976D2)),
+              icon: Icon(Icons.search, color: Theme.of(context).colorScheme.primary),
               onPressed: onSearchPressed,
             ),
           ],

@@ -67,8 +67,10 @@ extension ZoneTypeExtension on ZoneType {
 }
 
 class BoundaryPolygon {
-  /// Firestore hujjat ID'si (null = lokal, hali saqlanmagan)
+  /// Firestore hujjat ID
   final String? firestoreId;
+  /// Tarmoq yo‘q / login yo‘q holatda import yoki chizma (Firestore’siz)
+  final String? localId;
   final String name;
   final List<LatLng> points;
   final String sourceFile;
@@ -79,6 +81,7 @@ class BoundaryPolygon {
 
   BoundaryPolygon({
     this.firestoreId,
+    this.localId,
     required this.name,
     required this.points,
     this.sourceFile = 'drawn',
@@ -87,7 +90,7 @@ class BoundaryPolygon {
   })  : areaSqMeters = SpatialCalculator.calculateArea(points),
         perimeterMeters = SpatialCalculator.calculatePerimeter(points);
 
-  String? get id => firestoreId;
+  String? get id => firestoreId ?? localId;
 
   Color get displayColor => zoneType.color;
   bool get countsAsWorkTime => zoneType.countsAsWorkTime;
@@ -116,6 +119,7 @@ class BoundaryPolygon {
         [];
     return BoundaryPolygon(
       firestoreId: id,
+      localId: null,
       name: map['name'] ?? 'Nomlanmagan Zona',
       points: pts,
       sourceFile: map['sourceFile'] ?? 'cloud',

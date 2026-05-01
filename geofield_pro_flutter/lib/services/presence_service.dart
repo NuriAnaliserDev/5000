@@ -1,9 +1,12 @@
 import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+
+import '../utils/firebase_ready.dart';
 
 class TeamMember {
   final String uid;
@@ -35,8 +38,15 @@ class TeamMember {
 }
 
 class PresenceService extends ChangeNotifier {
-  final _firestore = FirebaseFirestore.instance;
-  final _auth = FirebaseAuth.instance;
+  FirebaseFirestore? get _firestore => firestoreOrNull;
+  FirebaseAuth? get _auth {
+    if (!isFirebaseCoreReady) return null;
+    try {
+      return FirebaseAuth.instance;
+    } catch (_) {
+      return null;
+    }
+  }
 
   Timer? _presenceTimer;
   StreamSubscription? _teamSubscription;
@@ -50,14 +60,17 @@ class PresenceService extends ChangeNotifier {
   }
 
   void _initTeamListener() {
-    _teamSubscription = _firestore
+    final fs = _firestore;
+    final auth = _auth;
+    if (fs == null || auth == null) return;
+    _teamSubscription = fs
         .collection('presence')
         .where('isOnline', isEqualTo: true)
         .snapshots()
         .listen((snapshot) {
       _teamMembers = snapshot.docs
           .map((doc) => TeamMember.fromMap(doc.data(), doc.id))
-          .where((m) => m.uid != _auth.currentUser?.uid) // Exclude self
+          .where((m) => m.uid != auth.currentUser?.uid) // Exclude self
           .toList();
       notifyListeners();
     });
@@ -88,11 +101,13 @@ class PresenceService extends ChangeNotifier {
   }
 
   Future<void> _updatePresence(LatLng position, String name, String role, bool isOnline) async {
-    final user = _auth.currentUser;
+    final user = _auth?.currentUser;
     if (user == null) return;
+    final fs = _firestore;
+    if (fs == null) return;
 
     try {
-      await _firestore.collection('presence').doc(user.uid).set({
+      await fs.collection('presence').doc(user.uid).set({
         'name': name,
         'role': role,
         'lat': position.latitude,

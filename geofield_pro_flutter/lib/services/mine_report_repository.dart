@@ -1,13 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+
 import '../models/mine_report.dart';
+import '../utils/firebase_ready.dart';
 
 class MineReportRepository extends ChangeNotifier {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  FirebaseFirestore? get _db => firestoreOrNull;
 
   // Real-time stream of all reports (for the Inbox)
   Stream<List<MineReport>> streamReports() {
-    return _firestore
+    final db = _db;
+    if (db == null) return Stream.value([]);
+    return db
         .collection('daily_mine_reports')
         .orderBy('createdAt', descending: true)
         .snapshots()
@@ -18,7 +22,9 @@ class MineReportRepository extends ChangeNotifier {
 
   // Real-time stream of PENDING reports
   Stream<List<MineReport>> streamPendingReports() {
-    return _firestore
+    final db = _db;
+    if (db == null) return Stream.value([]);
+    return db
         .collection('daily_mine_reports')
         .where('status', isEqualTo: 'pending')
         .orderBy('createdAt', descending: true)
@@ -30,7 +36,9 @@ class MineReportRepository extends ChangeNotifier {
 
   // Real-time stream of PENDING reports filtered by type (ore_block | rc_drill | ore_stockpile)
   Stream<List<MineReport>> streamPendingReportsByType(String reportType) {
-    return _firestore
+    final db = _db;
+    if (db == null) return Stream.value([]);
+    return db
         .collection('daily_mine_reports')
         .where('status', isEqualTo: 'pending')
         .where('reportType', isEqualTo: reportType)
@@ -43,7 +51,9 @@ class MineReportRepository extends ChangeNotifier {
 
   // Real-time stream of VERIFIED reports (for Analytics)
   Stream<List<MineReport>> streamVerifiedReports() {
-    return _firestore
+    final db = _db;
+    if (db == null) return Stream.value([]);
+    return db
         .collection('daily_mine_reports')
         .where('status', isEqualTo: 'verified')
         .orderBy('createdAt', descending: true)
@@ -54,9 +64,12 @@ class MineReportRepository extends ChangeNotifier {
   }
 
   // Update report to Verified status, alongside the corrected parsedData
-  Future<void> verifyReport(String reportId, Map<String, dynamic> correctedData, String verifiedByUserName) async {
+  Future<void> verifyReport(
+      String reportId, Map<String, dynamic> correctedData, String verifiedByUserName) async {
+    final db = _db;
+    if (db == null) return;
     try {
-      await _firestore.collection('daily_mine_reports').doc(reportId).update({
+      await db.collection('daily_mine_reports').doc(reportId).update({
         'status': 'verified',
         'parsedData': correctedData,
         'verifiedBy': verifiedByUserName,
@@ -70,8 +83,10 @@ class MineReportRepository extends ChangeNotifier {
 
   // Delete/Reject report
   Future<void> deleteReport(String reportId) async {
+    final db = _db;
+    if (db == null) return;
     try {
-      await _firestore.collection('daily_mine_reports').doc(reportId).delete();
+      await db.collection('daily_mine_reports').doc(reportId).delete();
     } catch (e) {
       debugPrint("Error deleting report: $e");
       rethrow;

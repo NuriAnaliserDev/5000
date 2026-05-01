@@ -2,7 +2,7 @@
     <!-- Core permissions for GeoField Pro -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <!-- Qattiq fon joylashuv: Play uchun `ACCESS_BACKGROUND_LOCATION` maxsus e'lon; GPS asosan old fon + xizmat orqali -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <uses-permission android:name="android.permission.CAMERA" />

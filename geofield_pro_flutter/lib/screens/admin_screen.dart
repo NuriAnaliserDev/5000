@@ -13,6 +13,8 @@ import '../services/location_service.dart';
 import '../utils/app_localizations.dart';
 import '../utils/app_nav_bar.dart';
 import '../utils/app_scroll_physics.dart';
+import '../utils/app_card.dart';
+import '../widgets/common/stitch_screen_background.dart';
 
 class AdminScreen extends StatelessWidget {
   const AdminScreen({super.key});
@@ -46,48 +48,6 @@ class AdminScreen extends StatelessWidget {
           SnackBar(content: Text(context.locRead('success_saved'))),
         );
       }
-    }
-  }
-
-  Future<void> _showResetFabDialog(BuildContext context) async {
-    final settings = context.read<SettingsController>();
-    final choice = await showDialog<String>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(context.locRead('fab_reset_title')),
-        content: Text(context.locRead('fab_reset_prompt')),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop('cancel'),
-            child: Text(context.locRead('cancel')),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop('map'),
-            child: Text(context.locRead('fab_reset_map')),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop('camera'),
-            child: Text(context.locRead('fab_reset_camera')),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(ctx).pop('all'),
-            child: Text(context.locRead('fab_reset_all')),
-          ),
-        ],
-      ),
-    );
-    if (choice == null || choice == 'cancel') return;
-    if (!context.mounted) return;
-    if (choice == 'map' || choice == 'all') {
-      settings.resetFabPositions('map');
-    }
-    if (choice == 'camera' || choice == 'all') {
-      settings.resetFabPositions('camera');
-    }
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.locRead('fab_reset_done'))),
-      );
     }
   }
 
@@ -171,24 +131,28 @@ class AdminScreen extends StatelessWidget {
     final surf = Theme.of(context).colorScheme.surface;
     final onSurf = Theme.of(context).colorScheme.onSurface;
 
-    return Scaffold(
-      backgroundColor: surf,
-      appBar: AppBar(
-        backgroundColor: surf,
-        title: Text(context.loc('admin')),
-      ),
-      body: ListView(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final bodyContent = ListView(
         physics: AppScrollPhysics.list(),
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+        padding: EdgeInsets.fromLTRB(16, 16, 16, AppBottomNavBar.listScrollEndGap(context)),
         children: [
-          Text(
-            'GPS GEOFENCE & TRACKING',
-            style: TextStyle(
-              color: onSurf.withValues(alpha: 0.9),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
+          _profileCard(context, settings, onSurf),
+          AppCard(
+            opacity: isDark ? 0.12 : 0.45,
+            blur: 16,
+            padding: const EdgeInsets.fromLTRB(8, 12, 8, 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'GPS GEOFENCE & TRACKING',
+                  style: TextStyle(
+                    color: onSurf.withValues(alpha: 0.9),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.home_work, color: Colors.orange),
@@ -233,6 +197,9 @@ class AdminScreen extends StatelessWidget {
               ),
             ),
           ),
+              ],
+            ),
+          ),
           const SizedBox(height: 24),
           Text(
             context.loc('admin'),
@@ -247,15 +214,24 @@ class AdminScreen extends StatelessWidget {
             style: TextStyle(color: onSurf),
           ),
           const SizedBox(height: 24),
-          // NEW SETTINGS SECTION
-          Text(
-            context.loc('settings'),
-            style: TextStyle(
-              color: onSurf.withValues(alpha: 0.9),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
+          // NEW SETTINGS_section (glass)
+          AppCard(
+            opacity: isDark ? 0.12 : 0.45,
+            blur: 16,
+            padding: const EdgeInsets.fromLTRB(8, 12, 8, 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  context.loc('general_settings_section'),
+                  style: TextStyle(
+                    color: onSurf.withValues(alpha: 0.85),
+                    fontWeight: FontWeight.w800,
+                    fontSize: 12,
+                    letterSpacing: 0.6,
+                  ),
+                ),
+                const SizedBox(height: 8),
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.language, color: Color(0xFF1976D2)),
@@ -274,7 +250,7 @@ class AdminScreen extends StatelessWidget {
           ),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            secondary: const Icon(Icons.battery_saver, color: Color(0xFF1976D2)),
+            secondary: const Icon(Icons.battery_saver, color: Colors.green),
             title: Text(context.loc('eco_mode')),
             value: settings.ecoMode,
             onChanged: (v) => settings.ecoMode = v,
@@ -282,7 +258,7 @@ class AdminScreen extends StatelessWidget {
           ),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            secondary: const Icon(Icons.psychology, color: Color(0xFF1976D2)),
+            secondary: const Icon(Icons.settings_rounded, color: Colors.redAccent),
             title: Text(context.loc('expert_mode')),
             subtitle: Text(
               'Professional geologik funksiyalar va kengaytirilgan forma',
@@ -311,38 +287,6 @@ class AdminScreen extends StatelessWidget {
           ),
           ListTile(
             contentPadding: EdgeInsets.zero,
-            leading: const Icon(
-              Icons.open_with,
-              color: Color(0xFF1976D2),
-            ),
-            title: Text(context.loc('fab_reset_title')),
-            subtitle: Text(
-              context.loc('fab_reset_desc'),
-              style: TextStyle(
-                fontSize: 11,
-                color: onSurf.withValues(alpha: 0.55),
-              ),
-            ),
-            onTap: () => _showResetFabDialog(context),
-          ),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.logout, color: Colors.redAccent),
-            title: const Text('Hisobdan chiqish', style: TextStyle(color: Colors.redAccent)),
-            onTap: () async {
-              await context.read<AuthService>().logout();
-              if (!context.mounted) return;
-              final s = context.read<SettingsController>();
-              s.clearLocalDisplayName();
-              s.forgetAuth();
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                AppRouter.auth,
-                (r) => false,
-              );
-            },
-          ),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.compass_calibration, color: Color(0xFF1976D2)),
             title: Text(context.loc('magnetic_declination')),
             subtitle: Text(context.loc('magnetic_declination_desc')),
@@ -359,6 +303,25 @@ class AdminScreen extends StatelessWidget {
                 controller: TextEditingController(text: settings.magneticDeclination.toString()),
               ),
             ),
+          ),
+              ],
+            ),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.logout, color: Colors.redAccent),
+            title: const Text('Hisobdan chiqish', style: TextStyle(color: Colors.redAccent)),
+            onTap: () async {
+              await context.read<AuthService>().logout();
+              if (!context.mounted) return;
+              final s = context.read<SettingsController>();
+              s.clearLocalDisplayName();
+              s.forgetAuth();
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                AppRouter.auth,
+                (r) => false,
+              );
+            },
           ),
           const SizedBox(height: 24),
           Text(
@@ -379,34 +342,55 @@ class AdminScreen extends StatelessWidget {
             label: Text(context.loc('delete')),
           ),
           const SizedBox(height: 16),
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green.shade700,
-              foregroundColor: Colors.white,
+          AppCard(
+            opacity: isDark ? 0.12 : 0.45,
+            blur: 16,
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  context.loc('export_actions_section'),
+                  style: TextStyle(
+                    color: onSurf.withValues(alpha: 0.85),
+                    fontWeight: FontWeight.w800,
+                    fontSize: 12,
+                    letterSpacing: 0.6,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _gradientPillButton(
+                        onTap: () => _exportData(context, repo, isCsv: true),
+                        icon: Icons.table_chart,
+                        label: context.loc('export_csv'),
+                        colors: const [Color(0xFF1976D2), Color(0xFF0D47A1)],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _gradientPillButton(
+                        onTap: () => _exportData(context, repo, isCsv: false),
+                        icon: Icons.public,
+                        label: context.loc('export_geojson'),
+                        colors: const [Color(0xFF2E7D32), Color(0xFF1B5E20)],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _gradientPillButton(
+                        onTap: () => _exportData(context, repo, isExcel: true),
+                        icon: Icons.table_view,
+                        label: context.loc('export_stations_excel'),
+                        colors: const [Color(0xFF6A1B9A), Color(0xFF4527A0)],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            onPressed: () => _exportData(context, repo, isCsv: true),
-            icon: const Icon(Icons.table_chart),
-            label: Text(context.loc('export_csv')),
-          ),
-          const SizedBox(height: 8),
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.deepPurple.shade700,
-              foregroundColor: Colors.white,
-            ),
-            onPressed: () => _exportData(context, repo, isCsv: false),
-            icon: const Icon(Icons.public),
-            label: Text(context.loc('export_geojson')),
-          ),
-          const SizedBox(height: 8),
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.teal.shade800,
-              foregroundColor: Colors.white,
-            ),
-            onPressed: () => _exportData(context, repo, isExcel: true),
-            icon: const Icon(Icons.table_view),
-            label: Text(context.loc('export_stations_excel')),
           ),
           const SizedBox(height: 24),
           Text(
@@ -515,8 +499,136 @@ class AdminScreen extends StatelessWidget {
             ),
           ),
         ],
+    );
+
+    return Scaffold(
+      backgroundColor: isDark ? Colors.transparent : surf,
+      extendBody: isDark,
+      appBar: AppBar(
+        backgroundColor: isDark ? Colors.transparent : surf,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        title: Text(context.loc('admin_full_title')),
       ),
+      body: isDark
+          ? Stack(
+              fit: StackFit.expand,
+              children: [
+                const StitchScreenBackground(),
+                bodyContent,
+              ],
+            )
+          : bodyContent,
       bottomNavigationBar: const AppBottomNavBar(activeRoute: '/admin'),
+    );
+  }
+
+  Widget _profileCard(BuildContext context, SettingsController settings, Color onSurf) {
+    final name = settings.currentUserName ?? context.loc('dashboard');
+    final initial = name.isNotEmpty ? name.trim().substring(0, 1).toUpperCase() : 'G';
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: AppCard(
+        opacity: isDark ? 0.14 : 0.45,
+        blur: 18,
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              context.loc('profile_section_label'),
+              style: TextStyle(
+                color: onSurf.withValues(alpha: 0.7),
+                fontWeight: FontWeight.w800,
+                fontSize: 11,
+                letterSpacing: 1,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 28,
+                  backgroundColor: const Color(0xFF1976D2).withValues(alpha: 0.2),
+                  child: Text(
+                    initial,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1976D2),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 16,
+                          color: onSurf,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        settings.expertMode ? context.loc('role_geologist_admin') : 'Geolog',
+                        style: TextStyle(fontSize: 12, color: onSurf.withValues(alpha: 0.55)),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _gradientPillButton({
+    required VoidCallback onTap,
+    required IconData icon,
+    required String label,
+    required List<Color> colors,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            gradient: LinearGradient(colors: colors),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, color: Colors.white, size: 22),
+                const SizedBox(height: 4),
+                Text(
+                  label,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
+                    height: 1.1,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

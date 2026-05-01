@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,6 +13,18 @@ class AppBottomNavBar extends StatelessWidget {
 
   const AppBottomNavBar({super.key, required this.activeRoute});
 
+  /// Pastki suzuvchi nav + tizim chizig‘i — Snackbar, FAB, TabBarView zaxirasi.
+  static double overlayClearanceAboveNav(BuildContext context) {
+    final sysBottom = MediaQuery.paddingOf(context).bottom;
+    return sysBottom + 86;
+  }
+
+  /// Body scroll ro‘yxati oxirida yengil bo‘sh joy (Scaffold body allaqachon nav ustida).
+  static double listScrollEndGap(BuildContext context) {
+    final sysBottom = MediaQuery.paddingOf(context).bottom;
+    return sysBottom + 24;
+  }
+
   static bool _isMoreRoute(String route) {
     return route == '/messages' ||
         route == '/admin' ||
@@ -19,61 +33,77 @@ class AppBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final surf = Theme.of(context).colorScheme.surface;
+    final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final borderColor =
-        (isDark ? Colors.white : Colors.black).withValues(alpha: 0.08);
+        (isDark ? Colors.white : Colors.black).withValues(alpha: 0.12);
     final isExpert = context.watch<SettingsController>().expertMode;
     final moreActive = _isMoreRoute(activeRoute);
 
-    return Container(
-      color: surf,
-      child: SafeArea(
-        top: false,
-        child: Container(
-          height: 74,
-          decoration: BoxDecoration(
-            border: Border(
-              top: BorderSide(color: borderColor),
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+        child: RepaintBoundary(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(28),
+            clipBehavior: Clip.hardEdge,
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+              child: Container(
+                constraints: const BoxConstraints(minHeight: 64),
+                decoration: BoxDecoration(
+                  color: scheme.surface.withValues(alpha: isDark ? 0.78 : 0.94),
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(color: borderColor),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: isDark ? 0.45 : 0.1),
+                      blurRadius: 24,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                  _navItem(
+                    context,
+                    icon: Icons.home_rounded,
+                    label: context.loc('dashboard'),
+                    route: '/dashboard',
+                    isActive: activeRoute == '/dashboard',
+                  ),
+                  _navItem(
+                    context,
+                    icon: Icons.map_rounded,
+                    label: context.loc('map'),
+                    route: '/map',
+                    isActive: activeRoute == '/map',
+                  ),
+                  _navItem(
+                    context,
+                    icon: Icons.photo_camera_rounded,
+                    label: context.loc('camera'),
+                    route: '/camera',
+                    isActive: activeRoute == '/camera',
+                  ),
+                  _navItem(
+                    context,
+                    icon: Icons.archive_rounded,
+                    label: context.loc('archive'),
+                    route: '/archive',
+                    isActive: activeRoute == '/archive',
+                  ),
+                  _moreItem(
+                    context,
+                    isExpert: isExpert,
+                    isActive: moreActive,
+                  ),
+                  ],
+                ),
+              ),
             ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _navItem(
-                context,
-                icon: Icons.grid_view_rounded,
-                label: context.loc('dashboard'),
-                route: '/dashboard',
-                isActive: activeRoute == '/dashboard',
-              ),
-              _navItem(
-                context,
-                icon: Icons.map_rounded,
-                label: context.loc('map'),
-                route: '/map',
-                isActive: activeRoute == '/map',
-              ),
-              _navItem(
-                context,
-                icon: Icons.photo_camera_rounded,
-                label: context.loc('camera'),
-                route: '/camera',
-                isActive: activeRoute == '/camera',
-              ),
-              _navItem(
-                context,
-                icon: Icons.history_rounded,
-                label: context.loc('archive'),
-                route: '/archive',
-                isActive: activeRoute == '/archive',
-              ),
-              _moreItem(
-                context,
-                isExpert: isExpert,
-                isActive: moreActive,
-              ),
-            ],
           ),
         ),
       ),
@@ -87,7 +117,10 @@ class AppBottomNavBar extends StatelessWidget {
     required String route,
     bool isActive = false,
   }) {
-    final color = isActive ? const Color(0xFF1976D2) : Colors.grey;
+    final scheme = Theme.of(context).colorScheme;
+    final inactive = scheme.onSurfaceVariant;
+    final activeColor = scheme.primary;
+    final iconColor = isActive ? activeColor : inactive;
     return Expanded(
       child: Material(
         color: Colors.transparent,
@@ -97,17 +130,28 @@ class AppBottomNavBar extends StatelessWidget {
             label: label,
             button: true,
             child: InkWell(
+              splashColor: activeColor.withValues(alpha: 0.12),
+              highlightColor: activeColor.withValues(alpha: 0.06),
               onTap: () {
                 if (isActive) return;
                 Navigator.of(context).pushReplacementNamed(route);
               },
               child: SizedBox(
-                height: double.infinity,
+                height: 64,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ExcludeSemantics(
-                      child: Icon(icon, color: color),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: isActive
+                              ? activeColor.withValues(alpha: 0.2)
+                              : null,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Icon(icon, color: iconColor, size: 24),
+                      ),
                     ),
                     const SizedBox(height: 2),
                     FittedBox(
@@ -117,10 +161,10 @@ class AppBottomNavBar extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontSize: 7,
+                          fontSize: 9,
                           letterSpacing: 0.2,
                           fontWeight: FontWeight.bold,
-                          color: color,
+                          color: iconColor,
                         ),
                       ),
                     ),
@@ -139,7 +183,10 @@ class AppBottomNavBar extends StatelessWidget {
     required bool isExpert,
     required bool isActive,
   }) {
-    final color = isActive ? const Color(0xFF1976D2) : Colors.grey;
+    final scheme = Theme.of(context).colorScheme;
+    final inactive = scheme.onSurfaceVariant;
+    final activeColor = scheme.primary;
+    final color = isActive ? activeColor : inactive;
     final moreLabel = context.loc('nav_more');
     return Expanded(
       child: Material(
@@ -150,6 +197,8 @@ class AppBottomNavBar extends StatelessWidget {
             label: moreLabel,
             button: true,
             child: InkWell(
+              splashColor: activeColor.withValues(alpha: 0.12),
+              highlightColor: activeColor.withValues(alpha: 0.06),
               onTap: () {
                 showModalBottomSheet<void>(
                   context: context,
@@ -195,12 +244,21 @@ class AppBottomNavBar extends StatelessWidget {
                 );
               },
               child: SizedBox(
-                height: double.infinity,
+                height: 64,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ExcludeSemantics(
-                      child: Icon(Icons.more_horiz_rounded, color: color),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: isActive
+                              ? activeColor.withValues(alpha: 0.2)
+                              : null,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Icon(Icons.more_horiz_rounded, color: color, size: 24),
+                      ),
                     ),
                     const SizedBox(height: 2),
                     FittedBox(
@@ -210,7 +268,7 @@ class AppBottomNavBar extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontSize: 7,
+                          fontSize: 9,
                           letterSpacing: 0.2,
                           fontWeight: FontWeight.bold,
                           color: color,

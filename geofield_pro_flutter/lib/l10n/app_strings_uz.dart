@@ -12,29 +12,6 @@ class GeoFieldStringsUz extends GeoFieldStrings {
   String get about_app => 'Ilova haqida';
 
   @override
-  String get fab_reset_title => 'Tugmalar joyini tiklash';
-
-  @override
-  String get fab_reset_desc =>
-      'Xarita va kamera ekranida sudrab ko‘chirilgan tugmalarni boshlang‘ich holatga qaytarish';
-
-  @override
-  String get fab_reset_prompt =>
-      'Qaysi ekrandagi tugmalar joyini tiklashni xohlaysiz?';
-
-  @override
-  String get fab_reset_map => 'Xarita';
-
-  @override
-  String get fab_reset_camera => 'Kamera';
-
-  @override
-  String get fab_reset_all => 'Hammasi';
-
-  @override
-  String get fab_reset_done => 'Tugmalar joyi tiklandi';
-
-  @override
   String get map_my_location => 'Mening joyim';
 
   @override
@@ -61,8 +38,7 @@ class GeoFieldStringsUz extends GeoFieldStrings {
       'Qidirishda xatolik: internet yo‘qmi yoki server javob bermadi';
 
   @override
-  String get map_drag_mode_hint =>
-      'Drag-rejim: tugmani surib, yangi joyini tanlang (6 soniya)';
+  String get map_search_locations_hint => 'Joylashuvlarni qidirish…';
 
   @override
   String get acc_label => 'ACC';
@@ -104,7 +80,10 @@ class GeoFieldStringsUz extends GeoFieldStrings {
   String get add_gallery => '+ Galereya';
 
   @override
-  String get admin => 'Admin';
+  String get admin => 'Ma\'muriyat';
+
+  @override
+  String get admin_full_title => 'Admin & Sozlamalar';
 
   @override
   String get all_projects => 'Barcha loyihalar';
@@ -125,10 +104,10 @@ class GeoFieldStringsUz extends GeoFieldStrings {
   String get analysis_avg_dip => 'O‘rtacha Dip';
 
   @override
-  String get analysis_circular_mean_strike => 'Circular Mean Strike';
+  String get analysis_circular_mean_strike => 'Doira bo‘yicha o‘rtacha strike';
 
   @override
-  String get analysis_dip_direction => 'Dip Direction';
+  String get analysis_dip_direction => 'Dip yo‘nalishi';
 
   @override
   String get analysis_extra_measurements => 'Qo‘shimcha o‘lchovlar';
@@ -171,10 +150,19 @@ class GeoFieldStringsUz extends GeoFieldStrings {
   String get analysis_station_count => 'Stansiyalar soni';
 
   @override
-  String get analysis_strike_std => 'Strike Std Dev (σ)';
+  String get analysis_strike_std => 'Strike standart chetlanishi (σ)';
 
   @override
   String get analysis_with_gps => 'GPS bilan';
+
+  @override
+  String get analysis_tab_rose => 'Rose diagrammasi';
+
+  @override
+  String get analysis_tab_stereonet => 'Stereonet';
+
+  @override
+  String get analysis_tab_trends => 'Trendlar';
 
   @override
   String get analytics_weekly => 'ANALITIKA (7 KUNLIK)';
@@ -230,6 +218,9 @@ class GeoFieldStringsUz extends GeoFieldStrings {
   String get azimuth_label => 'Yo‘nalish (Azimut)';
 
   @override
+  String get camera_azimuth_short => 'Azimut';
+
+  @override
   String get bedding => 'Qatlamlanish (Bedding)';
 
   @override
@@ -250,6 +241,27 @@ class GeoFieldStringsUz extends GeoFieldStrings {
 
   @override
   String get camera_error => 'Kamera xatosi';
+
+  @override
+  String get camera_focus_mode_title => 'Geologik Kamera — Focus Mode';
+
+  @override
+  String get camera_guide_button => 'Yo\'riqnoma';
+
+  @override
+  String get camera_voice_record_label => 'Ovozli eslatma yozish';
+
+  @override
+  String get camera_torch_label => 'Chiroq';
+
+  @override
+  String get camera_scale_label => 'Masshtab';
+
+  @override
+  String get camera_close_label => 'Yopish';
+
+  @override
+  String get camera_heading_info_line => 'GPS aniqligi va sensor';
 
   @override
   String get camera_voice_mic_hint =>
@@ -289,13 +301,13 @@ class GeoFieldStringsUz extends GeoFieldStrings {
       'Belgi qo‘yish uchun xaritani bosing. O‘chirish — belgini bosing.';
 
   @override
-  String get map_structure_add_title => 'Strike / dip';
+  String get map_structure_add_title => 'Do‘rtlama / pasayish';
 
   @override
-  String get map_structure_strike_label => 'Strike (°)';
+  String get map_structure_strike_label => 'Do‘rtlama (°)';
 
   @override
-  String get map_structure_dip_label => 'Dip (°)';
+  String get map_structure_dip_label => 'Pasayish (°)';
 
   @override
   String get map_structure_type_label => 'Struktur turi';
@@ -499,6 +511,12 @@ class GeoFieldStringsUz extends GeoFieldStrings {
   String get dashboard => 'Asosiy';
 
   @override
+  String get dashboard_hero_title => 'Pro geologik bosh sahifa';
+
+  @override
+  String get dashboard_view_all => 'Barchasi';
+
+  @override
   String get delete => 'O‘chirish';
 
   @override
@@ -571,10 +589,28 @@ class GeoFieldStringsUz extends GeoFieldStrings {
 
   @override
   String get dxf_notice_body =>
-      'DXF importida chizma GPS geografik proyeksiyasida (WGS-84 Lat/Lng) bo‘lishi kerak. Aks holda chizma xaritada noto‘g‘ri joylashadi.';
+      'DXF: faqat ASCII matnli DXF; koordinatalar WGS-84 da bo‘lishi kerak (X = uzoqlik/boylam°, Y = kenglik/enlem°). UTM yoki lokal metrda chizilgan fayl xaritada noto‘g‘ri turadi — avval CAD/GIS da WGS-84 ga qayta proyeksiyalang yoki eksport qiling.';
 
   @override
-  String get dxf_notice_title => 'DXF eslatmasi';
+  String get dxf_notice_title => 'DXF haqida';
+
+  @override
+  String get gis_import_precheck_title => 'GIS import — formatlar va DXF';
+
+  @override
+  String get gis_import_precheck_body =>
+      '«Fayl tanlash» dan so‘ng faylni tanlaysiz.\n\n• Qo‘llaniladi: KML, GeoJSON (.geojson yoki .json), DXF, Shapefile (.shp), GeoPackage (.gpkg).\n• Brauzer (web): .gpkg ishlamaydi (SQLite yo‘q).\n\nDXF (muhim):\n• Fayl ASCII DXF bo‘lishi kerak (Binary DXF emas). AutoCAD da bo‘lsa «Save As» orqali ASCII DXF tanlang (mavjud bo‘lsa).\n• Koordinatalar WGS-84 geografik darajada: X = boylam (longitude), Y = enlem (latitude). UTM yoki mahalliy metr — xaritada joy noto‘g‘ri bo‘ladi; importdan oldin WGS-84 ga qaytaring.\n\nBulut: login yoki Firebase bo‘lmasa, import qilingan qatlam faqat ushbu qurilmada saqlanadi.';
+
+  @override
+  String get gis_import_choose_file => 'Fayl tanlash';
+
+  @override
+  String get gis_import_empty_result =>
+      'Hech qanday GIS qatlam import qilinmadi. Faylni tekshiring yoki ASCII DXF (WGS-84, boylam/enlem) ishlating. Tez tekshiruv uchun KML/GeoJSON qulay.';
+
+  @override
+  String get gis_import_normalized_hint =>
+      'Ba\'zi nuqtalar avtomatik enlem/boylam sifatida tuzatildi — xaritada joylashuvni tekshiring.';
 
   @override
   String get echo_mode_on => 'TEJAMKOR REJIM: FAOL';
@@ -598,7 +634,13 @@ class GeoFieldStringsUz extends GeoFieldStrings {
   String get expert_mode => 'Professional rejim';
 
   @override
+  String get general_settings_section => 'Umumiy sozlamalar';
+
+  @override
   String get export_csv => 'CSV eksport';
+
+  @override
+  String get export_actions_section => 'Eksport & amallar';
 
   @override
   String get export_stations_excel => 'Stansiyalar (Excel) eksport';
@@ -647,6 +689,10 @@ class GeoFieldStringsUz extends GeoFieldStrings {
   String get filter => 'Filtrlash';
 
   @override
+  String get firebase_local_only_banner =>
+      'Mahalliy rejim: Firebase yo‘q. Dala ma’lumotlari qurilmada saqlanadi; tarmoq va sozlamalar tuzilguncha kirish hamda bulut sinxroni ishlamaydi.';
+
+  @override
   String get fisher_dispersion => 'YUQORI DISPERSIYA ⚠️';
 
   @override
@@ -654,6 +700,9 @@ class GeoFieldStringsUz extends GeoFieldStrings {
 
   @override
   String get fisher_stable => 'BARQAROR TREND ✅';
+
+  @override
+  String get fisher_gauge_high => 'Yuqori ishonchlilik';
 
   @override
   String get fisher_stats => 'Fisher statistikasi';
@@ -682,6 +731,24 @@ class GeoFieldStringsUz extends GeoFieldStrings {
 
   @override
   String get map_track_fab_aria => 'Marshrut (GPS) yozish';
+
+  @override
+  String get map_ultra_pro_tooltip => 'Ultra Pro ko‘p funksiyali vosita';
+
+  @override
+  String get map_start_stop_tracking => 'Trekni boshlash / to‘xtatish';
+
+  @override
+  String get map_radial_strike_dip => 'Qo‘lda strike/dip';
+
+  @override
+  String get map_radial_sampling => 'Namuna olish';
+
+  @override
+  String get map_radial_field_notes => 'Dala qaydlari';
+
+  @override
+  String get map_radial_project_layers => 'Loyiha qatlamlari';
 
   @override
   String get track_start_failed =>
@@ -827,7 +894,7 @@ class GeoFieldStringsUz extends GeoFieldStrings {
       'Lokatsiya ruxsati berilmagan. Sozlamalardan yoqing.';
 
   @override
-  String get mag_decl_short => 'MAG. DEC';
+  String get mag_decl_short => 'MAGN. OG‘ISH';
 
   @override
   String get magmatic => 'Magmatik';
@@ -848,7 +915,7 @@ class GeoFieldStringsUz extends GeoFieldStrings {
   String get map_error_prefix => 'Xato yuz berdi';
 
   @override
-  String get map_style_osm => 'OpenStreetMap Standard';
+  String get map_style_osm => 'OpenStreetMap (standart)';
 
   @override
   String get map_style_satellite => 'Sun’iy yo‘ldosh (Esri)';
@@ -944,10 +1011,13 @@ class GeoFieldStringsUz extends GeoFieldStrings {
   String get poor_accuracy_warn => 'Past aniqlik';
 
   @override
-  String get power_saver => 'Tejamkor rejim (Power Saver)';
+  String get power_saver => 'Quvvatdan tejamkor rejim';
 
   @override
-  String get professional_tag => 'PROFESSIONAL';
+  String get professional_tag => 'KASBIY';
+
+  @override
+  String get profile_section_label => 'Profil';
 
   @override
   String get project => 'Loyiha';
@@ -995,6 +1065,9 @@ class GeoFieldStringsUz extends GeoFieldStrings {
   String get results_count => 'natija';
 
   @override
+  String get role_geologist_admin => 'Geolog-administrator';
+
+  @override
   String get rock_classification => 'Tosh tasnifi';
 
   @override
@@ -1005,7 +1078,7 @@ class GeoFieldStringsUz extends GeoFieldStrings {
       'Har bir sektor = 22.5° | Uzunlik ~ stansiya soni';
 
   @override
-  String get rose_diagram_title => 'ROSE DIAGRAM (STRIKE)';
+  String get rose_diagram_title => 'ROSE DIAGRAMMA (STRIKE)';
 
   @override
   String get route_name_prefix => 'Marshrut';
@@ -1033,7 +1106,7 @@ class GeoFieldStringsUz extends GeoFieldStrings {
   String get sample_type => 'Namuna turi';
 
   @override
-  String get satellites => 'SATS';
+  String get satellites => 'UYDU';
 
   @override
   String get save => 'Saqlash';
@@ -1082,6 +1155,9 @@ class GeoFieldStringsUz extends GeoFieldStrings {
 
   @override
   String get session => 'Sessiya';
+
+  @override
+  String get session_pause_tooltip => 'Marshrutni pauza';
 
   @override
   String get settings => 'Sozlamalar';
@@ -1146,10 +1222,6 @@ class GeoFieldStringsUz extends GeoFieldStrings {
 
   @override
   String get messages_no_groups => 'Guruhlar topilmadi';
-
-  @override
-  String get map_fab_drag_long_press_hint =>
-      'Boshqaruvni surish: chapdagi chiziqni uzoq bosing';
 
   @override
   String get sos_cancel_failed =>
@@ -1258,7 +1330,7 @@ class GeoFieldStringsUz extends GeoFieldStrings {
   String get time_label => 'VAQT';
 
   @override
-  String get today_only => 'Faqat bugungi (Today)';
+  String get today_only => 'Faqat bugun';
 
   @override
   String get total_stations => 'Jami stansiyalar';

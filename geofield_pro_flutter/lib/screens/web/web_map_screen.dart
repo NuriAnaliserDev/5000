@@ -6,6 +6,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../services/boundary_service.dart';
 import '../../models/boundary_polygon.dart';
+import '../../l10n/app_strings.dart';
+import '../../utils/gis_import_feedback.dart';
+import '../../widgets/gis_import_precheck_dialog.dart';
 import 'components/web_map_drawing_panel.dart';
 import 'components/web_map_zone_list_panel.dart';
 import 'components/web_map_shift_logs_panel.dart';
@@ -86,7 +89,8 @@ class _WebMapScreenState extends State<WebMapScreen> {
   }
 
   Future<void> _deletePolygon(BoundaryPolygon polygon) async {
-    if (polygon.firestoreId == null) return;
+    final id = polygon.id;
+    if (id == null) return;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -104,7 +108,7 @@ class _WebMapScreenState extends State<WebMapScreen> {
     );
 
     if (ok == true && mounted) {
-      await context.read<BoundaryService>().deletePolygon(polygon.firestoreId!);
+      await context.read<BoundaryService>().deletePolygon(id);
       setState(() => _editingPolygon = null);
     }
   }
@@ -159,9 +163,10 @@ class _WebMapScreenState extends State<WebMapScreen> {
               child: const Text('Saqlash'),
               onPressed: () async {
                 Navigator.pop(ctx);
-                if (polygon.firestoreId != null) {
+                final pid = polygon.id;
+                if (pid != null) {
                   await context.read<BoundaryService>().updatePolygon(
-                        firestoreId: polygon.firestoreId!,
+                        firestoreId: pid,
                         name: nameCtrl.text.trim().isEmpty ? polygon.name : nameCtrl.text.trim(),
                         zoneType: selectedType,
                         description: descCtrl.text.trim().isEmpty ? null : descCtrl.text.trim(),
@@ -176,15 +181,23 @@ class _WebMapScreenState extends State<WebMapScreen> {
   }
 
   Future<void> _onImportFromWeb() async {
+    final s = GeoFieldStrings.of(context);
     try {
-      await context.read<BoundaryService>().importFileFromWeb();
+      final ok = await showGisImportPrecheckDialog(context);
+      if (!ok || !mounted) return;
+      final r = await context.read<BoundaryService>().importFileFromWeb();
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('✅ Fayl yuklandi!'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      if (r == null) return;
+      if (s != null) {
+        showGisImportResultSnackbar(context, s, r);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('GIS: ${r.importedCount} / skipped ${r.skippedCount}'),
+            backgroundColor: r.importedCount > 0 ? Colors.green : Colors.orange,
+          ),
+        );
+      }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -290,14 +303,25 @@ class _WebMapScreenState extends State<WebMapScreen> {
 
         // 1. Boundary Polygons
         for (final b in boundaries) {
-          if (b.points.length < 3) continue;
-          final isSelected = _editingPolygon?.firestoreId == b.firestoreId;
+          if (b.points.length >= 3) {
+          final isSelected = _editingPolygon?.id == b.id;
           polygons.add(Polygon(
             points: b.points,
             color: b.displayColor.withValues(alpha: isSelected ? 0.35 : 0.15),
             borderColor: b.displayColor.withValues(alpha: isSelected ? 1.0 : 0.7),
             borderStrokeWidth: isSelected ? 3.0 : 2.0,
           ));
+          }
+        }
+        for (final b in boundaries) {
+          if (b.points.length == 2) {
+            final isSelected = _editingPolygon?.id == b.id;
+            polylines.add(Polyline(
+              points: b.points,
+              color: b.displayColor.withValues(alpha: isSelected ? 0.85 : 0.55),
+              strokeWidth: isSelected ? 4.0 : 3.0,
+            ));
+          }
         }
 
         // 2. Shift Tracks (Heatmap style)

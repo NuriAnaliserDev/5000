@@ -19,8 +19,8 @@ class AppCard extends StatelessWidget {
     required this.child,
     this.width,
     this.height,
-    this.blur = 15.0,
-    this.opacity = 0.1,
+    this.blur = 18.0,
+    this.opacity = 0.12,
     this.borderRadius = 20.0,
     this.baseColor,
     this.border,
@@ -40,7 +40,7 @@ class AppCard extends StatelessWidget {
         color: effectiveBaseColor.withValues(alpha: opacity),
         borderRadius: BorderRadius.circular(borderRadius),
         border: border ?? Border.all(
-          color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.12),
+          color: (isDark ? Colors.white : Colors.black).withValues(alpha: isDark ? 0.16 : 0.1),
           width: 1.0,
         ),
         gradient: isDark ? LinearGradient(

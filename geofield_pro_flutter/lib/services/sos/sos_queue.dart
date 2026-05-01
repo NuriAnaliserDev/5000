@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 
 import '../security/encryption_manager.dart';
+import '../../utils/firebase_ready.dart';
 
 /// SOS signallari uchun offline queue.
 ///
@@ -77,7 +78,9 @@ class SosQueue {
       if (raw == null) continue;
       try {
         final entry = Map<String, dynamic>.from(raw);
-        await FirebaseFirestore.instance.collection('emergency_signals').add({
+        final fs = firestoreOrNull;
+        if (fs == null) break;
+        await fs.collection('emergency_signals').add({
           'senderUid': entry['senderUid'],
           'senderName': entry['senderName'],
           'lat': entry['lat'],

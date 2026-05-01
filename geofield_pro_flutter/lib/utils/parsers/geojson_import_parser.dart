@@ -8,10 +8,18 @@ import '../../models/boundary_polygon.dart';
 /// Boshqa geometriyalar o‘tkazib yuboriladi.
 class GeojsonImportParser {
   static List<BoundaryPolygon> parse(String content, String filename) {
-    final dynamic root = json.decode(content);
+    final text = _stripBom(content).trim();
+    final dynamic root = json.decode(text);
     if (root is! Map<String, dynamic>) return [];
 
     return _fromObject(root, filename);
+  }
+
+  static String _stripBom(String s) {
+    if (s.isEmpty) return s;
+    final cp = s.codeUnitAt(0);
+    if (cp == 0xFEFF) return s.substring(1);
+    return s;
   }
 
   static List<BoundaryPolygon> _fromObject(
@@ -121,6 +129,31 @@ class GeojsonImportParser {
             ZoneType.base,
           ),
         );
+        i++;
+      }
+      return out;
+    }
+    if (type == 'Point' && t is List && t.length >= 2) {
+      final lng = (t[0] as num).toDouble();
+      final lat = (t[1] as num).toDouble();
+      const eps = 0.000002;
+      return [
+        _poly(
+          '$name (Point)',
+          [LatLng(lat, lng), LatLng(lat + eps, lng + eps)],
+          filename,
+          ZoneType.base,
+        ),
+      ];
+    }
+    if (type == 'GeometryCollection') {
+      final geoms = g['geometries'] as List<dynamic>?;
+      if (geoms == null) return [];
+      final out = <BoundaryPolygon>[];
+      var i = 0;
+      for (final sub in geoms) {
+        if (sub is! Map<String, dynamic>) continue;
+        out.addAll(_fromGeometry(sub, '$name ($i)', filename));
         i++;
       }
       return out;

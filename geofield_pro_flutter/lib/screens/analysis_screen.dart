@@ -66,9 +66,9 @@ class _AnalysisScreenState extends State<AnalysisScreen>
                 indicatorColor: const Color(0xFF1976D2),
                 tabs: [
                   Tab(icon: const Icon(Icons.bar_chart), text: context.loc('statistics_label')),
-                  Tab(icon: const Icon(Icons.rotate_right), text: context.loc('rose_diagram_title').split(' (')[0]),
-                  Tab(icon: const Icon(Icons.circle_outlined), text: context.loc('stereonet_summary').split(' ')[0]),
-                  Tab(icon: const Icon(Icons.trending_up), text: context.loc('trend_analysis').split(' ')[0]),
+                  Tab(icon: const Icon(Icons.rotate_right), text: context.loc('analysis_tab_rose')),
+                  Tab(icon: const Icon(Icons.circle_outlined), text: context.loc('analysis_tab_stereonet')),
+                  Tab(icon: const Icon(Icons.trending_up), text: context.loc('analysis_tab_trends')),
                   Tab(icon: const Icon(Icons.calculate_outlined), text: context.loc('apparent_dip_title')),
                 ],
               ),

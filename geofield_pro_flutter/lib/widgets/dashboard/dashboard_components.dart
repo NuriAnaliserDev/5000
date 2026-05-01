@@ -11,7 +11,9 @@ import '../../services/settings_controller.dart';
 import '../../services/station_repository.dart';
 import '../../utils/app_card.dart';
 import '../../utils/app_localizations.dart';
+import '../../utils/gis_import_feedback.dart';
 import '../../utils/auto_scroll_text.dart';
+import '../gis_import_precheck_dialog.dart';
 
 // --- QUICK TOOLS ---
 class DashboardQuickTools extends StatelessWidget {
@@ -107,15 +109,12 @@ class DashboardQuickTools extends StatelessWidget {
     final s = GeoFieldStrings.of(context);
     if (s == null) return;
     try {
+      final ok = await showGisImportPrecheckDialog(context);
+      if (!ok || !context.mounted) return;
       final r = await boundary.importFileFromWeb();
       if (!context.mounted) return;
       if (r == null) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(s.gis_import_done(r.importedCount, r.skippedCount)),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      showGisImportResultSnackbar(context, s, r);
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -171,7 +170,12 @@ class DashboardQuickTools extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, height: 1.1),
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  height: 1.1,
+                ),
               ),
             ),
           ],
@@ -191,36 +195,39 @@ class DashboardProjectPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsController>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? const Color(0xFF181818) : Colors.grey.shade200;
+    final scheme = Theme.of(context).colorScheme;
     final projects = settings.projects;
 
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.06)),
-      ),
+    return AppCard(
+      opacity: isDark ? 0.14 : 0.55,
+      blur: 18,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       child: Row(
         children: [
-          const Icon(Icons.folder, color: Color(0xFF1976D2)),
-          const SizedBox(width: 10),
+          Icon(Icons.folder_rounded, color: scheme.primary, size: 22),
+          const SizedBox(width: 8),
           Text(
             '${context.loc('project')}:',
-            style: const TextStyle(
-              fontSize: 11,
-              letterSpacing: 2,
-              color: Colors.grey,
+            style: TextStyle(
+              fontSize: 10,
+              letterSpacing: 1.2,
+              color: scheme.onSurfaceVariant,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
           Expanded(
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 value: settings.currentProject,
-                dropdownColor: cardColor,
+                dropdownColor: isDark ? const Color(0xFF1A2433) : scheme.surface,
                 isExpanded: true,
+                isDense: true,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: scheme.onSurface,
+                ),
                 items: projects
                     .map(
                       (p) => DropdownMenuItem(
@@ -241,23 +248,24 @@ class DashboardProjectPicker extends StatelessWidget {
           ),
           if (settings.currentProject != 'Default') ...[
             IconButton(
-              padding: const EdgeInsets.all(12),
-              constraints: const BoxConstraints(),
-              icon: const Icon(Icons.edit, color: Colors.blue, size: 24),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+              icon: Icon(Icons.edit_rounded, color: scheme.primary, size: 22),
               onPressed: () => _editProject(context, settings),
             ),
             IconButton(
-              padding: const EdgeInsets.all(12),
-              constraints: const BoxConstraints(),
-              icon: const Icon(Icons.delete_outline, color: Colors.red, size: 24),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+              icon: const Icon(Icons.delete_outline, color: Colors.red, size: 22),
               onPressed: () => _deleteProject(context, settings),
             ),
           ],
-          const SizedBox(width: 4),
           IconButton(
             tooltip: context.loc('new_project_title'),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
             onPressed: () => _createProject(context, settings),
-            icon: const Icon(Icons.add, color: Color(0xFF1976D2)),
+            icon: Icon(Icons.add_circle_rounded, color: scheme.primary, size: 26),
           ),
         ],
       ),

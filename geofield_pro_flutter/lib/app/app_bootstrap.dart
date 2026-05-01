@@ -8,6 +8,7 @@ import 'app_providers.dart';
 import 'geo_field_pro_app.dart';
 import '../firebase_options.dart';
 import '../services/hive_db.dart';
+import '../utils/firebase_ready.dart';
 
 /// Successful bootstrap: root widget (usually [MultiProvider] + [GeoFieldProApp]).
 sealed class AppBootstrapResult {}
@@ -24,8 +25,8 @@ class AppBootstrapFailure extends AppBootstrapResult {
   final StackTrace? stackTrace;
 }
 
-/// Ilova o‘rnatilishi: Firebase (platforma siyosati) → majburiy Hive → (mobil) oflayn
-/// xarita keshi (xatolik xavfli, lekin ilova ochiladi).
+/// Ilova o‘rnatilishi: Firebase (ixtiyoriy, xato qilganda mahalliy rejim) → majburiy Hive
+/// → (mobil) oflayn xarita keshi (xato bo‘lsa ogohlantirish).
 Future<AppBootstrapResult> runAppBootstrap() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
@@ -37,19 +38,20 @@ Future<AppBootstrapResult> runAppBootstrap() async {
     );
   }
 
+  var firebaseOk = false;
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    firebaseOk = true;
     if (kDebugMode) {
       debugPrint('Firebase initialized successfully.');
     }
   } catch (e) {
-    debugPrint('CRITICAL: Firebase initialization failed: $e');
+    debugPrint('WARN: Firebase initialization failed: $e');
     if (!kIsWeb) {
-      return AppBootstrapFailure(
-        'Firebase ishga tushmadi. Internet va google-services / Firebase sozlamalarini tekshiring.\n$e',
-        e,
+      debugPrint(
+        'Mobil: Firebase yo‘q — mahalliy rejim (bulut/sinxron cheklangan).',
       );
     }
   }
@@ -65,21 +67,37 @@ Future<AppBootstrapResult> runAppBootstrap() async {
   }
 
   if (!kIsWeb) {
-    try {
-      await FMTCObjectBoxBackend().initialise();
-      await FMTCStore('opentopomap').manage.create();
-      await FMTCStore('osm').manage.create();
-      await FMTCStore('satellite').manage.create();
-    } catch (e) {
+    Object? fmtcErr;
+    for (var attempt = 0; attempt < 2; attempt++) {
+      try {
+        if (attempt > 0) {
+          await Future<void>.delayed(const Duration(milliseconds: 400));
+        }
+        await FMTCObjectBoxBackend().initialise();
+        await FMTCStore('opentopomap').manage.create();
+        await FMTCStore('osm').manage.create();
+        await FMTCStore('satellite').manage.create();
+        fmtcErr = null;
+        break;
+      } catch (e) {
+        fmtcErr = e;
+      }
+    }
+    if (fmtcErr != null) {
       debugPrint(
-        'WARN: oflayn xarita keshi (FMTC) ishga tushmadi: $e. Xarita barcha joyda to‘liq oflayn ishlashidan mahrum bo‘lishi mumkin.',
+        'WARN: oflayn xarita keshi (FMTC) ishga tushmadi: $fmtcErr. Xarita to‘liq oflayn ishlashidan mahrum bo‘lishi mumkin.',
       );
     }
   }
 
   return AppBootstrapSuccess(
     MultiProvider(
-      providers: buildAppChangeNotifierProviders(),
+      providers: [
+        Provider<FirebaseBootstrapState>.value(
+          value: FirebaseBootstrapState(isCloudEnabled: firebaseOk),
+        ),
+        ...buildAppChangeNotifierProviders(),
+      ],
       child: const GeoFieldProApp(),
     ),
   );

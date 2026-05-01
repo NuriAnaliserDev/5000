@@ -1,21 +1,39 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
+import '../utils/firebase_ready.dart';
+
 class AuthService extends ChangeNotifier {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   User? _currentUser;
+
+  FirebaseAuth? get _auth {
+    if (!isFirebaseCoreReady) return null;
+    try {
+      return FirebaseAuth.instance;
+    } catch (_) {
+      return null;
+    }
+  }
 
   User? get currentUser => _currentUser;
 
   bool get isAuthenticated => _currentUser != null;
 
   AuthService() {
-    _currentUser = _auth.currentUser;
-    _auth.authStateChanges().listen((user) {
+    final auth = _auth;
+    if (auth == null) {
+      _currentUser = null;
+      return;
+    }
+    _currentUser = auth.currentUser;
+    auth.authStateChanges().listen((user) {
       _currentUser = user;
       notifyListeners();
     });
   }
+
+  static const String _firebaseUnavailable =
+      'Bulut tizimi (Firebase) ishlamayapti — faqat mahalliy rejim.';
 
   /// Ko‘rsatish uchun ism: avvalo [User.displayName], so‘ng email prefiksi.
   static String displayNameFromUser(User user) {
@@ -29,8 +47,10 @@ class AuthService extends ChangeNotifier {
   }
 
   Future<String?> login(String email, String password) async {
+    final auth = _auth;
+    if (auth == null) return _firebaseUnavailable;
     try {
-      await _auth.signInWithEmailAndPassword(
+      await auth.signInWithEmailAndPassword(
         email: email.trim(),
         password: password,
       );
@@ -69,8 +89,10 @@ class AuthService extends ChangeNotifier {
     String password, {
     String? displayName,
   }) async {
+    final auth = _auth;
+    if (auth == null) return _firebaseUnavailable;
     try {
-      final cred = await _auth.createUserWithEmailAndPassword(
+      final cred = await auth.createUserWithEmailAndPassword(
         email: email.trim(),
         password: password,
       );
@@ -109,8 +131,10 @@ class AuthService extends ChangeNotifier {
   }
 
   Future<String?> sendPasswordReset(String email) async {
+    final auth = _auth;
+    if (auth == null) return _firebaseUnavailable;
     try {
-      await _auth.sendPasswordResetEmail(email: email.trim());
+      await auth.sendPasswordResetEmail(email: email.trim());
       return null;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
@@ -123,7 +147,7 @@ class AuthService extends ChangeNotifier {
   }
 
   Future<void> logout() async {
-    await _auth.signOut();
+    await _auth?.signOut();
     notifyListeners();
   }
 

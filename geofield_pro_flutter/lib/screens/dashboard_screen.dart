@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
@@ -16,6 +17,7 @@ import '../widgets/dashboard/dashboard_session_box.dart';
 import '../widgets/dashboard/dashboard_widgets_2.dart';
 import '../widgets/dashboard/tiles/utm_tile.dart';
 import '../widgets/dashboard/tiles/fisher_reliability_tile.dart';
+import '../widgets/common/stitch_screen_background.dart';
 import '../widgets/dashboard/desktop/dashboard_desktop_sidebar.dart';
 import '../widgets/dashboard/desktop/dashboard_desktop_bento_grid.dart';
 import '../widgets/dashboard/desktop/dashboard_desktop_project_section.dart';
@@ -79,26 +81,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final surf = Theme.of(context).colorScheme.surface;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      backgroundColor: surf,
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          if (constraints.maxWidth > 900) {
-            return _buildWideLayout(context, settings, stations, isDark);
-          }
-          return _buildNarrowLayout(
-            context,
-            settings,
-            locService,
-            stations,
-            allStations,
-            isDark,
-          );
-        },
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: isDark
+          ? SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent)
+          : SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.transparent),
+      child: Scaffold(
+        backgroundColor: isDark ? Colors.transparent : surf,
+        body: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: isDark ? null : BoxDecoration(color: surf),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth > 900) {
+                return _buildWideLayout(context, settings, stations, isDark);
+              }
+              return _buildNarrowLayout(
+                context,
+                settings,
+                locService,
+                stations,
+                allStations,
+                isDark,
+              );
+            },
+          ),
+        ),
+        bottomNavigationBar: MediaQuery.of(context).size.width <= 900
+            ? const AppBottomNavBar(activeRoute: '/dashboard')
+            : null,
       ),
-      bottomNavigationBar: MediaQuery.of(context).size.width <= 900
-          ? const AppBottomNavBar(activeRoute: '/dashboard')
-          : null,
     );
   }
 
@@ -110,8 +122,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     List<Station> allStations,
     bool isDark,
   ) {
-    return SafeArea(
-      child: CustomScrollView(
+    final scroll = CustomScrollView(
         physics: AppScrollPhysics.list(),
         slivers: [
           DashboardSliverAppBar(settings: settings, isDark: isDark),
@@ -129,25 +140,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
             sliver: SliverToBoxAdapter(
               child: Column(
                 children: [
-                  DashboardQuickTools(
-                    loc: locService,
-                    settings: settings,
-                    isDark: isDark,
-                  ),
-                  const SizedBox(height: 12),
+                  if (!isDark) ...[
+                    DashboardQuickTools(
+                      loc: locService,
+                      settings: settings,
+                      isDark: isDark,
+                    ),
+                    const SizedBox(height: 12),
+                  ],
                   Selector<LocationService, ({double lat, double lng, double acc, bool hasFix})>(
                     selector: (_, loc) => _locSlice(loc),
                     builder: (context, slice, _) {
                       return Column(
                         children: [
-                          DashboardMiniMapBox(
-                            userLatLng: slice.hasFix
-                                ? LatLng(slice.lat, slice.lng)
-                                : null,
-                            mapStyle: settings.mapStyle,
-                            isDark: isDark,
-                          ),
-                          const SizedBox(height: 12),
+                          if (!isDark) ...[
+                            DashboardMiniMapBox(
+                              userLatLng: slice.hasFix
+                                  ? LatLng(slice.lat, slice.lng)
+                                  : null,
+                              mapStyle: settings.mapStyle,
+                              isDark: isDark,
+                            ),
+                            const SizedBox(height: 12),
+                          ],
                           SizedBox(
                             height: 160,
                             child: UTMTile(
@@ -203,10 +218,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 100)),
+          SliverToBoxAdapter(
+            child: SizedBox(height: AppBottomNavBar.listScrollEndGap(context)),
+          ),
         ],
-      ),
-    );
+      );
+
+    if (isDark) {
+      return SafeArea(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            const StitchScreenBackground(),
+            scroll,
+          ],
+        ),
+      );
+    }
+    return SafeArea(child: scroll);
   }
 
   Widget _buildWideLayout(

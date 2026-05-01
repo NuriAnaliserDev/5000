@@ -65,6 +65,14 @@ class _DashboardSessionBoxState extends State<DashboardSessionBox> {
                   style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.1, color: Colors.grey),
                 ),
               ),
+              if (hasActiveTrack)
+                IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  tooltip: context.loc('session_pause_tooltip'),
+                  onPressed: () => trackSvc.stopTracking(),
+                  icon: const Icon(Icons.pause_circle_outline, color: Color(0xFF1976D2), size: 26),
+                ),
             ],
           ),
           const SizedBox(height: 4),

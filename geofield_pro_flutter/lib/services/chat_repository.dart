@@ -8,13 +8,13 @@ import 'package:uuid/uuid.dart';
 
 import '../models/chat_message.dart';
 import '../models/chat_group.dart';
+import '../utils/firebase_ready.dart';
 import 'hive_db.dart';
 import 'settings_controller.dart';
 
 class ChatRepository extends ChangeNotifier {
   final Box<ChatMessage> _messagesBox = Hive.box<ChatMessage>(HiveDb.chatMessagesBox);
   final Box<ChatGroup> _groupsBox = Hive.box<ChatGroup>(HiveDb.chatGroupsBox);
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final List<StreamSubscription<QuerySnapshot<Map<String, dynamic>>>> _chatSubscriptions = [];
 
   final SettingsController settingsController;
@@ -24,6 +24,8 @@ class ChatRepository extends ChangeNotifier {
     _startRealtimeChatSync();
   }
 
+  FirebaseFirestore? get _firestore => firestoreOrNull;
+
   void _startRealtimeChatSync() {
     for (final group in _groupsBox.values) {
       _subscribeToGroup(group.id);
@@ -31,7 +33,9 @@ class ChatRepository extends ChangeNotifier {
   }
 
   void _subscribeToGroup(String groupId) {
-    final sub = _firestore
+    final fs = _firestore;
+    if (fs == null) return;
+    final sub = fs
         .collection('chat_groups')
         .doc(groupId)
         .collection('messages')
@@ -208,8 +212,10 @@ class ChatRepository extends ChangeNotifier {
     await msg.save();
 
     if (msg.status == 'sent') {
+      final fs = _firestore;
+      if (fs != null) {
       try {
-        await _firestore
+        await fs
             .collection('chat_groups')
             .doc(msg.groupId)
             .collection('messages')
@@ -221,6 +227,7 @@ class ChatRepository extends ChangeNotifier {
       } catch (e) {
         debugPrint('updateMessageText firestore: $e');
         return 'Bulutga yozilmadi: $e';
+      }
       }
     }
 
@@ -236,15 +243,18 @@ class ChatRepository extends ChangeNotifier {
     if (!_isMessageMine(msg)) return 'Faqat o‘z xabaringizni o‘chirasiz';
 
     if (msg.status == 'sent') {
-      try {
-        await _firestore
-            .collection('chat_groups')
-            .doc(msg.groupId)
-            .collection('messages')
-            .doc(msg.id)
-            .delete();
-      } catch (e) {
-        return 'Bulutdan o‘chirilmadi: $e';
+      final fs = _firestore;
+      if (fs != null) {
+        try {
+          await fs
+              .collection('chat_groups')
+              .doc(msg.groupId)
+              .collection('messages')
+              .doc(msg.id)
+              .delete();
+        } catch (e) {
+          return 'Bulutdan o‘chirilmadi: $e';
+        }
       }
     }
 

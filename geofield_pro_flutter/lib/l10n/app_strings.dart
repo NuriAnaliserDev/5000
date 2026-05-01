@@ -106,48 +106,6 @@ abstract class GeoFieldStrings {
   /// **'About App'**
   String get about_app;
 
-  /// No description provided for @fab_reset_title.
-  ///
-  /// In en, this message translates to:
-  /// **'Reset button positions'**
-  String get fab_reset_title;
-
-  /// No description provided for @fab_reset_desc.
-  ///
-  /// In en, this message translates to:
-  /// **'Return the draggable buttons on map and camera screens to their default positions'**
-  String get fab_reset_desc;
-
-  /// No description provided for @fab_reset_prompt.
-  ///
-  /// In en, this message translates to:
-  /// **'Which screen\'s button layout do you want to reset?'**
-  String get fab_reset_prompt;
-
-  /// No description provided for @fab_reset_map.
-  ///
-  /// In en, this message translates to:
-  /// **'Map'**
-  String get fab_reset_map;
-
-  /// No description provided for @fab_reset_camera.
-  ///
-  /// In en, this message translates to:
-  /// **'Camera'**
-  String get fab_reset_camera;
-
-  /// No description provided for @fab_reset_all.
-  ///
-  /// In en, this message translates to:
-  /// **'All'**
-  String get fab_reset_all;
-
-  /// No description provided for @fab_reset_done.
-  ///
-  /// In en, this message translates to:
-  /// **'Button positions restored'**
-  String get fab_reset_done;
-
   /// No description provided for @map_my_location.
   ///
   /// In en, this message translates to:
@@ -196,11 +154,11 @@ abstract class GeoFieldStrings {
   /// **'Search failed: no internet or server did not respond'**
   String get map_search_error;
 
-  /// No description provided for @map_drag_mode_hint.
+  /// No description provided for @map_search_locations_hint.
   ///
   /// In en, this message translates to:
-  /// **'Drag mode: slide the button to its new position (6 seconds)'**
-  String get map_drag_mode_hint;
+  /// **'Search Locations...'**
+  String get map_search_locations_hint;
 
   /// No description provided for @acc_label.
   ///
@@ -279,6 +237,12 @@ abstract class GeoFieldStrings {
   /// In en, this message translates to:
   /// **'Admin'**
   String get admin;
+
+  /// No description provided for @admin_full_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin & Settings'**
+  String get admin_full_title;
 
   /// No description provided for @all_projects.
   ///
@@ -418,6 +382,24 @@ abstract class GeoFieldStrings {
   /// **'With GPS'**
   String get analysis_with_gps;
 
+  /// No description provided for @analysis_tab_rose.
+  ///
+  /// In en, this message translates to:
+  /// **'Rose'**
+  String get analysis_tab_rose;
+
+  /// No description provided for @analysis_tab_stereonet.
+  ///
+  /// In en, this message translates to:
+  /// **'Stereonet'**
+  String get analysis_tab_stereonet;
+
+  /// No description provided for @analysis_tab_trends.
+  ///
+  /// In en, this message translates to:
+  /// **'Trends'**
+  String get analysis_tab_trends;
+
   /// No description provided for @analytics_weekly.
   ///
   /// In en, this message translates to:
@@ -514,6 +496,12 @@ abstract class GeoFieldStrings {
   /// **'Heading (Azimuth)'**
   String get azimuth_label;
 
+  /// No description provided for @camera_azimuth_short.
+  ///
+  /// In en, this message translates to:
+  /// **'Azimuth'**
+  String get camera_azimuth_short;
+
   /// No description provided for @bedding.
   ///
   /// In en, this message translates to:
@@ -555,6 +543,48 @@ abstract class GeoFieldStrings {
   /// In en, this message translates to:
   /// **'Camera Error'**
   String get camera_error;
+
+  /// No description provided for @camera_focus_mode_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Geological Camera — Focus Mode'**
+  String get camera_focus_mode_title;
+
+  /// No description provided for @camera_guide_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Guide'**
+  String get camera_guide_button;
+
+  /// No description provided for @camera_voice_record_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Record voice note'**
+  String get camera_voice_record_label;
+
+  /// No description provided for @camera_torch_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get camera_torch_label;
+
+  /// No description provided for @camera_scale_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom'**
+  String get camera_scale_label;
+
+  /// No description provided for @camera_close_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get camera_close_label;
+
+  /// No description provided for @camera_heading_info_line.
+  ///
+  /// In en, this message translates to:
+  /// **'GPS accuracy & sensor info'**
+  String get camera_heading_info_line;
 
   /// No description provided for @camera_voice_mic_hint.
   ///
@@ -1006,6 +1036,18 @@ abstract class GeoFieldStrings {
   /// **'Main'**
   String get dashboard;
 
+  /// No description provided for @dashboard_hero_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro Geological Home'**
+  String get dashboard_hero_title;
+
+  /// No description provided for @dashboard_view_all.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get dashboard_view_all;
+
   /// No description provided for @delete.
   ///
   /// In en, this message translates to:
@@ -1147,14 +1189,44 @@ abstract class GeoFieldStrings {
   /// No description provided for @dxf_notice_body.
   ///
   /// In en, this message translates to:
-  /// **'For DXF import, the drawing must use GPS geographic projection (WGS-84 Lat/Lng). Otherwise, it can be placed incorrectly on the map.'**
+  /// **'For DXF import use ASCII (text) DXF, not binary. Coordinates must be WGS-84 geographic decimal degrees: X = longitude, Y = latitude. UTM/local meter drawings will be misplaced — reproject to WGS84 in CAD/GIS first.'**
   String get dxf_notice_body;
 
   /// No description provided for @dxf_notice_title.
   ///
   /// In en, this message translates to:
-  /// **'DXF Notice'**
+  /// **'About DXF import'**
   String get dxf_notice_title;
+
+  /// No description provided for @gis_import_precheck_title.
+  ///
+  /// In en, this message translates to:
+  /// **'GIS import — formats & DXF'**
+  String get gis_import_precheck_title;
+
+  /// No description provided for @gis_import_precheck_body.
+  ///
+  /// In en, this message translates to:
+  /// **'After Choose file you will pick a file from your device.\n\n• Supported: KML, GeoJSON (.geojson or .json), DXF, Shapefile (.shp), GeoPackage (.gpkg).\n• Web browser: .gpkg is not supported (no SQLite).\n\nDXF (important):\n• File must be ASCII DXF (not Binary DXF). In AutoCAD, use Save As and select ASCII DXF if offered.\n• Coordinates must be WGS-84 geographic (decimal degrees): X = longitude, Y = latitude. UTM or local meters will appear wrong — reproject to WGS84 before import.\n\nCloud: without login or if Firebase is unavailable, imported layers stay on this device only.'**
+  String get gis_import_precheck_body;
+
+  /// No description provided for @gis_import_choose_file.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose file'**
+  String get gis_import_choose_file;
+
+  /// No description provided for @gis_import_empty_result.
+  ///
+  /// In en, this message translates to:
+  /// **'No GIS layers were imported. Check the file, or use ASCII DXF in WGS-84 (longitude/latitude). KML/GeoJSON are often easier for a quick test.'**
+  String get gis_import_empty_result;
+
+  /// No description provided for @gis_import_normalized_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Some vertex coordinates were auto-swapped to valid latitude/longitude — check placement on the map.'**
+  String get gis_import_normalized_hint;
 
   /// No description provided for @echo_mode_on.
   ///
@@ -1198,11 +1270,23 @@ abstract class GeoFieldStrings {
   /// **'Professional mode'**
   String get expert_mode;
 
+  /// No description provided for @general_settings_section.
+  ///
+  /// In en, this message translates to:
+  /// **'General settings'**
+  String get general_settings_section;
+
   /// No description provided for @export_csv.
   ///
   /// In en, this message translates to:
   /// **'Export CSV'**
   String get export_csv;
+
+  /// No description provided for @export_actions_section.
+  ///
+  /// In en, this message translates to:
+  /// **'Export & actions'**
+  String get export_actions_section;
 
   /// No description provided for @export_stations_excel.
   ///
@@ -1288,6 +1372,12 @@ abstract class GeoFieldStrings {
   /// **'Filter'**
   String get filter;
 
+  /// No description provided for @firebase_local_only_banner.
+  ///
+  /// In en, this message translates to:
+  /// **'Local mode: Firebase did not start. Field data is saved on device; sign-in and cloud sync are unavailable until the network and configuration are fixed.'**
+  String get firebase_local_only_banner;
+
   /// No description provided for @fisher_dispersion.
   ///
   /// In en, this message translates to:
@@ -1305,6 +1395,12 @@ abstract class GeoFieldStrings {
   /// In en, this message translates to:
   /// **'STABLE TREND ✅'**
   String get fisher_stable;
+
+  /// No description provided for @fisher_gauge_high.
+  ///
+  /// In en, this message translates to:
+  /// **'High reliability'**
+  String get fisher_gauge_high;
 
   /// No description provided for @fisher_stats.
   ///
@@ -1353,6 +1449,42 @@ abstract class GeoFieldStrings {
   /// In en, this message translates to:
   /// **'Record GPS route (track)'**
   String get map_track_fab_aria;
+
+  /// No description provided for @map_ultra_pro_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Ultra Pro Multi-Tool'**
+  String get map_ultra_pro_tooltip;
+
+  /// No description provided for @map_start_stop_tracking.
+  ///
+  /// In en, this message translates to:
+  /// **'Start/Stop Tracking'**
+  String get map_start_stop_tracking;
+
+  /// No description provided for @map_radial_strike_dip.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual Strike/Dip'**
+  String get map_radial_strike_dip;
+
+  /// No description provided for @map_radial_sampling.
+  ///
+  /// In en, this message translates to:
+  /// **'Sampling'**
+  String get map_radial_sampling;
+
+  /// No description provided for @map_radial_field_notes.
+  ///
+  /// In en, this message translates to:
+  /// **'Field Notes'**
+  String get map_radial_field_notes;
+
+  /// No description provided for @map_radial_project_layers.
+  ///
+  /// In en, this message translates to:
+  /// **'Project Layers'**
+  String get map_radial_project_layers;
 
   /// No description provided for @track_start_failed.
   ///
@@ -1867,7 +1999,7 @@ abstract class GeoFieldStrings {
   /// No description provided for @power_saver.
   ///
   /// In en, this message translates to:
-  /// **'Tejamkor rejim (Power Saver)'**
+  /// **'Power saver mode'**
   String get power_saver;
 
   /// No description provided for @professional_tag.
@@ -1875,6 +2007,12 @@ abstract class GeoFieldStrings {
   /// In en, this message translates to:
   /// **'PROFESSIONAL'**
   String get professional_tag;
+
+  /// No description provided for @profile_section_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profile_section_label;
 
   /// No description provided for @project.
   ///
@@ -1965,6 +2103,12 @@ abstract class GeoFieldStrings {
   /// In en, this message translates to:
   /// **'results'**
   String get results_count;
+
+  /// No description provided for @role_geologist_admin.
+  ///
+  /// In en, this message translates to:
+  /// **'Geologist-Administrator'**
+  String get role_geologist_admin;
 
   /// No description provided for @rock_classification.
   ///
@@ -2134,6 +2278,12 @@ abstract class GeoFieldStrings {
   /// **'Session'**
   String get session;
 
+  /// No description provided for @session_pause_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause route'**
+  String get session_pause_tooltip;
+
   /// No description provided for @settings.
   ///
   /// In en, this message translates to:
@@ -2253,12 +2403,6 @@ abstract class GeoFieldStrings {
   /// In en, this message translates to:
   /// **'No groups yet'**
   String get messages_no_groups;
-
-  /// No description provided for @map_fab_drag_long_press_hint.
-  ///
-  /// In en, this message translates to:
-  /// **'Long-press the grip strip to move this control'**
-  String get map_fab_drag_long_press_hint;
 
   /// No description provided for @sos_cancel_failed.
   ///

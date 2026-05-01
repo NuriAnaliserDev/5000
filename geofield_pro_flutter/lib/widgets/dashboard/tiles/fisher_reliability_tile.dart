@@ -1,5 +1,7 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_strings.dart';
 import '../../../models/station.dart';
 import '../../../services/station_repository.dart';
 import '../../../utils/app_card.dart';
@@ -41,6 +43,12 @@ class _FisherReliabilityTileState extends State<FisherReliabilityTile> {
       return const SizedBox.shrink();
     }
     final stats = _stats!;
+    final reliable = stats.isReliable;
+    final pct = reliable
+        ? 95
+        : (100 - (stats.alpha95.isNaN ? 40 : math.min(stats.alpha95 * 4, 80))).round().clamp(15, 85);
+    final accent = reliable ? const Color(0xFF4A90E2) : Colors.orange;
+    final s = GeoFieldStrings.of(context);
 
     return AppCard(
       padding: const EdgeInsets.all(12),
@@ -50,21 +58,19 @@ class _FisherReliabilityTileState extends State<FisherReliabilityTile> {
           onTap: () => showFisherReliabilityDetailSheet(context),
           borderRadius: BorderRadius.circular(12),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: Text(
                       context.loc('fisher_reliability'),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
-                        color: Colors.grey,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -72,45 +78,55 @@ class _FisherReliabilityTileState extends State<FisherReliabilityTile> {
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
                     onPressed: () => showFisherReliabilityDetailSheet(context),
-                    icon: const Icon(Icons.zoom_in_map, size: 16, color: Colors.grey),
+                    icon: Icon(Icons.zoom_in_map, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     tooltip: context.loc('fisher_stats'),
                   ),
                 ],
               ),
-              const SizedBox(height: 4),
               Expanded(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.bottomLeft,
-                  child: Row(
-                    children: [
-                      Text(
-                        stats.alpha95.isNaN
-                            ? '—'
-                            : '±${stats.alpha95.toStringAsFixed(1)}°',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w900,
-                          color: stats.isReliable ? Colors.green : Colors.orange,
-                        ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    CustomPaint(
+                      size: const Size(double.infinity, 72),
+                      painter: _SemiGaugePainter(
+                        progress: pct / 100,
+                        color: accent,
                       ),
-                      const SizedBox(width: 6),
-                      const Text('α₉₅', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                    ],
-                  ),
+                    ),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '$pct%',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900,
+                            color: accent,
+                          ),
+                        ),
+                        Text(
+                          reliable
+                              ? (s?.fisher_gauge_high ?? 'Yuqori ishonchlilik')
+                              : context.loc('fisher_dispersion'),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            color: reliable ? accent : Colors.orange,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 2),
-              Text(
-                stats.isReliable
-                    ? context.loc('fisher_stable')
-                    : context.loc('fisher_dispersion'),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 9,
-                  fontWeight: FontWeight.bold,
-                  color: stats.isReliable ? Colors.green : Colors.orange,
+              SizedBox(
+                height: 22,
+                child: CustomPaint(
+                  painter: _MiniWavePainter(color: accent.withValues(alpha: 0.55)),
                 ),
               ),
             ],
@@ -119,4 +135,65 @@ class _FisherReliabilityTileState extends State<FisherReliabilityTile> {
       ),
     );
   }
+}
+
+class _SemiGaugePainter extends CustomPainter {
+  final double progress;
+  final Color color;
+
+  _SemiGaugePainter({required this.progress, required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final c = Offset(size.width / 2, size.height * 0.92);
+    final r = size.width * 0.38;
+    final bg = Paint()
+      ..color = color.withValues(alpha: 0.12)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 5
+      ..strokeCap = StrokeCap.round;
+    final fg = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 5
+      ..strokeCap = StrokeCap.round;
+    const start = math.pi;
+    final sweep = math.pi * progress;
+    canvas.drawArc(Rect.fromCircle(center: c, radius: r), start, math.pi, false, bg);
+    canvas.drawArc(Rect.fromCircle(center: c, radius: r), start, sweep, false, fg);
+  }
+
+  @override
+  bool shouldRepaint(covariant _SemiGaugePainter old) =>
+      old.progress != progress || old.color != color;
+}
+
+class _MiniWavePainter extends CustomPainter {
+  final Color color;
+
+  _MiniWavePainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final path = Path();
+    final w = size.width;
+    final h = size.height;
+    path.moveTo(0, h * 0.6);
+    for (var i = 0; i <= 40; i++) {
+      final x = w * (i / 40);
+      final y = h * 0.5 + math.sin(i * 0.45) * h * 0.35;
+      path.lineTo(x, y);
+    }
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.2,
+    );
+    canvas.drawCircle(Offset(6, h * 0.55), 2, Paint()..color = color);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -1,7 +1,7 @@
 part of 'smart_camera_screen.dart';
 
 class SmartCameraScreenState extends State<SmartCameraScreen>
-    with WidgetsBindingObserver, SingleTickerProviderStateMixin {
+    with WidgetsBindingObserver {
   CameraController? _cameraController;
   Future<void>? _cameraInitFuture;
 
@@ -10,7 +10,6 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
   double _azimuth = 0;
   double _dip = 0;
   double _strike = 0;
-  double _declination = 0;
   double _pitch = 0;
   double _roll = 0;
   double? _headingDeg;
@@ -51,9 +50,6 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
   bool _appliedInitialUserPrefs = false;
 
   CameraMode _cameraMode = CameraMode.geological;
-
-  late AnimationController _menuController;
-  late Animation<double> _menuAnimation;
 
   // ——— Theme (kamera HUD) ———
   bool get isDark => Theme.of(context).brightness == Brightness.dark;
@@ -218,7 +214,6 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
     }
     _strike = ((_strike + stDiff * _dipStrikeSmooth) % 360 + 360) % 360;
 
-    _declination = result.declination;
     _pitch = (_pitch * (1 - _horizonSmooth) + result.pitch * _horizonSmooth);
     _roll = (_roll * (1 - _horizonSmooth) + result.roll * _horizonSmooth);
 
@@ -474,7 +469,10 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
     if (settings.hasSeenCameraTutorial) {
       return;
     }
+    _presentCameraTutorial(onFinish: () => settings.hasSeenCameraTutorial = true);
+  }
 
+  void _presentCameraTutorial({required VoidCallback onFinish}) {
     final targets = [
       TutorialService.createTarget(
         key: _modeToggleKey,
@@ -498,13 +496,99 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
             "Rasmga oling va avtomatik AI tahlilini (Lithology) ishga tushiring.",
         align: ContentAlign.top,
       ),
+      TutorialService.createTarget(
+        key: _menuButtonKey,
+        identify: "pro_menu",
+        title: "PRO",
+        description:
+            "Qo'shimcha sozlamalar va ekspert parametrlarini shu yerda oching.",
+        align: ContentAlign.left,
+      ),
     ];
 
     TutorialService.showTutorial(
       context,
       targets: targets,
-      onFinish: () => settings.hasSeenCameraTutorial = true,
+      onFinish: onFinish,
     );
+  }
+
+  Widget _buildGuideChip() {
+    return Material(
+      color: Colors.transparent,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+          child: InkWell(
+            onTap: () => _presentCameraTutorial(onFinish: () {}),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.16),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: glassBorder),
+              ),
+              child: Text(
+                context.loc('camera_guide_button'),
+                style: TextStyle(
+                  color: textColor,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                  shadows: const [
+                    Shadow(color: Colors.black54, blurRadius: 4),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _setFlashMode(FlashMode mode) async {
+    try {
+      await _cameraController?.setFlashMode(mode);
+      if (mounted) {
+        setState(() => _flashMode = mode);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${context.locRead('camera_error')}: $e'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _applyZoom(double zoom) async {
+    final c = _cameraController;
+    final clamped = zoom.clamp(1.0, 8.0);
+    if (c == null || !c.value.isInitialized) {
+      if (mounted) {
+        setState(() => _zoom = clamped);
+      }
+      return;
+    }
+    try {
+      await c.setZoomLevel(clamped);
+      if (mounted) {
+        setState(() => _zoom = clamped);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${context.locRead('camera_error')}: $e'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 
   Widget _buildCameraPreview() {
@@ -581,16 +665,6 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
     _initCamera();
     _startSensors();
 
-    _menuController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-      value: 1.0,
-    );
-    _menuAnimation = CurvedAnimation(
-      parent: _menuController,
-      curve: Curves.easeInOut,
-    );
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkShowTutorial();
     });
@@ -609,7 +683,6 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
     _stopSensors();
     _cameraController?.dispose();
     _recorder.dispose();
-    _menuController.dispose();
     super.dispose();
   }
 
@@ -649,30 +722,23 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
               allowDocumentMode: widget.stationId == null,
               modeToggleKey: _modeToggleKey,
             ),
-            if (_cameraMode == CameraMode.geological && _showHud) ...[
-              CameraGpsHud(
-                isDark: isDark,
-                glassBorder: glassBorder,
-                textColor: textColor,
+            if (_cameraMode == CameraMode.geological)
+              Positioned(
+                top: MediaQuery.paddingOf(context).top + 50,
+                left: 0,
+                right: 0,
+                child: Center(child: _buildGuideChip()),
               ),
+            if (_cameraMode == CameraMode.geological && _showHud) ...[
               _buildLevelIndicator(),
               if (_expertMode) ...[
-                CameraOrientationHud(
-                  strike: _strike,
-                  dip: _dip,
-                  declination: _declination,
-                  compassQuality: _compassQuality,
-                  isDark: isDark,
-                  glassBorder: glassBorder,
-                  textColor: textColor,
-                  onShowCalibration: () =>
-                      setState(() => _showCalibrationHint = true),
-                ),
                 CameraHeadingHud(
                   azimuth: _azimuth,
                   glassColor: glassColor,
                   glassBorder: glassBorder,
                   textColor: textColor,
+                  bottomInset:
+                      AppBottomNavBar.overlayClearanceAboveNav(context) + 148,
                 ),
               ],
             ],
@@ -680,95 +746,74 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
               const CameraDocumentViewfinder(),
               _buildDocumentHint(),
             ],
-            DraggableFabLayer(
-              children: [
-                DraggableFab(
-                  key: const ValueKey('camera_fab_side_panel'),
-                  screen: 'camera',
-                  id: 'side_panel',
-                  defaultOffset: OverlayFabLayout.cameraSidePanel,
-                  size: OverlayFabLayout.cameraSidePanelSize,
-                  unconstrained: true,
-                  child: CameraSideControls(
-                    menuAnimation: _menuAnimation,
-                    menuController: _menuController,
-                    cameraMode: _cameraMode,
-                    showScale: _showScale,
-                    highSensitivityHorizon: _highSensitivityHorizon,
-                    expertMode: _expertMode,
-                    showHud: _showHud,
-                    flashMode: _flashMode,
-                    zoom: _zoom,
-                    isDark: isDark,
-                    glassColor: glassColor,
-                    glassBorder: glassBorder,
-                    textColor: textColor,
-                    onShowScaleChanged: (v) => setState(() => _showScale = v),
-                    onHighSenseChanged: (v) =>
-                        setState(() => _highSensitivityHorizon = v),
-                    onExpertModeChanged: (v) {
-                      context.read<SettingsController>().expertMode = v;
-                      setState(() => _expertMode = v);
-                    },
-                    onHudToggle: (v) => setState(() => _showHud = v),
-                    onFlashModeChanged: (mode) {
-                      _cameraController?.setFlashMode(mode);
-                      setState(() => _flashMode = mode);
-                    },
-                    onZoomChanged: (v) async {
-                      _zoom = v;
-                      await _cameraController?.setZoomLevel(_zoom);
-                      setState(() {});
-                    },
-                    sensorLockButtonKey: _sensorLockButtonKey,
-                    menuButtonKey: _menuButtonKey,
-                  ),
+            Positioned(
+              right: 12,
+              top: MediaQuery.paddingOf(context).top +
+                  (_cameraMode == CameraMode.geological ? 50 : 64),
+              bottom: AppBottomNavBar.overlayClearanceAboveNav(context) + 120,
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: CameraSideControls(
+                  cameraMode: _cameraMode,
+                  showScale: _showScale,
+                  highSensitivityHorizon: _highSensitivityHorizon,
+                  expertMode: _expertMode,
+                  showHud: _showHud,
+                  flashMode: _flashMode,
+                  zoom: _zoom,
+                  isDark: isDark,
+                  glassColor: glassColor,
+                  glassBorder: glassBorder,
+                  textColor: textColor,
+                  onShowScaleChanged: (v) => setState(() => _showScale = v),
+                  onHighSenseChanged: (v) =>
+                      setState(() => _highSensitivityHorizon = v),
+                  onExpertModeChanged: (v) {
+                    context.read<SettingsController>().expertMode = v;
+                    setState(() => _expertMode = v);
+                  },
+                  onHudToggle: (v) => setState(() => _showHud = v),
+                  onFlashModeChanged: (mode) => _setFlashMode(mode),
+                  onZoomChanged: _applyZoom,
+                  sensorLockButtonKey: _sensorLockButtonKey,
+                  menuButtonKey: _menuButtonKey,
                 ),
-                DraggableFab(
-                  key: const ValueKey('camera_fab_bottom_panel'),
-                  screen: 'camera',
-                  id: 'bottom_panel',
-                  defaultOffset: OverlayFabLayout.cameraBottomPanel,
-                  size: Size(
-                    MediaQuery.of(context).size.width,
-                    OverlayFabLayout.cameraBottomPanelHeight,
-                  ),
-                  unconstrained: true,
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    child: CameraBottomControls(
-                      isRecording: _isRecording,
-                      recordSeconds: _recordSeconds,
-                      isBusy: _isBusy,
-                      compassQuality: _compassQuality,
-                      isDark: isDark,
-                      glassColor: glassColor,
-                      textColor: textColor,
-                      onToggleRecording: _toggleRecording,
-                      onCapture: () {
-                        if (_isBusy) {
-                          return;
-                        }
-                        if (_compassQuality < 20) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                  context.locRead('compass_unreliable_warn')),
-                              backgroundColor:
-                                  StatusSemantics.colorFor(StatusLevel.danger),
-                            ),
-                          );
-                          HapticFeedback.heavyImpact();
-                        } else {
-                          _capture();
-                        }
-                      },
-                      formatDuration: _formatRecordDuration,
-                      shutterButtonKey: _shutterButtonKey,
-                    ),
-                  ),
-                ),
-              ],
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: AppBottomNavBar.overlayClearanceAboveNav(context),
+              child: CameraBottomControls(
+                isRecording: _isRecording,
+                recordSeconds: _recordSeconds,
+                isBusy: _isBusy,
+                compassQuality: _compassQuality,
+                isDark: isDark,
+                glassColor: glassColor,
+                textColor: textColor,
+                onToggleRecording: _toggleRecording,
+                onCapture: () {
+                  if (_isBusy) {
+                    return;
+                  }
+                  if (_compassQuality < 20) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content:
+                            Text(context.locRead('compass_unreliable_warn')),
+                        backgroundColor:
+                            StatusSemantics.colorFor(StatusLevel.danger),
+                      ),
+                    );
+                    HapticFeedback.heavyImpact();
+                  } else {
+                    _capture();
+                  }
+                },
+                formatDuration: _formatRecordDuration,
+                shutterButtonKey: _shutterButtonKey,
+              ),
             ),
             if (_showScale && _cameraMode == CameraMode.geological)
               const CameraRulerOverlay(),

@@ -1,0 +1,22 @@
+{
+  "name": "cursor-agent-fixer",
+  "version": "1.0.0",
+  "description": "Cursor SDK — 90 kunlik reja asosida GeoField Agent Fixer",
+  "type": "module",
+  "scripts": {
+    "fix": "tsx src/agent-fixer.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["cursor", "sdk", "geofield"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@cursor/sdk": "^1.0.10",
+    "dotenv": "^17.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3"
+  }
+}

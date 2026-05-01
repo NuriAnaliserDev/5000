@@ -12,29 +12,6 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get about_app => 'Uygulama Hakkında';
 
   @override
-  String get fab_reset_title => 'Buton konumlarını sıfırla';
-
-  @override
-  String get fab_reset_desc =>
-      'Harita ve kamera ekranlarında sürüklenen butonları varsayılan konumlarına döndür';
-
-  @override
-  String get fab_reset_prompt =>
-      'Hangi ekrandaki buton düzenini sıfırlamak istersiniz?';
-
-  @override
-  String get fab_reset_map => 'Harita';
-
-  @override
-  String get fab_reset_camera => 'Kamera';
-
-  @override
-  String get fab_reset_all => 'Tümü';
-
-  @override
-  String get fab_reset_done => 'Buton konumları sıfırlandı';
-
-  @override
   String get map_my_location => 'Konumum';
 
   @override
@@ -61,8 +38,7 @@ class GeoFieldStringsTr extends GeoFieldStrings {
       'Arama başarısız: internet yok veya sunucu yanıt vermedi';
 
   @override
-  String get map_drag_mode_hint =>
-      'Sürükleme modu: butonu yeni konumuna kaydırın (6 saniye)';
+  String get map_search_locations_hint => 'Konum ara…';
 
   @override
   String get acc_label => 'ACC';
@@ -107,16 +83,19 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get admin => 'Yönetici';
 
   @override
+  String get admin_full_title => 'Yönetici ve Ayarlar';
+
+  @override
   String get all_projects => 'Tüm Projeler';
 
   @override
-  String get all_stations => 'All (All stations)';
+  String get all_stations => 'Tümü (tüm istasyonlar)';
 
   @override
   String get altitude => 'Rakım';
 
   @override
-  String get altitude_offset_desc => 'Altitude offset (meters)';
+  String get altitude_offset_desc => 'Rakım düzeltmesi (metre)';
 
   @override
   String get analysis_alt_range => 'Rakım aralığı';
@@ -177,7 +156,16 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get analysis_with_gps => 'GPS ile';
 
   @override
-  String get analytics_weekly => 'ANALYTICS (7 DAYS)';
+  String get analysis_tab_rose => 'Gül diyagramı';
+
+  @override
+  String get analysis_tab_stereonet => 'Steronet';
+
+  @override
+  String get analysis_tab_trends => 'Trendler';
+
+  @override
+  String get analytics_weekly => 'ANALİZ (7 GÜN)';
 
   @override
   String get app_description =>
@@ -230,6 +218,9 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get azimuth_label => 'Başlık (Azimut)';
 
   @override
+  String get camera_azimuth_short => 'Azimut';
+
+  @override
   String get bedding => 'Tabakalaşma';
 
   @override
@@ -250,6 +241,27 @@ class GeoFieldStringsTr extends GeoFieldStrings {
 
   @override
   String get camera_error => 'Kamera Hatası';
+
+  @override
+  String get camera_focus_mode_title => 'Jeolojik Kamera — Odak Modu';
+
+  @override
+  String get camera_guide_button => 'Kılavuz';
+
+  @override
+  String get camera_voice_record_label => 'Sesli not kaydet';
+
+  @override
+  String get camera_torch_label => 'Fener';
+
+  @override
+  String get camera_scale_label => 'Yakınlaştır';
+
+  @override
+  String get camera_close_label => 'Kapat';
+
+  @override
+  String get camera_heading_info_line => 'GPS doğruluğu ve sensör';
 
   @override
   String get camera_voice_mic_hint =>
@@ -289,13 +301,13 @@ class GeoFieldStringsTr extends GeoFieldStrings {
       'Eklemek için haritaya dokunun. Silmek için işarete dokunun.';
 
   @override
-  String get map_structure_add_title => 'Strike / dip';
+  String get map_structure_add_title => 'Vuruş / düşüm';
 
   @override
-  String get map_structure_strike_label => 'Strike (°)';
+  String get map_structure_strike_label => 'Vuruş (°)';
 
   @override
-  String get map_structure_dip_label => 'Dip (°)';
+  String get map_structure_dip_label => 'Düşüm (°)';
 
   @override
   String get map_structure_type_label => 'Yapı tipi';
@@ -476,7 +488,7 @@ class GeoFieldStringsTr extends GeoFieldStrings {
       'Tüm yerel istasyon verileri silinecek. Devam etmek istiyor musunuz?';
 
   @override
-  String get confirm_delete_all_tracks => 'Delete all tracks?';
+  String get confirm_delete_all_tracks => 'Tüm rotalar silinsin mi?';
 
   @override
   String get contact => 'Kontak';
@@ -498,6 +510,12 @@ class GeoFieldStringsTr extends GeoFieldStrings {
 
   @override
   String get dashboard => 'Ana Sayfa';
+
+  @override
+  String get dashboard_hero_title => 'Pro Jeolojik Ana Ekran';
+
+  @override
+  String get dashboard_view_all => 'Tümü';
 
   @override
   String get delete => 'Sil';
@@ -572,10 +590,28 @@ class GeoFieldStringsTr extends GeoFieldStrings {
 
   @override
   String get dxf_notice_body =>
-      'DXF içe aktarmada çizim GPS coğrafi projeksiyonunda (WGS-84 Enlem/Boylam) olmalıdır. Aksi halde haritada yanlış konumlanır.';
+      'DXF: yalnız ASCII metin DXF; koordinatlar WGS-84 coğrafi olmalıdır (X = boylam°, Y = enlem°). UTM veya yerel metre çizimleri yanlış konumlanır — önce CAD/GIS’te WGS-84’e dönüştürün.';
 
   @override
-  String get dxf_notice_title => 'DXF Uyarısı';
+  String get dxf_notice_title => 'DXF hakkında';
+
+  @override
+  String get gis_import_precheck_title => 'GIS içe aktarma — formatlar ve DXF';
+
+  @override
+  String get gis_import_precheck_body =>
+      'Dosya seç’ten sonra cihazınızdan dosyayı seçersiniz.\n\n• Desteklenen: KML, GeoJSON (.geojson veya .json), DXF, Shapefile (.shp), GeoPackage (.gpkg).\n• Web tarayıcı: .gpkg desteklenmez (SQLite yok).\n\nDXF (önemli):\n• Dosya ASCII DXF olmalı (Binary DXF değil). AutoCAD’de varsa Farklı Kaydet ile ASCII DXF seçin.\n• Koordinatlar WGS-84 coğrafi (ondalık derece): X = boylam, Y = enlem. UTM veya yerel metre — haritada yanlış görünür; içe aktarmadan önce WGS-84’e getirin.\n\nBulut: giriş yoksa veya Firebase yoksa, içe aktarılan katmanlar yalnızca bu cihazda kalır.';
+
+  @override
+  String get gis_import_choose_file => 'Dosya seç';
+
+  @override
+  String get gis_import_empty_result =>
+      'Hiçbir GIS katmanı içe aktarılamadı. Dosyayı kontrol edin veya WGS-84 (boylam/enlem) ASCII DXF kullanın. Hızlı test için KML/GeoJSON daha kolaydır.';
+
+  @override
+  String get gis_import_normalized_hint =>
+      'Bazı köşeler otomatik enlem/boylam olarak düzeltildi — konumu haritada doğrulayın.';
 
   @override
   String get echo_mode_on => 'EKO MOD: AKTİF';
@@ -599,7 +635,13 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get expert_mode => 'Profesyonel mod';
 
   @override
+  String get general_settings_section => 'Genel ayarlar';
+
+  @override
   String get export_csv => 'CSV Dışa Aktar';
+
+  @override
+  String get export_actions_section => 'Dışa aktarma ve işlemler';
 
   @override
   String get export_stations_excel => 'İstasyonlar (Excel) dışa aktar';
@@ -647,13 +689,20 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get filter => 'Filtrele';
 
   @override
-  String get fisher_dispersion => 'HIGH DISPERSION ⚠️';
+  String get firebase_local_only_banner =>
+      'Yerel mod: Firebase başlamadı. Saha verisi cihazda saklanır; ağ ve yapılandırma düzelene kadar oturum ve bulut senkron devre dışı.';
 
   @override
-  String get fisher_reliability => 'FISHER RELIABILITY';
+  String get fisher_dispersion => 'YÜKSEK DAĞILIM ⚠️';
 
   @override
-  String get fisher_stable => 'STABLE TREND ✅';
+  String get fisher_reliability => 'FISHER GÜVENİLİRLİĞİ';
+
+  @override
+  String get fisher_stable => 'KARARLI TREND ✅';
+
+  @override
+  String get fisher_gauge_high => 'Yüksek güvenilirlik';
 
   @override
   String get fisher_stats => 'Fisher istatistikleri';
@@ -684,6 +733,24 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get map_track_fab_aria => 'GPS rotası (iz) kaydet';
 
   @override
+  String get map_ultra_pro_tooltip => 'Ultra Pro çok araçlı panel';
+
+  @override
+  String get map_start_stop_tracking => 'İzi başlat / durdur';
+
+  @override
+  String get map_radial_strike_dip => 'Manuel Strike/Dip';
+
+  @override
+  String get map_radial_sampling => 'Örnekleme';
+
+  @override
+  String get map_radial_field_notes => 'Saha notları';
+
+  @override
+  String get map_radial_project_layers => 'Proje katmanları';
+
+  @override
   String get track_start_failed =>
       'Rota başlatılamadı. GPS’i açın ve konum iznini verin.';
 
@@ -699,7 +766,7 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get geoloc_header => 'COĞRAFİ KONUM';
 
   @override
-  String get gis_monitoring_active => 'GIS Monitoring Active';
+  String get gis_monitoring_active => 'CBS izleme etkin';
 
   @override
   String get gps_error => 'GPS Hatası';
@@ -715,7 +782,7 @@ class GeoFieldStringsTr extends GeoFieldStrings {
       'UYARI: GPS kapalı. Saha çalışması için lütfen etkinleştirin.';
 
   @override
-  String get gps_performance => 'GPS PERFORMANCE';
+  String get gps_performance => 'GPS PERFORMANSI';
 
   @override
   String get gps_status_good => 'Yüksek Doğruluk (İyi)';
@@ -743,7 +810,7 @@ class GeoFieldStringsTr extends GeoFieldStrings {
       'GPX Dışa Aktarımı geçici olarak kullanılamıyor';
 
   @override
-  String get grade_dist => 'GRADE DISTRIBUTION';
+  String get grade_dist => 'EĞİM DAĞILIMI';
 
   @override
   String get ground_area_label => 'KAĞIT ÜZERİNDEKİ GERÇEK ALAN';
@@ -837,7 +904,8 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get magnetic_declination => 'Manyetik Sapma';
 
   @override
-  String get magnetic_declination_desc => 'East (+), West (-) in degrees';
+  String get magnetic_declination_desc =>
+      'Doğu (+), batı (-), derece cinsinden';
 
   @override
   String get mandatory_step_label => 'ZORUNLU ADIM';
@@ -849,7 +917,7 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get map_error_prefix => 'Hata oluştu';
 
   @override
-  String get map_style_osm => 'OpenStreetMap Standard';
+  String get map_style_osm => 'OpenStreetMap (standart)';
 
   @override
   String get map_style_satellite => 'Uydu (Esri)';
@@ -867,7 +935,7 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get measurement_label => 'Ölçüm Türü';
 
   @override
-  String get measurements_count => 'MEASUREMENTS';
+  String get measurements_count => 'ÖLÇÜMLER';
 
   @override
   String get medium_accuracy_warn => 'Orta Doğruluk';
@@ -891,7 +959,7 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get new_project_title => 'Yeni Proje';
 
   @override
-  String get new_station_btn => 'NEW STATION';
+  String get new_station_btn => 'YENİ İSTASYON';
 
   @override
   String get next_station => '+ Sonraki';
@@ -903,7 +971,7 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get no_local_data => 'Yerel veri bulunamadı';
 
   @override
-  String get no_stations_in_project => 'No stations in the selected project.';
+  String get no_stations_in_project => 'Seçilen projede istasyon yok.';
 
   @override
   String get note => 'NOT';
@@ -918,7 +986,7 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get offline_download => 'Çevrimdışı İndirme';
 
   @override
-  String get open_map => 'OPEN MAP';
+  String get open_map => 'HARİTAYI AÇ';
 
   @override
   String get other => 'Diğer';
@@ -945,22 +1013,25 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get poor_accuracy_warn => 'Düşük Doğruluk';
 
   @override
-  String get power_saver => 'Tejamkor rejim (Power Saver)';
+  String get power_saver => 'Güç tasarrufu modu';
 
   @override
   String get professional_tag => 'PROFESYONEL';
 
   @override
+  String get profile_section_label => 'Profil';
+
+  @override
   String get project => 'Proje';
 
   @override
-  String get project_and_archive => 'PROJECT & ARCHIVE';
+  String get project_and_archive => 'PROJE VE ARŞİV';
 
   @override
   String get project_label => 'Proje';
 
   @override
-  String get project_stats => 'PROJECT STATISTICS';
+  String get project_stats => 'PROJE İSTATİSTİKLERİ';
 
   @override
   String get projection_depth => 'PROJEKSİYON DERİNLİĞİ';
@@ -996,6 +1067,9 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get results_count => 'sonuç';
 
   @override
+  String get role_geologist_admin => 'Jeolog-Yönetici';
+
+  @override
   String get rock_classification => 'Kaya Sınıflandırması';
 
   @override
@@ -1018,7 +1092,7 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get routes => 'Rotalar';
 
   @override
-  String get rtk_fixed => 'RTK FIXED STATUS';
+  String get rtk_fixed => 'RTK SABİT DURUM';
 
   @override
   String get ruler_calibration_title => 'DİJİTAL CETVEL VE KALİBRASYON';
@@ -1033,7 +1107,7 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get sample_type => 'Örnek Türü';
 
   @override
-  String get satellites => 'SATS';
+  String get satellites => 'UYDU';
 
   @override
   String get save => 'Kaydet';
@@ -1042,7 +1116,8 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get save_drawing_title => 'Çizimi kaydet';
 
   @override
-  String get save_first_hint => 'Save station or capture from camera first';
+  String get save_first_hint =>
+      'Önce istasyonu kaydedin veya kameradan yakalayın';
 
   @override
   String get save_label => 'Kaydet';
@@ -1061,7 +1136,7 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get scale_short => 'Ölçek';
 
   @override
-  String get search => 'Search';
+  String get search => 'Ara';
 
   @override
   String get searching_gps => 'GPS aranıyor...';
@@ -1082,10 +1157,13 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get session => 'Oturum';
 
   @override
+  String get session_pause_tooltip => 'Rotayı duraklat';
+
+  @override
   String get settings => 'Ayarlar';
 
   @override
-  String get share => 'Share';
+  String get share => 'Paylaş';
 
   @override
   String get signal_searching => 'SİNYAL ARANIYOR';
@@ -1145,10 +1223,6 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get messages_no_groups => 'Henüz grup yok';
 
   @override
-  String get map_fab_drag_long_press_hint =>
-      'Taşımak için sol çizgide uzun basın';
-
-  @override
   String get sos_cancel_failed =>
       'SOS sonlandırılamadı (ağ veya kurallar). Bağlantıyı kontrol edin.';
 
@@ -1169,7 +1243,7 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get stations => 'İstasyonlar';
 
   @override
-  String get stations_count => 'STATIONS';
+  String get stations_count => 'İSTASYONLAR';
 
   @override
   String get stations_suffix => 'istasyon';
@@ -1185,13 +1259,13 @@ class GeoFieldStringsTr extends GeoFieldStrings {
       'yoğun bölgede nokta daha fazladır';
 
   @override
-  String get stereonet_mean => 'Mean Pole';
+  String get stereonet_mean => 'Ortalama kutup';
 
   @override
-  String get stereonet_no_data => 'Stereonet: No Data';
+  String get stereonet_no_data => 'Stereonet: veri yok';
 
   @override
-  String get stereonet_planes => 'Planes';
+  String get stereonet_planes => 'Düzlemler';
 
   @override
   String get stereonet_schmidt => 'STEREONET (SCHMIDT AĞI)';
@@ -1200,7 +1274,7 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get stereonet_schmidt_desc => 'Eş alan projeksiyonu — alt yarımküre';
 
   @override
-  String get stereonet_summary => 'STEREONET SUMMARY';
+  String get stereonet_summary => 'STERONET ÖZETİ';
 
   @override
   String get stereonet_wulff => 'STEREONET (WULFF AĞI)';
@@ -1233,7 +1307,7 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get sync => 'Senkronize Et';
 
   @override
-  String get system_online => 'SYSTEM ONLINE';
+  String get system_online => 'SİSTEM ÇEVRİMİÇİ';
 
   @override
   String get tahlil_label => 'Analiz';
@@ -1248,13 +1322,13 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get theme_system => 'Sistem';
 
   @override
-  String get three_d_structure => '3D STRUCTURE';
+  String get three_d_structure => '3B YAPI';
 
   @override
   String get time_label => 'ZAMAN';
 
   @override
-  String get today_only => 'Today only';
+  String get today_only => 'Yalnızca bugün';
 
   @override
   String get total_stations => 'Toplam İstasyon';
@@ -1272,7 +1346,7 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get trend_density => 'Yoğunluk seviyesi (κ)';
 
   @override
-  String get trend_growth => 'Trend: +12% Growth';
+  String get trend_growth => 'Trend: +12% büyüme';
 
   @override
   String get trend_orientation => 'Yönelim';
@@ -1305,7 +1379,7 @@ class GeoFieldStringsTr extends GeoFieldStrings {
       'Yapılan değişiklikler kaydedilmedi. Gerçekten çıkmak istiyor musunuz?';
 
   @override
-  String get utm_coordinates => 'UTM COORDINATES';
+  String get utm_coordinates => 'UTM KOORDİNATLARI';
 
   @override
   String get version => 'Sürüm';
@@ -1320,7 +1394,7 @@ class GeoFieldStringsTr extends GeoFieldStrings {
   String get warning_label => 'Uyarı';
 
   @override
-  String get welcome_text => 'Welcome, ';
+  String get welcome_text => 'Hoş geldiniz, ';
 
   @override
   String get width_cm => 'GENİŞLİK (CM)';

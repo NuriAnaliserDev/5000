@@ -10,10 +10,11 @@ import '../config/cloud_features.dart';
 import '../models/station.dart';
 import '../models/track_data.dart';
 import '../models/chat_message.dart';
+import '../utils/firebase_ready.dart';
 import 'hive_db.dart';
 
 class CloudSyncService extends ChangeNotifier {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  FirebaseFirestore? get _firestore => firestoreOrNull;
   StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
   Timer? _syncTimer;
   bool _isSyncing = false;
@@ -21,10 +22,21 @@ class CloudSyncService extends ChangeNotifier {
 
   /// Hozirgi foydalanuvchining UID'ini qaytaradi.
   /// Agar login bo'lmagan bo'lsa — null. Operatsiyalar faqat auth bo'lganda ishlaydi.
-  String? get _currentUserId => FirebaseAuth.instance.currentUser?.uid;
+  String? get _currentUserId {
+    if (!isFirebaseCoreReady) return null;
+    try {
+      return FirebaseAuth.instance.currentUser?.uid;
+    } catch (_) {
+      return null;
+    }
+  }
 
   // Initialize background connectivity listener
   void init() {
+    if (_firestore == null) {
+      debugPrint('CloudSyncService: Firebase yo‘q — sinxron o‘chiq.');
+      return;
+    }
     _connectivitySubscription = Connectivity()
         .onConnectivityChanged
         .listen((List<ConnectivityResult> results) async {
@@ -84,6 +96,8 @@ class CloudSyncService extends ChangeNotifier {
 
   // Jami tarmoqqa yozilmagan (unsynced) ma'lumotlarni yuborish
   Future<void> _processSyncQueue() async {
+    final fs = _firestore;
+    if (fs == null) return;
     // Auth bo'lmagan holda sinxronlash xavfli
     if (_currentUserId == null) {
       debugPrint(
@@ -139,10 +153,12 @@ class CloudSyncService extends ChangeNotifier {
   Future<bool> _syncStationDirectly(dynamic key, Station station) async {
     final uid = _currentUserId;
     if (uid == null) return false;
+    final fs = _firestore;
+    if (fs == null) return false;
 
     try {
       // Stansiyalar foydalanuvchi UID ostida saqlanadi — boshqa foydalanuvchilar ko'ra olmaydi
-      final docRef = _firestore
+      final docRef = fs
           .collection('users')
           .doc(uid)
           .collection('stations')
@@ -152,7 +168,7 @@ class CloudSyncService extends ChangeNotifier {
       String? remoteAudioUrl;
       List<String> remotePhotoUrls = [];
 
-      if (kFirebaseStorageUploadsEnabled) {
+      if (kFirebaseStorageUploadsEnabled && isFirebaseCoreReady) {
         final storage = FirebaseStorage.instance;
         // Upload single legacy photo if exists
         if (station.photoPath != null &&
@@ -231,9 +247,11 @@ class CloudSyncService extends ChangeNotifier {
   Future<bool> _syncShiftLog(dynamic key, TrackData track) async {
     final uid = _currentUserId;
     if (uid == null) return false;
+    final fs = _firestore;
+    if (fs == null) return false;
 
     try {
-      final docRef = _firestore
+      final docRef = fs
           .collection('users')
           .doc(uid)
           .collection('shift_logs')
@@ -266,11 +284,14 @@ class CloudSyncService extends ChangeNotifier {
   Future<void> _syncPendingChatDirectly(ChatMessage msg) async {
     final uid = _currentUserId;
     if (uid == null) return;
+    final fs = _firestore;
+    if (fs == null) return;
 
     try {
       String? remoteMediaUrl;
 
       if (kFirebaseStorageUploadsEnabled &&
+          isFirebaseCoreReady &&
           msg.mediaPath != null &&
           !kIsWeb &&
           File(msg.mediaPath!).existsSync()) {
@@ -282,7 +303,7 @@ class CloudSyncService extends ChangeNotifier {
         remoteMediaUrl = await ref.getDownloadURL();
       }
 
-      await _firestore
+      await fs
           .collection('chat_groups')
           .doc(msg.groupId)
           .collection('messages')
@@ -327,9 +348,11 @@ class CloudSyncService extends ChangeNotifier {
   Future<void> deleteStation(int key) async {
     final uid = _currentUserId;
     if (uid == null) return;
+    final fs = _firestore;
+    if (fs == null) return;
 
     try {
-      await _firestore
+      await fs
           .collection('users')
           .doc(uid)
           .collection('stations')
@@ -352,8 +375,10 @@ class CloudSyncService extends ChangeNotifier {
     }
 
     try {
-      final batch = _firestore.batch();
-      final snapshot = await _firestore
+      final fs = _firestore;
+      if (fs == null) return;
+      final batch = fs.batch();
+      final snapshot = await fs
           .collection('users')
           .doc(uid)
           .collection('stations')

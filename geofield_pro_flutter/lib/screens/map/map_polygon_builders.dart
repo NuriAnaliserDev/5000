@@ -47,7 +47,7 @@ List<Polyline> mapVertexEditPolylines(
   required int? selectedVertexIndex,
 }) {
   if (editingPolygonId == null) return [];
-  final poly = boundaries.firstWhere((b) => b.firestoreId == editingPolygonId);
+  final poly = boundaries.firstWhere((b) => b.id == editingPolygonId);
   return poly.points.asMap().entries.map((entry) {
     final isSelected = selectedVertexIndex == entry.key;
     return Polyline(

@@ -77,7 +77,11 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
         action: SnackBarAction(label: context.loc('cancel'), onPressed: () => repo.addStation(backup)),
         duration: const Duration(seconds: 5),
         behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.only(bottom: 80, left: 16, right: 16),
+        margin: EdgeInsets.only(
+          bottom: AppBottomNavBar.overlayClearanceAboveNav(context),
+          left: 16,
+          right: 16,
+        ),
       ),
     );
   }
@@ -450,7 +454,7 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 72),
+              padding: EdgeInsets.only(bottom: AppBottomNavBar.overlayClearanceAboveNav(context)),
               child: TabBarView(
                 controller: _tabController,
                 children: [
@@ -508,7 +512,7 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
       bottomNavigationBar: const AppBottomNavBar(activeRoute: '/archive'),
       floatingActionButton: (isSelecting && selCount > 0)
         ? Padding(
-          padding: const EdgeInsets.only(bottom: 72),
+          padding: EdgeInsets.only(bottom: AppBottomNavBar.overlayClearanceAboveNav(context)),
           child: FloatingActionButton.extended(
             backgroundColor: const Color(0xFF1976D2),
             onPressed: () {
