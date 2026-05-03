@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
@@ -99,10 +100,10 @@ class _WebMapScreenState extends State<WebMapScreen> {
         title: const Text('Zonani o\'chirish'),
         content: Text('"${polygon.name}" ni o\'chirishni tasdiqlaysizmi?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Bekor qilish')),
+          TextButton(onPressed: () => ctx.pop(false), child: const Text('Bekor qilish')),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-            onPressed: () => Navigator.pop(ctx, true),
+            onPressed: () => ctx.pop(true),
             child: const Text('O\'chirish'),
           ),
         ],
@@ -160,11 +161,11 @@ class _WebMapScreenState extends State<WebMapScreen> {
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Bekor qilish')),
+            TextButton(onPressed: () => ctx.pop(), child: const Text('Bekor qilish')),
             ElevatedButton(
               child: const Text('Saqlash'),
               onPressed: () async {
-                Navigator.pop(ctx);
+                ctx.pop();
                 final pid = polygon.id;
                 if (pid != null) {
                   await context.read<BoundaryService>().updatePolygon(

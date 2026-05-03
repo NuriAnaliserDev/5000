@@ -324,7 +324,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
               title: Text(context.locRead('mic_error')),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.of(ctx).pop(),
+                  onPressed: () => ctx.pop(),
                   child: Text(context.locRead('confirm')),
                 ),
               ],
@@ -458,7 +458,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(context.locRead('photo_added')),
             behavior: SnackBarBehavior.floating));
-        Navigator.of(context).pop();
+        context.pop();
         return;
       }
 
@@ -529,7 +529,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(context.locRead('station_saved')),
           behavior: SnackBarBehavior.floating));
-      Navigator.of(context, rootNavigator: true).pushReplacementNamed('/station', arguments: id);
+      context.go('/station', extra: id);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

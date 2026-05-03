@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -176,9 +177,9 @@ class _SplashScreenState extends State<SplashScreen> {
         displayName: name,
       );
       if (settings.isFirstRun) {
-        Navigator.pushReplacementNamed(context, AppRouter.onboarding);
+        context.go(AppRouter.onboarding);
       } else {
-        Navigator.pushReplacementNamed(context, AppRouter.dashboard);
+        context.go(AppRouter.dashboard);
       }
       return;
     }
@@ -195,14 +196,14 @@ class _SplashScreenState extends State<SplashScreen> {
         settings.setLocalDisplayName(name);
       }
       if (settings.isFirstRun) {
-        Navigator.pushReplacementNamed(context, AppRouter.onboarding);
+        context.go(AppRouter.onboarding);
       } else {
-        Navigator.pushReplacementNamed(context, AppRouter.dashboard);
+        context.go(AppRouter.dashboard);
       }
       return;
     }
 
-    Navigator.pushReplacementNamed(context, AppRouter.auth);
+    context.go(AppRouter.auth);
   }
 
   @override

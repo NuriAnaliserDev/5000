@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
@@ -283,12 +284,12 @@ class _WebVerificationTerminalState extends State<WebVerificationTerminal> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
+            onPressed: () => ctx.pop(false),
             child: const Text('Bekor qilish'),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-            onPressed: () => Navigator.pop(ctx, true),
+            onPressed: () => ctx.pop(true),
             child: const Text('Rad etish'),
           ),
         ],

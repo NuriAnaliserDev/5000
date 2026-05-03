@@ -22,7 +22,8 @@ class GeoFieldProApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer2<ThemeController, SettingsController>(
       builder: (context, themeCtrl, settings, _) {
-        return MaterialApp(
+        return MaterialApp.router(
+          routerConfig: AppRouter.router,
           locale: Locale(_appLocaleCode(settings.language)),
           onGenerateTitle: (context) => GeoFieldStrings.of(context)!.app_title,
           localizationsDelegates: GeoFieldStrings.localizationsDelegates,
@@ -67,8 +68,6 @@ class GeoFieldProApp extends StatelessWidget {
               ),
             );
           },
-          initialRoute: AppRouter.home,
-          onGenerateRoute: AppRouter.onGenerateRoute,
         );
       },
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'dart:ui' show FontFeature, ImageFilter;
 
 import 'package:provider/provider.dart';
@@ -58,7 +59,7 @@ class CameraTopBar extends StatelessWidget {
                       IconButton(
                         icon: Icon(Icons.arrow_back_ios_new_rounded,
                             color: AppTheme.stitchBlue.withValues(alpha: 0.95), size: 20),
-                        onPressed: () => Navigator.of(context).maybePop(),
+                        onPressed: () { if (context.canPop()) context.pop(); },
                       ),
                       Expanded(
                         child: Text(
@@ -113,7 +114,7 @@ class CameraTopBar extends StatelessWidget {
           children: [
             IconButton(
               icon: const Icon(Icons.arrow_back, color: Color(0xFF1976D2)),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
             ),
             const SizedBox(width: 4),
             Expanded(

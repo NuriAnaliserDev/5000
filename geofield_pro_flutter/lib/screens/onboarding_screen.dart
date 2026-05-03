@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:provider/provider.dart';
@@ -38,9 +39,9 @@ class OnboardingScreen extends StatelessWidget {
       }
       if (!context.mounted) return;
       if (u != null) {
-        Navigator.of(context).pushReplacementNamed(AppRouter.dashboard);
+        context.go(AppRouter.dashboard);
       } else {
-        Navigator.of(context).pushReplacementNamed(AppRouter.auth);
+        context.go(AppRouter.auth);
       }
     }
 

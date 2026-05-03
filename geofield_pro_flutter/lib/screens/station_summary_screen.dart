@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
@@ -175,7 +176,7 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
 
   Future<void> _save() async {
     final success = await _saveCore();
-    if (success && mounted) Navigator.of(context).pop();
+    if (success && mounted) context.pop();
   }
 
   Future<bool> _saveCore() async {
@@ -254,10 +255,10 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
         builder: (ctx) =>
             AlertDialog(title: Text(context.locRead('delete_photo')), actions: [
               TextButton(
-                  onPressed: () => Navigator.pop(ctx, false),
+                  onPressed: () => ctx.pop(false),
                   child: Text(context.locRead('cancel'))),
               TextButton(
-                  onPressed: () => Navigator.pop(ctx, true),
+                  onPressed: () => ctx.pop(true),
                   child: Text(context.locRead('delete')))
             ]));
     if (ok != true) return;
@@ -288,7 +289,7 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
             itemBuilder: (c, i) {
               final m = geologicalMunsellColors[i];
               return InkWell(
-                onTap: () => Navigator.pop(c, m.code),
+                onTap: () => c.pop(m.code),
                 child: Container(
                   margin: const EdgeInsets.all(2),
                   color: Color(m.hex),
@@ -464,9 +465,9 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
               onAddGallery: _pickFromGallery,
               onDeletePhoto: _deletePhoto,
               onViewPhoto: (p) =>
-                  Navigator.of(context, rootNavigator: true).pushNamed('/painter', arguments: p),
+                  context.push('/painter', extra: p),
               onOpenPainter: (p) =>
-                  Navigator.of(context, rootNavigator: true).pushNamed('/painter', arguments: p),
+                  context.push('/painter', extra: p),
               onPlayAudio: _playAudio,
             ),
           ),
@@ -501,10 +502,10 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
         builder: (ctx) =>
             AlertDialog(title: Text(context.locRead('delete')), actions: [
               TextButton(
-                  onPressed: () => Navigator.pop(ctx, false),
+                  onPressed: () => ctx.pop(false),
                   child: Text(context.locRead('cancel'))),
               TextButton(
-                  onPressed: () => Navigator.pop(ctx, true),
+                  onPressed: () => ctx.pop(true),
                   child: Text(context.locRead('delete')))
             ]));
     if (!mounted) return;
@@ -512,7 +513,7 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
       final stationRepo = context.read<StationRepository>();
       await stationRepo.deleteStation(_station!.key);
       if (!mounted) return;
-      Navigator.of(context).pop();
+      context.pop();
     }
   }
 }

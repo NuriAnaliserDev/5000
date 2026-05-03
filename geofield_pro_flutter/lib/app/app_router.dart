@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import 'app_transitions.dart';
 import 'platform_gate.dart';
 import '../screens/archive_screen.dart';
 import '../screens/analysis_screen.dart';
@@ -24,7 +24,6 @@ import '../l10n/app_strings.dart';
 import '../screens/web/web_dashboard_main.dart';
 import '../screens/web/web_login_screen.dart';
 
-/// Ilova marshrutlari — [main.dart] dan ajratilgan.
 class AppRouter {
   AppRouter._();
 
@@ -38,7 +37,6 @@ class AppRouter {
   static const String autoTableReview = '/auto-table-review';
   static const String camera = '/camera';
   static const String map = '/map';
-  /// Pro maydon: bitta oynada qatlam, KML/DXF, chizim, struktura.
   static const String fieldWorkshop = '/field-workshop';
   static const String archive = '/archive';
   static const String analysis = '/analysis';
@@ -48,142 +46,155 @@ class AppRouter {
   static const String painter = '/painter';
   static const String station = '/station';
 
-  static Route<dynamic>? onGenerateRoute(RouteSettings routeSettings) {
-    switch (routeSettings.name) {
-      case home:
-        if (kIsWeb) {
-          return AppPageRoutes.material<void>((context) {
+  static final router = GoRouter(
+    initialLocation: home,
+    routes: [
+      GoRoute(
+        path: home,
+        builder: (context, state) {
+          if (kIsWeb) {
             final auth = context.watch<AuthService>();
-            return auth.isAuthenticated
-                ? const WebDashboardMain()
-                : const WebLoginScreen();
-          });
-        }
-        return AppPageRoutes.material<void>((_) => const SplashScreen());
-      case dashboard:
-        return AppPageRoutes.material<void>((_) => const PlatformGate());
-      case onboarding:
-        return AppPageRoutes.material<void>((_) => const OnboardingScreen());
-      case auth:
-        return AppPageRoutes.material<void>((_) => AuthScreen());
-      case messages:
-        return AppPageRoutes.material<void>((_) => const MessagesScreen());
-      case notifications:
-        return AppPageRoutes.material<void>((_) => const NotificationsFeedScreen());
-      case chat:
-        final a = routeSettings.arguments;
-        if (a is! String || a.isEmpty) {
-          return _notFound();
-        }
-        return AppPageRoutes.material<void>(
-          (_) => ChatScreen(groupId: a),
-        );
-      case autoTableReview:
-        final a = routeSettings.arguments;
-        if (a is! String || a.isEmpty) {
-          return _notFound();
-        }
-        return AppPageRoutes.material<void>(
-          (_) => AutoTableReviewScreen(imagePath: a),
-        );
-      case camera:
-        final id = routeSettings.arguments;
-        int? sid;
-        if (id is int) {
-          sid = id;
-        } else if (id is num) {
-          sid = id.toInt();
-        }
-        return AppPageRoutes.material<void>(
-          (_) => SmartCameraScreen(stationId: sid),
-        );
-      case map:
-        return AppPageRoutes.material<void>((_) {
-          final args = routeSettings.arguments;
-          return GlobalMapScreen(
-            initLocation: args is Map<String, dynamic> ? args : null,
-          );
-        });
-      case fieldWorkshop:
-        return AppPageRoutes.material<void>((_) {
-          final args = routeSettings.arguments;
-          return GlobalMapScreen(
-            initLocation: args is Map<String, dynamic> ? args : null,
-            fieldWorkshopMode: true,
-          );
-        });
-      case archive:
-        return AppPageRoutes.material<void>((_) => const ArchiveScreen());
-      case analysis:
-        return AppPageRoutes.material<void>((_) => const AnalysisScreen());
-      case AppRouter.admin:
-      case AppRouter.settings:
-        return AppPageRoutes.material<void>((_) => const AdminScreen());
-      case scaleAssistant:
-        return AppPageRoutes.material<void>(
-          (_) => const ScaleAssistantScreen(),
-        );
-      case painter:
-        final a = routeSettings.arguments;
-        if (a is! String || a.isEmpty) {
-          return _notFound();
-        }
-        return AppPageRoutes.material<void>(
-          (_) => ImagePainterScreen(imagePath: a),
-        );
-      case station:
-        return AppPageRoutes.material<void>((_) {
-          final id = routeSettings.arguments;
-          int? sid;
-          if (id is int) {
-            sid = id;
-          } else if (id is num) {
-            sid = id.toInt();
+            return auth.isAuthenticated ? const WebDashboardMain() : const WebLoginScreen();
           }
-          return StationSummaryScreen(stationId: sid);
-        });
-      default:
-        return _notFound();
-    }
-  }
+          return const SplashScreen();
+        },
+      ),
+      GoRoute(
+        path: dashboard,
+        builder: (context, state) => const PlatformGate(),
+      ),
+      GoRoute(
+        path: onboarding,
+        builder: (context, state) => const OnboardingScreen(),
+      ),
+      GoRoute(
+        path: auth,
+        builder: (context, state) => AuthScreen(),
+      ),
+      GoRoute(
+        path: messages,
+        builder: (context, state) => const MessagesScreen(),
+      ),
+      GoRoute(
+        path: notifications,
+        builder: (context, state) => const NotificationsFeedScreen(),
+      ),
+      GoRoute(
+        path: chat,
+        builder: (context, state) {
+          final id = state.extra as String?;
+          if (id == null || id.isEmpty) return const _NotFoundScreen();
+          return ChatScreen(groupId: id);
+        },
+      ),
+      GoRoute(
+        path: autoTableReview,
+        builder: (context, state) {
+          final path = state.extra as String?;
+          if (path == null || path.isEmpty) return const _NotFoundScreen();
+          return AutoTableReviewScreen(imagePath: path);
+        },
+      ),
+      GoRoute(
+        path: camera,
+        builder: (context, state) {
+          final sid = state.extra as int?;
+          return SmartCameraScreen(stationId: sid);
+        },
+      ),
+      GoRoute(
+        path: map,
+        builder: (context, state) {
+          final initLoc = state.extra as Map<String, dynamic>?;
+          return GlobalMapScreen(initLocation: initLoc);
+        },
+      ),
+      GoRoute(
+        path: fieldWorkshop,
+        builder: (context, state) {
+          final initLoc = state.extra as Map<String, dynamic>?;
+          return GlobalMapScreen(initLocation: initLoc, fieldWorkshopMode: true);
+        },
+      ),
+      GoRoute(
+        path: archive,
+        builder: (context, state) => const ArchiveScreen(),
+      ),
+      GoRoute(
+        path: analysis,
+        builder: (context, state) => const AnalysisScreen(),
+      ),
+      GoRoute(
+        path: admin,
+        builder: (context, state) => const AdminScreen(),
+      ),
+      GoRoute(
+        path: settings,
+        builder: (context, state) => const AdminScreen(),
+      ),
+      GoRoute(
+        path: scaleAssistant,
+        builder: (context, state) => const ScaleAssistantScreen(),
+      ),
+      GoRoute(
+        path: painter,
+        builder: (context, state) {
+          final path = state.extra as String?;
+          if (path == null || path.isEmpty) return const _NotFoundScreen();
+          return ImagePainterScreen(imagePath: path);
+        },
+      ),
+      GoRoute(
+        path: station,
+        builder: (context, state) {
+          var sid = state.extra;
+          if (sid is num) {
+            return StationSummaryScreen(stationId: sid.toInt());
+          }
+          return const StationSummaryScreen();
+        },
+      ),
+    ],
+    errorBuilder: (context, state) => const _NotFoundScreen(),
+  );
+}
 
-  static Route<dynamic> _notFound() {
-    return AppPageRoutes.material<void>(
-      (context) {
-        final loc = GeoFieldStrings.of(context);
-        final title = loc?.route_not_found_title ?? 'Page not found';
-        final body = loc?.route_not_found_body ?? '';
-        final back = loc?.route_not_found_back ?? 'Back';
-        return Scaffold(
-          appBar: AppBar(title: Text(title)),
-          body: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 400),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      body,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    const SizedBox(height: 24),
-                    FilledButton(
-                      onPressed: () {
-                        Navigator.of(context)
-                            .pushReplacementNamed(AppRouter.dashboard);
-                      },
-                      child: Text(back),
-                    ),
-                  ],
+class _NotFoundScreen extends StatelessWidget {
+  const _NotFoundScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = GeoFieldStrings.of(context);
+    final title = loc?.route_not_found_title ?? 'Page not found';
+    final body = loc?.route_not_found_body ?? '';
+    final back = loc?.route_not_found_back ?? 'Back';
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  body,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
-              ),
+                const SizedBox(height: 24),
+                FilledButton(
+                  onPressed: () {
+                    context.go(AppRouter.dashboard);
+                  },
+                  child: Text(back),
+                ),
+              ],
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

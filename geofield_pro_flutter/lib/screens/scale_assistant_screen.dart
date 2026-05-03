@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../services/settings_controller.dart';
 import '../utils/app_localizations.dart';
@@ -103,7 +104,7 @@ class _ScaleAssistantScreenState extends State<ScaleAssistantScreen> {
                     context.loc('scale_assistant_help_content'),
                   ),
                   actions: [
-                    TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(context.loc('confirm'))),
+                    TextButton(onPressed: () => ctx.pop(), child: Text(context.loc('confirm'))),
                   ],
                 ),
               );
