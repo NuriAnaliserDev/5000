@@ -128,6 +128,29 @@ class GeologyUtils {
     );
   }
 
+  /// Fisher statistics for AXIAL (bidirectional) data — strike, foliation.
+  /// Uses angle doubling: each angle θ → 2θ mod 360, then standard Fisher,
+  /// then mean is halved back. This correctly handles 10° ≡ 190°.
+  static FisherStats fisherStatsAxial(List<double> strikes) {
+    if (strikes.isEmpty) return fisherStats([]);
+    
+    // Double all angles for axial treatment
+    final doubled = strikes.map((s) => (2 * s) % 360).toList();
+    final result = fisherStats(doubled);
+    
+    // Halve the mean angle back
+    final axialMean = (result.meanAngle / 2) % 180;
+    
+    return FisherStats(
+      n: result.n,
+      meanAngle: axialMean,
+      resultantLength: result.resultantLength,
+      kappa: result.kappa,
+      alpha95: result.alpha95 / 2,
+      isReliable: result.isReliable,
+    );
+  }
+
   /// Circular Standard Deviation (degrees)
   static double circularStdDev(List<double> angles) {
     if (angles.isEmpty) return double.nan;

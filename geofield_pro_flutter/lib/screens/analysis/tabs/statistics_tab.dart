@@ -270,12 +270,22 @@ class _StationStats {
     double minAlt = double.infinity;
     double maxAlt = double.negativeInfinity;
     final strikes = <double>[];
+    final axialStrikes = <double>[];
+    final unimodalStrikes = <double>[];
 
     for (final s in stations) {
       byProject[s.project ?? 'Default'] = (byProject[s.project ?? 'Default'] ?? 0) + 1;
       byRockType[s.rockType ?? '—'] = (byRockType[s.rockType ?? '—'] ?? 0) + 1;
       byMeasurement[s.measurementType ?? 'bedding'] =
           (byMeasurement[s.measurementType ?? 'bedding'] ?? 0) + 1;
+      
+      final type = s.measurementType ?? 'bedding';
+      if (type == 'bedding' || type == 'cleavage' || type == 'foliation') {
+        axialStrikes.add(s.strike);
+      } else {
+        unimodalStrikes.add(s.strike);
+      }
+      
       strikes.add(s.strike);
       sumDip += s.dip;
       if (s.lat != 0 || s.lng != 0) withGps++;
@@ -292,7 +302,9 @@ class _StationStats {
       avgStrike: GeologyUtils.circularMean(strikes),
       avgDip: sumDip / stations.length,
       strikeStdDev: GeologyUtils.circularStdDev(strikes),
-      fisher: GeologyUtils.fisherStats(strikes),
+      fisher: axialStrikes.isNotEmpty 
+          ? GeologyUtils.fisherStatsAxial(axialStrikes)
+          : GeologyUtils.fisherStats(unimodalStrikes),
       byProject: byProject,
       byRockType: byRockType,
       byMeasurement: byMeasurement,

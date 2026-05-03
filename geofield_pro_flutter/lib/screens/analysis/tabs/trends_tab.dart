@@ -41,19 +41,35 @@ class _TrendsTabState extends State<TrendsTab> {
 
   void _compute(List<Station> stations) {
     final dipCounts = List.filled(9, 0);
+    final axialStrikes = <double>[];
+    final unimodalStrikes = <double>[];
+
     for (var s in stations) {
       int idx = (s.dip / 10).floor().clamp(0, 8);
       dipCounts[idx]++;
+      
+      final type = s.measurementType ?? 'bedding';
+      if (type == 'bedding' || type == 'cleavage' || type == 'foliation') {
+        axialStrikes.add(s.strike);
+      } else {
+        unimodalStrikes.add(s.strike);
+      }
     }
-    final strikes = stations.map((s) => s.strike).toList();
     _dipCounts = dipCounts;
     _maxDipCount = dipCounts.isNotEmpty ? dipCounts.reduce(max) : 1;
-    _avgStrike = stations.isNotEmpty ? GeologyUtils.circularMean(strikes) : 0.0;
-    _stats = stations.isNotEmpty
-        ? GeologyUtils.fisherStats(strikes)
-        : FisherStats(
-            n: 0, meanAngle: 0, resultantLength: 0,
-            kappa: double.nan, alpha95: double.nan, isReliable: false);
+    _avgStrike = axialStrikes.isNotEmpty 
+        ? GeologyUtils.circularMean(axialStrikes) 
+        : (unimodalStrikes.isNotEmpty ? GeologyUtils.circularMean(unimodalStrikes) : 0.0);
+        
+    if (axialStrikes.isNotEmpty) {
+      _stats = GeologyUtils.fisherStatsAxial(axialStrikes);
+    } else if (unimodalStrikes.isNotEmpty) {
+      _stats = GeologyUtils.fisherStats(unimodalStrikes);
+    } else {
+      _stats = FisherStats(
+          n: 0, meanAngle: 0, resultantLength: 0,
+          kappa: double.nan, alpha95: double.nan, isReliable: false);
+    }
   }
 
   @override
