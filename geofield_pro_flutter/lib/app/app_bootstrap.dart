@@ -10,6 +10,7 @@ import 'geo_field_pro_app.dart';
 import '../firebase_options.dart';
 import '../services/hive_db.dart';
 import '../utils/firebase_ready.dart';
+import '../core/error/error_logger.dart';
 
 /// Successful bootstrap: root widget (usually [MultiProvider] + [GeoFieldProApp]).
 sealed class AppBootstrapResult {}
@@ -32,6 +33,7 @@ Future<AppBootstrapResult> runAppBootstrap() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
   } catch (e, st) {
+    ErrorLogger.record(e, st, customMessage: 'WidgetsFlutterBinding ishga tushmadi');
     return AppBootstrapFailure(
       'WidgetsFlutterBinding ishga tushmadi: $e',
       e,
@@ -53,18 +55,17 @@ Future<AppBootstrapResult> runAppBootstrap() async {
     if (kDebugMode) {
       debugPrint('Firebase initialized successfully.');
     }
-  } catch (e) {
-    debugPrint('WARN: Firebase initialization failed: $e');
+  } catch (e, st) {
+    ErrorLogger.record(e, st, customMessage: 'Firebase initialization failed');
     if (!kIsWeb) {
-      debugPrint(
-        'Mobil: Firebase yo‘q — mahalliy rejim (bulut/sinxron cheklangan).',
-      );
+      debugPrint('Mobil: Firebase yo‘q — mahalliy rejim (bulut/sinxron cheklangan).');
     }
   }
 
   try {
     await HiveDb.init();
   } catch (e, st) {
+    ErrorLogger.record(e, st, customMessage: 'Mahalliy ma\'lumotlar bazasi (Hive) ochilmadi');
     return AppBootstrapFailure(
       'Mahalliy ma\'lumotlar bazasi (Hive) ochilmadi. Ilova sizsiz dala ma\'lumotlarini saqlay olmaydi.\n$e',
       e,
@@ -85,14 +86,15 @@ Future<AppBootstrapResult> runAppBootstrap() async {
         await FMTCStore('satellite').manage.create();
         fmtcErr = null;
         break;
-      } catch (e) {
+      } catch (e, st) {
         fmtcErr = e;
+        if (attempt == 1) {
+          ErrorLogger.record(e, st, customMessage: 'FMTC oflayn xarita keshi ishga tushmadi');
+        }
       }
     }
     if (fmtcErr != null) {
-      debugPrint(
-        'WARN: oflayn xarita keshi (FMTC) ishga tushmadi: $fmtcErr. Xarita to‘liq oflayn ishlashidan mahrum bo‘lishi mumkin.',
-      );
+      debugPrint('WARN: Oflayn xarita keshi xatosi yuz berdi.');
     }
   }
 

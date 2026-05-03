@@ -7,6 +7,7 @@ import '../app/app_router.dart';
 import '../services/auth_service.dart';
 import '../services/settings_controller.dart';
 import '../services/user_flags_service.dart';
+import '../core/error/error_handler.dart';
 
 /// Email + parol: kirish va ro‘yxatdan o‘tish (Firebase Auth).
 class AuthScreen extends StatefulWidget {
@@ -62,22 +63,22 @@ class _AuthScreenState extends State<AuthScreen> {
       _error = null;
     });
 
-    final err = _register
-        ? await auth.register(
-            email,
-            password,
-            displayName:
-                _nameCtrl.text.trim().isEmpty ? null : _nameCtrl.text.trim(),
-          )
-        : await auth.login(email, password);
-
-    if (!mounted) return;
-
-    if (err != null) {
+    try {
+      if (_register) {
+        await auth.register(
+          email,
+          password,
+          displayName: _nameCtrl.text.trim().isEmpty ? null : _nameCtrl.text.trim(),
+        );
+      } else {
+        await auth.login(email, password);
+      }
+    } catch (e, st) {
+      if (!mounted) return;
       setState(() {
-        _error = err;
         _loading = false;
       });
+      ErrorHandler.show(context, e, st);
       return;
     }
 
@@ -119,17 +120,19 @@ class _AuthScreenState extends State<AuthScreen> {
       _loading = true;
       _error = null;
     });
-    final err = await context.read<AuthService>().sendPasswordReset(email);
-    if (!mounted) return;
-    setState(() => _loading = false);
-    if (err != null) {
-      setState(() => _error = err);
-    } else {
+    try {
+      await context.read<AuthService>().sendPasswordReset(email);
+      if (!mounted) return;
+      setState(() => _loading = false);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Tiklash havolasi emailga yuborildi.'),
         ),
       );
+    } catch (e, st) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+      ErrorHandler.show(context, e, st);
     }
   }
 

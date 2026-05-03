@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import '../core/error/app_error.dart';
+import '../core/error/error_logger.dart';
+import '../core/error/error_handler.dart';
 
 import '../utils/firebase_ready.dart';
 
@@ -74,14 +77,14 @@ class AuthService extends ChangeNotifier {
         },
         SetOptions(merge: true),
       );
-    } catch (e) {
-      debugPrint('AuthService.ensureFirestoreUserProfileIfMissing: $e');
+    } catch (e, st) {
+      ErrorLogger.record(e, st, customMessage: 'AuthService.ensureFirestoreUserProfileIfMissing failed');
     }
   }
 
-  Future<String?> login(String email, String password) async {
+  Future<void> login(String email, String password) async {
     final auth = _auth;
-    if (auth == null) return _firebaseUnavailable;
+    if (auth == null) throw AppError(_firebaseUnavailable, category: ErrorCategory.network);
     try {
       await auth.signInWithEmailAndPassword(
         email: email.trim(),
@@ -89,43 +92,18 @@ class AuthService extends ChangeNotifier {
       );
       final u = auth.currentUser;
       if (u != null) await ensureFirestoreUserProfileIfMissing(u);
-      return null;
-    } on FirebaseAuthException catch (e) {
-      switch (e.code) {
-        case 'user-not-found':
-          return 'Bunday foydalanuvchi topilmadi.';
-        case 'wrong-password':
-        case 'invalid-credential':
-          return 'Email yoki parol xato.';
-        case 'too-many-requests':
-          return 'Juda ko\'p urinish. Bir oz kuting.';
-        case 'network-request-failed':
-          return 'Internet aloqasi yo\'q.';
-        case 'internal-error':
-        case 'unknown':
-        case 'operation-not-allowed':
-          if (_isAuthConfigOrRecaptchaError(e)) {
-            return _firebaseAuthConfigHint();
-          }
-          return e.message ?? 'Tizimga kirishda xatolik yuz berdi.';
-        default:
-          if (_isAuthConfigOrRecaptchaError(e)) {
-            return _firebaseAuthConfigHint();
-          }
-          return e.message ?? 'Tizimga kirishda xatolik yuz berdi.';
-      }
-    } catch (e) {
-      return 'Kutilmagan xatolik: ${e.toString()}';
+    } catch (e, st) {
+      throw ErrorHandler.process(e, st);
     }
   }
 
-  Future<String?> register(
+  Future<void> register(
     String email,
     String password, {
     String? displayName,
   }) async {
     final auth = _auth;
-    if (auth == null) return _firebaseUnavailable;
+    if (auth == null) throw AppError(_firebaseUnavailable, category: ErrorCategory.network);
     try {
       final cred = await auth.createUserWithEmailAndPassword(
         email: email.trim(),
@@ -138,48 +116,18 @@ class AuthService extends ChangeNotifier {
       }
       final u = auth.currentUser;
       if (u != null) await ensureFirestoreUserProfileIfMissing(u);
-      return null;
-    } on FirebaseAuthException catch (e) {
-      switch (e.code) {
-        case 'email-already-in-use':
-          return 'Bu email allaqachon ro\'yxatdan o\'tgan.';
-        case 'invalid-email':
-          return 'Email noto\'g\'ri.';
-        case 'weak-password':
-          return 'Parol juda zaif (kamida 6 belgi).';
-        case 'network-request-failed':
-          return 'Internet aloqasi yo\'q.';
-        case 'internal-error':
-        case 'unknown':
-        case 'operation-not-allowed':
-          if (_isAuthConfigOrRecaptchaError(e)) {
-            return _firebaseAuthConfigHint();
-          }
-          return e.message ?? 'Ro\'yxatdan o\'tishda xatolik.';
-        default:
-          if (_isAuthConfigOrRecaptchaError(e)) {
-            return _firebaseAuthConfigHint();
-          }
-          return e.message ?? 'Ro\'yxatdan o\'tishda xatolik.';
-      }
-    } catch (e) {
-      return e.toString();
+    } catch (e, st) {
+      throw ErrorHandler.process(e, st);
     }
   }
 
-  Future<String?> sendPasswordReset(String email) async {
+  Future<void> sendPasswordReset(String email) async {
     final auth = _auth;
-    if (auth == null) return _firebaseUnavailable;
+    if (auth == null) throw AppError(_firebaseUnavailable, category: ErrorCategory.network);
     try {
       await auth.sendPasswordResetEmail(email: email.trim());
-      return null;
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        return 'Bu email ro\'yxatdan o\'tmagan.';
-      }
-      return e.message ?? 'Xatolik yuz berdi.';
-    } catch (e) {
-      return e.toString();
+    } catch (e, st) {
+      throw ErrorHandler.process(e, st);
     }
   }
 

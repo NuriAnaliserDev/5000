@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/auth_service.dart';
 import '../../services/settings_controller.dart';
+import '../../core/error/error_handler.dart';
 import 'web_dashboard_main.dart';
 
 class WebLoginScreen extends StatefulWidget {
@@ -57,22 +58,22 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
 
     final auth = context.read<AuthService>();
     final settings = context.read<SettingsController>();
-    final error = _register
-        ? await auth.register(
-            email,
-            password,
-            displayName:
-                _nameCtrl.text.trim().isEmpty ? null : _nameCtrl.text.trim(),
-          )
-        : await auth.login(email, password);
-
-    if (!mounted) return;
-
-    if (error != null) {
+    try {
+      if (_register) {
+        await auth.register(
+          email,
+          password,
+          displayName: _nameCtrl.text.trim().isEmpty ? null : _nameCtrl.text.trim(),
+        );
+      } else {
+        await auth.login(email, password);
+      }
+    } catch (e, st) {
+      if (!mounted) return;
       setState(() {
-        _errorMsg = error;
         _isLoading = false;
       });
+      ErrorHandler.show(context, e, st);
       return;
     }
 
