@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'dart:async';
 import 'dart:io' show File;
 import 'dart:math' as math;
@@ -24,12 +25,10 @@ import '../services/map_structure_repository.dart';
 import '../services/tutorial_service.dart';
 import '../services/presence_service.dart';
 import '../services/sos_service.dart';
-import '../models/station.dart';
+import '../utils/gis_geojson_export.dart';
 import '../models/geological_line.dart';
 import '../models/map_structure_annotation.dart';
 import '../models/measurement.dart';
-import '../models/boundary_polygon.dart';
-import '../utils/gis_geojson_export.dart';
 import '../utils/gis_import_feedback.dart';
 import '../utils/linework_utils.dart';
 import '../utils/map_geodesy.dart';

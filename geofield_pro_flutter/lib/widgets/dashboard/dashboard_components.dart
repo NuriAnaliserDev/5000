@@ -61,8 +61,7 @@ class DashboardQuickTools extends StatelessWidget {
             GeoFieldStrings.of(context)?.field_workshop_title ??
                 'Field workshop',
             const Color(0xFF2E7D32),
-            () => Navigator.of(context, rootNavigator: true)
-                .pushNamed(AppRouter.fieldWorkshop),
+            () => AppRouter.pushFieldWorkshop(context),
           ),
           _buildQuickToolItem(
             context,

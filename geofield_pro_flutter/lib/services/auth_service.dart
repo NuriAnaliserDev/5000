@@ -152,18 +152,4 @@ class AuthService extends ChangeNotifier {
       'displayName': user.displayName,
     };
   }
-
-  static bool _isAuthConfigOrRecaptchaError(FirebaseAuthException e) {
-    final m = (e.message ?? '').toLowerCase();
-    return m.contains('configuration_not_found') ||
-        m.contains('recaptcha') ||
-        m.contains('internal error has occurred') ||
-        m.contains('appcheck');
-  }
-
-  static String _firebaseAuthConfigHint() {
-    return "Firebase Android uchun Web client ID (default_web_client_id) qo'shilmagan. "
-        "android/firebase_secrets.properties.example faylida yo'riqnomaga qarang, "
-        "so'zlangan kalitni qo'ying yoki muhit o'zgaruvchisidan FIREBASE_DEFAULT_WEB_CLIENT_ID bering.";
-  }
 }

@@ -46,6 +46,80 @@ class AppRouter {
   static const String painter = '/painter';
   static const String station = '/station';
 
+  // --- Type-Safe Navigation Helpers ---
+
+  static void pushChat(BuildContext context, String groupId) {
+    context.push(
+        Uri(path: chat, queryParameters: {'groupId': groupId}).toString());
+  }
+
+  static void pushAutoTableReview(BuildContext context, String path) {
+    context.push(
+        Uri(path: autoTableReview, queryParameters: {'path': path}).toString());
+  }
+
+  static void pushCamera(BuildContext context, {int? stationId}) {
+    context.push(Uri(
+            path: camera,
+            queryParameters:
+                stationId != null ? {'stationId': stationId.toString()} : null)
+        .toString());
+  }
+
+  static void pushMap(BuildContext context,
+      {Map<String, dynamic>? initLocation}) {
+    Map<String, String> q = {};
+    if (initLocation != null) {
+      if (initLocation['lat'] != null)
+        q['lat'] = initLocation['lat'].toString();
+      if (initLocation['lng'] != null)
+        q['lng'] = initLocation['lng'].toString();
+      if (initLocation['zoom'] != null)
+        q['zoom'] = initLocation['zoom'].toString();
+    }
+    context.push(
+        Uri(path: map, queryParameters: q.isNotEmpty ? q : null).toString());
+  }
+
+  static void pushFieldWorkshop(BuildContext context,
+      {Map<String, dynamic>? initLocation}) {
+    Map<String, String> q = {};
+    if (initLocation != null) {
+      if (initLocation['lat'] != null)
+        q['lat'] = initLocation['lat'].toString();
+      if (initLocation['lng'] != null)
+        q['lng'] = initLocation['lng'].toString();
+      if (initLocation['zoom'] != null)
+        q['zoom'] = initLocation['zoom'].toString();
+    }
+    context.push(
+        Uri(path: fieldWorkshop, queryParameters: q.isNotEmpty ? q : null)
+            .toString());
+  }
+
+  static void pushPainter(BuildContext context, String path) {
+    context
+        .push(Uri(path: painter, queryParameters: {'path': path}).toString());
+  }
+
+  static void pushStation(BuildContext context, {int? stationId}) {
+    context.push(Uri(
+            path: station,
+            queryParameters:
+                stationId != null ? {'id': stationId.toString()} : null)
+        .toString());
+  }
+
+  static void goStation(BuildContext context, {int? stationId}) {
+    context.go(Uri(
+            path: station,
+            queryParameters:
+                stationId != null ? {'id': stationId.toString()} : null)
+        .toString());
+  }
+
+  // ------------------------------------
+
   static final router = GoRouter(
     initialLocation: home,
     routes: [
@@ -84,7 +158,7 @@ class AppRouter {
       GoRoute(
         path: chat,
         builder: (context, state) {
-          final id = state.extra as String?;
+          final id = state.uri.queryParameters['groupId'];
           if (id == null || id.isEmpty) return const _NotFoundScreen();
           return ChatScreen(groupId: id);
         },
@@ -92,7 +166,7 @@ class AppRouter {
       GoRoute(
         path: autoTableReview,
         builder: (context, state) {
-          final path = state.extra as String?;
+          final path = state.uri.queryParameters['path'];
           if (path == null || path.isEmpty) return const _NotFoundScreen();
           return AutoTableReviewScreen(imagePath: path);
         },
@@ -100,21 +174,42 @@ class AppRouter {
       GoRoute(
         path: camera,
         builder: (context, state) {
-          final sid = state.extra as int?;
-          return SmartCameraScreen(stationId: sid);
+          final sid = state.uri.queryParameters['stationId'];
+          return SmartCameraScreen(
+              stationId: sid != null ? int.tryParse(sid) : null);
         },
       ),
       GoRoute(
         path: map,
         builder: (context, state) {
-          final initLoc = state.extra as Map<String, dynamic>?;
+          final lat = state.uri.queryParameters['lat'];
+          final lng = state.uri.queryParameters['lng'];
+          final zoom = state.uri.queryParameters['zoom'];
+          Map<String, dynamic>? initLoc;
+          if (lat != null && lng != null) {
+            initLoc = {
+              'lat': double.tryParse(lat),
+              'lng': double.tryParse(lng)
+            };
+            if (zoom != null) initLoc['zoom'] = double.tryParse(zoom);
+          }
           return GlobalMapScreen(initLocation: initLoc);
         },
       ),
       GoRoute(
         path: fieldWorkshop,
         builder: (context, state) {
-          final initLoc = state.extra as Map<String, dynamic>?;
+          final lat = state.uri.queryParameters['lat'];
+          final lng = state.uri.queryParameters['lng'];
+          final zoom = state.uri.queryParameters['zoom'];
+          Map<String, dynamic>? initLoc;
+          if (lat != null && lng != null) {
+            initLoc = {
+              'lat': double.tryParse(lat),
+              'lng': double.tryParse(lng)
+            };
+            if (zoom != null) initLoc['zoom'] = double.tryParse(zoom);
+          }
           return GlobalMapScreen(
               initLocation: initLoc, fieldWorkshopMode: true);
         },
@@ -142,7 +237,7 @@ class AppRouter {
       GoRoute(
         path: painter,
         builder: (context, state) {
-          final path = state.extra as String?;
+          final path = state.uri.queryParameters['path'];
           if (path == null || path.isEmpty) return const _NotFoundScreen();
           return ImagePainterScreen(imagePath: path);
         },
@@ -150,11 +245,9 @@ class AppRouter {
       GoRoute(
         path: station,
         builder: (context, state) {
-          var sid = state.extra;
-          if (sid is num) {
-            return StationSummaryScreen(stationId: sid.toInt());
-          }
-          return const StationSummaryScreen();
+          final sid = state.uri.queryParameters['id'];
+          return StationSummaryScreen(
+              stationId: sid != null ? int.tryParse(sid) : null);
         },
       ),
     ],

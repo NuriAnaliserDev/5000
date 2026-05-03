@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
+import 'package:go_router/go_router.dart';
 import 'app_router.dart';
 import 'main_tab_shell.dart';
 
-/// Asosiy tablar: shell ichida bo‘lsa indeks, aks holda klassik [Navigator.pushNamed].
+/// Asosiy tablar: shell ichida bo‘lsa indeks, aks holda klassik [context.go].
 class MainTabNavigation {
   MainTabNavigation._();
 
@@ -29,17 +30,16 @@ class MainTabNavigation {
     }
     switch (index.clamp(0, 3)) {
       case 0:
-        Navigator.of(context).pushReplacementNamed(AppRouter.dashboard);
+        context.go(AppRouter.dashboard);
         break;
       case 1:
-        Navigator.of(context).pushNamed(AppRouter.map, arguments: mapLocation);
+        AppRouter.pushMap(context, initLocation: mapLocation);
         break;
       case 2:
-        Navigator.of(context)
-            .pushNamed(AppRouter.camera, arguments: cameraStationId);
+        AppRouter.pushCamera(context, stationId: cameraStationId);
         break;
       default:
-        Navigator.of(context).pushNamed(AppRouter.archive);
+        context.push(AppRouter.archive);
     }
   }
 

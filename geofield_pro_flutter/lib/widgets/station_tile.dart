@@ -1,3 +1,4 @@
+import '../app/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -36,8 +37,7 @@ class StationTile extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(14),
         onTap: onTap ??
-            () => Navigator.of(context, rootNavigator: true)
-                .pushNamed('/station', arguments: station.key),
+            () => AppRouter.pushStation(context, stationId: station.key),
         onLongPress: onLongPress,
         child: Padding(
           padding: const EdgeInsets.all(12),

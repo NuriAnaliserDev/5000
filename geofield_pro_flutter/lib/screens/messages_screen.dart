@@ -1,3 +1,4 @@
+import '../app/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -74,7 +75,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 final group = groups[index];
                 return GestureDetector(
                   onTap: () {
-                    Navigator.pushNamed(context, '/chat', arguments: group.id);
+                    AppRouter.pushChat(context, group.id);
                   },
                   child: Container(
                     margin: const EdgeInsets.only(bottom: 12),

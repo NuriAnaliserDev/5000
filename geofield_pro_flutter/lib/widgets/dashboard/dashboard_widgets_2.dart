@@ -1,3 +1,5 @@
+import 'package:go_router/go_router.dart';
+import '../../app/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -82,8 +84,9 @@ class DashboardSliverAppBar extends StatelessWidget {
                   icon: Icon(Icons.notifications_none_rounded,
                       color: scheme.onSurface),
                   tooltip: context.loc('notifications_screen_title'),
-                  onPressed: () =>
-                      Navigator.of(context).pushNamed('/notifications'),
+                  onPressed: () {
+                    context.push(AppRouter.notifications);
+                  },
                 ),
               ],
             ),

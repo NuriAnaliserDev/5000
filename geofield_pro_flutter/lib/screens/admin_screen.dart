@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -346,10 +347,7 @@ class AdminScreen extends StatelessWidget {
             final s = context.read<SettingsController>();
             s.clearLocalDisplayName();
             s.forgetAuth();
-            Navigator.of(context).pushNamedAndRemoveUntil(
-              AppRouter.auth,
-              (r) => false,
-            );
+            context.go(AppRouter.auth);
           },
         ),
         const SizedBox(height: 24),

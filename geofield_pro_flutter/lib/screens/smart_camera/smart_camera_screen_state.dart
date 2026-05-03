@@ -412,11 +412,8 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
       // Mavjud stansiyaga rasm: hujjat rejimida bo'lsa ham rasm sifatida qo'shiladi;
       // AI hujjat tahlili — faqat «yangi stansiya» oqimida (stationId == null).
       if (_cameraMode == CameraMode.document && widget.stationId == null) {
-        if (!mounted) {
-          return;
-        }
-        Navigator.of(context, rootNavigator: true)
-            .pushNamed('/auto-table-review', arguments: file.path);
+        if (!mounted) return;
+        AppRouter.pushAutoTableReview(context, file.path);
         return;
       }
 
@@ -528,7 +525,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(context.locRead('station_saved')),
           behavior: SnackBarBehavior.floating));
-      context.go('/station', extra: id);
+      AppRouter.goStation(context, stationId: id);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

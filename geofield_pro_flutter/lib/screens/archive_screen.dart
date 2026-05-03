@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../app/app_router.dart';
 import 'package:share_plus/share_plus.dart';
 import '../l10n/app_strings.dart';
 import '../app/main_tab_navigation.dart';
@@ -530,8 +531,7 @@ class _ArchiveScreenState extends State<ArchiveScreen>
                             ? _selectedStationKeys.remove(key)
                             : _selectedStationKeys.add(key));
                       } else {
-                        Navigator.of(context, rootNavigator: true)
-                            .pushNamed('/station', arguments: key);
+                        AppRouter.pushStation(context, stationId: key);
                       }
                     },
                     onStationLongPress: (key) {

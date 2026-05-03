@@ -369,9 +369,9 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                 Consumer<StationRepository>(
                   builder: (context, stationRepo, _) => MapStationLayer(
                     stations: stationRepo.stations,
-                    onStationTap: (s) =>
-                        Navigator.of(context, rootNavigator: true)
-                            .pushNamed('/station', arguments: s.key as int?),
+                    onStationTap: (s) {
+                      AppRouter.pushStation(context, stationId: s.key as int?);
+                    },
                   ),
                 ),
                 if (widget.initLocation != null)
@@ -743,8 +743,9 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
               followGps: _followGps,
               onOpenProTools: _openMapProTools,
               onDraw: _startLineDrawing,
-              onAddStation: () => Navigator.of(context, rootNavigator: true)
-                  .pushNamed('/station'),
+              onAddStation: () {
+                AppRouter.pushStation(context);
+              },
               onFollowToggle: () {
                 setState(() {
                   _followGps = !_followGps;
@@ -757,8 +758,9 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
               },
               onMyLocation: () => _goToMyLocation(currentPos),
               onStrikeDip: _toggleStructureMode,
-              onSampling: () => Navigator.of(context, rootNavigator: true)
-                  .pushNamed('/station'),
+              onSampling: () {
+                AppRouter.pushStation(context);
+              },
               onFieldNotes: () => MainTabNavigation.openCamera(context),
               onProjectLayers: () => setState(() {
                 _mapFieldMenuOpen = false;
@@ -919,13 +921,10 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
 
   void _openFieldWorkshop() {
     HapticFeedback.selectionClick();
-    Navigator.of(context, rootNavigator: true).pushNamed(
-      AppRouter.fieldWorkshop,
-      arguments: <String, dynamic>{
-        'lat': _centerLat,
-        'lng': _centerLng,
-      },
-    );
+    AppRouter.pushFieldWorkshop(context, initLocation: {
+      'lat': _centerLat,
+      'lng': _centerLng,
+    });
   }
 
   Widget _buildMeasureStatsPanel() {
@@ -1082,8 +1081,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
         );
         break;
       case MapProToolAction.stereonet:
-        Navigator.of(context, rootNavigator: true)
-            .pushNamed(AppRouter.analysis);
+        context.push(AppRouter.analysis);
         break;
       case MapProToolAction.copyUtm:
         _copyUtmCenterToClipboard();

@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import '../app/app_router.dart';
 import 'package:intl/intl.dart';
 
 import '../l10n/app_strings.dart';
@@ -37,7 +39,7 @@ class _NotificationsFeedScreenState extends State<NotificationsFeedScreen> {
         ),
         actions: [
           TextButton.icon(
-            onPressed: () => Navigator.of(context).pushNamed('/messages'),
+            onPressed: () => context.push(AppRouter.messages),
             icon: const Icon(Icons.forum_outlined, size: 20),
             label: Text(s.notifications_open_chats),
           ),
