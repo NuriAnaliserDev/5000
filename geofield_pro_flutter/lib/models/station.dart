@@ -98,6 +98,15 @@ class Station extends HiveObject {
   @HiveField(28)
   DateTime? updatedAt;
 
+  @HiveField(29, defaultValue: 1)
+  int version;
+
+  @HiveField(30)
+  String? updatedBy;
+
+  @HiveField(31)
+  String? updatedByDeviceId;
+
   Station({
     required this.name,
     required this.lat,
@@ -128,6 +137,9 @@ class Station extends HiveObject {
     this.history,
     this.subMeasurementType,
     this.updatedAt,
+    this.version = 1,
+    this.updatedBy,
+    this.updatedByDeviceId,
   });
 
   Station copyWith({
@@ -160,6 +172,9 @@ class Station extends HiveObject {
     List<Measurement>? measurements,
     List<AuditEntry>? history,
     DateTime? updatedAt,
+    int? version,
+    String? updatedBy,
+    String? updatedByDeviceId,
   }) {
     return Station(
       name: name ?? this.name,
@@ -191,6 +206,9 @@ class Station extends HiveObject {
       measurements: measurements ?? this.measurements,
       history: history ?? this.history,
       updatedAt: updatedAt ?? this.updatedAt,
+      version: version ?? this.version,
+      updatedBy: updatedBy ?? this.updatedBy,
+      updatedByDeviceId: updatedByDeviceId ?? this.updatedByDeviceId,
     );
   }
 }

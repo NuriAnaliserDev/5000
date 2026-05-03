@@ -59,6 +59,18 @@ class GeologicalLine extends HiveObject {
   @HiveField(14)
   List<double>? controlLngs;
 
+  @HiveField(15)
+  DateTime? updatedAt;
+
+  @HiveField(16, defaultValue: 1)
+  int version;
+
+  @HiveField(17)
+  String? updatedBy;
+
+  @HiveField(18)
+  String? updatedByDeviceId;
+
   GeologicalLine({
     required this.id,
     required this.name,
@@ -75,6 +87,10 @@ class GeologicalLine extends HiveObject {
     this.isCurved = false,
     this.controlLats,
     this.controlLngs,
+    this.updatedAt,
+    this.version = 1,
+    this.updatedBy,
+    this.updatedByDeviceId,
   });
 
   /// Default color for each line type (hex string without #)
@@ -130,6 +146,10 @@ class GeologicalLine extends HiveObject {
       'isCurved': isCurved,
       'controlLats': controlLats,
       'controlLngs': controlLngs,
+      'updatedAt': updatedAt?.toIso8601String(),
+      'version': version,
+      'updatedBy': updatedBy,
+      'updatedByDeviceId': updatedByDeviceId,
     };
   }
 
@@ -154,6 +174,10 @@ class GeologicalLine extends HiveObject {
       controlLngs: map['controlLngs'] != null
           ? List<double>.from(map['controlLngs'])
           : null,
+      updatedAt: map['updatedAt'] != null ? DateTime.parse(map['updatedAt']) : null,
+      version: map['version'] ?? 1,
+      updatedBy: map['updatedBy'],
+      updatedByDeviceId: map['updatedByDeviceId'],
     );
   }
 }

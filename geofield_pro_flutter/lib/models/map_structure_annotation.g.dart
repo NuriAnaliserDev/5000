@@ -26,13 +26,17 @@ class MapStructureAnnotationAdapter
       structureType: fields[5] as String,
       createdAt: fields[7] as DateTime,
       note: fields[6] as String?,
+      updatedAt: fields[8] as DateTime?,
+      version: fields[9] == null ? 1 : fields[9] as int,
+      updatedBy: fields[10] as String?,
+      updatedByDeviceId: fields[11] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, MapStructureAnnotation obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -48,7 +52,15 @@ class MapStructureAnnotationAdapter
       ..writeByte(6)
       ..write(obj.note)
       ..writeByte(7)
-      ..write(obj.createdAt);
+      ..write(obj.createdAt)
+      ..writeByte(8)
+      ..write(obj.updatedAt)
+      ..writeByte(9)
+      ..write(obj.version)
+      ..writeByte(10)
+      ..write(obj.updatedBy)
+      ..writeByte(11)
+      ..write(obj.updatedByDeviceId);
   }
 
   @override

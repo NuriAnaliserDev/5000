@@ -9,6 +9,7 @@ import '../models/map_structure_annotation.dart';
 import '../utils/firebase_ready.dart';
 import '../core/network/network_executor.dart';
 import '../core/error/error_logger.dart';
+import '../utils/device_id_helper.dart';
 
 /// Xaritadagi qo‘lda qo‘yilgan strike/dip belgilar (offline + Firestore).
 class MapStructureRepository extends ChangeNotifier {
@@ -55,6 +56,20 @@ class MapStructureRepository extends ChangeNotifier {
     });
   }
 
+  Future<MapStructureAnnotation> _stamp(MapStructureAnnotation a,
+      {bool increment = false}) async {
+    final deviceId = await DeviceIdHelper.getDeviceId();
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+
+    return MapStructureAnnotation.fromMap({
+      ...a.toMap(),
+      'version': increment ? (a.version + 1) : a.version,
+      'updatedAt': DateTime.now().toIso8601String(),
+      'updatedBy': uid,
+      'updatedByDeviceId': deviceId,
+    });
+  }
+
   /// Legacy annotatsiya: `ownerUid` bo‘lmasa, avval claim.
   Future<void> _ensureAnnotationOwnerClaim(String docId) async {
     final fs = _firestore;
@@ -85,26 +100,39 @@ class MapStructureRepository extends ChangeNotifier {
   }
 
   Future<void> addAnnotation(MapStructureAnnotation a) async {
-    await _box!.put(a.id, a);
+    final stamped = await _stamp(a);
+    await _box!.put(stamped.id, stamped);
     _items = _box!.values.toList();
     notifyListeners();
+    _uploadAnnotation(stamped);
+  }
+
+  Future<void> updateAnnotation(MapStructureAnnotation a) async {
+    final stamped = await _stamp(a, increment: true);
+    await _box!.put(stamped.id, stamped);
+    _items = _box!.values.toList();
+    notifyListeners();
+    _uploadAnnotation(stamped);
+  }
+
+  Future<void> _uploadAnnotation(MapStructureAnnotation a) async {
     if (!isFirebaseCoreReady) return;
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
     final fs = _firestore;
     if (fs == null) return;
+
     try {
       await NetworkExecutor.execute(
         () => fs.collection('map_structure_annotations').doc(a.id).set({
           ...a.toMap(),
           'ownerUid': uid,
         }, SetOptions(merge: true)),
-        actionName: 'Add Annotation',
-        maxRetries: 2,
+        actionName: 'Upload Annotation',
+        maxRetries: 3,
       );
     } catch (e, st) {
-      ErrorLogger.record(e, st,
-          customMessage: 'MapStructureRepository upload error');
+      ErrorLogger.record(e, st, customMessage: 'Upload annotation error');
     }
   }
 

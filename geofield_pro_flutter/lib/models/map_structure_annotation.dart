@@ -32,6 +32,18 @@ class MapStructureAnnotation extends HiveObject {
   @HiveField(7)
   DateTime createdAt;
 
+  @HiveField(8)
+  DateTime? updatedAt;
+
+  @HiveField(9, defaultValue: 1)
+  int version;
+
+  @HiveField(10)
+  String? updatedBy;
+
+  @HiveField(11)
+  String? updatedByDeviceId;
+
   MapStructureAnnotation({
     required this.id,
     required this.lat,
@@ -41,6 +53,10 @@ class MapStructureAnnotation extends HiveObject {
     required this.structureType,
     required this.createdAt,
     this.note,
+    this.updatedAt,
+    this.version = 1,
+    this.updatedBy,
+    this.updatedByDeviceId,
   });
 
   Map<String, dynamic> toMap() {
@@ -53,6 +69,10 @@ class MapStructureAnnotation extends HiveObject {
       'structureType': structureType,
       'note': note,
       'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
+      'version': version,
+      'updatedBy': updatedBy,
+      'updatedByDeviceId': updatedByDeviceId,
     };
   }
 
@@ -67,6 +87,10 @@ class MapStructureAnnotation extends HiveObject {
       note: m['note'] as String?,
       createdAt:
           DateTime.tryParse(m['createdAt'] as String? ?? '') ?? DateTime.now(),
+      updatedAt: m['updatedAt'] != null ? DateTime.tryParse(m['updatedAt']) : null,
+      version: m['version'] as int? ?? 1,
+      updatedBy: m['updatedBy'] as String?,
+      updatedByDeviceId: m['updatedByDeviceId'] as String?,
     );
   }
 }

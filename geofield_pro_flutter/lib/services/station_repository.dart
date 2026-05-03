@@ -8,6 +8,7 @@ import '../models/audit_entry.dart';
 import 'hive_db.dart';
 import 'cloud_sync_service.dart';
 import '../utils/geology_validator.dart';
+import '../utils/device_id_helper.dart';
 import '../core/error/app_error.dart';
 
 class StationRepository extends ChangeNotifier {
@@ -21,6 +22,19 @@ class StationRepository extends ChangeNotifier {
 
   StationRepository(this._cloudSync) {
     _box = Hive.box<Station>(HiveDb.stationsBox);
+  }
+
+  /// Versioning va meta ma'lumotlarni majburiy o'rnatish
+  Future<Station> _stamp(Station station, {bool increment = false}) async {
+    final deviceId = await DeviceIdHelper.getDeviceId();
+    // updatedBy uchun currentUser ID kerak bo'lsa, uni repositoryga o'tkazish kerak
+    // Hozircha mavjud authorName dan foydalanamiz yoki author parametrini kutamiz
+    
+    return station.copyWith(
+      version: increment ? (station.version + 1) : station.version,
+      updatedAt: DateTime.now(),
+      updatedByDeviceId: deviceId,
+    );
   }
 
   @override
@@ -41,10 +55,11 @@ class StationRepository extends ChangeNotifier {
 
   Future<int> addStation(Station station) async {
     final error = GeologyValidator.validateStation(station);
-    if (error != null)
+    if (error != null) {
       throw AppError(error, category: ErrorCategory.validation);
+    }
 
-    final finalStation = station.copyWith(updatedAt: DateTime.now());
+    final finalStation = await _stamp(station); // Initial version is 1
     final id = await _box.add(finalStation);
     notifyListeners();
     _cloudSync.syncStation(id, finalStation); // Auto sync to cloud
@@ -54,19 +69,23 @@ class StationRepository extends ChangeNotifier {
   Future<void> updateStation(dynamic key, Station updated,
       {String? author}) async {
     final error = GeologyValidator.validateStation(updated);
-    if (error != null)
+    if (error != null) {
       throw AppError(error, category: ErrorCategory.validation);
+    }
 
     final oldStation = _box.get(key);
+    Station tempUpdated = updated;
     if (oldStation != null && author != null) {
       final entries = _generateAuditEntries(oldStation, updated, author);
       if (entries.isNotEmpty) {
-        updated.history ??= [];
-        updated.history!.addAll(entries);
+        tempUpdated = updated.copyWith(
+          history: [...(updated.history ?? []), ...entries],
+          updatedBy: author,
+        );
       }
     }
 
-    final finalUpdated = updated.copyWith(updatedAt: DateTime.now());
+    final finalUpdated = await _stamp(tempUpdated, increment: true);
 
     await _box.put(key, finalUpdated);
     notifyListeners();

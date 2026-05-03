@@ -11,6 +11,7 @@ import '../core/security/access_control_service.dart';
 import '../core/di/dependency_injection.dart';
 import '../core/network/network_executor.dart';
 import '../core/error/error_logger.dart';
+import '../utils/device_id_helper.dart';
 
 /// Repository for geological linework features (faults, contacts, etc.)
 /// Backed by a Hive box for offline-first storage.
@@ -56,20 +57,36 @@ class GeologicalLineRepository extends ChangeNotifier {
     });
   }
 
+  Future<GeologicalLine> _stamp(GeologicalLine line,
+      {bool increment = false}) async {
+    final deviceId = await DeviceIdHelper.getDeviceId();
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+
+    return GeologicalLine.fromMap({
+      ...line.toMap(),
+      'version': increment ? (line.version + 1) : line.version,
+      'updatedAt': DateTime.now().toIso8601String(),
+      'updatedBy': uid,
+      'updatedByDeviceId': deviceId,
+    });
+  }
+
   /// Add a new geological line and persist it.
   Future<void> addLine(GeologicalLine line) async {
-    await _box!.put(line.id, line);
+    final stamped = await _stamp(line);
+    await _box!.put(stamped.id, stamped);
     _lines = _box!.values.toList();
     notifyListeners();
-    _uploadLine(line);
+    _uploadLine(stamped);
   }
 
   /// Update an existing line by its id.
   Future<void> updateLine(GeologicalLine line) async {
-    await _box!.put(line.id, line);
+    final stamped = await _stamp(line, increment: true);
+    await _box!.put(stamped.id, stamped);
     _lines = _box!.values.toList();
     notifyListeners();
-    _uploadLine(line);
+    _uploadLine(stamped);
   }
 
   /// Legacy: `ownerUid` bo‘lmasa, bitta maydon bilan claim (Firestore qoidasi).

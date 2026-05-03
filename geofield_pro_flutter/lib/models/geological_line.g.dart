@@ -32,13 +32,17 @@ class GeologicalLineAdapter extends TypeAdapter<GeologicalLine> {
       isCurved: fields[12] as bool,
       controlLats: (fields[13] as List?)?.cast<double>(),
       controlLngs: (fields[14] as List?)?.cast<double>(),
+      updatedAt: fields[15] as DateTime?,
+      version: fields[16] == null ? 1 : fields[16] as int,
+      updatedBy: fields[17] as String?,
+      updatedByDeviceId: fields[18] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, GeologicalLine obj) {
     writer
-      ..writeByte(15)
+      ..writeByte(19)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -68,7 +72,15 @@ class GeologicalLineAdapter extends TypeAdapter<GeologicalLine> {
       ..writeByte(13)
       ..write(obj.controlLats)
       ..writeByte(14)
-      ..write(obj.controlLngs);
+      ..write(obj.controlLngs)
+      ..writeByte(15)
+      ..write(obj.updatedAt)
+      ..writeByte(16)
+      ..write(obj.version)
+      ..writeByte(17)
+      ..write(obj.updatedBy)
+      ..writeByte(18)
+      ..write(obj.updatedByDeviceId);
   }
 
   @override
