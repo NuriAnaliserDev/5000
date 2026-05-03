@@ -16,6 +16,7 @@ import '../../services/sos_service.dart';
 import '../../services/station_repository.dart';
 import '../../services/theme_controller.dart';
 import '../../services/track_service.dart';
+import '../../services/sync/sync_queue_service.dart';
 
 final sl = GetIt.instance;
 
@@ -32,13 +33,15 @@ void setupDependencies() {
     return service;
   });
 
+  sl.registerLazySingleton<SyncQueueService>(() => SyncQueueService());
+
   sl.registerLazySingleton<LocationService>(() => LocationService());
 
   // 2. Domain / Repository Layer
   // Dependensiyalarni zanjirini sindirish (Dependency inversion).
   // Obyektlar to'g'ridan to'g'ri GetIt orqali o'ziga kerakli servislarni oladi.
   sl.registerLazySingleton<StationRepository>(
-      () => StationRepository(sl<CloudSyncService>()));
+      () => StationRepository(sl<CloudSyncService>(), sl<SyncQueueService>()));
   sl.registerLazySingleton<TrackService>(
       () => TrackService(sl<CloudSyncService>()));
 

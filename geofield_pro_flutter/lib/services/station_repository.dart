@@ -3,11 +3,14 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:hive/hive.dart';
+import 'package:uuid/uuid.dart';
 
 import '../models/station.dart';
 import '../models/audit_entry.dart';
+import '../models/sync_item.dart';
 import 'hive_db.dart';
 import 'cloud_sync_service.dart';
+import 'sync/sync_queue_service.dart';
 import '../utils/geology_validator.dart';
 import '../utils/device_id_helper.dart';
 import '../core/error/app_error.dart';
@@ -15,6 +18,7 @@ import '../core/error/app_error.dart';
 class StationRepository extends ChangeNotifier {
   late final Box<Station> _box;
   final CloudSyncService _cloudSync;
+  final SyncQueueService _syncQueue;
 
   /// Har [notifyListeners] da oshadi — [Selector] bilan UI faqat
   /// ma'lumot o'zgarganda qayta quriladi.
@@ -23,15 +27,13 @@ class StationRepository extends ChangeNotifier {
 
   final _lock = Lock();
 
-  StationRepository(this._cloudSync) {
+  StationRepository(this._cloudSync, this._syncQueue) {
     _box = Hive.box<Station>(HiveDb.stationsBox);
   }
 
   /// Versioning va meta ma'lumotlarni majburiy o'rnatish
   Future<Station> _stamp(Station station, {bool increment = false}) async {
     final deviceId = await DeviceIdHelper.getDeviceId();
-    // updatedBy uchun currentUser ID kerak bo'lsa, uni repositoryga o'tkazish kerak
-    // Hozircha mavjud authorName dan foydalanamiz yoki author parametrini kutamiz
     
     return station.copyWith(
       version: increment ? (station.version + 1) : station.version,
@@ -46,7 +48,7 @@ class StationRepository extends ChangeNotifier {
     super.notifyListeners();
   }
 
-  // Manually sync all local stations to the cloud
+  // Manually sync all local stations to the cloud (Legacy trigger)
   Future<void> syncAllToCloud() async {
     await _cloudSync.triggerSync();
   }
@@ -56,7 +58,7 @@ class StationRepository extends ChangeNotifier {
 
   Station? getById(dynamic id) => _box.get(id);
 
-  Future<int> addStation(Station station) async {
+  Future<int> addStation(Station station, {UpdateSource source = UpdateSource.local}) async {
     return await _lock.synchronized(() async {
       final error = GeologyValidator.validateStation(station);
       if (error != null) {
@@ -65,14 +67,28 @@ class StationRepository extends ChangeNotifier {
 
       final finalStation = await _stamp(station);
       final id = await _box.add(finalStation);
+      
+      if (source == UpdateSource.local) {
+        await _syncQueue.addItem(SyncItem(
+          id: const Uuid().v4(),
+          entityType: 'station',
+          entityId: id.toString(),
+          payload: finalStation.toMap(),
+          version: finalStation.version,
+          operation: SyncOperation.create,
+          requestId: const Uuid().v4(),
+          sequence: _syncQueue.getNextSequence(),
+          createdAt: DateTime.now(),
+        ));
+      }
+      
       notifyListeners();
-      _cloudSync.syncStation(id, finalStation);
       return id;
     });
   }
 
   Future<void> updateStation(dynamic key, Station updated,
-      {String? author}) async {
+      {String? author, UpdateSource source = UpdateSource.local}) async {
     await _lock.synchronized(() async {
       final error = GeologyValidator.validateStation(updated);
       if (error != null) {
@@ -91,11 +107,62 @@ class StationRepository extends ChangeNotifier {
         }
       }
 
-      final finalUpdated = await _stamp(tempUpdated, increment: true);
+      final finalUpdated = await _stamp(tempUpdated, increment: source == UpdateSource.local);
 
       await _box.put(key, finalUpdated);
+
+      if (source == UpdateSource.local) {
+        await _syncQueue.addItem(SyncItem(
+          id: const Uuid().v4(),
+          entityType: 'station',
+          entityId: key.toString(),
+          payload: finalUpdated.toMap(),
+          version: finalUpdated.version,
+          operation: SyncOperation.update,
+          requestId: const Uuid().v4(),
+          sequence: _syncQueue.getNextSequence(),
+          createdAt: DateTime.now(),
+        ));
+      }
+
       notifyListeners();
-      _cloudSync.syncStation(key, finalUpdated);
+    });
+  }
+
+  Future<void> deleteStation(dynamic key, {UpdateSource source = UpdateSource.local}) async {
+    await _lock.synchronized(() async {
+      final station = _box.get(key);
+      if (station == null) return;
+
+      // Delete local files
+      if (station.photoPaths != null) {
+        for (var p in station.photoPaths!) {
+          await _deleteFile(p);
+        }
+      } else if (station.photoPath != null) {
+        await _deleteFile(station.photoPath!);
+      }
+      if (station.audioPath != null) {
+        await _deleteFile(station.audioPath!);
+      }
+
+      await _box.delete(key);
+
+      if (source == UpdateSource.local) {
+        await _syncQueue.addItem(SyncItem(
+          id: const Uuid().v4(),
+          entityType: 'station',
+          entityId: key.toString(),
+          payload: {},
+          version: station.version,
+          operation: SyncOperation.delete,
+          requestId: const Uuid().v4(),
+          sequence: _syncQueue.getNextSequence(),
+          createdAt: DateTime.now(),
+        ));
+      }
+
+      notifyListeners();
     });
   }
 
@@ -128,109 +195,82 @@ class StationRepository extends ChangeNotifier {
     return entries;
   }
 
-  Future<void> deleteStation(dynamic key) async {
-    final s = _box.get(key);
-    if (s != null) {
-      // Barcha rasmlarni o'chirish (yangi format)
-      if (s.photoPaths != null) {
-        for (var p in s.photoPaths!) {
-          try {
-            await _deleteFile(p);
-          } catch (e) {
-            debugPrint('Failed to delete photo file "$p": $e');
-          }
-        }
-      } else if (s.photoPath != null) {
-        // Legacy format — orqaga moslik uchun
-        try {
-          await _deleteFile(s.photoPath!);
-        } catch (e) {
-          debugPrint('Failed to delete legacy photo "${s.photoPath}": $e');
-        }
-      }
-      if (s.audioPath != null) {
-        try {
-          await _deleteFile(s.audioPath!);
-        } catch (e) {
-          debugPrint('Failed to delete audio "${s.audioPath}": $e');
-        }
-      }
-    }
-    await _box.delete(key);
-    notifyListeners();
-    unawaited(
-        _cloudSync.deleteStation(key)); // Remove from cloud (fon rejimida)
-  }
-
   /// Joriy foydalanuvchining BARCHA lokal stansiyalarini o'chiradi.
-  /// Cloud'dan ham o'chirish uchun [clearCloud] = true qiling.
-  /// Ehtiyot bo'ling: bu operatsiya qaytarib bo'lmaydi.
   Future<void> clear({bool clearCloud = true}) async {
-    for (var s in _box.values) {
-      if (s.photoPaths != null) {
-        for (var p in s.photoPaths!) {
-          try {
+    await _lock.synchronized(() async {
+      for (var s in _box.values) {
+        if (s.photoPaths != null) {
+          for (var p in s.photoPaths!) {
             await _deleteFile(p);
-          } catch (e) {
-            debugPrint('Failed to clear photo file "$p": $e');
+          }
+        } else if (s.photoPath != null) {
+          await _deleteFile(s.photoPath!);
+        }
+        if (s.audioPath != null) {
+          await _deleteFile(s.audioPath!);
+        }
+        
+        if (clearCloud) {
+          // Add to queue as delete
+          final key = s.key;
+          if (key != null) {
+            await _syncQueue.addItem(SyncItem(
+              id: const Uuid().v4(),
+              entityType: 'station',
+              entityId: key.toString(),
+              payload: {},
+              version: s.version,
+              operation: SyncOperation.delete,
+              requestId: const Uuid().v4(),
+              sequence: _syncQueue.getNextSequence(),
+              createdAt: DateTime.now(),
+            ));
           }
         }
-      } else if (s.photoPath != null) {
-        try {
-          await _deleteFile(s.photoPath!);
-        } catch (e) {
-          debugPrint('Failed to clear legacy photo "${s.photoPath}": $e');
-        }
       }
-      if (s.audioPath != null) {
-        try {
-          await _deleteFile(s.audioPath!);
-        } catch (e) {
-          debugPrint('Failed to clear audio "${s.audioPath}": $e');
-        }
-      }
-    }
-    await _box.clear();
-    notifyListeners();
-    if (clearCloud) {
-      unawaited(_cloudSync.clearUserStations()); // Faqat UID-scoped o'chirish
-    }
+      await _box.clear();
+      notifyListeners();
+    });
   }
 
   Future<void> _deleteFile(String path) async {
-    final f = File(path);
-    if (await f.exists()) {
-      await f.delete();
+    try {
+      final f = File(path);
+      if (await f.exists()) {
+        await f.delete();
+      }
+    } catch (e) {
+      debugPrint('File delete error: $e');
     }
   }
 
   Future<void> renameProject(String oldName, String newName) async {
-    for (final rawKey in _box.keys) {
-      final key = rawKey is int ? rawKey : int.tryParse(rawKey.toString());
-      if (key == null) continue;
-      final s = _box.get(key);
-      if (s != null && s.project == oldName) {
-        final updated = s.copyWith(project: newName);
-        await _box.put(key, updated);
-        unawaited(_cloudSync.syncStation(key, updated));
+    await _lock.synchronized(() async {
+      for (final rawKey in _box.keys) {
+        final key = rawKey;
+        final s = _box.get(key);
+        if (s != null && s.project == oldName) {
+          final updated = s.copyWith(project: newName);
+          await updateStation(key, updated);
+        }
       }
-    }
-    notifyListeners();
+      notifyListeners();
+    });
   }
 
   Future<void> deleteProject(String projectName) async {
-    final keysToDelete = <int>[];
-    for (final rawKey in _box.keys) {
-      final key = rawKey is int ? rawKey : int.tryParse(rawKey.toString());
-      if (key == null) continue;
-      final s = _box.get(key);
-      if (s != null && s.project == projectName) {
-        keysToDelete.add(key);
+    await _lock.synchronized(() async {
+      final keysToDelete = [];
+      for (final rawKey in _box.keys) {
+        final s = _box.get(rawKey);
+        if (s != null && s.project == projectName) {
+          keysToDelete.add(rawKey);
+        }
       }
-    }
-    for (final key in keysToDelete) {
-      await deleteStation(key);
-    }
-    notifyListeners();
+      for (final key in keysToDelete) {
+        await deleteStation(key);
+      }
+      notifyListeners();
+    });
   }
 }

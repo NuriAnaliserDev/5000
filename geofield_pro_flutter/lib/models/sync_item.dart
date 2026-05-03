@@ -26,6 +26,11 @@ enum SyncOperation {
   delete
 }
 
+enum UpdateSource {
+  local,
+  remote
+}
+
 @HiveType(typeId: 9)
 class SyncItem extends HiveObject {
   @HiveField(0)
