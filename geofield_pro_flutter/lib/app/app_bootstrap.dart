@@ -12,6 +12,7 @@ import '../services/hive_db.dart';
 import '../utils/firebase_ready.dart';
 import '../core/error/error_logger.dart';
 import '../core/network/network_executor.dart';
+import '../core/di/dependency_injection.dart';
 
 /// Successful bootstrap: root widget (usually [MultiProvider] + [GeoFieldProApp]).
 sealed class AppBootstrapResult {}
@@ -33,6 +34,7 @@ class AppBootstrapFailure extends AppBootstrapResult {
 Future<AppBootstrapResult> runAppBootstrap() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
+    setupDependencies();
   } catch (e, st) {
     ErrorLogger.record(e, st,
         customMessage: 'WidgetsFlutterBinding ishga tushmadi');

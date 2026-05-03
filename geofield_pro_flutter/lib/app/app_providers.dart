@@ -1,6 +1,8 @@
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
+import '../core/di/dependency_injection.dart';
+
 import '../services/auth_service.dart';
 import '../services/boundary_service.dart';
 import '../services/chat_repository.dart';
@@ -19,68 +21,51 @@ import '../services/track_service.dart';
 
 /// [main.dart] dagi [MultiProvider]. [CloudSyncService] va boshqa og‘ir
 /// servislar [lazy: true] — faqat kerak bo‘lganda yuklanadi.
+/// Dependency Chain (ChangNotifierProxyProvider) to'liq bekor qilindi.
+/// Endi servislarni UI ga yetkazish uchun GetIt ishlatiladi.
 List<SingleChildWidget> buildAppChangeNotifierProviders() {
   return [
     ChangeNotifierProvider<CloudSyncService>(
       lazy: true,
-      create: (ctx) {
-        final service = CloudSyncService();
-        service.init();
-        return service;
-      },
+      create: (_) => sl<CloudSyncService>(),
     ),
-    ChangeNotifierProxyProvider<CloudSyncService, StationRepository>(
+    ChangeNotifierProvider<StationRepository>(
       lazy: true,
-      create: (ctx) =>
-          StationRepository(Provider.of<CloudSyncService>(ctx, listen: false)),
-      update: (_, sync, prev) => prev ?? StationRepository(sync),
+      create: (_) => sl<StationRepository>(),
     ),
     ChangeNotifierProvider<ThemeController>(
-        lazy: false, create: (_) => ThemeController()),
+        lazy: false, create: (_) => sl<ThemeController>()),
     ChangeNotifierProvider<AuthService>(
-        lazy: false, create: (_) => AuthService()),
+        lazy: false, create: (_) => sl<AuthService>()),
     ChangeNotifierProvider<SettingsController>(
-        lazy: false, create: (_) => SettingsController()),
-    ChangeNotifierProxyProvider<SettingsController, ChatRepository>(
+        lazy: false, create: (_) => sl<SettingsController>()),
+    ChangeNotifierProvider<ChatRepository>(
       lazy: true,
-      create: (ctx) => ChatRepository(
-        settingsController: Provider.of<SettingsController>(ctx, listen: false),
-      ),
-      update: (_, settings, chatRepo) =>
-          chatRepo ?? ChatRepository(settingsController: settings),
+      create: (_) => sl<ChatRepository>(),
     ),
-    ChangeNotifierProxyProvider<CloudSyncService, TrackService>(
+    ChangeNotifierProvider<TrackService>(
       lazy: true,
-      create: (ctx) =>
-          TrackService(Provider.of<CloudSyncService>(ctx, listen: false)),
-      update: (_, sync, prev) => prev ?? TrackService(sync),
+      create: (_) => sl<TrackService>(),
     ),
     ChangeNotifierProvider<LocationService>(
-        lazy: true, create: (_) => LocationService()),
+        lazy: true, create: (_) => sl<LocationService>()),
     ChangeNotifierProvider<BoundaryService>(
-        lazy: true, create: (_) => BoundaryService()),
+        lazy: true, create: (_) => sl<BoundaryService>()),
     ChangeNotifierProvider<MineReportRepository>(
-        lazy: true, create: (_) => MineReportRepository()),
+        lazy: true, create: (_) => sl<MineReportRepository>()),
     ChangeNotifierProvider<GeologicalLineRepository>(
       lazy: true,
-      create: (_) {
-        final repo = GeologicalLineRepository();
-        repo.init();
-        return repo;
-      },
+      create: (_) => sl<GeologicalLineRepository>(),
     ),
     ChangeNotifierProvider<MapStructureRepository>(
       lazy: true,
-      create: (_) {
-        final r = MapStructureRepository();
-        r.init();
-        return r;
-      },
+      create: (_) => sl<MapStructureRepository>(),
     ),
     ChangeNotifierProvider<SecurityProvider>(
-        lazy: true, create: (_) => SecurityProvider()),
+        lazy: true, create: (_) => sl<SecurityProvider>()),
     ChangeNotifierProvider<PresenceService>(
-        lazy: true, create: (_) => PresenceService()),
-    ChangeNotifierProvider<SosService>(lazy: true, create: (_) => SosService()),
+        lazy: true, create: (_) => sl<PresenceService>()),
+    ChangeNotifierProvider<SosService>(
+        lazy: true, create: (_) => sl<SosService>()),
   ];
 }
