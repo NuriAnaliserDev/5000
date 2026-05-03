@@ -177,40 +177,18 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // PERFORMANCE FIX: context.select — faqat kerakli qiymat o'zgarganda rebuild
-    // context.watch × 5 = har qaysi service o'zgarganda BUTUN build() qayta ishlardi.
-    final stations = context.select<StationRepository, List<Station>>(
-      (repo) => repo.stations,
-    );
-    final currentTrack = context.select<TrackService, dynamic>(
-      (svc) => svc.currentTrack,
-    );
-    final mapStyle = context.select<SettingsController, String>(
-      (s) => s.mapStyle,
-    );
-    final settings = context.read<SettingsController>();
-    final boundaries = context.select<BoundaryService, List<BoundaryPolygon>>(
-      (svc) => svc.boundaries,
-    );
-    final boundarySvc = context.read<BoundaryService>();
-    final geoLines =
-        context.select<GeologicalLineRepository, List<GeologicalLine>>(
-      (repo) => repo.getAllLines(),
-    );
-    final structureAnnotations =
-        context.select<MapStructureRepository, List<MapStructureAnnotation>>(
-            (r) => r.annotations);
-    final trackSvc = context.read<TrackService>();
+    // PERFORMANCE FIX: Removed all context.select at the top level.
+    // Instead, wrapped individual FlutterMap layers with Consumer/Selector.
+    // This entirely prevents the heavy FlutterMap from rebuilding when a single station or GPS point updates.
     final locationSvc = context.read<LocationService>();
     final currentPos = locationSvc.currentPosition;
+    final boundarySvc = context.read<BoundaryService>();
 
     LatLng center = widget.initLocation != null
         ? LatLng(widget.initLocation!['lat'], widget.initLocation!['lng'])
         : (currentPos != null
             ? LatLng(currentPos.latitude, currentPos.longitude)
-            : (stations.isNotEmpty
-                ? LatLng(stations.first.lat, stations.first.lng)
-                : const LatLng(41.2995, 69.2401)));
+            : const LatLng(41.2995, 69.2401));
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -243,45 +221,50 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                 },
               ),
               children: [
-                TileLayer(
-                  urlTemplate: mapTileUrlTemplate(mapStyle),
-                  subdomains: mapTileSubdomains(mapStyle),
-                  userAgentPackageName: 'com.geofield.pro.flutter',
-                  maxNativeZoom: mapStyle == 'satellite' ? 17 : 15,
-                  maxZoom: 18,
-                  tileProvider: _tileProvider,
+                Selector<SettingsController, String>(
+                  selector: (_, s) => s.mapStyle,
+                  builder: (context, mapStyle, _) => TileLayer(
+                    urlTemplate: mapTileUrlTemplate(mapStyle),
+                    subdomains: mapTileSubdomains(mapStyle),
+                    userAgentPackageName: 'com.geofield.pro.flutter',
+                    maxNativeZoom: mapStyle == 'satellite' ? 17 : 15,
+                    maxZoom: 18,
+                    tileProvider: _tileProvider,
+                  ),
                 ),
-                MapTrackLayer(
-                  storedTracks: trackSvc.storedTracks,
-                  currentTrack: trackSvc.currentTrack,
-                  gisLayerOpacity: _gisLayerOpacity,
+                Consumer<TrackService>(
+                  builder: (context, track, _) => MapTrackLayer(
+                    storedTracks: track.storedTracks,
+                    currentTrack: track.currentTrack,
+                    gisLayerOpacity: _gisLayerOpacity,
+                  ),
                 ),
-                MapLineworkLayer(
-                  geoLines: geoLines,
-                  isDrawingMode: _isDrawingMode,
-                  drawingPoints: _drawingPoints,
-                  selectedLineType: _selectedLineType,
-                  isCurvedMode: _isCurvedMode,
+                Consumer<GeologicalLineRepository>(
+                  builder: (context, geoRepo, _) => MapLineworkLayer(
+                    geoLines: geoRepo.getAllLines(),
+                    isDrawingMode: _isDrawingMode,
+                    drawingPoints: _drawingPoints,
+                    selectedLineType: _selectedLineType,
+                    isCurvedMode: _isCurvedMode,
+                  ),
                 ),
                 if (_isDrawingMode && _drawingPoints.isNotEmpty)
                   MarkerLayer(
                     markers: _drawingPoints
-                        .map(
-                          (p) => Marker(
-                            point: p,
-                            width: 16,
-                            height: 16,
-                            alignment: Alignment.center,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                    color: const Color(0xFFFF9800), width: 2),
+                        .map((p) => Marker(
+                              point: p,
+                              width: 16,
+                              height: 16,
+                              alignment: Alignment.center,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                      color: const Color(0xFFFF9800), width: 2),
+                                ),
                               ),
-                            ),
-                          ),
-                        )
+                            ))
                         .toList(),
                   ),
                 if (_isSliceMode && _drawingPoints.isNotEmpty)
@@ -314,60 +297,82 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                       ),
                     ],
                   ),
-                if (_isVertexEditMode && _editingPolygonId != null)
-                  PolylineLayer(
-                    polylines: mapVertexEditPolylines(
-                      boundaries,
-                      editingPolygonId: _editingPolygonId,
-                      selectedVertexIndex: _selectedVertexIndex,
-                    ),
-                  ),
-                PolygonLayer(
-                  polygons: [
-                    ...boundaries
-                        .where((b) => b.points.length >= 3)
-                        .map<Polygon>((b) => mapPolygonForBoundary(
-                            b, currentPos, _gisLayerOpacity)),
-                    ...geoLines
-                        .where((l) => l.isClosed)
-                        .map((l) => mapPolygonForGeologicalLine(l)),
-                    if (_isDrawingMode &&
-                        _selectedLineType == 'polygon' &&
-                        _drawingPoints.length >= 3)
-                      Polygon(
-                        points: _drawingPoints,
-                        color: Color(int.parse(
-                                GeologicalLine.defaultColorHex(
-                                    _selectedLineType),
-                                radix: 16) +
-                            0x66000000),
-                        borderColor: Colors.transparent,
-                        borderStrokeWidth: 0,
-                      ),
-                  ],
-                ),
-                PolylineLayer(
-                  polylines: [
-                    ...boundaries.where((b) => b.points.length == 2).map(
-                          (b) => Polyline(
-                            points: b.points,
-                            color: b.displayColor.withValues(
-                                alpha: math.max(0.75, _gisLayerOpacity)),
-                            strokeWidth: 3,
+                Consumer<BoundaryService>(
+                  builder: (context, boundaryService, _) {
+                    final boundaries = boundaryService.boundaries;
+                    return Stack(
+                      children: [
+                        if (_isVertexEditMode && _editingPolygonId != null)
+                          PolylineLayer(
+                            polylines: mapVertexEditPolylines(
+                              boundaries,
+                              editingPolygonId: _editingPolygonId,
+                              selectedVertexIndex: _selectedVertexIndex,
+                            ),
                           ),
+                        Consumer<GeologicalLineRepository>(
+                          builder: (context, geoRepo, _) {
+                            final geoLines = geoRepo.getAllLines();
+                            return PolygonLayer(
+                              polygons: [
+                                ...boundaries
+                                    .where((b) => b.points.length >= 3)
+                                    .map<Polygon>((b) => mapPolygonForBoundary(
+                                        b, currentPos, _gisLayerOpacity)),
+                                ...geoLines
+                                    .where((l) => l.isClosed)
+                                    .map((l) => mapPolygonForGeologicalLine(l)),
+                                if (_isDrawingMode &&
+                                    _selectedLineType == 'polygon' &&
+                                    _drawingPoints.length >= 3)
+                                  Polygon(
+                                    points: _drawingPoints,
+                                    color: Color(int.parse(
+                                            GeologicalLine.defaultColorHex(
+                                                _selectedLineType),
+                                            radix: 16) +
+                                        0x66000000),
+                                    borderColor: Colors.transparent,
+                                    borderStrokeWidth: 0,
+                                  ),
+                              ],
+                            );
+                          },
                         ),
-                  ],
+                        PolylineLayer(
+                          polylines: [
+                            ...boundaries
+                                .where((b) => b.points.length == 2)
+                                .map(
+                                  (b) => Polyline(
+                                    points: b.points,
+                                    color: b.displayColor.withValues(
+                                        alpha:
+                                            math.max(0.75, _gisLayerOpacity)),
+                                    strokeWidth: 3,
+                                  ),
+                                ),
+                          ],
+                        ),
+                      ],
+                    );
+                  },
                 ),
-                MapStructureMarkersLayer(
-                  annotations: structureAnnotations,
-                  opacity: _drawingLayerOpacity,
-                  onMarkerTap: (a) => unawaited(_confirmDeleteStructure(a)),
+                Consumer<MapStructureRepository>(
+                  builder: (context, structureRepo, _) =>
+                      MapStructureMarkersLayer(
+                    annotations: structureRepo.annotations,
+                    opacity: _drawingLayerOpacity,
+                    onMarkerTap: (a) => unawaited(_confirmDeleteStructure(a)),
+                  ),
                 ),
-                MapStationLayer(
-                  stations: stations,
-                  onStationTap: (s) =>
-                      Navigator.of(context, rootNavigator: true)
-                          .pushNamed('/station', arguments: s.key as int?),
+                Consumer<StationRepository>(
+                  builder: (context, stationRepo, _) => MapStationLayer(
+                    stations: stationRepo.stations,
+                    onStationTap: (s) =>
+                        Navigator.of(context, rootNavigator: true)
+                            .pushNamed('/station', arguments: s.key as int?),
+                  ),
                 ),
                 if (widget.initLocation != null)
                   MarkerLayer(
@@ -383,47 +388,78 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                   ),
                 const MapTeamPresenceLayer(),
                 const MapSosSignalsLayer(),
-                _buildUserLocationMarker(currentPos),
+                Consumer<LocationService>(
+                  builder: (context, loc, _) =>
+                      _buildUserLocationMarker(loc.currentPosition),
+                ),
               ],
             ),
             if (widget.fieldWorkshopMode) const MapGpsHud(),
-            MapLegend(
-                stations: stations,
-                currentPos: currentPos,
-                mapController: _mapController),
-            if (widget.fieldWorkshopMode)
-              MapTopBar(
-                stationsCount: stations.length,
-                settings: settings,
-                onStylePressed: () => _showMapStyleSelector(context, settings),
-                onSearchPressed: _openSearch,
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Color(0xFF1976D2)),
-                  onPressed: () => Navigator.of(context).maybePop(),
-                  tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+            Consumer<StationRepository>(
+              builder: (context, stationRepo, _) => Consumer<LocationService>(
+                builder: (context, locSvc, _) => MapLegend(
+                  stations: stationRepo.stations,
+                  currentPos: locSvc.currentPosition,
+                  mapController: _mapController,
                 ),
-                titleOverride:
-                    GeoFieldStrings.of(context)?.field_workshop_title ??
-                        'Field workshop',
-                secondaryLineOverride:
-                    '${settings.currentProject} · ${stations.length} ${context.loc('stations')}',
+              ),
+            ),
+            if (widget.fieldWorkshopMode)
+              Consumer2<StationRepository, SettingsController>(
+                builder: (context, stationRepo, settingsController, _) =>
+                    MapTopBar(
+                  stationsCount: stationRepo.stations.length,
+                  settings: settingsController,
+                  onStylePressed: () =>
+                      _showMapStyleSelector(context, settingsController),
+                  onSearchPressed: _openSearch,
+                  leading: IconButton(
+                    icon:
+                        const Icon(Icons.arrow_back, color: Color(0xFF1976D2)),
+                    onPressed: () => Navigator.of(context).maybePop(),
+                    tooltip:
+                        MaterialLocalizations.of(context).backButtonTooltip,
+                  ),
+                  titleOverride:
+                      GeoFieldStrings.of(context)?.field_workshop_title ??
+                          'Field workshop',
+                  secondaryLineOverride:
+                      '${settingsController.currentProject} · ${stationRepo.stations.length} ${context.loc('stations')}',
+                ),
               )
             else
-              MapStitchTopCluster(
-                stationsCount: stations.length,
-                settings: settings,
-                onStylePressed: () => _showMapStyleSelector(context, settings),
-                onSearchPressed: _openSearch,
+              Consumer2<StationRepository, SettingsController>(
+                builder: (context, stationRepo, settingsController, _) =>
+                    MapStitchTopCluster(
+                  stationsCount: stationRepo.stations.length,
+                  settings: settingsController,
+                  onStylePressed: () =>
+                      _showMapStyleSelector(context, settingsController),
+                  onSearchPressed: _openSearch,
+                ),
               ),
             if (widget.fieldWorkshopMode && _workshopInfoBanner)
               _buildWorkshopInfoBanner(),
             if (widget.fieldWorkshopMode) _buildFieldWorkshopToolRail(),
-            if (currentTrack != null)
-              MapLiveTrackStats(track: trackSvc.currentTrack!),
-            if (widget.fieldWorkshopMode)
-              _buildMapFloatingLayer(currentPos: currentPos)
-            else
-              _buildStitchMapChrome(currentPos: currentPos),
+            Consumer<TrackService>(
+              builder: (context, track, _) {
+                if (track.currentTrack != null) {
+                  return MapLiveTrackStats(track: track.currentTrack!);
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+            Consumer<LocationService>(
+              builder: (context, locSvc, _) {
+                if (widget.fieldWorkshopMode) {
+                  return _buildMapFloatingLayer(
+                      currentPos: locSvc.currentPosition);
+                } else {
+                  return _buildStitchMapChrome(
+                      currentPos: locSvc.currentPosition);
+                }
+              },
+            ),
             MapLineworkControls(
               isDrawingMode: _isDrawingMode,
               selectedLineType: _selectedLineType,
