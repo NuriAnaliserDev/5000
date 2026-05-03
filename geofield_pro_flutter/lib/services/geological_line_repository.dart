@@ -7,6 +7,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import '../models/geological_line.dart';
 import '../utils/firebase_ready.dart';
+import '../core/security/access_control_service.dart';
+import '../core/di/dependency_injection.dart';
 
 /// Repository for geological linework features (faults, contacts, etc.)
 /// Backed by a Hive box for offline-first storage.
@@ -86,6 +88,7 @@ class GeologicalLineRepository extends ChangeNotifier {
 
   /// Delete a line by its id.
   Future<void> deleteLine(String id) async {
+    sl<AccessControlService>().requireAuth();
     await _box!.delete(id);
     _lines = _box!.values.toList();
     notifyListeners();
@@ -116,6 +119,12 @@ class GeologicalLineRepository extends ChangeNotifier {
 
   Future<void> _uploadLine(GeologicalLine line) async {
     if (!isFirebaseCoreReady) return;
+    try {
+      sl<AccessControlService>().requireAuth();
+    } catch (e) {
+      debugPrint('Unauthorized upload blocked: $e');
+      return;
+    }
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
     final fs = _firestore;

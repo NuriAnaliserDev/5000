@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 
 import '../../services/auth_service.dart';
 import '../../services/boundary_service.dart';
+import '../security/access_control_service.dart';
 import '../../services/chat_repository.dart';
 import '../../services/cloud_sync_service.dart';
 import '../../services/geological_line_repository.dart';
@@ -23,6 +24,7 @@ void setupDependencies() {
   sl.registerLazySingleton<ThemeController>(() => ThemeController());
   sl.registerLazySingleton<SettingsController>(() => SettingsController());
   sl.registerLazySingleton<AuthService>(() => AuthService());
+  sl.registerLazySingleton<AccessControlService>(() => AccessControlService());
 
   sl.registerLazySingleton<CloudSyncService>(() {
     final service = CloudSyncService();

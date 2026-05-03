@@ -13,6 +13,9 @@ import '../models/chat_message.dart';
 import '../utils/firebase_ready.dart';
 import '../core/network/network_executor.dart';
 import '../core/error/error_logger.dart';
+import '../core/error/app_error.dart';
+import '../core/security/access_control_service.dart';
+import '../core/di/dependency_injection.dart';
 import 'hive_db.dart';
 
 class CloudSyncService extends ChangeNotifier {
@@ -154,9 +157,14 @@ class CloudSyncService extends ChangeNotifier {
   // Tizim ichki foydalanishi uchun
   Future<bool> _syncStationDirectly(dynamic key, Station station) async {
     final uid = _currentUserId;
-    if (uid == null) return false;
+    if (uid == null) {
+      throw AppError('Sinxronizatsiya uchun avtorizatsiya zarur.',
+          category: ErrorCategory.auth);
+    }
     final fs = _firestore;
     if (fs == null) return false;
+
+    sl<AccessControlService>().requireAuth();
 
     try {
       // Stansiyalar foydalanuvchi UID ostida saqlanadi — boshqa foydalanuvchilar ko'ra olmaydi
@@ -289,9 +297,14 @@ class CloudSyncService extends ChangeNotifier {
 
   Future<bool> _syncShiftLog(dynamic key, TrackData track) async {
     final uid = _currentUserId;
-    if (uid == null) return false;
+    if (uid == null) {
+      throw AppError('Sinxronizatsiya uchun avtorizatsiya zarur.',
+          category: ErrorCategory.auth);
+    }
     final fs = _firestore;
     if (fs == null) return false;
+
+    sl<AccessControlService>().requireAuth();
 
     try {
       final docRef = fs
@@ -332,9 +345,14 @@ class CloudSyncService extends ChangeNotifier {
 
   Future<void> _syncPendingChatDirectly(ChatMessage msg) async {
     final uid = _currentUserId;
-    if (uid == null) return;
+    if (uid == null) {
+      throw AppError('Xabar yuborish uchun tizimga kiring.',
+          category: ErrorCategory.auth);
+    }
     final fs = _firestore;
     if (fs == null) return;
+
+    sl<AccessControlService>().requireAuth();
 
     try {
       String? remoteMediaUrl;

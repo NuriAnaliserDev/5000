@@ -18,6 +18,7 @@ import '../services/sos_service.dart';
 import '../services/station_repository.dart';
 import '../services/theme_controller.dart';
 import '../services/track_service.dart';
+import '../core/security/access_control_service.dart';
 
 /// [main.dart] dagi [MultiProvider]. [CloudSyncService] va boshqa og‘ir
 /// servislar [lazy: true] — faqat kerak bo‘lganda yuklanadi.
@@ -39,6 +40,8 @@ List<SingleChildWidget> buildAppChangeNotifierProviders() {
         lazy: false, create: (_) => sl<AuthService>()),
     ChangeNotifierProvider<SettingsController>(
         lazy: false, create: (_) => sl<SettingsController>()),
+    ChangeNotifierProvider<AccessControlService>(
+        lazy: false, create: (_) => sl<AccessControlService>()),
     ChangeNotifierProvider<ChatRepository>(
       lazy: true,
       create: (_) => sl<ChatRepository>(),
