@@ -14,8 +14,10 @@ class ErrorHandler {
     if (error is FirebaseException) {
       if (error.code == 'user-not-found') {
         cat = ErrorCategory.auth;
-        msg = 'Bunday foydalanuvchi topilmadi yoki email ro\'yxatdan o\'tmagan.';
-      } else if (error.code == 'wrong-password' || error.code == 'invalid-credential') {
+        msg =
+            'Bunday foydalanuvchi topilmadi yoki email ro\'yxatdan o\'tmagan.';
+      } else if (error.code == 'wrong-password' ||
+          error.code == 'invalid-credential') {
         cat = ErrorCategory.auth;
         msg = 'Email yoki parol xato.';
       } else if (error.code == 'email-already-in-use') {
@@ -27,10 +29,12 @@ class ErrorHandler {
       } else if (error.code == 'too-many-requests') {
         cat = ErrorCategory.network;
         msg = 'Juda ko\'p urinish. Bir oz kuting.';
-      } else if (error.code == 'network-request-failed' || error.code == 'unavailable') {
+      } else if (error.code == 'network-request-failed' ||
+          error.code == 'unavailable') {
         cat = ErrorCategory.network;
         msg = 'Internetga ulanishda xatolik.';
-      } else if (error.code.contains('auth') || error.code == 'unauthenticated') {
+      } else if (error.code.contains('auth') ||
+          error.code == 'unauthenticated') {
         cat = ErrorCategory.auth;
         msg = 'Avtorizatsiya xatosi: ${error.message}';
       } else if (error.code == 'permission-denied') {
@@ -39,7 +43,8 @@ class ErrorHandler {
       } else {
         msg = error.message ?? error.toString();
       }
-    } else if (error.toString().contains('SocketException') || error.toString().contains('ClientException')) {
+    } else if (error.toString().contains('SocketException') ||
+        error.toString().contains('ClientException')) {
       cat = ErrorCategory.network;
       msg = 'Tarmoqqa ulanib bo‘lmadi.';
     } else if (error is FormatException) {
@@ -47,12 +52,14 @@ class ErrorHandler {
       msg = 'Ma\'lumotlar formati noto‘g‘ri.';
     }
 
-    final appError = AppError(msg, category: cat, originalError: error, stackTrace: stackTrace);
+    final appError = AppError(msg,
+        category: cat, originalError: error, stackTrace: stackTrace);
     ErrorLogger.log(appError);
     return appError;
   }
 
-  static void show(BuildContext context, Object error, [StackTrace? stackTrace]) {
+  static void show(BuildContext context, Object error,
+      [StackTrace? stackTrace]) {
     final appError = process(error, stackTrace);
     SnackbarHelper.show(context, appError.message, type: SnackbarType.error);
   }

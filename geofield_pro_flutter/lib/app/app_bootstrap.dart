@@ -11,6 +11,7 @@ import '../firebase_options.dart';
 import '../services/hive_db.dart';
 import '../utils/firebase_ready.dart';
 import '../core/error/error_logger.dart';
+import '../core/network/network_executor.dart';
 
 /// Successful bootstrap: root widget (usually [MultiProvider] + [GeoFieldProApp]).
 sealed class AppBootstrapResult {}
@@ -33,7 +34,8 @@ Future<AppBootstrapResult> runAppBootstrap() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
   } catch (e, st) {
-    ErrorLogger.record(e, st, customMessage: 'WidgetsFlutterBinding ishga tushmadi');
+    ErrorLogger.record(e, st,
+        customMessage: 'WidgetsFlutterBinding ishga tushmadi');
     return AppBootstrapFailure(
       'WidgetsFlutterBinding ishga tushmadi: $e',
       e,
@@ -58,14 +60,16 @@ Future<AppBootstrapResult> runAppBootstrap() async {
   } catch (e, st) {
     ErrorLogger.record(e, st, customMessage: 'Firebase initialization failed');
     if (!kIsWeb) {
-      debugPrint('Mobil: Firebase yo‘q — mahalliy rejim (bulut/sinxron cheklangan).');
+      debugPrint(
+          'Mobil: Firebase yo‘q — mahalliy rejim (bulut/sinxron cheklangan).');
     }
   }
 
   try {
     await HiveDb.init();
   } catch (e, st) {
-    ErrorLogger.record(e, st, customMessage: 'Mahalliy ma\'lumotlar bazasi (Hive) ochilmadi');
+    ErrorLogger.record(e, st,
+        customMessage: 'Mahalliy ma\'lumotlar bazasi (Hive) ochilmadi');
     return AppBootstrapFailure(
       'Mahalliy ma\'lumotlar bazasi (Hive) ochilmadi. Ilova sizsiz dala ma\'lumotlarini saqlay olmaydi.\n$e',
       e,
@@ -75,26 +79,27 @@ Future<AppBootstrapResult> runAppBootstrap() async {
 
   if (!kIsWeb) {
     Object? fmtcErr;
-    for (var attempt = 0; attempt < 2; attempt++) {
-      try {
-        if (attempt > 0) {
-          await Future<void>.delayed(const Duration(milliseconds: 400));
-        }
-        await FMTCObjectBoxBackend().initialise();
-        await FMTCStore('opentopomap').manage.create();
-        await FMTCStore('osm').manage.create();
-        await FMTCStore('satellite').manage.create();
-        fmtcErr = null;
-        break;
-      } catch (e, st) {
-        fmtcErr = e;
-        if (attempt == 1) {
-          ErrorLogger.record(e, st, customMessage: 'FMTC oflayn xarita keshi ishga tushmadi');
-        }
-      }
+    try {
+      await NetworkExecutor.execute(
+        () async {
+          await FMTCObjectBoxBackend().initialise();
+          await FMTCStore('opentopomap').manage.create();
+          await FMTCStore('osm').manage.create();
+          await FMTCStore('satellite').manage.create();
+        },
+        maxRetries: 2,
+        baseDelayMs: 400,
+        timeout: const Duration(seconds: 15),
+        actionName: 'FMTC Offline Map Init',
+        shouldRetry: (_) => true, // Always retry init on error
+      );
+    } catch (e, st) {
+      fmtcErr = e;
+      ErrorLogger.record(e, st,
+          customMessage: 'FMTC oflayn xarita keshi ishga tushmadi');
     }
     if (fmtcErr != null) {
-      debugPrint('WARN: Oflayn xarita keshi xatosi yuz berdi.');
+      debugPrint('WARN: Oflayn xarita keshi xatosi yuz berdi: $fmtcErr');
     }
   }
 

@@ -11,6 +11,8 @@ import '../models/station.dart';
 import '../models/track_data.dart';
 import '../models/chat_message.dart';
 import '../utils/firebase_ready.dart';
+import '../core/network/network_executor.dart';
+import '../core/error/error_logger.dart';
 import 'hive_db.dart';
 
 class CloudSyncService extends ChangeNotifier {
@@ -236,10 +238,16 @@ class CloudSyncService extends ChangeNotifier {
         'authorRole': station.authorRole,
         'syncedAt': FieldValue.serverTimestamp(),
       };
-      await docRef.set(data, SetOptions(merge: true));
+
+      await NetworkExecutor.execute(
+        () async {
+          await docRef.set(data, SetOptions(merge: true));
+        },
+        actionName: 'Sync Station $key',
+      );
       return true;
-    } catch (e) {
-      debugPrint('Failed to sync station $key: $e');
+    } catch (e, st) {
+      ErrorLogger.record(e, st, customMessage: 'Failed to sync station $key');
       return false;
     }
   }
@@ -268,15 +276,21 @@ class CloudSyncService extends ChangeNotifier {
         'points': track.points.map((p) => p.toJson()).toList(),
         'syncedAt': FieldValue.serverTimestamp(),
       };
-      await docRef.set(data, SetOptions(merge: true));
+
+      await NetworkExecutor.execute(
+        () async {
+          await docRef.set(data, SetOptions(merge: true));
+        },
+        actionName: 'Sync Shift Log $key',
+      );
 
       // Update local state to mark as synced
       track.isSynced = true;
       await track.save();
 
       return true;
-    } catch (e) {
-      debugPrint('Failed to sync shift log $key: $e');
+    } catch (e, st) {
+      ErrorLogger.record(e, st, customMessage: 'Failed to sync shift log $key');
       return false;
     }
   }
@@ -303,29 +317,36 @@ class CloudSyncService extends ChangeNotifier {
         remoteMediaUrl = await ref.getDownloadURL();
       }
 
-      await fs
-          .collection('chat_groups')
-          .doc(msg.groupId)
-          .collection('messages')
-          .doc(msg.id)
-          .set({
-        'id': msg.id,
-        'groupId': msg.groupId,
-        'senderId': uid,
-        'senderName': msg.senderName,
-        'text': msg.text,
-        'timestamp': msg.timestamp.toIso8601String(),
-        'messageType': msg.messageType,
-        'mediaUrl': remoteMediaUrl,
-        'lat': msg.lat,
-        'lng': msg.lng,
-        if (msg.editedAt != null) 'editedAt': msg.editedAt!.toIso8601String(),
-      });
+      await NetworkExecutor.execute(
+        () async {
+          await fs
+              .collection('chat_groups')
+              .doc(msg.groupId)
+              .collection('messages')
+              .doc(msg.id)
+              .set({
+            'id': msg.id,
+            'groupId': msg.groupId,
+            'senderId': uid,
+            'senderName': msg.senderName,
+            'text': msg.text,
+            'timestamp': msg.timestamp.toIso8601String(),
+            'messageType': msg.messageType,
+            'mediaUrl': remoteMediaUrl,
+            'lat': msg.lat,
+            'lng': msg.lng,
+            if (msg.editedAt != null)
+              'editedAt': msg.editedAt!.toIso8601String(),
+          });
+        },
+        actionName: 'Sync Pending Chat ${msg.id}',
+      );
 
       msg.status = 'sent';
       await msg.save();
-    } catch (e) {
-      debugPrint('Failed to sync chat message ${msg.id}: $e');
+    } catch (e, st) {
+      ErrorLogger.record(e, st,
+          customMessage: 'Failed to sync chat message ${msg.id}');
       // Failure keeps msg.status = 'pending'. Next queue run will retry.
     }
   }

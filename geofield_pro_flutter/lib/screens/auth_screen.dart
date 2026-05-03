@@ -68,7 +68,8 @@ class _AuthScreenState extends State<AuthScreen> {
         await auth.register(
           email,
           password,
-          displayName: _nameCtrl.text.trim().isEmpty ? null : _nameCtrl.text.trim(),
+          displayName:
+              _nameCtrl.text.trim().isEmpty ? null : _nameCtrl.text.trim(),
         );
       } else {
         await auth.login(email, password);

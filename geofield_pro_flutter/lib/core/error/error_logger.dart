@@ -15,7 +15,8 @@ class ErrorLogger {
     // Buni kelajakda Sentry yoki Firebase Crashlytics ga yuborish mumkin
   }
 
-  static void record(Object e, StackTrace? st, {ErrorCategory category = ErrorCategory.unknown, String? customMessage}) {
+  static void record(Object e, StackTrace? st,
+      {ErrorCategory category = ErrorCategory.unknown, String? customMessage}) {
     final error = AppError(
       customMessage ?? e.toString(),
       category: category,
