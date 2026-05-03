@@ -5,25 +5,34 @@ part 'project.g.dart';
 @HiveType(typeId: 10)
 class Project extends HiveObject {
   @HiveField(0)
-  String id;
+  late String id;
 
   @HiveField(1)
-  String name;
+  late String name;
 
   @HiveField(2)
-  String description;
+  late String description;
 
   @HiveField(3)
-  DateTime createdAt;
+  late DateTime createdAt;
 
   @HiveField(4)
-  String leadGeologist;
+  late String leadGeologist;
 
   Project({
     required this.id,
     required this.name,
-    required this.description,
+    this.description = '',
     required this.createdAt,
-    required this.leadGeologist,
+    this.leadGeologist = '',
   });
+
+  factory Project.create(String name, {String leadGeologist = ''}) {
+    return Project(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      name: name,
+      createdAt: DateTime.now(),
+      leadGeologist: leadGeologist,
+    );
+  }
 }
