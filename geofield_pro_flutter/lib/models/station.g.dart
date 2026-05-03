@@ -45,13 +45,14 @@ class StationAdapter extends TypeAdapter<Station> {
       measurements: (fields[26] as List?)?.cast<Measurement>(),
       history: (fields[27] as List?)?.cast<AuditEntry>(),
       subMeasurementType: fields[19] as String?,
+      updatedAt: fields[28] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Station obj) {
     writer
-      ..writeByte(28)
+      ..writeByte(29)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -107,7 +108,9 @@ class StationAdapter extends TypeAdapter<Station> {
       ..writeByte(26)
       ..write(obj.measurements)
       ..writeByte(27)
-      ..write(obj.history);
+      ..write(obj.history)
+      ..writeByte(28)
+      ..write(obj.updatedAt);
   }
 
   @override

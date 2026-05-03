@@ -95,6 +95,9 @@ class Station extends HiveObject {
   @HiveField(27)
   List<AuditEntry>? history;
 
+  @HiveField(28)
+  DateTime? updatedAt;
+
   Station({
     required this.name,
     required this.lat,
@@ -124,6 +127,7 @@ class Station extends HiveObject {
     this.measurements,
     this.history,
     this.subMeasurementType,
+    this.updatedAt,
   });
 
   Station copyWith({
@@ -155,6 +159,7 @@ class Station extends HiveObject {
     String? authorRole,
     List<Measurement>? measurements,
     List<AuditEntry>? history,
+    DateTime? updatedAt,
   }) {
     return Station(
       name: name ?? this.name,
@@ -185,6 +190,7 @@ class Station extends HiveObject {
       authorRole: authorRole ?? this.authorRole,
       measurements: measurements ?? this.measurements,
       history: history ?? this.history,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 }

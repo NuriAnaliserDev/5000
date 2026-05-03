@@ -42,9 +42,10 @@ class StationRepository extends ChangeNotifier {
     final error = GeologyValidator.validateStation(station);
     if (error != null) throw Exception(error);
 
-    final id = await _box.add(station);
+    final finalStation = station.copyWith(updatedAt: DateTime.now());
+    final id = await _box.add(finalStation);
     notifyListeners();
-    _cloudSync.syncStation(id, station); // Auto sync to cloud
+    _cloudSync.syncStation(id, finalStation); // Auto sync to cloud
     return id;
   }
 
@@ -62,9 +63,11 @@ class StationRepository extends ChangeNotifier {
       }
     }
 
-    await _box.put(key, updated);
+    final finalUpdated = updated.copyWith(updatedAt: DateTime.now());
+
+    await _box.put(key, finalUpdated);
     notifyListeners();
-    _cloudSync.syncStation(key, updated); // Auto sync to cloud
+    _cloudSync.syncStation(key, finalUpdated); // Auto sync to cloud
   }
 
   List<AuditEntry> _generateAuditEntries(

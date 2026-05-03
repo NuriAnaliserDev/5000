@@ -236,11 +236,46 @@ class CloudSyncService extends ChangeNotifier {
         'hasAudio': remoteAudioUrl != null,
         'authorName': station.authorName,
         'authorRole': station.authorRole,
+        'updatedAt': (station.updatedAt ?? station.date).toIso8601String(),
         'syncedAt': FieldValue.serverTimestamp(),
       };
 
       await NetworkExecutor.execute(
         () async {
+          // 1. Oflayn mojarolarni aniqlash (Conflict Detection Layer)
+          final snap = await docRef.get();
+          if (snap.exists) {
+            final remoteData = snap.data()!;
+            final remoteUpdatedAtStr = remoteData['updatedAt'] as String?;
+            final remoteUpdatedAt = remoteUpdatedAtStr != null
+                ? DateTime.tryParse(remoteUpdatedAtStr)
+                : null;
+
+            final localUpdatedAt = station.updatedAt ?? station.date;
+
+            // Agar masofadagi nusxa mahalliydan yangiroq bo'lsa
+            if (remoteUpdatedAt != null &&
+                localUpdatedAt.isBefore(remoteUpdatedAt)) {
+              // Strategy: Branching (Ma'lumot yo'qolishini oldini olish)
+              // Boshqa qurilmada yozilgan yangiroq ma'lumotni ustidan yozib yubormaslik uchun,
+              // ushbu eskiroq (lekin oflayn o'zgartirilgan) nusxani alohida konflikt sifatida saqlaymiz.
+              final conflictRef = fs
+                  .collection('users')
+                  .doc(uid)
+                  .collection('stations')
+                  .doc(
+                      '${key}_conflict_${DateTime.now().millisecondsSinceEpoch}');
+              data['isConflict'] = true;
+              data['originalStationId'] = key.toString();
+              data['resolutionStatus'] = 'pending';
+              await conflictRef.set(data, SetOptions(merge: true));
+              debugPrint(
+                  'Conflict detected! Local is older than remote. Saved local as conflict branch: ${conflictRef.id}');
+              return; // Asosiy faylni ustidan yozmaymiz
+            }
+          }
+
+          // 2. Konflikt yo'q yoki mahalliy ma'lumot yangi (Last-write-wins)
           await docRef.set(data, SetOptions(merge: true));
         },
         actionName: 'Sync Station $key',
