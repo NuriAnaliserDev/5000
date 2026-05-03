@@ -148,7 +148,7 @@ class WmmModel {
         final hCos = ht * cosMLng;
 
         br += (n + 1) * ratioPow * (gCos + hSin) * p[n][m];
-        bTheta -= ratioPow * (gCos + hSin) * dp[n][m];
+        bTheta += ratioPow * (gCos + hSin) * dp[n][m];
         if (cosGcLat.abs() > 1e-10) {
           bPhi -= ratioPow * m * (-gSin + hCos) * p[n][m] / cosGcLat;
         }
