@@ -10,6 +10,7 @@ import '../models/track_data.dart';
 import '../models/chat_message.dart';
 import '../models/chat_group.dart';
 import '../models/project.dart';
+import '../models/sync_item.dart';
 import 'security/encryption_manager.dart';
 
 class HiveDb {
@@ -22,6 +23,7 @@ class HiveDb {
   static const linesBox = 'geological_lines';
   static const mapStructureBox = 'map_structure_annotations';
   static const projectsBox = 'projects';
+  static const syncQueueBox = 'sync_queue';
 
   static Future<void> init() async {
     await Hive.initFlutter();
@@ -35,6 +37,8 @@ class HiveDb {
     _registerAdapter(AuditEntryAdapter());
     _registerAdapter(MapStructureAnnotationAdapter());
     _registerAdapter(ProjectAdapter());
+    _registerAdapter(SyncItemAdapter());
+    _registerAdapter(SyncStatusAdapter());
 
     final cipher = await EncryptionManager.cipher();
 
@@ -45,6 +49,7 @@ class HiveDb {
     await _openTypedMigrate<GeologicalLine>(linesBox, cipher);
     await _openTypedMigrate<MapStructureAnnotation>(mapStructureBox, cipher);
     await _openTypedMigrate<Project>(projectsBox, cipher);
+    await _openTypedMigrate<SyncItem>(syncQueueBox, cipher);
     await _openDynamicMigrate(settingsBox, cipher);
     await _openDynamicMigrate(syncStateBox, cipher);
   }

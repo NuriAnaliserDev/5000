@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:synchronized/synchronized.dart';
 
 import '../models/map_structure_annotation.dart';
 import '../utils/firebase_ready.dart';
@@ -21,6 +22,7 @@ class MapStructureRepository extends ChangeNotifier {
 
   FirebaseFirestore? get _firestore => firestoreOrNull;
   StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _remoteSub;
+  final _lock = Lock();
 
   Future<void> init() async {
     _box = await Hive.openBox<MapStructureAnnotation>(_boxName);
@@ -100,19 +102,23 @@ class MapStructureRepository extends ChangeNotifier {
   }
 
   Future<void> addAnnotation(MapStructureAnnotation a) async {
-    final stamped = await _stamp(a);
-    await _box!.put(stamped.id, stamped);
-    _items = _box!.values.toList();
-    notifyListeners();
-    _uploadAnnotation(stamped);
+    await _lock.synchronized(() async {
+      final stamped = await _stamp(a);
+      await _box!.put(stamped.id, stamped);
+      _items = _box!.values.toList();
+      notifyListeners();
+      _uploadAnnotation(stamped);
+    });
   }
 
   Future<void> updateAnnotation(MapStructureAnnotation a) async {
-    final stamped = await _stamp(a, increment: true);
-    await _box!.put(stamped.id, stamped);
-    _items = _box!.values.toList();
-    notifyListeners();
-    _uploadAnnotation(stamped);
+    await _lock.synchronized(() async {
+      final stamped = await _stamp(a, increment: true);
+      await _box!.put(stamped.id, stamped);
+      _items = _box!.values.toList();
+      notifyListeners();
+      _uploadAnnotation(stamped);
+    });
   }
 
   Future<void> _uploadAnnotation(MapStructureAnnotation a) async {

@@ -1498,29 +1498,4 @@ class GeoFieldStringsUz extends GeoFieldStrings {
 
   @override
   String get zoom_label => 'Masshtab';
-
-  @override
-  String get admin_diagnostics_section => 'DIAGNOSTIKA VA SUPPORT';
-
-  @override
-  String get admin_diagnostics_view_logs => 'Tizim loglarini ko\'rish';
-
-  @override
-  String get admin_diagnostics_view_logs_desc =>
-      'Ilova ichki jarayonlari va xatolar tarixi';
-
-  @override
-  String get admin_diagnostics_share_logs => 'Loglarni yuborish';
-
-  @override
-  String get admin_diagnostics_clear_logs => 'Loglarni tozalash';
-
-  @override
-  String get admin_diagnostics_clear_success => 'Loglar tozalandi';
-
-  @override
-  String get admin_diagnostics_not_found => 'Log fayli topilmadi';
-
-  @override
-  String get admin_diagnostics_close => 'Yopish';
 }

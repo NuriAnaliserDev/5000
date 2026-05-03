@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:synchronized/synchronized.dart';
 
 import '../models/geological_line.dart';
 import '../utils/firebase_ready.dart';
@@ -24,6 +25,7 @@ class GeologicalLineRepository extends ChangeNotifier {
 
   FirebaseFirestore? get _firestore => firestoreOrNull;
   StreamSubscription? _remoteSubscription;
+  final _lock = Lock();
 
   Future<void> init() async {
     _box = await Hive.openBox<GeologicalLine>(_boxName);
@@ -73,20 +75,24 @@ class GeologicalLineRepository extends ChangeNotifier {
 
   /// Add a new geological line and persist it.
   Future<void> addLine(GeologicalLine line) async {
-    final stamped = await _stamp(line);
-    await _box!.put(stamped.id, stamped);
-    _lines = _box!.values.toList();
-    notifyListeners();
-    _uploadLine(stamped);
+    await _lock.synchronized(() async {
+      final stamped = await _stamp(line);
+      await _box!.put(stamped.id, stamped);
+      _lines = _box!.values.toList();
+      notifyListeners();
+      _uploadLine(stamped);
+    });
   }
 
   /// Update an existing line by its id.
   Future<void> updateLine(GeologicalLine line) async {
-    final stamped = await _stamp(line, increment: true);
-    await _box!.put(stamped.id, stamped);
-    _lines = _box!.values.toList();
-    notifyListeners();
-    _uploadLine(stamped);
+    await _lock.synchronized(() async {
+      final stamped = await _stamp(line, increment: true);
+      await _box!.put(stamped.id, stamped);
+      _lines = _box!.values.toList();
+      notifyListeners();
+      _uploadLine(stamped);
+    });
   }
 
   /// Legacy: `ownerUid` bo‘lmasa, bitta maydon bilan claim (Firestore qoidasi).

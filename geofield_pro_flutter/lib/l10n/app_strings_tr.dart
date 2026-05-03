@@ -1495,30 +1495,4 @@ class GeoFieldStringsTr extends GeoFieldStrings {
 
   @override
   String get zoom_label => 'Yakınlaştırma';
-
-  @override
-  String get admin_diagnostics_section => 'TANILAMA VE DESTEK';
-
-  @override
-  String get admin_diagnostics_view_logs => 'Sistem günlüklerini görüntüle';
-
-  @override
-  String get admin_diagnostics_view_logs_desc =>
-      'Uygulama içi işlemler ve hata geçmişi';
-
-  @override
-  String get admin_diagnostics_share_logs => 'Günlükleri paylaş';
-
-  @override
-  String get admin_diagnostics_clear_logs => 'Günlükleri temizle';
-
-  @override
-  String get admin_diagnostics_clear_success =>
-      'Günlükler başarıyla temizlendi';
-
-  @override
-  String get admin_diagnostics_not_found => 'Günlük dosyası bulunamadı';
-
-  @override
-  String get admin_diagnostics_close => 'Kapat';
 }

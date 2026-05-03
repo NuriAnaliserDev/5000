@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:synchronized/synchronized.dart';
 import 'package:hive/hive.dart';
 
 import '../models/station.dart';
@@ -19,6 +20,8 @@ class StationRepository extends ChangeNotifier {
   /// ma'lumot o'zgarganda qayta quriladi.
   int _dataGeneration = 0;
   int get dataGeneration => _dataGeneration;
+
+  final _lock = Lock();
 
   StationRepository(this._cloudSync) {
     _box = Hive.box<Station>(HiveDb.stationsBox);
@@ -54,42 +57,46 @@ class StationRepository extends ChangeNotifier {
   Station? getById(dynamic id) => _box.get(id);
 
   Future<int> addStation(Station station) async {
-    final error = GeologyValidator.validateStation(station);
-    if (error != null) {
-      throw AppError(error, category: ErrorCategory.validation);
-    }
+    return await _lock.synchronized(() async {
+      final error = GeologyValidator.validateStation(station);
+      if (error != null) {
+        throw AppError(error, category: ErrorCategory.validation);
+      }
 
-    final finalStation = await _stamp(station); // Initial version is 1
-    final id = await _box.add(finalStation);
-    notifyListeners();
-    _cloudSync.syncStation(id, finalStation); // Auto sync to cloud
-    return id;
+      final finalStation = await _stamp(station);
+      final id = await _box.add(finalStation);
+      notifyListeners();
+      _cloudSync.syncStation(id, finalStation);
+      return id;
+    });
   }
 
   Future<void> updateStation(dynamic key, Station updated,
       {String? author}) async {
-    final error = GeologyValidator.validateStation(updated);
-    if (error != null) {
-      throw AppError(error, category: ErrorCategory.validation);
-    }
-
-    final oldStation = _box.get(key);
-    Station tempUpdated = updated;
-    if (oldStation != null && author != null) {
-      final entries = _generateAuditEntries(oldStation, updated, author);
-      if (entries.isNotEmpty) {
-        tempUpdated = updated.copyWith(
-          history: [...(updated.history ?? []), ...entries],
-          updatedBy: author,
-        );
+    await _lock.synchronized(() async {
+      final error = GeologyValidator.validateStation(updated);
+      if (error != null) {
+        throw AppError(error, category: ErrorCategory.validation);
       }
-    }
 
-    final finalUpdated = await _stamp(tempUpdated, increment: true);
+      final oldStation = _box.get(key);
+      Station tempUpdated = updated;
+      if (oldStation != null && author != null) {
+        final entries = _generateAuditEntries(oldStation, updated, author);
+        if (entries.isNotEmpty) {
+          tempUpdated = updated.copyWith(
+            history: [...(updated.history ?? []), ...entries],
+            updatedBy: author,
+          );
+        }
+      }
 
-    await _box.put(key, finalUpdated);
-    notifyListeners();
-    _cloudSync.syncStation(key, finalUpdated); // Auto sync to cloud
+      final finalUpdated = await _stamp(tempUpdated, increment: true);
+
+      await _box.put(key, finalUpdated);
+      notifyListeners();
+      _cloudSync.syncStation(key, finalUpdated);
+    });
   }
 
   List<AuditEntry> _generateAuditEntries(
