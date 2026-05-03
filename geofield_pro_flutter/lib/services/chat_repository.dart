@@ -213,8 +213,9 @@ class ChatRepository extends ChangeNotifier {
     final msg = _messagesBox.get(messageId);
     if (msg == null) return 'Xabar topilmadi';
     if (!_isMessageMine(msg)) return 'Faqat o‘z xabaringizni tahrirlaysiz';
-    if (msg.messageType != 'text')
+    if (msg.messageType != 'text') {
       return 'Faqat matn xabarlarini tahrirlash mumkin';
+    }
 
     msg.text = t;
     msg.editedAt = DateTime.now();

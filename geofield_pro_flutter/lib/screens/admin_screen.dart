@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../app/app_router.dart';
+import '../core/diagnostics/diagnostic_service.dart';
 import '../services/auth_service.dart';
 import '../services/station_repository.dart';
 import '../services/export_service.dart';
@@ -533,6 +534,89 @@ class AdminScreen extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   fontSize: 12,
                 ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+        AppCard(
+          opacity: isDark ? 0.12 : 0.45,
+          blur: 16,
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'DIAGNOSTIKA VA SUPPORT',
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 12,
+                  letterSpacing: 0.6,
+                ),
+              ),
+              const SizedBox(height: 12),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.history_edu, color: Colors.blueGrey),
+                title: const Text('Tizim loglarini ko\'rish'),
+                subtitle:
+                    const Text('Ilova ichki jarayonlari va xatolar tarixi'),
+                onTap: () async {
+                  final logs = await DiagnosticService.instance.getLogs();
+                  if (context.mounted) {
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text('Diagnostics Log'),
+                        content: SingleChildScrollView(
+                          child: Text(
+                            logs,
+                            style: const TextStyle(
+                                fontSize: 10, fontFamily: 'monospace'),
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx),
+                            child: const Text('Yopish'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                },
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.share, color: Colors.blue),
+                title: const Text('Loglarni yuborish'),
+                onTap: () async {
+                  final file = await DiagnosticService.instance.getLogFile();
+                  if (file != null && await file.exists()) {
+                    await Share.shareXFiles([XFile(file.path)],
+                        text: 'GeoField Pro Diagnostics Log');
+                  } else {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Log fayli topilmadi')),
+                      );
+                    }
+                  }
+                },
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading:
+                    const Icon(Icons.cleaning_services, color: Colors.orange),
+                title: const Text('Loglarni tozalash'),
+                onTap: () async {
+                  await DiagnosticService.instance.clearLogs();
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Loglar tozalandi')),
+                    );
+                  }
+                },
               ),
             ],
           ),

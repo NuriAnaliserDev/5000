@@ -1941,9 +1941,10 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
       _isDrawingMode = false;
       _drawingPoints.clear();
     });
-    if (mounted)
+    if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(context.locRead('drawing_saved'))));
+    }
   }
 
   void _finalizeSlice() {

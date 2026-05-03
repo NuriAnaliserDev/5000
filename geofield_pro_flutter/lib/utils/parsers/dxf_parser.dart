@@ -324,8 +324,9 @@ class DxfParser {
     final y1 = double.tryParse((entity['20']?.first ?? ''));
     final x2 = double.tryParse((entity['11']?.first ?? ''));
     final y2 = double.tryParse((entity['21']?.first ?? ''));
-    if (x1 == null || y1 == null || x2 == null || y2 == null)
+    if (x1 == null || y1 == null || x2 == null || y2 == null) {
       return const <LatLng>[];
+    }
     return [LatLng(y1, x1), LatLng(y2, x2)];
   }
 
@@ -333,8 +334,9 @@ class DxfParser {
     final cx = double.tryParse((entity['10']?.first ?? ''));
     final cy = double.tryParse((entity['20']?.first ?? ''));
     final r = double.tryParse((entity['40']?.first ?? ''));
-    if (cx == null || cy == null || r == null || r <= 0)
+    if (cx == null || cy == null || r == null || r <= 0) {
       return const <LatLng>[];
+    }
     return _buildArcPoints(cx, cy, r, 0, 360);
   }
 

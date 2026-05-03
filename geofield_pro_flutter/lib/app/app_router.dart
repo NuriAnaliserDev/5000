@@ -70,12 +70,15 @@ class AppRouter {
       {Map<String, dynamic>? initLocation}) {
     Map<String, String> q = {};
     if (initLocation != null) {
-      if (initLocation['lat'] != null)
+      if (initLocation['lat'] != null) {
         q['lat'] = initLocation['lat'].toString();
-      if (initLocation['lng'] != null)
+      }
+      if (initLocation['lng'] != null) {
         q['lng'] = initLocation['lng'].toString();
-      if (initLocation['zoom'] != null)
+      }
+      if (initLocation['zoom'] != null) {
         q['zoom'] = initLocation['zoom'].toString();
+      }
     }
     context.push(
         Uri(path: map, queryParameters: q.isNotEmpty ? q : null).toString());
@@ -85,12 +88,15 @@ class AppRouter {
       {Map<String, dynamic>? initLocation}) {
     Map<String, String> q = {};
     if (initLocation != null) {
-      if (initLocation['lat'] != null)
+      if (initLocation['lat'] != null) {
         q['lat'] = initLocation['lat'].toString();
-      if (initLocation['lng'] != null)
+      }
+      if (initLocation['lng'] != null) {
         q['lng'] = initLocation['lng'].toString();
-      if (initLocation['zoom'] != null)
+      }
+      if (initLocation['zoom'] != null) {
         q['zoom'] = initLocation['zoom'].toString();
+      }
     }
     context.push(
         Uri(path: fieldWorkshop, queryParameters: q.isNotEmpty ? q : null)

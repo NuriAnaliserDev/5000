@@ -87,8 +87,9 @@ class WebAnalyticsProductionBarCard extends StatelessWidget {
               showTitles: true,
               getTitlesWidget: (value, meta) {
                 final idx = value.toInt();
-                if (idx < 0 || idx >= keys.length)
+                if (idx < 0 || idx >= keys.length) {
                   return const SizedBox.shrink();
+                }
                 return Padding(
                   padding: const EdgeInsets.only(top: 6.0),
                   child: Text(keys[idx],

@@ -18,8 +18,9 @@ class GeologicalProjectionService {
   /// [depthMeters] - depth below surface (negative for above).
   /// Uses basic trigonometric projection based on dip and strike.
   static List<LatLng> projectStation(Station station, double depthMeters) {
-    if (station.dip == 0)
+    if (station.dip == 0) {
       return []; // Horizontal layer doesn't 'move' horizontally with depth (it's everywhere)
+    }
 
     // Dip Direction (azimuth of strongest descent)
     final double dipDir = GeologyUtils.calculateDipDirection(station.strike);

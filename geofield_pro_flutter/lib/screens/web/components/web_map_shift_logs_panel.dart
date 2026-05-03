@@ -81,8 +81,9 @@ class WebMapShiftLogsPanel extends StatelessWidget {
                         ),
                       );
                     }
-                    if (!snapshot.hasData)
+                    if (!snapshot.hasData) {
                       return const Center(child: CircularProgressIndicator());
+                    }
                     final docs = snapshot.data!.docs;
                     if (docs.isEmpty) {
                       return const Center(

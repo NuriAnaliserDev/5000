@@ -27,12 +27,15 @@ class CameraGpsHud extends StatelessWidget {
     final acc = loc?.accuracy;
 
     String gpsStatus = context.loc('searching_gps').toUpperCase();
-    if (locService.status == GpsStatus.good)
+    if (locService.status == GpsStatus.good) {
       gpsStatus = context.loc('gps_status_good').toUpperCase();
-    if (locService.status == GpsStatus.medium)
+    }
+    if (locService.status == GpsStatus.medium) {
       gpsStatus = context.loc('gps_status_medium_short');
-    if (locService.status == GpsStatus.poor)
+    }
+    if (locService.status == GpsStatus.poor) {
       gpsStatus = context.loc('gps_status_poor_short');
+    }
 
     return Positioned(
       top: 80,

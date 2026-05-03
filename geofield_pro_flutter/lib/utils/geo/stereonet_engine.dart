@@ -68,8 +68,9 @@ class StereonetEngine {
     required double radius,
     required StereonetProjection proj,
   }) {
-    if (alpha95Deg.isNaN || alpha95Deg <= 0 || alpha95Deg >= 90)
+    if (alpha95Deg.isNaN || alpha95Deg <= 0 || alpha95Deg >= 90) {
       return const [];
+    }
     final trendRad = ((meanDipDirection + 180) % 360) * pi / 180.0;
     final plungeRad = (90 - meanDip) * pi / 180.0;
     final cosPl = cos(plungeRad);

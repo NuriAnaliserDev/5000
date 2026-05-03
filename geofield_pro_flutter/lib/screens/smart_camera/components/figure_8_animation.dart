@@ -53,8 +53,9 @@ class _Figure8Painter extends CustomPainter {
     canvas.drawPath(path, p);
     final metric = path.computeMetrics().first;
     final pos = metric.getTangentForOffset(metric.length * progress)?.position;
-    if (pos != null)
+    if (pos != null) {
       canvas.drawCircle(pos, 4, Paint()..color = const Color(0xFF1976D2));
+    }
   }
 
   @override

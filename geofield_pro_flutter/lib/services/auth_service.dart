@@ -86,8 +86,9 @@ class AuthService extends ChangeNotifier {
 
   Future<void> login(String email, String password) async {
     final auth = _auth;
-    if (auth == null)
+    if (auth == null) {
       throw AppError(_firebaseUnavailable, category: ErrorCategory.network);
+    }
     try {
       await auth.signInWithEmailAndPassword(
         email: email.trim(),
@@ -106,8 +107,9 @@ class AuthService extends ChangeNotifier {
     String? displayName,
   }) async {
     final auth = _auth;
-    if (auth == null)
+    if (auth == null) {
       throw AppError(_firebaseUnavailable, category: ErrorCategory.network);
+    }
     try {
       final cred = await auth.createUserWithEmailAndPassword(
         email: email.trim(),
@@ -127,8 +129,9 @@ class AuthService extends ChangeNotifier {
 
   Future<void> sendPasswordReset(String email) async {
     final auth = _auth;
-    if (auth == null)
+    if (auth == null) {
       throw AppError(_firebaseUnavailable, category: ErrorCategory.network);
+    }
     try {
       await auth.sendPasswordResetEmail(email: email.trim());
     } catch (e, st) {

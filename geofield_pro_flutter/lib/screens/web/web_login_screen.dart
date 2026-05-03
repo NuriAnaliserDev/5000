@@ -83,6 +83,7 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
       settings.setLocalDisplayName(AuthService.displayNameFromUser(user));
     }
     setState(() => _isLoading = false);
+    if (!mounted) return;
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (_) => const WebDashboardMain()),
     );

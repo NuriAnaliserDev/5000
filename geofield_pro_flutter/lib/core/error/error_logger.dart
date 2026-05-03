@@ -1,8 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'app_error.dart';
+import '../diagnostics/diagnostic_service.dart';
 
 class ErrorLogger {
   static void log(AppError error) {
+    // 1. Lokal log faylga yozish (Offline diagnostika uchun)
+    DiagnosticService.instance.log(
+      '${error.message}${error.originalError != null ? " | Cause: ${error.originalError}" : ""}',
+      tag: 'ERROR:${error.category.name}',
+    );
+
     if (kDebugMode) {
       debugPrint('🔴 ERROR [${error.category.name}]: ${error.message}');
       if (error.originalError != null) {
@@ -12,7 +19,7 @@ class ErrorLogger {
         debugPrint('Stack: ${error.stackTrace}');
       }
     }
-    // Buni kelajakda Sentry yoki Firebase Crashlytics ga yuborish mumkin
+    // Kelajakda: FirebaseCrashlytics.instance.recordError(...)
   }
 
   static void record(Object e, StackTrace? st,

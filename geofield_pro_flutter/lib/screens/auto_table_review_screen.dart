@@ -335,8 +335,9 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
   }
 
   Widget _buildDataTable() {
-    if (_tableRows.isEmpty)
+    if (_tableRows.isEmpty) {
       return const Center(child: Text('Jadval ma\'lumotlari topilmadi'));
+    }
 
     final columns = _tableRows.first.keys.toList();
 
