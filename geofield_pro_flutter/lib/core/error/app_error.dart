@@ -19,6 +19,18 @@ class AppError implements Exception {
     this.stackTrace,
   });
 
+  factory AppError.validation({required String userMessage, String? devMessage}) {
+    return AppError(userMessage, devMessage: devMessage, category: ErrorCategory.validation, severity: ErrorSeverity.low);
+  }
+
+  factory AppError.permission({required String userMessage, String? devMessage}) {
+    return AppError(userMessage, devMessage: devMessage, category: ErrorCategory.permission, severity: ErrorSeverity.medium);
+  }
+
+  factory AppError.network({required String userMessage, String? devMessage}) {
+    return AppError(userMessage, devMessage: devMessage, category: ErrorCategory.network, severity: ErrorSeverity.medium);
+  }
+
   @override
   String toString() =>
       'AppError[$category|$severity]: $userMessage ${devMessage != null ? "($devMessage)" : ""}';

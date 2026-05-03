@@ -6,6 +6,7 @@ import '../services/settings_controller.dart';
 import '../services/theme_controller.dart';
 import '../utils/firebase_ready.dart';
 import '../utils/security_wrapper.dart';
+import '../main.dart';
 import 'app_router.dart';
 import 'app_theme.dart';
 

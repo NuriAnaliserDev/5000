@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../main.dart';
 import 'platform_gate.dart';
 import '../screens/archive_screen.dart';
 import '../screens/analysis_screen.dart';
@@ -127,6 +128,7 @@ class AppRouter {
   // ------------------------------------
 
   static final router = GoRouter(
+    navigatorKey: globalNavigatorKey,
     initialLocation: home,
     routes: [
       GoRoute(

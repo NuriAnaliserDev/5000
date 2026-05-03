@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'app_bootstrap.dart';
 import '../screens/error_screen.dart';
+import '../main.dart';
 
 /// [main] dan so‘ng birinchi `runApp` — [runAppBootstrap] muvaffaqiyatsiz
 /// bo‘lsa [ErrorScreen], muvaffaqiyatda ildiz widget.
@@ -74,7 +75,8 @@ class _AppBootstrapShellState extends State<AppBootstrapShell> {
         ),
       );
     }
-    return const MaterialApp(
+    return MaterialApp(
+      navigatorKey: globalNavigatorKey,
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         body: Center(child: CircularProgressIndicator()),
