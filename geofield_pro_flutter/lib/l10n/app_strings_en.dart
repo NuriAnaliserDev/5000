@@ -1495,4 +1495,28 @@ class GeoFieldStringsEn extends GeoFieldStrings {
 
   @override
   String get zoom_label => 'Zoom';
+
+  @override
+  String get admin_diagnostics_section => 'DIAGNOSTICS & SUPPORT';
+
+  @override
+  String get admin_diagnostics_view_logs => 'View system logs';
+
+  @override
+  String get admin_diagnostics_view_logs_desc => 'Internal application logs and error history';
+
+  @override
+  String get admin_diagnostics_share_logs => 'Share logs';
+
+  @override
+  String get admin_diagnostics_clear_logs => 'Clear logs';
+
+  @override
+  String get admin_diagnostics_clear_success => 'Logs cleared successfully';
+
+  @override
+  String get admin_diagnostics_not_found => 'Log file not found';
+
+  @override
+  String get admin_diagnostics_close => 'Close';
 }

@@ -2907,6 +2907,54 @@ abstract class GeoFieldStrings {
   /// In en, this message translates to:
   /// **'Zoom'**
   String get zoom_label;
+
+  /// No description provided for @admin_diagnostics_section.
+  ///
+  /// In en, this message translates to:
+  /// **'DIAGNOSTICS & SUPPORT'**
+  String get admin_diagnostics_section;
+
+  /// No description provided for @admin_diagnostics_view_logs.
+  ///
+  /// In en, this message translates to:
+  /// **'View system logs'**
+  String get admin_diagnostics_view_logs;
+
+  /// No description provided for @admin_diagnostics_view_logs_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Internal application logs and error history'**
+  String get admin_diagnostics_view_logs_desc;
+
+  /// No description provided for @admin_diagnostics_share_logs.
+  ///
+  /// In en, this message translates to:
+  /// **'Share logs'**
+  String get admin_diagnostics_share_logs;
+
+  /// No description provided for @admin_diagnostics_clear_logs.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear logs'**
+  String get admin_diagnostics_clear_logs;
+
+  /// No description provided for @admin_diagnostics_clear_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Logs cleared successfully'**
+  String get admin_diagnostics_clear_success;
+
+  /// No description provided for @admin_diagnostics_not_found.
+  ///
+  /// In en, this message translates to:
+  /// **'Log file not found'**
+  String get admin_diagnostics_not_found;
+
+  /// No description provided for @admin_diagnostics_close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get admin_diagnostics_close;
 }
 
 class _GeoFieldStringsDelegate extends LocalizationsDelegate<GeoFieldStrings> {

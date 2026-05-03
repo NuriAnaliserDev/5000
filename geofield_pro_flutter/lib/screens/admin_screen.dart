@@ -546,9 +546,9 @@ class AdminScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'DIAGNOSTIKA VA SUPPORT',
-                style: TextStyle(
+              Text(
+                context.loc('admin_diagnostics_section'),
+                style: const TextStyle(
                   fontWeight: FontWeight.w800,
                   fontSize: 12,
                   letterSpacing: 0.6,
@@ -558,9 +558,8 @@ class AdminScreen extends StatelessWidget {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.history_edu, color: Colors.blueGrey),
-                title: const Text('Tizim loglarini ko\'rish'),
-                subtitle:
-                    const Text('Ilova ichki jarayonlari va xatolar tarixi'),
+                title: Text(context.loc('admin_diagnostics_view_logs')),
+                subtitle: Text(context.loc('admin_diagnostics_view_logs_desc')),
                 onTap: () async {
                   final logs = await DiagnosticService.instance.getLogs();
                   if (context.mounted) {
@@ -578,7 +577,7 @@ class AdminScreen extends StatelessWidget {
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(ctx),
-                            child: const Text('Yopish'),
+                            child: Text(context.loc('admin_diagnostics_close')),
                           ),
                         ],
                       ),
@@ -589,7 +588,7 @@ class AdminScreen extends StatelessWidget {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.share, color: Colors.blue),
-                title: const Text('Loglarni yuborish'),
+                title: Text(context.loc('admin_diagnostics_share_logs')),
                 onTap: () async {
                   final file = await DiagnosticService.instance.getLogFile();
                   if (file != null && await file.exists()) {
@@ -598,7 +597,9 @@ class AdminScreen extends StatelessWidget {
                   } else {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Log fayli topilmadi')),
+                        SnackBar(
+                            content:
+                                Text(context.loc('admin_diagnostics_not_found'))),
                       );
                     }
                   }
@@ -608,12 +609,14 @@ class AdminScreen extends StatelessWidget {
                 contentPadding: EdgeInsets.zero,
                 leading:
                     const Icon(Icons.cleaning_services, color: Colors.orange),
-                title: const Text('Loglarni tozalash'),
+                title: Text(context.loc('admin_diagnostics_clear_logs')),
                 onTap: () async {
                   await DiagnosticService.instance.clearLogs();
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Loglar tozalandi')),
+                      SnackBar(
+                          content: Text(
+                              context.loc('admin_diagnostics_clear_success'))),
                     );
                   }
                 },
