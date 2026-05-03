@@ -25,6 +25,7 @@ import '../../services/track_service.dart';
 import '../../services/tutorial_service.dart';
 import '../../utils/app_localizations.dart';
 import '../../utils/app_nav_bar.dart';
+import '../../core/error/error_handler.dart';
 import '../../utils/geo_orientation.dart';
 import '../../utils/geology_utils.dart';
 import '../../utils/image_utils.dart';

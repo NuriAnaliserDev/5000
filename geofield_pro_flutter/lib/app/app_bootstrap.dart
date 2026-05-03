@@ -52,9 +52,13 @@ Future<AppBootstrapResult> runAppBootstrap() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    // ignore: deprecated_member_use
     await FirebaseAppCheck.instance.activate(
+      // ignore: deprecated_member_use
       androidProvider: AndroidProvider.playIntegrity,
+      // ignore: deprecated_member_use
       appleProvider: AppleProvider.deviceCheck,
+      // ignore: deprecated_member_use
       webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
     );
     firebaseOk = true;

@@ -141,9 +141,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
     } catch (e) {
       _disposeCameraOnly();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${context.locRead('camera_error')}: $e')),
-        );
+        ErrorHandler.show(context, e);
       }
     }
   }
@@ -367,9 +365,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${context.locRead('record_error')}: $e')),
-        );
+        ErrorHandler.show(context, e);
       }
     }
   }
@@ -528,8 +524,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
       AppRouter.goStation(context, stationId: id);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('${context.locRead('camera_error')}: $e')));
+        ErrorHandler.show(context, e);
       }
     } finally {
       if (mounted) {
@@ -667,12 +662,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${context.locRead('camera_error')}: $e'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        ErrorHandler.show(context, e);
       }
     }
   }
@@ -693,12 +683,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${context.locRead('camera_error')}: $e'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        ErrorHandler.show(context, e);
       }
     }
   }

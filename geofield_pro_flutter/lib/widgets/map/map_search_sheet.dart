@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 
+import '../../core/network/network_executor.dart';
+
 import '../../l10n/app_strings.dart';
 
 /// Xarita ustida joy izlash uchun pastdan chiqadigan bottom sheet.
@@ -71,13 +73,19 @@ class _MapSearchSheetState extends State<MapSearchSheet> {
           'addressdetails': '1',
         },
       );
-      final resp = await http.get(
-        uri,
-        headers: {
-          'User-Agent': 'GeoFieldPro/1.9 (Flutter)',
-          'Accept': 'application/json',
-        },
-      ).timeout(const Duration(seconds: 8));
+      final resp = await NetworkExecutor.execute(
+        () => http.get(
+          uri,
+          headers: {
+            'User-Agent': 'GeoFieldPro/1.9 (Flutter)',
+            'Accept': 'application/json',
+          },
+        ),
+        actionName: 'Map Search',
+        maxRetries: 2,
+        timeout: const Duration(seconds: 8),
+      );
+      
       if (!mounted) return;
       if (resp.statusCode != 200) {
         setState(() {

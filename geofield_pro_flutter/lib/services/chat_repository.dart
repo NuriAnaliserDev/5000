@@ -11,6 +11,8 @@ import '../models/chat_group.dart';
 import '../utils/firebase_ready.dart';
 import 'hive_db.dart';
 import 'settings_controller.dart';
+import '../core/network/network_executor.dart';
+import '../core/error/error_logger.dart';
 
 class ChatRepository extends ChangeNotifier {
   final Box<ChatMessage> _messagesBox =
@@ -225,17 +227,21 @@ class ChatRepository extends ChangeNotifier {
       final fs = _firestore;
       if (fs != null) {
         try {
-          await fs
-              .collection('chat_groups')
-              .doc(msg.groupId)
-              .collection('messages')
-              .doc(msg.id)
-              .update({
-            'text': t,
-            'editedAt': msg.editedAt!.toIso8601String(),
-          });
-        } catch (e) {
-          debugPrint('updateMessageText firestore: $e');
+          await NetworkExecutor.execute(
+            () => fs
+                .collection('chat_groups')
+                .doc(msg.groupId)
+                .collection('messages')
+                .doc(msg.id)
+                .update({
+              'text': t,
+              'editedAt': msg.editedAt!.toIso8601String(),
+            }),
+            actionName: 'Update Chat Message',
+            maxRetries: 2,
+          );
+        } catch (e, st) {
+          ErrorLogger.record(e, st, customMessage: 'updateMessageText firestore error');
           return 'Bulutga yozilmadi: $e';
         }
       }
@@ -256,13 +262,18 @@ class ChatRepository extends ChangeNotifier {
       final fs = _firestore;
       if (fs != null) {
         try {
-          await fs
-              .collection('chat_groups')
-              .doc(msg.groupId)
-              .collection('messages')
-              .doc(msg.id)
-              .delete();
-        } catch (e) {
+          await NetworkExecutor.execute(
+            () => fs
+                .collection('chat_groups')
+                .doc(msg.groupId)
+                .collection('messages')
+                .doc(msg.id)
+                .delete(),
+            actionName: 'Delete Chat Message',
+            maxRetries: 2,
+          );
+        } catch (e, st) {
+          ErrorLogger.record(e, st, customMessage: 'deleteMessage firestore error');
           return 'Bulutdan o‘chirilmadi: $e';
         }
       }

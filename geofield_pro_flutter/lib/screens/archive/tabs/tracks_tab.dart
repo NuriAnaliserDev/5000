@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import '../../../models/track_data.dart';
 import '../../../services/track_service.dart';
 import '../../../utils/app_localizations.dart';
+import '../../../core/error/error_handler.dart';
 
 class ArchiveTracksTab extends StatelessWidget {
   final String searchQuery;
@@ -213,8 +214,7 @@ class ArchiveTracksTab extends StatelessWidget {
     } catch (e) {
       debugPrint('GPX Export xatosi: $e');
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Xatolik yuz berdi: $e')));
+        ErrorHandler.show(context, e);
       }
     }
   }

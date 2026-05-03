@@ -20,6 +20,7 @@ import '../utils/app_localizations.dart';
 import '../utils/rocks_list.dart';
 import '../utils/munsell_data.dart';
 import '../app/main_tab_navigation.dart';
+import '../core/error/error_handler.dart';
 
 // Components
 import 'station/components/station_app_bar.dart';
@@ -230,8 +231,7 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
           .showSnackBar(SnackBar(content: Text(successMsg)));
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('GPS xatosi: $e')));
+      ErrorHandler.show(context, e);
     }
   }
 
@@ -387,16 +387,11 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
       );
     } on QuotaExceededException catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
+        ErrorHandler.show(context, e);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('${context.locRead('ai_lithology_error')}: $e')),
-        );
+        ErrorHandler.show(context, e);
       }
     } finally {
       if (mounted) setState(() => _isAiLoading = false);

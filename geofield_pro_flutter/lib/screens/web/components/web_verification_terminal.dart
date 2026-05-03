@@ -7,6 +7,8 @@ import '../../../services/mine_report_repository.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/ai_translator_service.dart';
 import '../../../models/mine_report.dart';
+import '../../../core/error/app_error.dart';
+import '../../../core/error/error_handler.dart';
 
 class WebVerificationTerminal extends StatefulWidget {
   final MineReport report;
@@ -248,7 +250,7 @@ class _WebVerificationTerminalState extends State<WebVerificationTerminal> {
           await aiService.analyzeReportImage(widget.report.imageUrl);
 
       if (aiResult.containsKey('error')) {
-        throw Exception(aiResult['error']);
+        throw AppError(aiResult['error'], category: ErrorCategory.unknown);
       }
 
       setState(() {
@@ -270,9 +272,7 @@ class _WebVerificationTerminalState extends State<WebVerificationTerminal> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("AI Xatosi: $e"), backgroundColor: Colors.red),
-        );
+        ErrorHandler.show(context, e);
       }
     } finally {
       if (mounted) setState(() => _isAiLoading = false);
@@ -297,9 +297,7 @@ class _WebVerificationTerminalState extends State<WebVerificationTerminal> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Xatolik: $e"), backgroundColor: Colors.red),
-        );
+        ErrorHandler.show(context, e);
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -344,9 +342,7 @@ class _WebVerificationTerminalState extends State<WebVerificationTerminal> {
       widget.onDismiss?.call();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Xatolik: $e"), backgroundColor: Colors.red),
-        );
+        ErrorHandler.show(context, e);
       }
     } finally {
       if (mounted) setState(() => _isRejecting = false);

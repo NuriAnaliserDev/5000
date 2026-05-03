@@ -7,6 +7,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import '../models/map_structure_annotation.dart';
 import '../utils/firebase_ready.dart';
+import '../core/network/network_executor.dart';
+import '../core/error/error_logger.dart';
 
 /// Xaritadagi qo‘lda qo‘yilgan strike/dip belgilar (offline + Firestore).
 class MapStructureRepository extends ChangeNotifier {
@@ -49,6 +51,8 @@ class MapStructureRepository extends ChangeNotifier {
         _items = _box?.values.toList() ?? [];
         notifyListeners();
       }
+    }, onError: (e, st) {
+      ErrorLogger.record(e, st, customMessage: 'MapStructureRepository stream error');
     });
   }
 
@@ -58,17 +62,25 @@ class MapStructureRepository extends ChangeNotifier {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (fs == null || uid == null || !isFirebaseCoreReady) return;
     try {
-      final snap =
-          await fs.collection('map_structure_annotations').doc(docId).get();
+      final snap = await NetworkExecutor.execute(
+        () => fs.collection('map_structure_annotations').doc(docId).get(),
+        actionName: 'Get Annotation Claim',
+        maxRetries: 2,
+      );
       if (!snap.exists) return;
       final v = snap.data()?['ownerUid'];
       if (v != null && v.toString().isNotEmpty) return;
-      await fs
-          .collection('map_structure_annotations')
-          .doc(docId)
-          .update({'ownerUid': uid});
-    } catch (e) {
-      debugPrint('MapStructureRepository._ensureAnnotationOwnerClaim: $e');
+      
+      await NetworkExecutor.execute(
+        () => fs
+            .collection('map_structure_annotations')
+            .doc(docId)
+            .update({'ownerUid': uid}),
+        actionName: 'Claim Annotation',
+        maxRetries: 2,
+      );
+    } catch (e, st) {
+      ErrorLogger.record(e, st, customMessage: 'MapStructureRepository._ensureAnnotationOwnerClaim');
     }
   }
 
@@ -82,12 +94,16 @@ class MapStructureRepository extends ChangeNotifier {
     final fs = _firestore;
     if (fs == null) return;
     try {
-      await fs.collection('map_structure_annotations').doc(a.id).set({
-        ...a.toMap(),
-        'ownerUid': uid,
-      }, SetOptions(merge: true));
-    } catch (e) {
-      debugPrint('MapStructureRepository upload: $e');
+      await NetworkExecutor.execute(
+        () => fs.collection('map_structure_annotations').doc(a.id).set({
+          ...a.toMap(),
+          'ownerUid': uid,
+        }, SetOptions(merge: true)),
+        actionName: 'Add Annotation',
+        maxRetries: 2,
+      );
+    } catch (e, st) {
+      ErrorLogger.record(e, st, customMessage: 'MapStructureRepository upload error');
     }
   }
 
@@ -99,9 +115,13 @@ class MapStructureRepository extends ChangeNotifier {
     if (fs == null) return;
     try {
       await _ensureAnnotationOwnerClaim(id);
-      await fs.collection('map_structure_annotations').doc(id).delete();
-    } catch (e) {
-      debugPrint('MapStructureRepository delete remote: $e');
+      await NetworkExecutor.execute(
+        () => fs.collection('map_structure_annotations').doc(id).delete(),
+        actionName: 'Delete Annotation',
+        maxRetries: 2,
+      );
+    } catch (e, st) {
+      ErrorLogger.record(e, st, customMessage: 'MapStructureRepository delete remote error');
     }
   }
 

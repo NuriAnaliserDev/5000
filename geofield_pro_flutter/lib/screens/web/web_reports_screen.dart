@@ -6,6 +6,7 @@ import '../../services/mine_report_repository.dart';
 import '../../services/excel_generator_service.dart';
 import '../../models/mine_report.dart';
 import 'components/web_verification_terminal.dart';
+import '../../core/error/error_handler.dart';
 
 class WebReportsScreen extends StatefulWidget {
   const WebReportsScreen({super.key});
@@ -108,9 +109,7 @@ class _WebReportsScreenState extends State<WebReportsScreen>
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Xatolik: $e"), backgroundColor: Colors.red),
-        );
+        ErrorHandler.show(context, e);
       }
     } finally {
       if (mounted) setState(() => _isExporting = false);
@@ -149,9 +148,7 @@ class _WebReportsScreenState extends State<WebReportsScreen>
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text("Master Report xatosi: $e"),
-            backgroundColor: Colors.red));
+        ErrorHandler.show(context, e);
       }
     } finally {
       if (mounted) setState(() => _isExporting = false);

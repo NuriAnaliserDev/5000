@@ -2,10 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
+
 
 import 'ai/ai_rate_limiter.dart';
 import '../utils/image_mime.dart';
+import '../core/network/network_executor.dart';
+import '../core/error/app_error.dart';
 
 class AiLithologyResponse {
   final String rockType;
@@ -86,11 +88,16 @@ Javob berish formati (JSON):
         ]),
       ];
 
-      final response = await model.generateContent(content);
+      final response = await NetworkExecutor.execute(
+        () => model.generateContent(content),
+        actionName: 'AI Analyze Rock',
+        maxRetries: 1,
+        timeout: const Duration(seconds: 45),
+      );
 
       final respText = response.text;
       if (respText == null || respText.isEmpty) {
-        throw Exception("Vertex AIDan javob kelmadi.");
+        throw AppError("Vertex AIDan javob kelmadi.", category: ErrorCategory.network);
       }
 
       // Ba'zan gemini jsonni markdown blok ichiga olib beradi
@@ -112,8 +119,9 @@ Javob berish formati (JSON):
     } on QuotaExceededException {
       rethrow;
     } catch (e) {
-      debugPrint("AI tahlil xatosi: $e");
-      throw Exception("AI tahlilida xatolik: $e");
+      // NetworkExecutor xatolikni AppError'ga map qilib, throw qiladi
+      // Shuning uchun bu yerda rethrow qilsak xato AppError ko'rinishida yuqoriga chiqadi
+      rethrow;
     }
   }
 }

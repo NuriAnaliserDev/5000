@@ -2,6 +2,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:xml/xml.dart';
 
 import '../../models/boundary_polygon.dart';
+import '../../core/error/app_error.dart';
 
 class KmlParser {
   static List<BoundaryPolygon> parse(String content, String filename) {
@@ -14,7 +15,7 @@ class KmlParser {
       }
       return extracted;
     } catch (e) {
-      throw Exception('KML formatini oqishda xatolik: $e');
+      throw AppError('KML formatini oqishda xatolik: $e', category: ErrorCategory.validation);
     }
   }
 

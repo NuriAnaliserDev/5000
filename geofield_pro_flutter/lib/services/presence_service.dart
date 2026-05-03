@@ -7,6 +7,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../utils/firebase_ready.dart';
+import '../core/network/network_executor.dart';
+import '../core/error/error_logger.dart';
 
 class TeamMember {
   final String uid;
@@ -73,6 +75,8 @@ class PresenceService extends ChangeNotifier {
           .where((m) => m.uid != auth.currentUser?.uid) // Exclude self
           .toList();
       notifyListeners();
+    }, onError: (e, st) {
+      ErrorLogger.record(e, st, customMessage: 'PresenceService stream error');
     });
   }
 
@@ -109,16 +113,20 @@ class PresenceService extends ChangeNotifier {
     if (fs == null) return;
 
     try {
-      await fs.collection('presence').doc(user.uid).set({
-        'name': name,
-        'role': role,
-        'lat': position.latitude,
-        'lng': position.longitude,
-        'isOnline': isOnline,
-        'lastSeen': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-    } catch (e) {
-      debugPrint('Error updating presence: $e');
+      await NetworkExecutor.execute(
+        () => fs.collection('presence').doc(user.uid).set({
+          'name': name,
+          'role': role,
+          'lat': position.latitude,
+          'lng': position.longitude,
+          'isOnline': isOnline,
+          'lastSeen': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true)),
+        actionName: 'Update Presence',
+        maxRetries: 1,
+      );
+    } catch (e, st) {
+      ErrorLogger.record(e, st, customMessage: 'Error updating presence');
     }
   }
 

@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:latlong2/latlong.dart';
 import '../../models/boundary_polygon.dart';
 import 'dxf_coordinate_inference.dart';
+import '../../core/error/app_error.dart';
 
 class DxfParser {
   static List<BoundaryPolygon> parse(
@@ -13,8 +14,8 @@ class DxfParser {
     try {
       final lead = content.trimLeft();
       if (lead.startsWith('AutoCAD Binary DXF')) {
-        throw Exception(
-          'Binary DXF is not supported. Save as ASCII DXF from your CAD software and try again.',
+        throw AppError(
+          'Binary DXF is not supported. Save as ASCII DXF from your CAD software and try again.', category: ErrorCategory.validation
         );
       }
       final normalized = content
@@ -122,7 +123,8 @@ class DxfParser {
         hintLng: hintLongitude,
       );
     } catch (e) {
-      throw Exception('DXF oqishda xatolik: $e');
+      if (e is AppError) rethrow;
+      throw AppError('DXF oqishda xatolik: $e', category: ErrorCategory.validation);
     }
   }
 

@@ -7,6 +7,8 @@ import 'package:hive/hive.dart';
 
 import '../security/encryption_manager.dart';
 import '../../utils/firebase_ready.dart';
+import '../../core/network/network_executor.dart';
+import '../../core/error/error_logger.dart';
 
 /// SOS signallari uchun offline queue.
 ///
@@ -80,19 +82,23 @@ class SosQueue {
         final entry = Map<String, dynamic>.from(raw);
         final fs = firestoreOrNull;
         if (fs == null) break;
-        await fs.collection('emergency_signals').add({
-          'senderUid': entry['senderUid'],
-          'senderName': entry['senderName'],
-          'lat': entry['lat'],
-          'lng': entry['lng'],
-          'timestamp': FieldValue.serverTimestamp(),
-          'isActive': true,
-          'clientCreatedAt': entry['createdAt'],
-        });
+        await NetworkExecutor.execute(
+          () => fs.collection('emergency_signals').add({
+            'senderUid': entry['senderUid'],
+            'senderName': entry['senderName'],
+            'lat': entry['lat'],
+            'lng': entry['lng'],
+            'timestamp': FieldValue.serverTimestamp(),
+            'isActive': true,
+            'clientCreatedAt': entry['createdAt'],
+          }),
+          actionName: 'Flush SOS Queue',
+          maxRetries: 1,
+        );
         await box.delete(key);
         sent++;
-      } catch (e) {
-        debugPrint('SosQueue.flush error: $e');
+      } catch (e, st) {
+        ErrorLogger.record(e, st, customMessage: 'SosQueue.flush error');
         break; // keyingi urinishda qayta sinab ko‘ramiz
       }
     }

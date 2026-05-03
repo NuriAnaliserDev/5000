@@ -18,6 +18,9 @@ import '../utils/parsers/geojson_import_parser.dart';
 import '../utils/parsers/gpkg_import_parser.dart';
 import '../utils/parsers/kml_parser.dart';
 import '../utils/parsers/shp_shapefile_parser.dart';
+import '../core/network/network_executor.dart';
+import '../core/error/error_logger.dart';
+import '../core/error/app_error.dart';
 
 class BoundaryImportResult {
   final String extension;
@@ -71,18 +74,27 @@ class BoundaryService extends ChangeNotifier {
     final uid = _currentUid;
     if (fs == null || uid == null) return;
     try {
-      final snap = await fs.collection('global_boundaries').doc(docId).get();
+      final snap = await NetworkExecutor.execute(
+        () => fs.collection('global_boundaries').doc(docId).get(),
+        actionName: 'Get Boundary Claim',
+        maxRetries: 2,
+      );
       if (!snap.exists) return;
       final data = snap.data();
       if (data == null) return;
       final v = data['createdByUid'];
       if (v != null && v.toString().isNotEmpty) return;
-      await fs
-          .collection('global_boundaries')
-          .doc(docId)
-          .update({'createdByUid': uid});
-    } catch (e) {
-      debugPrint('_ensureGlobalBoundaryCreatorClaim: $e');
+      
+      await NetworkExecutor.execute(
+        () => fs
+            .collection('global_boundaries')
+            .doc(docId)
+            .update({'createdByUid': uid}),
+        actionName: 'Claim Boundary',
+        maxRetries: 2,
+      );
+    } catch (e, st) {
+      ErrorLogger.record(e, st, customMessage: '_ensureGlobalBoundaryCreatorClaim');
     }
   }
 
@@ -151,7 +163,7 @@ class BoundaryService extends ChangeNotifier {
     String? description,
   }) async {
     if (points.length < 3) {
-      throw Exception("Polygon kamida 3 nuqtadan iborat bo'lishi kerak.");
+      throw AppError("Polygon kamida 3 nuqtadan iborat bo'lishi kerak.", category: ErrorCategory.validation);
     }
     final uid = _currentUid;
     final fs = _firestore;
@@ -179,12 +191,16 @@ class BoundaryService extends ChangeNotifier {
       description: description,
     );
     try {
-      await fs.collection('global_boundaries').add({
-        ...polygon.toMap(),
-        'createdByUid': uid,
-      });
-    } catch (e) {
-      debugPrint("addPolygonFromPoints error: $e");
+      await NetworkExecutor.execute(
+        () => fs.collection('global_boundaries').add({
+          ...polygon.toMap(),
+          'createdByUid': uid,
+        }),
+        actionName: 'Add Boundary Polygon',
+        maxRetries: 2,
+      );
+    } catch (e, st) {
+      ErrorLogger.record(e, st, customMessage: 'addPolygonFromPoints error');
       rethrow;
     }
   }
@@ -215,14 +231,18 @@ class BoundaryService extends ChangeNotifier {
     if (fs == null) return;
     try {
       await _ensureGlobalBoundaryCreatorClaim(firestoreId);
-      await fs.collection('global_boundaries').doc(firestoreId).update({
-        'name': name,
-        'zoneType': zoneType.firestoreKey,
-        'description': description,
-        'countsAsWorkTime': zoneType.countsAsWorkTime,
-      });
-    } catch (e) {
-      debugPrint("updatePolygon error: $e");
+      await NetworkExecutor.execute(
+        () => fs.collection('global_boundaries').doc(firestoreId).update({
+          'name': name,
+          'zoneType': zoneType.firestoreKey,
+          'description': description,
+          'countsAsWorkTime': zoneType.countsAsWorkTime,
+        }),
+        actionName: 'Update Boundary Polygon',
+        maxRetries: 2,
+      );
+    } catch (e, st) {
+      ErrorLogger.record(e, st, customMessage: 'updatePolygon error');
     }
   }
 
@@ -237,9 +257,13 @@ class BoundaryService extends ChangeNotifier {
     if (fs == null) return;
     try {
       await _ensureGlobalBoundaryCreatorClaim(polygonId);
-      await fs.collection('global_boundaries').doc(polygonId).delete();
-    } catch (e) {
-      debugPrint("deletePolygon error: $e");
+      await NetworkExecutor.execute(
+        () => fs.collection('global_boundaries').doc(polygonId).delete(),
+        actionName: 'Delete Boundary Polygon',
+        maxRetries: 2,
+      );
+    } catch (e, st) {
+      ErrorLogger.record(e, st, customMessage: 'deletePolygon error');
     }
   }
 
@@ -252,9 +276,13 @@ class BoundaryService extends ChangeNotifier {
         if (id != null) {
           try {
             await _ensureGlobalBoundaryCreatorClaim(id);
-            await fs.collection('global_boundaries').doc(id).delete();
-          } catch (e) {
-            debugPrint("clearAllPolygons error: $e");
+            await NetworkExecutor.execute(
+              () => fs.collection('global_boundaries').doc(id).delete(),
+              actionName: 'Clear All Boundary Polygons',
+              maxRetries: 2,
+            );
+          } catch (e, st) {
+            ErrorLogger.record(e, st, customMessage: 'clearAllPolygons error');
           }
         }
       }
@@ -299,13 +327,17 @@ class BoundaryService extends ChangeNotifier {
     if (fs == null) return;
     try {
       await _ensureGlobalBoundaryCreatorClaim(polygonId);
-      await fs.collection('global_boundaries').doc(polygonId).update({
-        'points': newPoints
-            .map((p) => {'lat': p.latitude, 'lng': p.longitude})
-            .toList(),
-      });
-    } catch (e) {
-      debugPrint("updatePolygonVertex error: $e");
+      await NetworkExecutor.execute(
+        () => fs.collection('global_boundaries').doc(polygonId).update({
+          'points': newPoints
+              .map((p) => {'lat': p.latitude, 'lng': p.longitude})
+              .toList(),
+        }),
+        actionName: 'Update Polygon Vertex',
+        maxRetries: 2,
+      );
+    } catch (e, st) {
+      ErrorLogger.record(e, st, customMessage: 'updatePolygonVertex error');
     }
   }
 
@@ -325,7 +357,7 @@ class BoundaryService extends ChangeNotifier {
       if (result == null || result.files.isEmpty) return null;
 
       final file = result.files.first;
-      if (file.bytes == null) throw Exception("Fayl datasi o'qilmadi.");
+      if (file.bytes == null) throw AppError("Fayl datasi o'qilmadi.", category: ErrorCategory.validation);
 
       final ext = file.extension?.toLowerCase() ?? '';
       final filename = file.name;
@@ -350,8 +382,8 @@ class BoundaryService extends ChangeNotifier {
             ShpShapefileParser.parse(Uint8List.fromList(file.bytes!), filename);
       } else if (ext == 'gpkg') {
         if (kIsWeb) {
-          throw Exception(
-              "GeoPackage (.gpkg) brauzerda import qilib bo'lmaydi (SQLite yo'q).");
+          throw AppError(
+              "GeoPackage (.gpkg) brauzerda import qilib bo'lmaydi (SQLite yo'q).", category: ErrorCategory.validation);
         }
         final dir = await getTemporaryDirectory();
         final tmp = io.File(
@@ -395,10 +427,14 @@ class BoundaryService extends ChangeNotifier {
           normalized = true;
         }
         if (importUid != null && fs != null) {
-          await fs.collection('global_boundaries').add({
-            ...normalizedPolygon.toMap(),
-            'createdByUid': importUid,
-          });
+          await NetworkExecutor.execute(
+            () => fs.collection('global_boundaries').add({
+              ...normalizedPolygon.toMap(),
+              'createdByUid': importUid,
+            }),
+            actionName: 'Import Boundary Polygon',
+            maxRetries: 2,
+          );
         } else {
           _localBoundaries.add(
             BoundaryPolygon(

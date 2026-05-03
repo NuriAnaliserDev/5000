@@ -12,6 +12,7 @@ import '../../l10n/app_strings.dart';
 import '../../utils/firebase_ready.dart';
 import '../../utils/gis_import_feedback.dart';
 import '../../widgets/gis_import_precheck_dialog.dart';
+import '../../core/error/error_handler.dart';
 import 'components/web_map_drawing_panel.dart';
 import 'components/web_map_zone_list_panel.dart';
 import 'components/web_map_shift_logs_panel.dart';
@@ -91,9 +92,7 @@ class _WebMapScreenState extends State<WebMapScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Xatolik: $e'), backgroundColor: Colors.red),
-        );
+        ErrorHandler.show(context, e);
       }
     }
   }
@@ -233,12 +232,7 @@ class _WebMapScreenState extends State<WebMapScreen> {
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Xatolik: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      ErrorHandler.show(context, e);
     }
   }
 

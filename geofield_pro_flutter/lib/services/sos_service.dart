@@ -5,6 +5,8 @@ import 'package:latlong2/latlong.dart';
 
 import 'sos/sos_queue.dart';
 import '../utils/firebase_ready.dart';
+import '../core/network/network_executor.dart';
+import '../core/error/error_logger.dart';
 
 /// SMS fallback hook — `url_launcher` bilan to‘ldiriladi (ilova init'ida
 /// o‘rnatiladi). Qiymat: `sms:<number>?body=<url-encoded>` URIni ochadigan
@@ -83,7 +85,10 @@ class SosService extends ChangeNotifier {
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => EmergencySignal.fromMap(doc.data(), doc.id))
-            .toList());
+            .toList())
+        .handleError((e, st) {
+          ErrorLogger.record(e, st, customMessage: 'SOS stream error');
+        });
   }
 
   /// SOS signalini yuboradi. Onlayn bo‘lsa to‘g‘ridan to‘g‘ri, aks holda
@@ -104,14 +109,18 @@ class SosService extends ChangeNotifier {
     try {
       final fs = _firestore;
       if (fs == null) throw StateError('no-firestore');
-      final ref = await fs.collection('emergency_signals').add({
-        'senderUid': user.uid,
-        'senderName': name,
-        'lat': position.latitude,
-        'lng': position.longitude,
-        'timestamp': FieldValue.serverTimestamp(),
-        'isActive': true,
-      });
+      final ref = await NetworkExecutor.execute(
+        () => fs.collection('emergency_signals').add({
+          'senderUid': user.uid,
+          'senderName': name,
+          'lat': position.latitude,
+          'lng': position.longitude,
+          'timestamp': FieldValue.serverTimestamp(),
+          'isActive': true,
+        }),
+        actionName: 'Send SOS',
+        maxRetries: 1,
+      );
       _myActiveSosDocumentId = ref.id;
       notifyListeners();
     } catch (e) {
@@ -143,11 +152,15 @@ class SosService extends ChangeNotifier {
     final fs = _firestore;
     if (fs == null) return null;
     try {
-      final snap = await fs
-          .collection('emergency_signals')
-          .where('senderUid', isEqualTo: user.uid)
-          .limit(25)
-          .get();
+      final snap = await NetworkExecutor.execute(
+        () => fs
+            .collection('emergency_signals')
+            .where('senderUid', isEqualTo: user.uid)
+            .limit(25)
+            .get(),
+        actionName: 'Get Latest SOS',
+        maxRetries: 2,
+      );
       DateTime? bestTime;
       String? bestId;
       for (final d in snap.docs) {
@@ -160,8 +173,8 @@ class SosService extends ChangeNotifier {
         }
       }
       return bestId;
-    } catch (e) {
-      debugPrint('SOS: active id lookup failed: $e');
+    } catch (e, st) {
+      ErrorLogger.record(e, st, customMessage: 'SOS: active id lookup failed');
       return null;
     }
   }
@@ -222,13 +235,17 @@ class SosService extends ChangeNotifier {
     final fs = _firestore;
     if (fs == null) return false;
     try {
-      await fs
-          .collection('emergency_signals')
-          .doc(signalId)
-          .update({'isActive': false});
+      await NetworkExecutor.execute(
+        () => fs
+            .collection('emergency_signals')
+            .doc(signalId)
+            .update({'isActive': false}),
+        actionName: 'Deactivate SOS',
+        maxRetries: 2,
+      );
       return true;
-    } catch (e) {
-      debugPrint('Error clearing SOS: $e');
+    } catch (e, st) {
+      ErrorLogger.record(e, st, customMessage: 'Error clearing SOS');
       return false;
     }
   }

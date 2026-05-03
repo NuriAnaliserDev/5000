@@ -38,6 +38,7 @@ import '../l10n/app_strings.dart';
 import '../utils/app_nav_bar.dart';
 import '../utils/app_localizations.dart';
 import '../utils/overlay_fab_layout.dart';
+import '../core/error/error_handler.dart';
 import '../widgets/common/draggable_fab.dart';
 import '../widgets/gis_import_precheck_dialog.dart';
 import '../widgets/map/map_search_sheet.dart';

@@ -8,8 +8,10 @@ import 'package:provider/provider.dart';
 import '../l10n/app_strings.dart';
 import '../services/ai_translator_service.dart';
 import '../services/settings_controller.dart';
-import '../services/auth_service.dart';
 import '../services/location_service.dart';
+import '../services/auth_service.dart';
+import '../core/network/network_executor.dart';
+import '../core/error/error_handler.dart';
 import '../utils/ai_vertex_error_helper.dart'
     show
         isVertexAiDisabledError,
@@ -98,30 +100,33 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
       final updatedTable = List<Map<String, dynamic>>.from(_tableRows);
       final reportType = _parsedData!['report_type'] ?? 'unknown';
 
-      // 2. Upload to Firestore
-      await FirebaseFirestore.instance.collection('daily_mine_reports').add({
-        'reportType': reportType,
-        'authorUid': uid,
-        'authorName':
-            settings.currentUserName ?? auth.currentUser?.email ?? 'Noma\'lum',
-        'createdAt': FieldValue.serverTimestamp(),
-        'status': 'pending',
-        'imageUrl': '',
-        'lat': loc?.latitude,
-        'lng': loc?.longitude,
-        'parsedData': {
-          'header': {
-            'date': _parsedData!['date'],
-            'shift': _parsedData!['shift'],
-            'driller': _parsedData!['driller'] ??
-                _parsedData!['spotter'] ??
-                _parsedData!['geologist'] ??
-                '—',
-            'location': _parsedData!['location'] ?? _parsedData!['pit'] ?? '—',
+      await NetworkExecutor.execute(
+        () => FirebaseFirestore.instance.collection('daily_mine_reports').add({
+          'reportType': reportType,
+          'authorUid': uid,
+          'authorName':
+              settings.currentUserName ?? auth.currentUser?.email ?? 'Noma\'lum',
+          'createdAt': FieldValue.serverTimestamp(),
+          'status': 'pending',
+          'imageUrl': '',
+          'lat': loc?.latitude,
+          'lng': loc?.longitude,
+          'parsedData': {
+            'header': {
+              'date': _parsedData!['date'],
+              'shift': _parsedData!['shift'],
+              'driller': _parsedData!['driller'] ??
+                  _parsedData!['spotter'] ??
+                  _parsedData!['geologist'] ??
+                  '—',
+              'location': _parsedData!['location'] ?? _parsedData!['pit'] ?? '—',
+            },
+            'table': updatedTable,
           },
-          'table': updatedTable,
-        },
-      });
+        }),
+        actionName: 'Submit Mine Report',
+        maxRetries: 2,
+      );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -133,9 +138,7 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Xatolik yuz berdi: $e')),
-        );
+        ErrorHandler.show(context, e);
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

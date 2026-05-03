@@ -3,6 +3,8 @@ import 'package:excel/excel.dart';
 import 'package:intl/intl.dart';
 import '../models/mine_report.dart';
 import '../utils/downloader/file_downloader.dart';
+import '../core/error/app_error.dart';
+import '../core/error/error_logger.dart';
 
 class ExcelGeneratorService {
   /// Tasdiqlangan (Verified) hisobotlarni Excel shablonga kiritib kompyuterga yuklash
@@ -96,10 +98,12 @@ class ExcelGeneratorService {
         final fileName = 'KUNLIK_HISOBOT_$dateStr.xlsx';
         await FileDownloader.downloadBytes(fileBytes, fileName);
       } else {
-        throw Exception("Excel encoding muvaffaqiyatsiz");
+        throw AppError("Excel encoding muvaffaqiyatsiz", category: ErrorCategory.unknown);
       }
-    } catch (e) {
-      throw Exception("Excel Yaratishda Xato: $e");
+    } catch (e, st) {
+      if (e is AppError) rethrow;
+      ErrorLogger.record(e, st, customMessage: 'Excel Yaratishda Xato');
+      throw AppError("Excel Yaratishda Xato: $e", category: ErrorCategory.unknown);
     }
   }
 

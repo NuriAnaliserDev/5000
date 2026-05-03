@@ -40,6 +40,9 @@ class ErrorHandler {
       } else if (error.code == 'permission-denied') {
         cat = ErrorCategory.auth;
         msg = 'Sizda bu amalni bajarish uchun ruxsat yo‘q.';
+      } else if (error.code == 'resource-exhausted') {
+        cat = ErrorCategory.network;
+        msg = 'Kvota tugadi yoki tizim vaqtincha band (resource-exhausted).';
       } else {
         msg = error.message ?? error.toString();
       }

@@ -146,7 +146,8 @@ class CloudSyncService extends ChangeNotifier {
       for (var msg in pendingChats) {
         await _syncPendingChatDirectly(msg);
       }
-    } catch (e) {
+    } catch (e, st) {
+      ErrorLogger.record(e, st, customMessage: 'SyncQueue: sinxronizatsiya jarayoni muvaffaqiyatsiz');
       debugPrint('SyncQueue error: $e');
     } finally {
       _isSyncing = false;
@@ -279,12 +280,8 @@ class CloudSyncService extends ChangeNotifier {
 
             final localUpdatedAt = station.updatedAt ?? station.date;
 
-            // Agar masofadagi nusxa mahalliydan yangiroq bo'lsa
             if (remoteUpdatedAt != null &&
                 localUpdatedAt.isBefore(remoteUpdatedAt)) {
-              // Strategy: Branching (Ma'lumot yo'qolishini oldini olish)
-              // Boshqa qurilmada yozilgan yangiroq ma'lumotni ustidan yozib yubormaslik uchun,
-              // ushbu eskiroq (lekin oflayn o'zgartirilgan) nusxani alohida konflikt sifatida saqlaymiz.
               final conflictRef = fs
                   .collection('users')
                   .doc(uid)
@@ -297,14 +294,16 @@ class CloudSyncService extends ChangeNotifier {
               await conflictRef.set(data, SetOptions(merge: true));
               debugPrint(
                   'Conflict detected! Local is older than remote. Saved local as conflict branch: ${conflictRef.id}');
-              return; // Asosiy faylni ustidan yozmaymiz
+              return;
             }
           }
 
-          // 2. Konflikt yo'q yoki mahalliy ma'lumot yangi (Last-write-wins)
           await docRef.set(data, SetOptions(merge: true));
         },
         actionName: 'Sync Station $key',
+        shouldRetry: (e) =>
+            NetworkExecutor.isNetworkError(e) &&
+            !(e is FirebaseException && e.code == 'permission-denied'),
       );
       return true;
     } catch (e, st) {
@@ -348,6 +347,9 @@ class CloudSyncService extends ChangeNotifier {
           await docRef.set(data, SetOptions(merge: true));
         },
         actionName: 'Sync Shift Log $key',
+        shouldRetry: (e) =>
+            NetworkExecutor.isNetworkError(e) &&
+            !(e is FirebaseException && e.code == 'permission-denied'),
       );
 
       // Update local state to mark as synced
@@ -449,12 +451,16 @@ class CloudSyncService extends ChangeNotifier {
     if (fs == null) return;
 
     try {
-      await fs
-          .collection('users')
-          .doc(uid)
-          .collection('stations')
-          .doc(key.toString())
-          .delete();
+      await NetworkExecutor.execute(
+        () => fs
+            .collection('users')
+            .doc(uid)
+            .collection('stations')
+            .doc(key.toString())
+            .delete(),
+        actionName: 'Delete Station from Cloud',
+        maxRetries: 2,
+      );
       Hive.box(HiveDb.syncStateBox).delete('station_$key');
     } catch (e) {
       debugPrint('Cloud delete fail: $e');
@@ -474,14 +480,24 @@ class CloudSyncService extends ChangeNotifier {
     try {
       final fs = _firestore;
       if (fs == null) return;
-      final batch = fs.batch();
-      final snapshot =
-          await fs.collection('users').doc(uid).collection('stations').get();
+      
+      final snapshot = await NetworkExecutor.execute(
+        () => fs.collection('users').doc(uid).collection('stations').get(),
+        actionName: 'Get user stations for clear',
+        maxRetries: 1,
+      );
 
+      final batch = fs.batch();
       for (var doc in snapshot.docs) {
         batch.delete(doc.reference);
       }
-      await batch.commit();
+      
+      await NetworkExecutor.execute(
+        () => batch.commit(),
+        actionName: 'Clear user stations batch commit',
+        maxRetries: 2,
+      );
+
       Hive.box(HiveDb.syncStateBox).clear();
       debugPrint(
           'clearUserStations: ${snapshot.docs.length} stansiya o\'chirildi (uid: $uid).');

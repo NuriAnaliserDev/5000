@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 
 import '../models/mine_report.dart';
 import '../utils/firebase_ready.dart';
+import '../core/network/network_executor.dart';
+import '../core/error/error_logger.dart';
 
 class MineReportRepository extends ChangeNotifier {
   FirebaseFirestore? get _db => firestoreOrNull;
@@ -17,6 +19,8 @@ class MineReportRepository extends ChangeNotifier {
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) => MineReport.fromFirestore(doc)).toList();
+    }).handleError((e, st) {
+      ErrorLogger.record(e, st, customMessage: 'MineReport stream error');
     });
   }
 
@@ -31,6 +35,8 @@ class MineReportRepository extends ChangeNotifier {
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) => MineReport.fromFirestore(doc)).toList();
+    }).handleError((e, st) {
+      ErrorLogger.record(e, st, customMessage: 'MineReport streamPendingReports error');
     });
   }
 
@@ -46,6 +52,8 @@ class MineReportRepository extends ChangeNotifier {
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) => MineReport.fromFirestore(doc)).toList();
+    }).handleError((e, st) {
+      ErrorLogger.record(e, st, customMessage: 'MineReport streamPendingReportsByType error');
     });
   }
 
@@ -60,6 +68,8 @@ class MineReportRepository extends ChangeNotifier {
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) => MineReport.fromFirestore(doc)).toList();
+    }).handleError((e, st) {
+      ErrorLogger.record(e, st, customMessage: 'MineReport streamVerifiedReports error');
     });
   }
 
@@ -69,14 +79,18 @@ class MineReportRepository extends ChangeNotifier {
     final db = _db;
     if (db == null) return;
     try {
-      await db.collection('daily_mine_reports').doc(reportId).update({
-        'status': 'verified',
-        'parsedData': correctedData,
-        'verifiedBy': verifiedByUserName,
-        'verifiedAt': FieldValue.serverTimestamp(),
-      });
-    } catch (e) {
-      debugPrint("Error verifying report: $e");
+      await NetworkExecutor.execute(
+        () => db.collection('daily_mine_reports').doc(reportId).update({
+          'status': 'verified',
+          'parsedData': correctedData,
+          'verifiedBy': verifiedByUserName,
+          'verifiedAt': FieldValue.serverTimestamp(),
+        }),
+        actionName: 'Verify Mine Report',
+        maxRetries: 2,
+      );
+    } catch (e, st) {
+      ErrorLogger.record(e, st, customMessage: 'Error verifying report');
       rethrow;
     }
   }
@@ -86,9 +100,13 @@ class MineReportRepository extends ChangeNotifier {
     final db = _db;
     if (db == null) return;
     try {
-      await db.collection('daily_mine_reports').doc(reportId).delete();
-    } catch (e) {
-      debugPrint("Error deleting report: $e");
+      await NetworkExecutor.execute(
+        () => db.collection('daily_mine_reports').doc(reportId).delete(),
+        actionName: 'Delete Mine Report',
+        maxRetries: 2,
+      );
+    } catch (e, st) {
+      ErrorLogger.record(e, st, customMessage: 'Error deleting report');
       rethrow;
     }
   }

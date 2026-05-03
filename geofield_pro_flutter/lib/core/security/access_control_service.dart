@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import '../error/app_error.dart';
+import '../error/error_logger.dart';
 
 enum UserRole {
   geologist,
@@ -60,8 +61,8 @@ class AccessControlService extends ChangeNotifier {
         }
       }
       notifyListeners();
-    }, onError: (e) {
-      debugPrint('Error listening to user role: $e');
+    }, onError: (e, st) {
+      ErrorLogger.record(e, st, customMessage: 'Error listening to user role');
     });
   }
 

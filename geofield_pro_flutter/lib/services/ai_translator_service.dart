@@ -6,7 +6,9 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'ai/ai_rate_limiter.dart';
+import '../core/error/app_error.dart';
 import '../utils/image_mime.dart';
+import '../core/network/network_executor.dart';
 
 class AiTranslatorService {
   late final GenerativeModel _model;
@@ -25,9 +27,13 @@ class AiTranslatorService {
       Uint8List bytes;
       String mime;
       if (imagePath.startsWith('http')) {
-        final response = await http.get(Uri.parse(imagePath));
+        final response = await NetworkExecutor.execute(
+          () => http.get(Uri.parse(imagePath)),
+          actionName: 'Download Report Image',
+          maxRetries: 2,
+        );
         if (response.statusCode != 200) {
-          throw Exception("Rasmni yuklashda xatolik: ${response.statusCode}");
+          throw AppError("Rasmni yuklashda xatolik: ${response.statusCode}", category: ErrorCategory.network);
         }
         bytes = response.bodyBytes;
         mime =
@@ -35,7 +41,7 @@ class AiTranslatorService {
                 mimeTypeForImagePath(imagePath);
       } else {
         if (kIsWeb) {
-          throw Exception("Web muhitda lokal fayl yo'llari ruxsat etilmagan");
+          throw AppError("Web muhitda lokal fayl yo'llari ruxsat etilmagan", category: ErrorCategory.validation);
         }
         final file = File(imagePath);
         bytes = await file.readAsBytes();
@@ -135,21 +141,27 @@ DIQQAT:
 - Qolyozmani diqqat bilan o'qing, raqamlarni to'g'ri ko'chiring
 ''');
 
-      final response = await _model.generateContent([
-        Content.multi([prompt, imagePart])
-      ]);
+      final response = await NetworkExecutor.execute(
+        () => _model.generateContent([
+          Content.multi([prompt, imagePart])
+        ]),
+        actionName: 'AI Translate Image',
+        maxRetries: 1,
+        timeout: const Duration(seconds: 45), // AI usually takes longer
+      );
 
-      if (response.text != null) {
-        final rawJson = response.text!
-            .trim()
-            .replaceAll('```json', '')
-            .replaceAll('```', '')
-            .trim();
-        return jsonDecode(rawJson) as Map<String, dynamic>;
-      } else {
-        throw Exception("AI bo'sh natija qaytardi.");
+      final respText = response.text;
+      if (respText == null || respText.isEmpty) {
+        throw AppError("AI bo'sh natija qaytardi.", category: ErrorCategory.network);
       }
+      final rawJson = respText
+          .trim()
+          .replaceAll('```json', '')
+          .replaceAll('```', '')
+          .trim();
+      return jsonDecode(rawJson) as Map<String, dynamic>;
     } catch (e) {
+      // NetworkExecutor xatolikni log qilib beradi
       debugPrint("AI Analyzer Error: $e");
       return {
         "error": e.toString(),

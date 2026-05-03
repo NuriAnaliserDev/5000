@@ -8,6 +8,7 @@ import '../core/error/error_logger.dart';
 import '../core/error/error_handler.dart';
 
 import '../utils/firebase_ready.dart';
+import '../core/network/network_executor.dart';
 
 class AuthService extends ChangeNotifier {
   User? _currentUser;
@@ -63,19 +64,28 @@ class AuthService extends ChangeNotifier {
     if (fs == null) return;
     try {
       final ref = fs.collection('users').doc(user.uid);
-      final snap = await ref.get();
+      final snap = await NetworkExecutor.execute(
+        () => ref.get(),
+        actionName: 'Get user profile',
+        maxRetries: 2,
+      );
       if (snap.exists) return;
       final dn = user.displayName?.trim();
       final em = user.email?.trim();
-      await ref.set(
-        {
-          if (em != null && em.isNotEmpty) 'email': em,
-          'displayName':
-              (dn != null && dn.isNotEmpty) ? dn : displayNameFromUser(user),
-          'role': 'geologist',
-          'createdAt': FieldValue.serverTimestamp(),
-        },
-        SetOptions(merge: true),
+      
+      await NetworkExecutor.execute(
+        () => ref.set(
+          {
+            if (em != null && em.isNotEmpty) 'email': em,
+            'displayName':
+                (dn != null && dn.isNotEmpty) ? dn : displayNameFromUser(user),
+            'role': 'geologist',
+            'createdAt': FieldValue.serverTimestamp(),
+          },
+          SetOptions(merge: true),
+        ),
+        actionName: 'Set user profile',
+        maxRetries: 2,
       );
     } catch (e, st) {
       ErrorLogger.record(e, st,
@@ -90,9 +100,13 @@ class AuthService extends ChangeNotifier {
       throw AppError(_firebaseUnavailable, category: ErrorCategory.network);
     }
     try {
-      await auth.signInWithEmailAndPassword(
-        email: email.trim(),
-        password: password,
+      await NetworkExecutor.execute(
+        () => auth.signInWithEmailAndPassword(
+          email: email.trim(),
+          password: password,
+        ),
+        actionName: 'Login',
+        maxRetries: 1,
       );
       final u = auth.currentUser;
       if (u != null) await ensureFirestoreUserProfileIfMissing(u);
@@ -111,9 +125,13 @@ class AuthService extends ChangeNotifier {
       throw AppError(_firebaseUnavailable, category: ErrorCategory.network);
     }
     try {
-      final cred = await auth.createUserWithEmailAndPassword(
-        email: email.trim(),
-        password: password,
+      final cred = await NetworkExecutor.execute(
+        () => auth.createUserWithEmailAndPassword(
+          email: email.trim(),
+          password: password,
+        ),
+        actionName: 'Register',
+        maxRetries: 1,
       );
       final name = displayName?.trim();
       if (name != null && name.isNotEmpty && cred.user != null) {
@@ -133,7 +151,11 @@ class AuthService extends ChangeNotifier {
       throw AppError(_firebaseUnavailable, category: ErrorCategory.network);
     }
     try {
-      await auth.sendPasswordResetEmail(email: email.trim());
+      await NetworkExecutor.execute(
+        () => auth.sendPasswordResetEmail(email: email.trim()),
+        actionName: 'Reset Password',
+        maxRetries: 1,
+      );
     } catch (e, st) {
       throw ErrorHandler.process(e, st);
     }

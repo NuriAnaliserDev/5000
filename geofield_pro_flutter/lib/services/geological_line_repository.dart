@@ -9,6 +9,8 @@ import '../models/geological_line.dart';
 import '../utils/firebase_ready.dart';
 import '../core/security/access_control_service.dart';
 import '../core/di/dependency_injection.dart';
+import '../core/network/network_executor.dart';
+import '../core/error/error_logger.dart';
 
 /// Repository for geological linework features (faults, contacts, etc.)
 /// Backed by a Hive box for offline-first storage.
@@ -48,6 +50,8 @@ class GeologicalLineRepository extends ChangeNotifier {
         _lines = _box!.values.toList();
         notifyListeners();
       }
+    }, onError: (e, st) {
+      ErrorLogger.record(e, st, customMessage: 'GeologicalLineRepository stream error');
     });
   }
 
@@ -73,16 +77,25 @@ class GeologicalLineRepository extends ChangeNotifier {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (fs == null || uid == null || !isFirebaseCoreReady) return;
     try {
-      final snap = await fs.collection('geological_lines').doc(docId).get();
+      final snap = await NetworkExecutor.execute(
+        () => fs.collection('geological_lines').doc(docId).get(),
+        actionName: 'Get Line Claim',
+        maxRetries: 2,
+      );
       if (!snap.exists) return;
       final v = snap.data()?['ownerUid'];
       if (v != null && v.toString().isNotEmpty) return;
-      await fs
-          .collection('geological_lines')
-          .doc(docId)
-          .update({'ownerUid': uid});
-    } catch (e) {
-      debugPrint('_ensureLineOwnerClaim: $e');
+      
+      await NetworkExecutor.execute(
+        () => fs
+            .collection('geological_lines')
+            .doc(docId)
+            .update({'ownerUid': uid}),
+        actionName: 'Claim Geological Line',
+        maxRetries: 2,
+      );
+    } catch (e, st) {
+      ErrorLogger.record(e, st, customMessage: '_ensureLineOwnerClaim error');
     }
   }
 
@@ -96,9 +109,13 @@ class GeologicalLineRepository extends ChangeNotifier {
     if (fs == null) return;
     try {
       await _ensureLineOwnerClaim(id);
-      await fs.collection('geological_lines').doc(id).delete();
-    } catch (e) {
-      debugPrint('Error deleting line from Firestore: $e');
+      await NetworkExecutor.execute(
+        () => fs.collection('geological_lines').doc(id).delete(),
+        actionName: 'Delete Geological Line',
+        maxRetries: 2,
+      );
+    } catch (e, st) {
+      ErrorLogger.record(e, st, customMessage: 'Error deleting line from Firestore');
     }
   }
 
@@ -131,12 +148,16 @@ class GeologicalLineRepository extends ChangeNotifier {
     if (fs == null) return;
     try {
       await _ensureLineOwnerClaim(line.id);
-      await fs.collection('geological_lines').doc(line.id).set({
-        ...line.toMap(),
-        'ownerUid': uid,
-      }, SetOptions(merge: true));
-    } catch (e) {
-      debugPrint('Error uploading line: $e');
+      await NetworkExecutor.execute(
+        () => fs.collection('geological_lines').doc(line.id).set({
+          ...line.toMap(),
+          'ownerUid': uid,
+        }, SetOptions(merge: true)),
+        actionName: 'Add/Update Geological Line',
+        maxRetries: 2,
+      );
+    } catch (e, st) {
+      ErrorLogger.record(e, st, customMessage: 'Error uploading line');
     }
   }
 

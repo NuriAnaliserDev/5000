@@ -4,6 +4,7 @@ import '../../services/theme_controller.dart';
 import '../../services/settings_controller.dart';
 import '../../services/auth_service.dart';
 import '../../services/cloud_sync_service.dart';
+import '../../core/error/error_handler.dart';
 
 class WebSettingsScreen extends StatefulWidget {
   const WebSettingsScreen({super.key});
@@ -32,9 +33,7 @@ class _WebSettingsScreenState extends State<WebSettingsScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Xato: $e'), backgroundColor: Colors.red),
-        );
+        ErrorHandler.show(context, e);
       }
     } finally {
       if (mounted) setState(() => _isSyncing = false);

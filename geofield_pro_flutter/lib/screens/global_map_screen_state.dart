@@ -1038,9 +1038,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$e'), behavior: SnackBarBehavior.floating),
-        );
+        ErrorHandler.show(context, e);
       }
     }
   }
@@ -1681,12 +1679,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
       await Share.shareXFiles([XFile(f.path)], text: s.map_export_geojson);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${s.map_error_prefix}: $e'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        ErrorHandler.show(context, e);
       }
     }
   }

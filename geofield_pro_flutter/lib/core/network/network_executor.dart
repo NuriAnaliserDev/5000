@@ -46,8 +46,16 @@ class NetworkExecutor {
     }
   }
 
-  static bool _isNetworkError(Object e) {
+  static bool isNetworkError(Object e) {
     if (e is TimeoutException) return true;
+    
+    // Explicitly reject Firebase permission and quota errors from retry logic
+    if (e is FirebaseException) {
+      if (e.code == 'permission-denied' || e.code == 'resource-exhausted') {
+        return false;
+      }
+    }
+
     final str = e.toString().toLowerCase();
     if (str.contains('socketexception') ||
         str.contains('network-request-failed') ||
@@ -60,6 +68,9 @@ class NetworkExecutor {
     }
     return false;
   }
+
+  // Internal alias for backwards compat
+  static bool _isNetworkError(Object e) => isNetworkError(e);
 
   static AppError _mapToAppError(Object error, StackTrace? st) {
     if (error is AppError) return error;
