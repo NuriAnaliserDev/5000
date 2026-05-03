@@ -44,6 +44,9 @@ class MapStructureAnnotation extends HiveObject {
   @HiveField(11)
   String? updatedByDeviceId;
 
+  @HiveField(12, defaultValue: false)
+  bool isDeleted;
+
   MapStructureAnnotation({
     required this.id,
     required this.lat,
@@ -57,6 +60,7 @@ class MapStructureAnnotation extends HiveObject {
     this.version = 1,
     this.updatedBy,
     this.updatedByDeviceId,
+    this.isDeleted = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -73,6 +77,7 @@ class MapStructureAnnotation extends HiveObject {
       'version': version,
       'updatedBy': updatedBy,
       'updatedByDeviceId': updatedByDeviceId,
+      'isDeleted': isDeleted,
     };
   }
 
@@ -91,6 +96,7 @@ class MapStructureAnnotation extends HiveObject {
       version: m['version'] as int? ?? 1,
       updatedBy: m['updatedBy'] as String?,
       updatedByDeviceId: m['updatedByDeviceId'] as String?,
+      isDeleted: m['isDeleted'] as bool? ?? false,
     );
   }
 }

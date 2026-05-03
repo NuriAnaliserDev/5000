@@ -107,6 +107,9 @@ class Station extends HiveObject {
   @HiveField(31)
   String? updatedByDeviceId;
 
+  @HiveField(32, defaultValue: false)
+  bool isDeleted;
+
   Station({
     required this.name,
     required this.lat,
@@ -140,6 +143,7 @@ class Station extends HiveObject {
     this.version = 1,
     this.updatedBy,
     this.updatedByDeviceId,
+    this.isDeleted = false,
   });
 
   Station copyWith({
@@ -175,6 +179,7 @@ class Station extends HiveObject {
     int? version,
     String? updatedBy,
     String? updatedByDeviceId,
+    bool? isDeleted,
   }) {
     return Station(
       name: name ?? this.name,
@@ -209,6 +214,7 @@ class Station extends HiveObject {
       version: version ?? this.version,
       updatedBy: updatedBy ?? this.updatedBy,
       updatedByDeviceId: updatedByDeviceId ?? this.updatedByDeviceId,
+      isDeleted: isDeleted ?? this.isDeleted,
     );
   }
 }

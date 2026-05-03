@@ -11,6 +11,10 @@ import '../utils/firebase_ready.dart';
 import '../core/network/network_executor.dart';
 import '../core/error/error_logger.dart';
 import '../utils/device_id_helper.dart';
+import '../models/sync_item.dart';
+import 'sync/sync_queue_service.dart';
+import '../core/di/dependency_injection.dart';
+import 'package:uuid/uuid.dart';
 
 /// Xaritadagi qo‘lda qo‘yilgan strike/dip belgilar (offline + Firestore).
 class MapStructureRepository extends ChangeNotifier {
@@ -18,7 +22,9 @@ class MapStructureRepository extends ChangeNotifier {
   Box<MapStructureAnnotation>? _box;
 
   List<MapStructureAnnotation> _items = [];
-  List<MapStructureAnnotation> get annotations => List.unmodifiable(_items);
+  List<MapStructureAnnotation> get annotations => _items.where((a) => !a.isDeleted).toList();
+
+  final SyncQueueService _syncQueue = sl<SyncQueueService>();
 
   FirebaseFirestore? get _firestore => firestoreOrNull;
   StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _remoteSub;
@@ -101,65 +107,86 @@ class MapStructureRepository extends ChangeNotifier {
     }
   }
 
-  Future<void> addAnnotation(MapStructureAnnotation a) async {
+  Future<void> addAnnotation(MapStructureAnnotation a, {UpdateSource source = UpdateSource.local}) async {
     await _lock.synchronized(() async {
       final stamped = await _stamp(a);
       await _box!.put(stamped.id, stamped);
+
+      if (source == UpdateSource.local) {
+        await _syncQueue.addItem(SyncItem(
+          id: const Uuid().v4(),
+          entityType: 'map_annotation',
+          entityId: stamped.id,
+          payload: stamped.toMap(),
+          version: stamped.version,
+          operation: SyncOperation.create,
+          requestId: const Uuid().v4(),
+          sequence: _syncQueue.getNextSequence(),
+          createdAt: DateTime.now(),
+        ));
+      }
+
       _items = _box!.values.toList();
       notifyListeners();
-      _uploadAnnotation(stamped);
     });
   }
 
-  Future<void> updateAnnotation(MapStructureAnnotation a) async {
+  Future<void> updateAnnotation(MapStructureAnnotation a, {UpdateSource source = UpdateSource.local}) async {
     await _lock.synchronized(() async {
-      final stamped = await _stamp(a, increment: true);
+      final stamped = await _stamp(a, increment: source == UpdateSource.local);
       await _box!.put(stamped.id, stamped);
+
+      if (source == UpdateSource.local) {
+        await _syncQueue.addItem(SyncItem(
+          id: const Uuid().v4(),
+          entityType: 'map_annotation',
+          entityId: stamped.id,
+          payload: stamped.toMap(),
+          version: stamped.version,
+          operation: SyncOperation.update,
+          requestId: const Uuid().v4(),
+          sequence: _syncQueue.getNextSequence(),
+          createdAt: DateTime.now(),
+        ));
+      }
+
       _items = _box!.values.toList();
       notifyListeners();
-      _uploadAnnotation(stamped);
     });
   }
 
-  Future<void> _uploadAnnotation(MapStructureAnnotation a) async {
-    if (!isFirebaseCoreReady) return;
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null) return;
-    final fs = _firestore;
-    if (fs == null) return;
+  Future<void> deleteAnnotation(String id, {UpdateSource source = UpdateSource.local}) async {
+    await _lock.synchronized(() async {
+      final a = _box!.get(id);
+      if (a == null || a.isDeleted) return;
 
-    try {
-      await NetworkExecutor.execute(
-        () => fs.collection('map_structure_annotations').doc(a.id).set({
-          ...a.toMap(),
-          'ownerUid': uid,
-        }, SetOptions(merge: true)),
-        actionName: 'Upload Annotation',
-        maxRetries: 3,
-      );
-    } catch (e, st) {
-      ErrorLogger.record(e, st, customMessage: 'Upload annotation error');
-    }
+      if (source == UpdateSource.local) {
+        final deleted = a.copyWith(isDeleted: true);
+        await _box!.put(id, deleted);
+
+        await _syncQueue.addItem(SyncItem(
+          id: const Uuid().v4(),
+          entityType: 'map_annotation',
+          entityId: id,
+          payload: {},
+          version: a.version,
+          operation: SyncOperation.delete,
+          requestId: const Uuid().v4(),
+          sequence: _syncQueue.getNextSequence(),
+          createdAt: DateTime.now(),
+        ));
+      } else {
+        await _box!.delete(id);
+      }
+
+      _items = _box!.values.toList();
+      notifyListeners();
+    });
   }
 
-  Future<void> deleteAnnotation(String id) async {
-    await _box!.delete(id);
-    _items = _box!.values.toList();
-    notifyListeners();
-    final fs = _firestore;
-    if (fs == null) return;
-    try {
-      await _ensureAnnotationOwnerClaim(id);
-      await NetworkExecutor.execute(
-        () => fs.collection('map_structure_annotations').doc(id).delete(),
-        actionName: 'Delete Annotation',
-        maxRetries: 2,
-      );
-    } catch (e, st) {
-      ErrorLogger.record(e, st,
-          customMessage: 'MapStructureRepository delete remote error');
-    }
-  }
+
+
+
 
   @override
   void dispose() {

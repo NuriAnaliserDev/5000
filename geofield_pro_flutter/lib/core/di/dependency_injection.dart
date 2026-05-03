@@ -17,6 +17,7 @@ import '../../services/station_repository.dart';
 import '../../services/theme_controller.dart';
 import '../../services/track_service.dart';
 import '../../services/sync/sync_queue_service.dart';
+import '../../services/sync/sync_processor.dart';
 
 final sl = GetIt.instance;
 
@@ -34,6 +35,11 @@ void setupDependencies() {
   });
 
   sl.registerLazySingleton<SyncQueueService>(() => SyncQueueService());
+  sl.registerLazySingleton<SyncProcessor>(() {
+    final processor = SyncProcessor(sl<SyncQueueService>(), sl<CloudSyncService>());
+    processor.init();
+    return processor;
+  });
 
   sl.registerLazySingleton<LocationService>(() => LocationService());
 

@@ -71,6 +71,9 @@ class GeologicalLine extends HiveObject {
   @HiveField(18)
   String? updatedByDeviceId;
 
+  @HiveField(19, defaultValue: false)
+  bool isDeleted;
+
   GeologicalLine({
     required this.id,
     required this.name,
@@ -91,6 +94,7 @@ class GeologicalLine extends HiveObject {
     this.version = 1,
     this.updatedBy,
     this.updatedByDeviceId,
+    this.isDeleted = false,
   });
 
   /// Default color for each line type (hex string without #)
@@ -150,6 +154,7 @@ class GeologicalLine extends HiveObject {
       'version': version,
       'updatedBy': updatedBy,
       'updatedByDeviceId': updatedByDeviceId,
+      'isDeleted': isDeleted,
     };
   }
 
@@ -178,6 +183,7 @@ class GeologicalLine extends HiveObject {
       version: map['version'] ?? 1,
       updatedBy: map['updatedBy'],
       updatedByDeviceId: map['updatedByDeviceId'],
+      isDeleted: map['isDeleted'] ?? false,
     );
   }
 }

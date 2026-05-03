@@ -91,4 +91,33 @@ class SyncQueueService extends ChangeNotifier {
     final maxSeq = _box.values.fold<int>(0, (max, item) => item.sequence > max ? item.sequence : max);
     return maxSeq + 1;
   }
+
+  /// App crash bo'lganda processingda qolib ketganlarni pendingga qaytaradi
+  Future<void> resetProcessingItems() async {
+    await _lock.synchronized(() async {
+      final stuckItems = _box.values.where((item) => item.status == SyncStatus.processing).toList();
+      for (var item in stuckItems) {
+        item.status = SyncStatus.pending;
+        await item.save();
+      }
+      if (stuckItems.isNotEmpty) notifyListeners();
+    });
+  }
+
+  /// Element statusini yangilash
+  Future<void> updateItemStatus(SyncItem item, SyncStatus status) async {
+    await _lock.synchronized(() async {
+      item.status = status;
+      await item.save();
+      notifyListeners();
+    });
+  }
+
+  /// Elementni navbatdan o'chirish (Muvaffaqiyatli sync bo'lganda)
+  Future<void> removeItem(SyncItem item) async {
+    await _lock.synchronized(() async {
+      await item.delete();
+      notifyListeners();
+    });
+  }
 }

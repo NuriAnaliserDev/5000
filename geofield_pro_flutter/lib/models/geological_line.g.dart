@@ -36,13 +36,14 @@ class GeologicalLineAdapter extends TypeAdapter<GeologicalLine> {
       version: fields[16] == null ? 1 : fields[16] as int,
       updatedBy: fields[17] as String?,
       updatedByDeviceId: fields[18] as String?,
+      isDeleted: fields[19] == null ? false : fields[19] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, GeologicalLine obj) {
     writer
-      ..writeByte(19)
+      ..writeByte(20)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -80,7 +81,9 @@ class GeologicalLineAdapter extends TypeAdapter<GeologicalLine> {
       ..writeByte(17)
       ..write(obj.updatedBy)
       ..writeByte(18)
-      ..write(obj.updatedByDeviceId);
+      ..write(obj.updatedByDeviceId)
+      ..writeByte(19)
+      ..write(obj.isDeleted);
   }
 
   @override

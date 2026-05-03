@@ -30,13 +30,14 @@ class MapStructureAnnotationAdapter
       version: fields[9] == null ? 1 : fields[9] as int,
       updatedBy: fields[10] as String?,
       updatedByDeviceId: fields[11] as String?,
+      isDeleted: fields[12] == null ? false : fields[12] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, MapStructureAnnotation obj) {
     writer
-      ..writeByte(12)
+      ..writeByte(13)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -60,7 +61,9 @@ class MapStructureAnnotationAdapter
       ..writeByte(10)
       ..write(obj.updatedBy)
       ..writeByte(11)
-      ..write(obj.updatedByDeviceId);
+      ..write(obj.updatedByDeviceId)
+      ..writeByte(12)
+      ..write(obj.isDeleted);
   }
 
   @override

@@ -13,6 +13,9 @@ import '../core/di/dependency_injection.dart';
 import '../core/network/network_executor.dart';
 import '../core/error/error_logger.dart';
 import '../utils/device_id_helper.dart';
+import '../models/sync_item.dart';
+import 'sync/sync_queue_service.dart';
+import 'package:uuid/uuid.dart';
 
 /// Repository for geological linework features (faults, contacts, etc.)
 /// Backed by a Hive box for offline-first storage.
@@ -21,7 +24,9 @@ class GeologicalLineRepository extends ChangeNotifier {
   Box<GeologicalLine>? _box;
 
   List<GeologicalLine> _lines = [];
-  List<GeologicalLine> get lines => List.unmodifiable(_lines);
+  List<GeologicalLine> get lines => _lines.where((l) => !l.isDeleted).toList();
+
+  final SyncQueueService _syncQueue = sl<SyncQueueService>();
 
   FirebaseFirestore? get _firestore => firestoreOrNull;
   StreamSubscription? _remoteSubscription;
@@ -74,24 +79,52 @@ class GeologicalLineRepository extends ChangeNotifier {
   }
 
   /// Add a new geological line and persist it.
-  Future<void> addLine(GeologicalLine line) async {
+  Future<void> addLine(GeologicalLine line, {UpdateSource source = UpdateSource.local}) async {
     await _lock.synchronized(() async {
       final stamped = await _stamp(line);
       await _box!.put(stamped.id, stamped);
+      
+      if (source == UpdateSource.local) {
+        await _syncQueue.addItem(SyncItem(
+          id: const Uuid().v4(),
+          entityType: 'geological_line',
+          entityId: stamped.id,
+          payload: stamped.toMap(),
+          version: stamped.version,
+          operation: SyncOperation.create,
+          requestId: const Uuid().v4(),
+          sequence: _syncQueue.getNextSequence(),
+          createdAt: DateTime.now(),
+        ));
+      }
+      
       _lines = _box!.values.toList();
       notifyListeners();
-      _uploadLine(stamped);
     });
   }
 
   /// Update an existing line by its id.
-  Future<void> updateLine(GeologicalLine line) async {
+  Future<void> updateLine(GeologicalLine line, {UpdateSource source = UpdateSource.local}) async {
     await _lock.synchronized(() async {
-      final stamped = await _stamp(line, increment: true);
+      final stamped = await _stamp(line, increment: source == UpdateSource.local);
       await _box!.put(stamped.id, stamped);
+
+      if (source == UpdateSource.local) {
+        await _syncQueue.addItem(SyncItem(
+          id: const Uuid().v4(),
+          entityType: 'geological_line',
+          entityId: stamped.id,
+          payload: stamped.toMap(),
+          version: stamped.version,
+          operation: SyncOperation.update,
+          requestId: const Uuid().v4(),
+          sequence: _syncQueue.getNextSequence(),
+          createdAt: DateTime.now(),
+        ));
+      }
+
       _lines = _box!.values.toList();
       notifyListeners();
-      _uploadLine(stamped);
     });
   }
 
@@ -124,24 +157,35 @@ class GeologicalLineRepository extends ChangeNotifier {
   }
 
   /// Delete a line by its id.
-  Future<void> deleteLine(String id) async {
-    sl<AccessControlService>().requireAuth();
-    await _box!.delete(id);
-    _lines = _box!.values.toList();
-    notifyListeners();
-    final fs = _firestore;
-    if (fs == null) return;
-    try {
-      await _ensureLineOwnerClaim(id);
-      await NetworkExecutor.execute(
-        () => fs.collection('geological_lines').doc(id).delete(),
-        actionName: 'Delete Geological Line',
-        maxRetries: 2,
-      );
-    } catch (e, st) {
-      ErrorLogger.record(e, st,
-          customMessage: 'Error deleting line from Firestore');
-    }
+  Future<void> deleteLine(String id, {UpdateSource source = UpdateSource.local}) async {
+    await _lock.synchronized(() async {
+      final line = _box!.get(id);
+      if (line == null || line.isDeleted) return;
+
+      if (source == UpdateSource.local) {
+        // Soft delete locally
+        final deleted = line.copyWith(isDeleted: true);
+        await _box!.put(id, deleted);
+
+        await _syncQueue.addItem(SyncItem(
+          id: const Uuid().v4(),
+          entityType: 'geological_line',
+          entityId: id,
+          payload: {},
+          version: line.version,
+          operation: SyncOperation.delete,
+          requestId: const Uuid().v4(),
+          sequence: _syncQueue.getNextSequence(),
+          createdAt: DateTime.now(),
+        ));
+      } else {
+        // Hard delete if it's a remote instruction
+        await _box!.delete(id);
+      }
+
+      _lines = _box!.values.toList();
+      notifyListeners();
+    });
   }
 
   /// Get all lines for a given project.
@@ -159,32 +203,7 @@ class GeologicalLineRepository extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _uploadLine(GeologicalLine line) async {
-    if (!isFirebaseCoreReady) return;
-    try {
-      sl<AccessControlService>().requireAuth();
-    } catch (e) {
-      debugPrint('Unauthorized upload blocked: $e');
-      return;
-    }
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null) return;
-    final fs = _firestore;
-    if (fs == null) return;
-    try {
-      await _ensureLineOwnerClaim(line.id);
-      await NetworkExecutor.execute(
-        () => fs.collection('geological_lines').doc(line.id).set({
-          ...line.toMap(),
-          'ownerUid': uid,
-        }, SetOptions(merge: true)),
-        actionName: 'Add/Update Geological Line',
-        maxRetries: 2,
-      );
-    } catch (e, st) {
-      ErrorLogger.record(e, st, customMessage: 'Error uploading line');
-    }
-  }
+
 
   @override
   void dispose() {

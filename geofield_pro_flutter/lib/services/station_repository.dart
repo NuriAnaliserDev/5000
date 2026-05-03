@@ -53,8 +53,10 @@ class StationRepository extends ChangeNotifier {
     await _cloudSync.triggerSync();
   }
 
-  List<Station> get stations =>
-      _box.values.toList()..sort((a, b) => b.date.compareTo(a.date));
+  List<Station> get stations => _box.values
+      .where((s) => !s.isDeleted)
+      .toList()
+    ..sort((a, b) => b.date.compareTo(a.date));
 
   Station? getById(dynamic id) => _box.get(id);
 
@@ -130,25 +132,15 @@ class StationRepository extends ChangeNotifier {
   }
 
   Future<void> deleteStation(dynamic key, {UpdateSource source = UpdateSource.local}) async {
-    await _lock.synchronized(() async {
+    return await _lock.synchronized(() async {
       final station = _box.get(key);
-      if (station == null) return;
-
-      // Delete local files
-      if (station.photoPaths != null) {
-        for (var p in station.photoPaths!) {
-          await _deleteFile(p);
-        }
-      } else if (station.photoPath != null) {
-        await _deleteFile(station.photoPath!);
-      }
-      if (station.audioPath != null) {
-        await _deleteFile(station.audioPath!);
-      }
-
-      await _box.delete(key);
+      if (station == null || station.isDeleted) return;
 
       if (source == UpdateSource.local) {
+        // Soft delete locally
+        final deletedStation = station.copyWith(isDeleted: true);
+        await _box.put(key, deletedStation);
+
         await _syncQueue.addItem(SyncItem(
           id: const Uuid().v4(),
           entityType: 'station',
@@ -160,6 +152,9 @@ class StationRepository extends ChangeNotifier {
           sequence: _syncQueue.getNextSequence(),
           createdAt: DateTime.now(),
         ));
+      } else {
+        // Hard delete if it's a remote instruction (or we can keep it as soft delete if we want)
+        await _box.delete(key);
       }
 
       notifyListeners();
@@ -260,16 +255,35 @@ class StationRepository extends ChangeNotifier {
 
   Future<void> deleteProject(String projectName) async {
     await _lock.synchronized(() async {
-      final keysToDelete = [];
+      final List<dynamic> keysToDelete = [];
       for (final rawKey in _box.keys) {
         final s = _box.get(rawKey);
-        if (s != null && s.project == projectName) {
+        if (s != null && s.project == projectName && !s.isDeleted) {
           keysToDelete.add(rawKey);
         }
       }
+
       for (final key in keysToDelete) {
-        await deleteStation(key);
+        final station = _box.get(key);
+        if (station != null) {
+          // Soft delete locally (no separate sync item per station to avoid noise)
+          await _box.put(key, station.copyWith(isDeleted: true));
+        }
       }
+
+      // Single bulk delete item for the whole project
+      await _syncQueue.addItem(SyncItem(
+        id: const Uuid().v4(),
+        entityType: 'project_stations',
+        entityId: projectName,
+        payload: {'projectName': projectName},
+        version: 0, // Bulk ops versioning handled by sequence/timestamp
+        operation: SyncOperation.delete,
+        requestId: const Uuid().v4(),
+        sequence: _syncQueue.getNextSequence(),
+        createdAt: DateTime.now(),
+      ));
+
       notifyListeners();
     });
   }

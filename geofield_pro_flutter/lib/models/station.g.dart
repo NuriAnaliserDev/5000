@@ -49,13 +49,14 @@ class StationAdapter extends TypeAdapter<Station> {
       version: fields[29] == null ? 1 : fields[29] as int,
       updatedBy: fields[30] as String?,
       updatedByDeviceId: fields[31] as String?,
+      isDeleted: fields[32] == null ? false : fields[32] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, Station obj) {
     writer
-      ..writeByte(32)
+      ..writeByte(33)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -119,7 +120,9 @@ class StationAdapter extends TypeAdapter<Station> {
       ..writeByte(30)
       ..write(obj.updatedBy)
       ..writeByte(31)
-      ..write(obj.updatedByDeviceId);
+      ..write(obj.updatedByDeviceId)
+      ..writeByte(32)
+      ..write(obj.isDeleted);
   }
 
   @override
