@@ -39,6 +39,7 @@ class HiveDb {
     _registerAdapter(ProjectAdapter());
     _registerAdapter(SyncItemAdapter());
     _registerAdapter(SyncStatusAdapter());
+    _registerAdapter(SyncOperationAdapter());
 
     final cipher = await EncryptionManager.cipher();
 

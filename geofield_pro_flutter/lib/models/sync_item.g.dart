@@ -22,6 +22,9 @@ class SyncItemAdapter extends TypeAdapter<SyncItem> {
       entityId: fields[2] as String,
       payload: (fields[3] as Map).cast<String, dynamic>(),
       version: fields[4] as int,
+      operation: fields[8] as SyncOperation,
+      requestId: fields[9] as String,
+      sequence: fields[10] as int,
       status: fields[5] as SyncStatus,
       retryCount: fields[6] as int,
       createdAt: fields[7] as DateTime,
@@ -31,7 +34,7 @@ class SyncItemAdapter extends TypeAdapter<SyncItem> {
   @override
   void write(BinaryWriter writer, SyncItem obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -47,7 +50,13 @@ class SyncItemAdapter extends TypeAdapter<SyncItem> {
       ..writeByte(6)
       ..write(obj.retryCount)
       ..writeByte(7)
-      ..write(obj.createdAt);
+      ..write(obj.createdAt)
+      ..writeByte(8)
+      ..write(obj.operation)
+      ..writeByte(9)
+      ..write(obj.requestId)
+      ..writeByte(10)
+      ..write(obj.sequence);
   }
 
   @override
@@ -76,6 +85,8 @@ class SyncStatusAdapter extends TypeAdapter<SyncStatus> {
         return SyncStatus.done;
       case 3:
         return SyncStatus.failed;
+      case 4:
+        return SyncStatus.permanentlyFailed;
       default:
         return SyncStatus.pending;
     }
@@ -96,6 +107,9 @@ class SyncStatusAdapter extends TypeAdapter<SyncStatus> {
       case SyncStatus.failed:
         writer.writeByte(3);
         break;
+      case SyncStatus.permanentlyFailed:
+        writer.writeByte(4);
+        break;
     }
   }
 
@@ -106,6 +120,50 @@ class SyncStatusAdapter extends TypeAdapter<SyncStatus> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is SyncStatusAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class SyncOperationAdapter extends TypeAdapter<SyncOperation> {
+  @override
+  final int typeId = 11;
+
+  @override
+  SyncOperation read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return SyncOperation.create;
+      case 1:
+        return SyncOperation.update;
+      case 2:
+        return SyncOperation.delete;
+      default:
+        return SyncOperation.create;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, SyncOperation obj) {
+    switch (obj) {
+      case SyncOperation.create:
+        writer.writeByte(0);
+        break;
+      case SyncOperation.update:
+        writer.writeByte(1);
+        break;
+      case SyncOperation.delete:
+        writer.writeByte(2);
+        break;
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SyncOperationAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

@@ -76,4 +76,32 @@ class SyncItem extends HiveObject {
     this.retryCount = 0,
     required this.createdAt,
   });
+
+  SyncItem copyWith({
+    String? id,
+    String? entityType,
+    String? entityId,
+    Map<String, dynamic>? payload,
+    int? version,
+    SyncStatus? status,
+    int? retryCount,
+    DateTime? createdAt,
+    SyncOperation? operation,
+    String? requestId,
+    int? sequence,
+  }) {
+    return SyncItem(
+      id: id ?? this.id,
+      entityType: entityType ?? this.entityType,
+      entityId: entityId ?? this.entityId,
+      payload: payload ?? this.payload,
+      version: version ?? this.version,
+      status: status ?? this.status,
+      retryCount: retryCount ?? this.retryCount,
+      createdAt: createdAt ?? this.createdAt,
+      operation: operation ?? this.operation,
+      requestId: requestId ?? this.requestId,
+      sequence: sequence ?? this.sequence,
+    );
+  }
 }
