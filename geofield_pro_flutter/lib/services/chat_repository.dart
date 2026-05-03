@@ -241,7 +241,8 @@ class ChatRepository extends ChangeNotifier {
             maxRetries: 2,
           );
         } catch (e, st) {
-          ErrorLogger.record(e, st, customMessage: 'updateMessageText firestore error');
+          ErrorLogger.record(e, st,
+              customMessage: 'updateMessageText firestore error');
           return 'Bulutga yozilmadi: $e';
         }
       }
@@ -273,7 +274,8 @@ class ChatRepository extends ChangeNotifier {
             maxRetries: 2,
           );
         } catch (e, st) {
-          ErrorLogger.record(e, st, customMessage: 'deleteMessage firestore error');
+          ErrorLogger.record(e, st,
+              customMessage: 'deleteMessage firestore error');
           return 'Bulutdan o‘chirilmadi: $e';
         }
       }

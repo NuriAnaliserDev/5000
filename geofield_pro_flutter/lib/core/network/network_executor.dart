@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
 import '../error/app_error.dart';
+import '../error/error_mapper.dart';
 import '../error/error_logger.dart';
 
 class NetworkExecutor {
@@ -48,7 +49,7 @@ class NetworkExecutor {
 
   static bool isNetworkError(Object e) {
     if (e is TimeoutException) return true;
-    
+
     // Explicitly reject Firebase permission and quota errors from retry logic
     if (e is FirebaseException) {
       if (e.code == 'permission-denied' || e.code == 'resource-exhausted') {
@@ -73,33 +74,6 @@ class NetworkExecutor {
   static bool _isNetworkError(Object e) => isNetworkError(e);
 
   static AppError _mapToAppError(Object error, StackTrace? st) {
-    if (error is AppError) return error;
-
-    String msg = error.toString();
-    ErrorCategory cat = ErrorCategory.unknown;
-
-    if (error is TimeoutException) {
-      cat = ErrorCategory.network;
-      msg =
-          'So‘rov vaqti tugadi (Timeout). Iltimos internetingizni tekshiring.';
-    } else if (_isNetworkError(error)) {
-      cat = ErrorCategory.network;
-      msg = 'Tarmoqqa ulanib bo‘lmadi. Internet aloqasini tekshiring.';
-    } else if (error is FirebaseException) {
-      if (error.code.contains('auth')) {
-        cat = ErrorCategory.auth;
-        msg = 'Avtorizatsiya xatosi: ${error.message}';
-      } else if (error.code == 'permission-denied') {
-        cat = ErrorCategory.auth;
-        msg = 'Sizda bu amalni bajarish uchun ruxsat yo‘q.';
-      } else {
-        msg = 'Server xatosi: ${error.message}';
-      }
-    } else if (error is FormatException) {
-      cat = ErrorCategory.validation;
-      msg = 'Ma\'lumotlar formati noto‘g‘ri.';
-    }
-
-    return AppError(msg, category: cat, originalError: error, stackTrace: st);
+    return ErrorMapper.map(error, st);
   }
 }

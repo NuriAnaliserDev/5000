@@ -7,6 +7,7 @@ import '../../services/excel_generator_service.dart';
 import '../../models/mine_report.dart';
 import 'components/web_verification_terminal.dart';
 import '../../core/error/error_handler.dart';
+import '../../core/error/error_mapper.dart';
 
 class WebReportsScreen extends StatefulWidget {
   const WebReportsScreen({super.key});
@@ -109,7 +110,7 @@ class _WebReportsScreenState extends State<WebReportsScreen>
       }
     } catch (e) {
       if (mounted) {
-        ErrorHandler.show(context, e);
+        ErrorHandler.show(context, ErrorMapper.map(e));
       }
     } finally {
       if (mounted) setState(() => _isExporting = false);
@@ -148,7 +149,7 @@ class _WebReportsScreenState extends State<WebReportsScreen>
       }
     } catch (e) {
       if (mounted) {
-        ErrorHandler.show(context, e);
+        ErrorHandler.show(context, ErrorMapper.map(e));
       }
     } finally {
       if (mounted) setState(() => _isExporting = false);

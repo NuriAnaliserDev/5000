@@ -1038,7 +1038,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ErrorHandler.show(context, e);
+        ErrorHandler.show(context, ErrorMapper.map(e));
       }
     }
   }
@@ -1679,7 +1679,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
       await Share.shareXFiles([XFile(f.path)], text: s.map_export_geojson);
     } catch (e) {
       if (mounted) {
-        ErrorHandler.show(context, e);
+        ErrorHandler.show(context, ErrorMapper.map(e));
       }
     }
   }

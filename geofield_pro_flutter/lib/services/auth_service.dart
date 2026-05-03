@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import '../core/error/app_error.dart';
 import '../core/error/error_logger.dart';
-import '../core/error/error_handler.dart';
+import '../core/error/error_mapper.dart';
 
 import '../utils/firebase_ready.dart';
 import '../core/network/network_executor.dart';
@@ -72,7 +72,7 @@ class AuthService extends ChangeNotifier {
       if (snap.exists) return;
       final dn = user.displayName?.trim();
       final em = user.email?.trim();
-      
+
       await NetworkExecutor.execute(
         () => ref.set(
           {
@@ -111,7 +111,7 @@ class AuthService extends ChangeNotifier {
       final u = auth.currentUser;
       if (u != null) await ensureFirestoreUserProfileIfMissing(u);
     } catch (e, st) {
-      throw ErrorHandler.process(e, st);
+      throw ErrorMapper.map(e, st);
     }
   }
 
@@ -141,7 +141,7 @@ class AuthService extends ChangeNotifier {
       final u = auth.currentUser;
       if (u != null) await ensureFirestoreUserProfileIfMissing(u);
     } catch (e, st) {
-      throw ErrorHandler.process(e, st);
+      throw ErrorMapper.map(e, st);
     }
   }
 
@@ -157,7 +157,7 @@ class AuthService extends ChangeNotifier {
         maxRetries: 1,
       );
     } catch (e, st) {
-      throw ErrorHandler.process(e, st);
+      throw ErrorMapper.map(e, st);
     }
   }
 

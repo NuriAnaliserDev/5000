@@ -51,7 +51,8 @@ class GeologicalLineRepository extends ChangeNotifier {
         notifyListeners();
       }
     }, onError: (e, st) {
-      ErrorLogger.record(e, st, customMessage: 'GeologicalLineRepository stream error');
+      ErrorLogger.record(e, st,
+          customMessage: 'GeologicalLineRepository stream error');
     });
   }
 
@@ -85,7 +86,7 @@ class GeologicalLineRepository extends ChangeNotifier {
       if (!snap.exists) return;
       final v = snap.data()?['ownerUid'];
       if (v != null && v.toString().isNotEmpty) return;
-      
+
       await NetworkExecutor.execute(
         () => fs
             .collection('geological_lines')
@@ -115,7 +116,8 @@ class GeologicalLineRepository extends ChangeNotifier {
         maxRetries: 2,
       );
     } catch (e, st) {
-      ErrorLogger.record(e, st, customMessage: 'Error deleting line from Firestore');
+      ErrorLogger.record(e, st,
+          customMessage: 'Error deleting line from Firestore');
     }
   }
 

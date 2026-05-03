@@ -141,7 +141,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
     } catch (e) {
       _disposeCameraOnly();
       if (mounted) {
-        ErrorHandler.show(context, e);
+        ErrorHandler.show(context, ErrorMapper.map(e));
       }
     }
   }
@@ -365,7 +365,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
       }
     } catch (e) {
       if (mounted) {
-        ErrorHandler.show(context, e);
+        ErrorHandler.show(context, ErrorMapper.map(e));
       }
     }
   }
@@ -524,7 +524,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
       AppRouter.goStation(context, stationId: id);
     } catch (e) {
       if (mounted) {
-        ErrorHandler.show(context, e);
+        ErrorHandler.show(context, ErrorMapper.map(e));
       }
     } finally {
       if (mounted) {
@@ -662,7 +662,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
       }
     } catch (e) {
       if (mounted) {
-        ErrorHandler.show(context, e);
+        ErrorHandler.show(context, ErrorMapper.map(e));
       }
     }
   }
@@ -683,7 +683,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
       }
     } catch (e) {
       if (mounted) {
-        ErrorHandler.show(context, e);
+        ErrorHandler.show(context, ErrorMapper.map(e));
       }
     }
   }

@@ -12,6 +12,7 @@ import '../services/location_service.dart';
 import '../services/auth_service.dart';
 import '../core/network/network_executor.dart';
 import '../core/error/error_handler.dart';
+import '../core/error/error_mapper.dart';
 import '../utils/ai_vertex_error_helper.dart'
     show
         isVertexAiDisabledError,
@@ -104,8 +105,9 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
         () => FirebaseFirestore.instance.collection('daily_mine_reports').add({
           'reportType': reportType,
           'authorUid': uid,
-          'authorName':
-              settings.currentUserName ?? auth.currentUser?.email ?? 'Noma\'lum',
+          'authorName': settings.currentUserName ??
+              auth.currentUser?.email ??
+              'Noma\'lum',
           'createdAt': FieldValue.serverTimestamp(),
           'status': 'pending',
           'imageUrl': '',
@@ -119,7 +121,8 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
                   _parsedData!['spotter'] ??
                   _parsedData!['geologist'] ??
                   '—',
-              'location': _parsedData!['location'] ?? _parsedData!['pit'] ?? '—',
+              'location':
+                  _parsedData!['location'] ?? _parsedData!['pit'] ?? '—',
             },
             'table': updatedTable,
           },
@@ -138,7 +141,7 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ErrorHandler.show(context, e);
+        ErrorHandler.show(context, ErrorMapper.map(e));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

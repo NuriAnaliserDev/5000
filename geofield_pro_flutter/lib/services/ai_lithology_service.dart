@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-
 import 'ai/ai_rate_limiter.dart';
 import '../utils/image_mime.dart';
 import '../core/network/network_executor.dart';
@@ -97,7 +96,8 @@ Javob berish formati (JSON):
 
       final respText = response.text;
       if (respText == null || respText.isEmpty) {
-        throw AppError("Vertex AIDan javob kelmadi.", category: ErrorCategory.network);
+        throw AppError("Vertex AIDan javob kelmadi.",
+            category: ErrorCategory.network);
       }
 
       // Ba'zan gemini jsonni markdown blok ichiga olib beradi

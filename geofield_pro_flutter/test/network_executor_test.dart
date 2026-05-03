@@ -105,7 +105,7 @@ void main() {
         caught = e;
       }
       expect(caught, isNotNull);
-      expect(caught!.message, equals('already mapped'));
+      expect(caught!.userMessage, equals('already mapped'));
       expect(caught.category, equals(ErrorCategory.auth));
     });
 

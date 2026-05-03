@@ -5,6 +5,7 @@ import '../../services/settings_controller.dart';
 import '../../services/auth_service.dart';
 import '../../services/cloud_sync_service.dart';
 import '../../core/error/error_handler.dart';
+import '../../core/error/error_mapper.dart';
 
 class WebSettingsScreen extends StatefulWidget {
   const WebSettingsScreen({super.key});
@@ -33,7 +34,7 @@ class _WebSettingsScreenState extends State<WebSettingsScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ErrorHandler.show(context, e);
+        ErrorHandler.show(context, ErrorMapper.map(e));
       }
     } finally {
       if (mounted) setState(() => _isSyncing = false);

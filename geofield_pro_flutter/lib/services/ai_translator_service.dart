@@ -33,7 +33,8 @@ class AiTranslatorService {
           maxRetries: 2,
         );
         if (response.statusCode != 200) {
-          throw AppError("Rasmni yuklashda xatolik: ${response.statusCode}", category: ErrorCategory.network);
+          throw AppError("Rasmni yuklashda xatolik: ${response.statusCode}",
+              category: ErrorCategory.network);
         }
         bytes = response.bodyBytes;
         mime =
@@ -41,7 +42,8 @@ class AiTranslatorService {
                 mimeTypeForImagePath(imagePath);
       } else {
         if (kIsWeb) {
-          throw AppError("Web muhitda lokal fayl yo'llari ruxsat etilmagan", category: ErrorCategory.validation);
+          throw AppError("Web muhitda lokal fayl yo'llari ruxsat etilmagan",
+              category: ErrorCategory.validation);
         }
         final file = File(imagePath);
         bytes = await file.readAsBytes();
@@ -152,7 +154,8 @@ DIQQAT:
 
       final respText = response.text;
       if (respText == null || respText.isEmpty) {
-        throw AppError("AI bo'sh natija qaytardi.", category: ErrorCategory.network);
+        throw AppError("AI bo'sh natija qaytardi.",
+            category: ErrorCategory.network);
       }
       final rawJson = respText
           .trim()

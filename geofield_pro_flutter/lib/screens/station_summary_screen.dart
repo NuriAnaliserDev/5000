@@ -21,6 +21,7 @@ import '../utils/rocks_list.dart';
 import '../utils/munsell_data.dart';
 import '../app/main_tab_navigation.dart';
 import '../core/error/error_handler.dart';
+import '../core/error/error_mapper.dart';
 
 // Components
 import 'station/components/station_app_bar.dart';
@@ -231,7 +232,7 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
           .showSnackBar(SnackBar(content: Text(successMsg)));
     } catch (e) {
       if (!mounted) return;
-      ErrorHandler.show(context, e);
+      ErrorHandler.show(context, ErrorMapper.map(e));
     }
   }
 
@@ -387,11 +388,11 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
       );
     } on QuotaExceededException catch (e) {
       if (mounted) {
-        ErrorHandler.show(context, e);
+        ErrorHandler.show(context, ErrorMapper.map(e));
       }
     } catch (e) {
       if (mounted) {
-        ErrorHandler.show(context, e);
+        ErrorHandler.show(context, ErrorMapper.map(e));
       }
     } finally {
       if (mounted) setState(() => _isAiLoading = false);

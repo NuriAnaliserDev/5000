@@ -32,10 +32,8 @@ class MapStructureRepository extends ChangeNotifier {
     _remoteSub?.cancel();
     final fs = _firestore;
     if (fs == null) return;
-    _remoteSub = fs
-        .collection('map_structure_annotations')
-        .snapshots()
-        .listen((snap) async {
+    _remoteSub = fs.collection('map_structure_annotations').snapshots().listen(
+        (snap) async {
       var changed = false;
       for (final doc in snap.docs) {
         final m = doc.data();
@@ -52,7 +50,8 @@ class MapStructureRepository extends ChangeNotifier {
         notifyListeners();
       }
     }, onError: (e, st) {
-      ErrorLogger.record(e, st, customMessage: 'MapStructureRepository stream error');
+      ErrorLogger.record(e, st,
+          customMessage: 'MapStructureRepository stream error');
     });
   }
 
@@ -70,7 +69,7 @@ class MapStructureRepository extends ChangeNotifier {
       if (!snap.exists) return;
       final v = snap.data()?['ownerUid'];
       if (v != null && v.toString().isNotEmpty) return;
-      
+
       await NetworkExecutor.execute(
         () => fs
             .collection('map_structure_annotations')
@@ -80,7 +79,8 @@ class MapStructureRepository extends ChangeNotifier {
         maxRetries: 2,
       );
     } catch (e, st) {
-      ErrorLogger.record(e, st, customMessage: 'MapStructureRepository._ensureAnnotationOwnerClaim');
+      ErrorLogger.record(e, st,
+          customMessage: 'MapStructureRepository._ensureAnnotationOwnerClaim');
     }
   }
 
@@ -103,7 +103,8 @@ class MapStructureRepository extends ChangeNotifier {
         maxRetries: 2,
       );
     } catch (e, st) {
-      ErrorLogger.record(e, st, customMessage: 'MapStructureRepository upload error');
+      ErrorLogger.record(e, st,
+          customMessage: 'MapStructureRepository upload error');
     }
   }
 
@@ -121,7 +122,8 @@ class MapStructureRepository extends ChangeNotifier {
         maxRetries: 2,
       );
     } catch (e, st) {
-      ErrorLogger.record(e, st, customMessage: 'MapStructureRepository delete remote error');
+      ErrorLogger.record(e, st,
+          customMessage: 'MapStructureRepository delete remote error');
     }
   }
 

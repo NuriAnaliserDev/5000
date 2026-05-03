@@ -9,6 +9,7 @@ import '../../../services/ai_translator_service.dart';
 import '../../../models/mine_report.dart';
 import '../../../core/error/app_error.dart';
 import '../../../core/error/error_handler.dart';
+import '../../../core/error/error_mapper.dart';
 
 class WebVerificationTerminal extends StatefulWidget {
   final MineReport report;
@@ -272,7 +273,7 @@ class _WebVerificationTerminalState extends State<WebVerificationTerminal> {
       }
     } catch (e) {
       if (mounted) {
-        ErrorHandler.show(context, e);
+        ErrorHandler.show(context, ErrorMapper.map(e));
       }
     } finally {
       if (mounted) setState(() => _isAiLoading = false);
@@ -297,7 +298,7 @@ class _WebVerificationTerminalState extends State<WebVerificationTerminal> {
       }
     } catch (e) {
       if (mounted) {
-        ErrorHandler.show(context, e);
+        ErrorHandler.show(context, ErrorMapper.map(e));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -342,7 +343,7 @@ class _WebVerificationTerminalState extends State<WebVerificationTerminal> {
       widget.onDismiss?.call();
     } catch (e) {
       if (mounted) {
-        ErrorHandler.show(context, e);
+        ErrorHandler.show(context, ErrorMapper.map(e));
       }
     } finally {
       if (mounted) setState(() => _isRejecting = false);

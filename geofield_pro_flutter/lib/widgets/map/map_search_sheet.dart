@@ -85,7 +85,7 @@ class _MapSearchSheetState extends State<MapSearchSheet> {
         maxRetries: 2,
         timeout: const Duration(seconds: 8),
       );
-      
+
       if (!mounted) return;
       if (resp.statusCode != 200) {
         setState(() {

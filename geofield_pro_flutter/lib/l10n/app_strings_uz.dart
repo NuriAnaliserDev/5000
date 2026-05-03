@@ -1506,7 +1506,8 @@ class GeoFieldStringsUz extends GeoFieldStrings {
   String get admin_diagnostics_view_logs => 'Tizim loglarini ko\'rish';
 
   @override
-  String get admin_diagnostics_view_logs_desc => 'Ilova ichki jarayonlari va xatolar tarixi';
+  String get admin_diagnostics_view_logs_desc =>
+      'Ilova ichki jarayonlari va xatolar tarixi';
 
   @override
   String get admin_diagnostics_share_logs => 'Loglarni yuborish';

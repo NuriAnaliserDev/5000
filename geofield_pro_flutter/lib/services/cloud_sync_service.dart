@@ -147,7 +147,8 @@ class CloudSyncService extends ChangeNotifier {
         await _syncPendingChatDirectly(msg);
       }
     } catch (e, st) {
-      ErrorLogger.record(e, st, customMessage: 'SyncQueue: sinxronizatsiya jarayoni muvaffaqiyatsiz');
+      ErrorLogger.record(e, st,
+          customMessage: 'SyncQueue: sinxronizatsiya jarayoni muvaffaqiyatsiz');
       debugPrint('SyncQueue error: $e');
     } finally {
       _isSyncing = false;
@@ -480,7 +481,7 @@ class CloudSyncService extends ChangeNotifier {
     try {
       final fs = _firestore;
       if (fs == null) return;
-      
+
       final snapshot = await NetworkExecutor.execute(
         () => fs.collection('users').doc(uid).collection('stations').get(),
         actionName: 'Get user stations for clear',
@@ -491,7 +492,7 @@ class CloudSyncService extends ChangeNotifier {
       for (var doc in snapshot.docs) {
         batch.delete(doc.reference);
       }
-      
+
       await NetworkExecutor.execute(
         () => batch.commit(),
         actionName: 'Clear user stations batch commit',

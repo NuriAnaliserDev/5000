@@ -5,7 +5,7 @@ import '../app/app_router.dart';
 import 'package:intl/intl.dart';
 
 import '../l10n/app_strings.dart';
-import '../core/error/error_handler.dart';
+import '../core/error/error_mapper.dart';
 import '../utils/firebase_ready.dart';
 
 /// Dashboarddan yoki admin tomondan [geofield_broadcasts] ga yoziladigan ommaviy e'lonlar.
@@ -66,12 +66,12 @@ class _NotificationsFeedScreenState extends State<NotificationsFeedScreen> {
             stream: fs.collection('geofield_broadcasts').snapshots(),
             builder: (context, snap) {
               if (snap.hasError) {
-                final processedError = ErrorHandler.process(snap.error!);
+                final processedError = ErrorMapper.map(snap.error!);
                 return Center(
                   child: Padding(
                     padding: const EdgeInsets.all(20),
                     child: Text(
-                      processedError.message,
+                      processedError.userMessage,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           color: isDark ? Colors.white70 : Colors.black87),

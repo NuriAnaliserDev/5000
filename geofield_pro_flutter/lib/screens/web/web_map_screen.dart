@@ -13,6 +13,7 @@ import '../../utils/firebase_ready.dart';
 import '../../utils/gis_import_feedback.dart';
 import '../../widgets/gis_import_precheck_dialog.dart';
 import '../../core/error/error_handler.dart';
+import '../../core/error/error_mapper.dart';
 import 'components/web_map_drawing_panel.dart';
 import 'components/web_map_zone_list_panel.dart';
 import 'components/web_map_shift_logs_panel.dart';
@@ -92,7 +93,7 @@ class _WebMapScreenState extends State<WebMapScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ErrorHandler.show(context, e);
+        ErrorHandler.show(context, ErrorMapper.map(e));
       }
     }
   }
@@ -232,7 +233,7 @@ class _WebMapScreenState extends State<WebMapScreen> {
       }
     } catch (e) {
       if (!mounted) return;
-      ErrorHandler.show(context, e);
+      ErrorHandler.show(context, ErrorMapper.map(e));
     }
   }
 

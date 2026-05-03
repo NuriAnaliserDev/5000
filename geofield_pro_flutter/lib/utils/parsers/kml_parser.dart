@@ -15,7 +15,8 @@ class KmlParser {
       }
       return extracted;
     } catch (e) {
-      throw AppError('KML formatini oqishda xatolik: $e', category: ErrorCategory.validation);
+      throw AppError('KML formatini oqishda xatolik: $e',
+          category: ErrorCategory.validation);
     }
   }
 

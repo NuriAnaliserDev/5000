@@ -7,6 +7,7 @@ import '../../../models/track_data.dart';
 import '../../../services/track_service.dart';
 import '../../../utils/app_localizations.dart';
 import '../../../core/error/error_handler.dart';
+import '../../../core/error/error_mapper.dart';
 
 class ArchiveTracksTab extends StatelessWidget {
   final String searchQuery;
@@ -214,7 +215,7 @@ class ArchiveTracksTab extends StatelessWidget {
     } catch (e) {
       debugPrint('GPX Export xatosi: $e');
       if (context.mounted) {
-        ErrorHandler.show(context, e);
+        ErrorHandler.show(context, ErrorMapper.map(e));
       }
     }
   }

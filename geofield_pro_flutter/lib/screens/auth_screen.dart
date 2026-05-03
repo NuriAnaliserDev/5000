@@ -8,6 +8,7 @@ import '../services/auth_service.dart';
 import '../services/settings_controller.dart';
 import '../services/user_flags_service.dart';
 import '../core/error/error_handler.dart';
+import '../core/error/error_mapper.dart';
 
 /// Email + parol: kirish va ro‘yxatdan o‘tish (Firebase Auth).
 class AuthScreen extends StatefulWidget {
@@ -79,7 +80,7 @@ class _AuthScreenState extends State<AuthScreen> {
       setState(() {
         _loading = false;
       });
-      ErrorHandler.show(context, e, st);
+      ErrorHandler.show(context, ErrorMapper.map(e, st));
       return;
     }
 
@@ -133,7 +134,7 @@ class _AuthScreenState extends State<AuthScreen> {
     } catch (e, st) {
       if (!mounted) return;
       setState(() => _loading = false);
-      ErrorHandler.show(context, e, st);
+      ErrorHandler.show(context, ErrorMapper.map(e, st));
     }
   }
 

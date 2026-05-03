@@ -1503,7 +1503,8 @@ class GeoFieldStringsEn extends GeoFieldStrings {
   String get admin_diagnostics_view_logs => 'View system logs';
 
   @override
-  String get admin_diagnostics_view_logs_desc => 'Internal application logs and error history';
+  String get admin_diagnostics_view_logs_desc =>
+      'Internal application logs and error history';
 
   @override
   String get admin_diagnostics_share_logs => 'Share logs';

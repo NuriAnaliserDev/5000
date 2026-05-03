@@ -598,8 +598,8 @@ class AdminScreen extends StatelessWidget {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                            content:
-                                Text(context.loc('admin_diagnostics_not_found'))),
+                            content: Text(
+                                context.loc('admin_diagnostics_not_found'))),
                       );
                     }
                   }

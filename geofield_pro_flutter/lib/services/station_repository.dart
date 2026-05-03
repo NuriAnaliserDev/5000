@@ -41,7 +41,8 @@ class StationRepository extends ChangeNotifier {
 
   Future<int> addStation(Station station) async {
     final error = GeologyValidator.validateStation(station);
-    if (error != null) throw AppError(error, category: ErrorCategory.validation);
+    if (error != null)
+      throw AppError(error, category: ErrorCategory.validation);
 
     final finalStation = station.copyWith(updatedAt: DateTime.now());
     final id = await _box.add(finalStation);
@@ -53,7 +54,8 @@ class StationRepository extends ChangeNotifier {
   Future<void> updateStation(dynamic key, Station updated,
       {String? author}) async {
     final error = GeologyValidator.validateStation(updated);
-    if (error != null) throw AppError(error, category: ErrorCategory.validation);
+    if (error != null)
+      throw AppError(error, category: ErrorCategory.validation);
 
     final oldStation = _box.get(key);
     if (oldStation != null && author != null) {

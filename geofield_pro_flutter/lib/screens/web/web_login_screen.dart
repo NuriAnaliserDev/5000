@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../services/auth_service.dart';
 import '../../services/settings_controller.dart';
 import '../../core/error/error_handler.dart';
+import '../../core/error/error_mapper.dart';
 import 'web_dashboard_main.dart';
 
 class WebLoginScreen extends StatefulWidget {
@@ -74,7 +75,7 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
       setState(() {
         _isLoading = false;
       });
-      ErrorHandler.show(context, e, st);
+      ErrorHandler.show(context, ErrorMapper.map(e, st));
       return;
     }
 

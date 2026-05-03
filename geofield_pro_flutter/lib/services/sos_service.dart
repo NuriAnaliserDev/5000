@@ -87,8 +87,8 @@ class SosService extends ChangeNotifier {
             .map((doc) => EmergencySignal.fromMap(doc.data(), doc.id))
             .toList())
         .handleError((e, st) {
-          ErrorLogger.record(e, st, customMessage: 'SOS stream error');
-        });
+      ErrorLogger.record(e, st, customMessage: 'SOS stream error');
+    });
   }
 
   /// SOS signalini yuboradi. Onlayn bo‘lsa to‘g‘ridan to‘g‘ri, aks holda

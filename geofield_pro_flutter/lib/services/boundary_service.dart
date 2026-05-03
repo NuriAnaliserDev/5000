@@ -84,7 +84,7 @@ class BoundaryService extends ChangeNotifier {
       if (data == null) return;
       final v = data['createdByUid'];
       if (v != null && v.toString().isNotEmpty) return;
-      
+
       await NetworkExecutor.execute(
         () => fs
             .collection('global_boundaries')
@@ -94,7 +94,8 @@ class BoundaryService extends ChangeNotifier {
         maxRetries: 2,
       );
     } catch (e, st) {
-      ErrorLogger.record(e, st, customMessage: '_ensureGlobalBoundaryCreatorClaim');
+      ErrorLogger.record(e, st,
+          customMessage: '_ensureGlobalBoundaryCreatorClaim');
     }
   }
 
@@ -163,7 +164,8 @@ class BoundaryService extends ChangeNotifier {
     String? description,
   }) async {
     if (points.length < 3) {
-      throw AppError("Polygon kamida 3 nuqtadan iborat bo'lishi kerak.", category: ErrorCategory.validation);
+      throw AppError("Polygon kamida 3 nuqtadan iborat bo'lishi kerak.",
+          category: ErrorCategory.validation);
     }
     final uid = _currentUid;
     final fs = _firestore;
@@ -357,7 +359,9 @@ class BoundaryService extends ChangeNotifier {
       if (result == null || result.files.isEmpty) return null;
 
       final file = result.files.first;
-      if (file.bytes == null) throw AppError("Fayl datasi o'qilmadi.", category: ErrorCategory.validation);
+      if (file.bytes == null)
+        throw AppError("Fayl datasi o'qilmadi.",
+            category: ErrorCategory.validation);
 
       final ext = file.extension?.toLowerCase() ?? '';
       final filename = file.name;
@@ -383,7 +387,8 @@ class BoundaryService extends ChangeNotifier {
       } else if (ext == 'gpkg') {
         if (kIsWeb) {
           throw AppError(
-              "GeoPackage (.gpkg) brauzerda import qilib bo'lmaydi (SQLite yo'q).", category: ErrorCategory.validation);
+              "GeoPackage (.gpkg) brauzerda import qilib bo'lmaydi (SQLite yo'q).",
+              category: ErrorCategory.validation);
         }
         final dir = await getTemporaryDirectory();
         final tmp = io.File(

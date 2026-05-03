@@ -36,7 +36,8 @@ class MineReportRepository extends ChangeNotifier {
         .map((snapshot) {
       return snapshot.docs.map((doc) => MineReport.fromFirestore(doc)).toList();
     }).handleError((e, st) {
-      ErrorLogger.record(e, st, customMessage: 'MineReport streamPendingReports error');
+      ErrorLogger.record(e, st,
+          customMessage: 'MineReport streamPendingReports error');
     });
   }
 
@@ -53,7 +54,8 @@ class MineReportRepository extends ChangeNotifier {
         .map((snapshot) {
       return snapshot.docs.map((doc) => MineReport.fromFirestore(doc)).toList();
     }).handleError((e, st) {
-      ErrorLogger.record(e, st, customMessage: 'MineReport streamPendingReportsByType error');
+      ErrorLogger.record(e, st,
+          customMessage: 'MineReport streamPendingReportsByType error');
     });
   }
 
@@ -69,7 +71,8 @@ class MineReportRepository extends ChangeNotifier {
         .map((snapshot) {
       return snapshot.docs.map((doc) => MineReport.fromFirestore(doc)).toList();
     }).handleError((e, st) {
-      ErrorLogger.record(e, st, customMessage: 'MineReport streamVerifiedReports error');
+      ErrorLogger.record(e, st,
+          customMessage: 'MineReport streamVerifiedReports error');
     });
   }
 

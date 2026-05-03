@@ -3,7 +3,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:provider/provider.dart';
 import '../../../services/sos_service.dart';
 import 'pulse_marker.dart';
-import '../../../core/error/error_handler.dart';
+import '../../../core/error/error_mapper.dart';
+import '../../../core/error/error_logger.dart';
 
 class MapSosSignalsLayer extends StatelessWidget {
   const MapSosSignalsLayer({super.key});
@@ -14,7 +15,8 @@ class MapSosSignalsLayer extends StatelessWidget {
       stream: context.read<SosService>().emergencySignals,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          ErrorHandler.process(snapshot.error!);
+          final err = ErrorMapper.map(snapshot.error!);
+          ErrorLogger.log(err);
           return const SizedBox.shrink();
         }
         if (!snapshot.hasData) return const SizedBox.shrink();

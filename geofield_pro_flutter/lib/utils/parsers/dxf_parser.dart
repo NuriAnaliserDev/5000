@@ -15,8 +15,8 @@ class DxfParser {
       final lead = content.trimLeft();
       if (lead.startsWith('AutoCAD Binary DXF')) {
         throw AppError(
-          'Binary DXF is not supported. Save as ASCII DXF from your CAD software and try again.', category: ErrorCategory.validation
-        );
+            'Binary DXF is not supported. Save as ASCII DXF from your CAD software and try again.',
+            category: ErrorCategory.validation);
       }
       final normalized = content
           .replaceAll('\r\n', '\n')
@@ -124,7 +124,8 @@ class DxfParser {
       );
     } catch (e) {
       if (e is AppError) rethrow;
-      throw AppError('DXF oqishda xatolik: $e', category: ErrorCategory.validation);
+      throw AppError('DXF oqishda xatolik: $e',
+          category: ErrorCategory.validation);
     }
   }
 
