@@ -184,10 +184,16 @@ class CloudSyncService extends ChangeNotifier {
         if (station.photoPath != null &&
             !kIsWeb &&
             File(station.photoPath!).existsSync()) {
-          final ref =
-              storage.ref().child('users/$uid/stations/$key/main_photo.jpg');
-          await ref.putFile(File(station.photoPath!));
-          remotePhotoUrl = await ref.getDownloadURL();
+          remotePhotoUrl = await NetworkExecutor.execute(
+            () async {
+              final ref = storage
+                  .ref()
+                  .child('users/$uid/stations/$key/main_photo.jpg');
+              await ref.putFile(File(station.photoPath!));
+              return await ref.getDownloadURL();
+            },
+            actionName: 'Upload Main Photo',
+          );
         }
 
         // Upload multi-photos
@@ -195,10 +201,16 @@ class CloudSyncService extends ChangeNotifier {
           for (int i = 0; i < station.photoPaths!.length; i++) {
             final path = station.photoPaths![i];
             if (!kIsWeb && File(path).existsSync()) {
-              final ref =
-                  storage.ref().child('users/$uid/stations/$key/photo_$i.jpg');
-              await ref.putFile(File(path));
-              final url = await ref.getDownloadURL();
+              final url = await NetworkExecutor.execute(
+                () async {
+                  final ref = storage
+                      .ref()
+                      .child('users/$uid/stations/$key/photo_$i.jpg');
+                  await ref.putFile(File(path));
+                  return await ref.getDownloadURL();
+                },
+                actionName: 'Upload Photo $i',
+              );
               remotePhotoUrls.add(url);
             }
           }
@@ -208,10 +220,16 @@ class CloudSyncService extends ChangeNotifier {
         if (station.audioPath != null &&
             !kIsWeb &&
             File(station.audioPath!).existsSync()) {
-          final ref =
-              storage.ref().child('users/$uid/stations/$key/audio_note.m4a');
-          await ref.putFile(File(station.audioPath!));
-          remoteAudioUrl = await ref.getDownloadURL();
+          remoteAudioUrl = await NetworkExecutor.execute(
+            () async {
+              final ref = storage
+                  .ref()
+                  .child('users/$uid/stations/$key/audio_note.m4a');
+              await ref.putFile(File(station.audioPath!));
+              return await ref.getDownloadURL();
+            },
+            actionName: 'Upload Audio Note',
+          );
         }
       }
 
@@ -362,12 +380,17 @@ class CloudSyncService extends ChangeNotifier {
           msg.mediaPath != null &&
           !kIsWeb &&
           File(msg.mediaPath!).existsSync()) {
-        final file = File(msg.mediaPath!);
-        final ref = FirebaseStorage.instance
-            .ref()
-            .child('chats/${msg.groupId}/${msg.id}');
-        await ref.putFile(file);
-        remoteMediaUrl = await ref.getDownloadURL();
+        remoteMediaUrl = await NetworkExecutor.execute(
+          () async {
+            final file = File(msg.mediaPath!);
+            final ref = FirebaseStorage.instance
+                .ref()
+                .child('chats/${msg.groupId}/${msg.id}');
+            await ref.putFile(file);
+            return await ref.getDownloadURL();
+          },
+          actionName: 'Upload Chat Media',
+        );
       }
 
       await NetworkExecutor.execute(
