@@ -2,6 +2,8 @@ import 'dart:math' as math;
 
 import 'package:latlong2/latlong.dart';
 
+import 'geo/geo_constants.dart';
+
 /// WGS-84 / UTM (metr) — soddalashtirilgan, dala o‘lchovlari uchun.
 /// 1–2 m atrofida; global geodetic ilovalarda PROJ/RTK tavsiya etiladi.
 class UtmWgs84 {
@@ -26,8 +28,8 @@ class UtmWgs84 {
   static ({int zone, String band, double easting, double northing}) toUtm(
     LatLng p,
   ) {
-    const a = 6378137.0; // WGS-84
-    const f = 1 / 298.257223563;
+    const a = GeoConstants.wgs84A;
+    const f = GeoConstants.wgs84F;
     final e2 = 2 * f - f * f;
     final e4 = e2 * e2;
     final e6 = e4 * e2;
