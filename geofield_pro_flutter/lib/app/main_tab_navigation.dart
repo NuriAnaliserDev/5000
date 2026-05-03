@@ -52,6 +52,5 @@ class MainTabNavigation {
   static void openCamera(BuildContext context, {int? stationId}) =>
       selectTab(context, camera, cameraStationId: stationId);
 
-  static void openArchive(BuildContext context) =>
-      selectTab(context, archive);
+  static void openArchive(BuildContext context) => selectTab(context, archive);
 }

@@ -22,14 +22,15 @@ class StationCoordinateSection extends StatefulWidget {
   });
 
   @override
-  State<StationCoordinateSection> createState() => _StationCoordinateSectionState();
+  State<StationCoordinateSection> createState() =>
+      _StationCoordinateSectionState();
 }
 
 class _StationCoordinateSectionState extends State<StationCoordinateSection> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final hasValidCoords = widget.station != null && 
+    final hasValidCoords = widget.station != null &&
         !(widget.station!.lat == 0.0 && widget.station!.lng == 0.0);
 
     return Container(
@@ -77,27 +78,30 @@ class _StationCoordinateSectionState extends State<StationCoordinateSection> {
                             widget.onFormatChanged(nextFormat);
                           },
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
                               color: const Color(0xFF1565C0),
                               borderRadius: BorderRadius.circular(6),
                               boxShadow: [
-                                BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 4),
+                                BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.2),
+                                    blurRadius: 4),
                               ],
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.swap_horiz, size: 10, color: Colors.white),
+                                const Icon(Icons.swap_horiz,
+                                    size: 10, color: Colors.white),
                                 const SizedBox(width: 4),
                                 Text(
                                   widget.coordinateFormat,
                                   style: const TextStyle(
-                                    fontSize: 10, 
-                                    color: Colors.white, 
-                                    fontWeight: FontWeight.w900, 
-                                    letterSpacing: 1
-                                  ),
+                                      fontSize: 10,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 1),
                                 ),
                               ],
                             ),
@@ -111,11 +115,12 @@ class _StationCoordinateSectionState extends State<StationCoordinateSection> {
                       alignment: Alignment.centerLeft,
                       child: Text(
                         hasValidCoords
-                            ? (widget.coordinateFormat == 'DD' 
+                            ? (widget.coordinateFormat == 'DD'
                                 ? '${widget.station!.lat.abs().toStringAsFixed(6)}° ${widget.station!.lat >= 0 ? 'N' : 'S'}  ${widget.station!.lng.abs().toStringAsFixed(6)}° ${widget.station!.lng >= 0 ? 'E' : 'W'}'
                                 : widget.coordinateFormat == 'DMS'
-                                  ? '${GeologyUtils.toDMS(widget.station!.lat, true)}  ${GeologyUtils.toDMS(widget.station!.lng, false)}'
-                                  : GeologyUtils.toUTM(widget.station!.lat, widget.station!.lng))
+                                    ? '${GeologyUtils.toDMS(widget.station!.lat, true)}  ${GeologyUtils.toDMS(widget.station!.lng, false)}'
+                                    : GeologyUtils.toUTM(widget.station!.lat,
+                                        widget.station!.lng))
                             : context.loc('no_data'),
                         style: TextStyle(
                           fontSize: 12,
@@ -131,7 +136,8 @@ class _StationCoordinateSectionState extends State<StationCoordinateSection> {
               const SizedBox(width: 20),
               IconButton(
                 onPressed: widget.onUpdateGps,
-                icon: Icon(Icons.my_location, color: Theme.of(context).colorScheme.secondary, size: 20),
+                icon: Icon(Icons.my_location,
+                    color: Theme.of(context).colorScheme.secondary, size: 20),
                 visualDensity: VisualDensity.compact,
               ),
             ],
@@ -142,12 +148,18 @@ class _StationCoordinateSectionState extends State<StationCoordinateSection> {
               Expanded(
                 child: Text(
                   '${context.loc('altitude')}: ${widget.station?.altitude.toStringAsFixed(0) ?? '0'} m',
-                  style: const TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 10,
+                      color: Colors.grey,
+                      fontWeight: FontWeight.bold),
                 ),
               ),
               Text(
                 '±${widget.station?.accuracy?.toStringAsFixed(1) ?? '0'} m',
-                style: const TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                    fontSize: 10,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.bold),
               ),
             ],
           ),

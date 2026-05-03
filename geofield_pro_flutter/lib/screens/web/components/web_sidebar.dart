@@ -26,7 +26,8 @@ class WebSidebar extends StatelessWidget {
       labelType: NavigationRailLabelType.all,
       backgroundColor: Colors.transparent,
       selectedIconTheme: IconThemeData(color: primaryColor),
-      unselectedIconTheme: IconThemeData(color: isDark ? Colors.white38 : Colors.black38),
+      unselectedIconTheme:
+          IconThemeData(color: isDark ? Colors.white38 : Colors.black38),
       selectedLabelTextStyle: TextStyle(
         color: primaryColor,
         fontWeight: FontWeight.bold,
@@ -102,8 +103,10 @@ class WebSidebar extends StatelessWidget {
       destinations: [
         _buildDestination(Icons.map_outlined, Icons.map, 'Jonli Xarita', 0),
         _buildDestination(Icons.inbox_outlined, Icons.inbox, 'Qabulxona', 1),
-        _buildDestination(Icons.insights_outlined, Icons.insights, 'Analitika', 2),
-        _buildDestination(Icons.settings_outlined, Icons.settings, 'Sozlamalar', 3),
+        _buildDestination(
+            Icons.insights_outlined, Icons.insights, 'Analitika', 2),
+        _buildDestination(
+            Icons.settings_outlined, Icons.settings, 'Sozlamalar', 3),
       ],
       trailing: Padding(
         padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),

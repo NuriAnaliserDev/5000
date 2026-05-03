@@ -14,9 +14,8 @@ class PinHasher {
   static const int _keyLen = 32;
 
   static String hashPin(String pin, {String? saltB64}) {
-    final salt = saltB64 != null
-        ? base64Decode(saltB64)
-        : _randomBytes(_saltLen);
+    final salt =
+        saltB64 != null ? base64Decode(saltB64) : _randomBytes(_saltLen);
     final key = _pbkdf2(utf8.encode(pin), salt, _iterations, _keyLen);
     return 'v1:${base64Encode(salt)}:$_iterations:${base64Encode(key)}';
   }

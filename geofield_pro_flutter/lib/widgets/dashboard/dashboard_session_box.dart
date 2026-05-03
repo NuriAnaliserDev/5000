@@ -55,23 +55,30 @@ class _DashboardSessionBoxState extends State<DashboardSessionBox> {
         children: [
           Row(
             children: [
-              Icon(Icons.timer_outlined, size: 14, color: isTracking ? Colors.green : Colors.grey),
+              Icon(Icons.timer_outlined,
+                  size: 14, color: isTracking ? Colors.green : Colors.grey),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   (context.loc('session')).toUpperCase(),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.1, color: Colors.grey),
+                  style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.1,
+                      color: Colors.grey),
                 ),
               ),
               if (hasActiveTrack)
                 IconButton(
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  constraints:
+                      const BoxConstraints(minWidth: 32, minHeight: 32),
                   tooltip: context.loc('session_pause_tooltip'),
                   onPressed: () => trackSvc.stopTracking(),
-                  icon: const Icon(Icons.pause_circle_outline, color: Color(0xFF1976D2), size: 26),
+                  icon: const Icon(Icons.pause_circle_outline,
+                      color: Color(0xFF1976D2), size: 26),
                 ),
             ],
           ),
@@ -83,11 +90,21 @@ class _DashboardSessionBoxState extends State<DashboardSessionBox> {
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 500),
                 child: Text(
-                  hasActiveTrack ? _formatDuration(DateTime.now().difference(track.startTime)) : '00:00:00',
+                  hasActiveTrack
+                      ? _formatDuration(
+                          DateTime.now().difference(track.startTime))
+                      : '00:00:00',
                   key: ValueKey(
-                    hasActiveTrack ? (DateTime.now().difference(track.startTime).inSeconds / 10).floor() : 0,
+                    hasActiveTrack
+                        ? (DateTime.now()
+                                    .difference(track.startTime)
+                                    .inSeconds /
+                                10)
+                            .floor()
+                        : 0,
                   ),
-                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
+                  style: const TextStyle(
+                      fontSize: 22, fontWeight: FontWeight.w900),
                 ),
               ),
             ),
@@ -100,13 +117,19 @@ class _DashboardSessionBoxState extends State<DashboardSessionBox> {
                   '${((track?.distanceMeters ?? 0) / 1000).toStringAsFixed(2)} km',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.blue),
+                  style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue),
                 ),
               ),
               const SizedBox(width: 8),
               Text(
                 '• ${track?.stationsCount ?? 0} st',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.orange),
+                style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange),
               ),
             ],
           ),

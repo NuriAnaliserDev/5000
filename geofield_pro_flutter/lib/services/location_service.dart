@@ -115,11 +115,11 @@ class LocationService extends ChangeNotifier {
 
   void _updateStatus(double accuracy) {
     if (accuracy < 5) {
-      _status = GpsStatus.good;       // <5m — Geologik ish uchun ideal
+      _status = GpsStatus.good; // <5m — Geologik ish uchun ideal
     } else if (accuracy < 15) {
-      _status = GpsStatus.medium;     // 5–15m — Qabul qilinarli
+      _status = GpsStatus.medium; // 5–15m — Qabul qilinarli
     } else {
-      _status = GpsStatus.poor;       // >15m — Aniqlik past
+      _status = GpsStatus.poor; // >15m — Aniqlik past
     }
   }
 

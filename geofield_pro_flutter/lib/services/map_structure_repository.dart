@@ -58,11 +58,15 @@ class MapStructureRepository extends ChangeNotifier {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (fs == null || uid == null || !isFirebaseCoreReady) return;
     try {
-      final snap = await fs.collection('map_structure_annotations').doc(docId).get();
+      final snap =
+          await fs.collection('map_structure_annotations').doc(docId).get();
       if (!snap.exists) return;
       final v = snap.data()?['ownerUid'];
       if (v != null && v.toString().isNotEmpty) return;
-      await fs.collection('map_structure_annotations').doc(docId).update({'ownerUid': uid});
+      await fs
+          .collection('map_structure_annotations')
+          .doc(docId)
+          .update({'ownerUid': uid});
     } catch (e) {
       debugPrint('MapStructureRepository._ensureAnnotationOwnerClaim: $e');
     }

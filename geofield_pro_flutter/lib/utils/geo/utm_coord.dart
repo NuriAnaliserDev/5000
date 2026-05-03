@@ -67,13 +67,13 @@ class UtmCoord {
 
   /// Map formatida — eksport uchun qulay.
   Map<String, dynamic> toMap() => {
-    'zone': zone,
-    'hemisphere': hemisphere,
-    'easting': easting,
-    'northing': northing,
-    'meridianConvergence': meridianConvergence,
-    'pointScaleFactor': pointScaleFactor,
-  };
+        'zone': zone,
+        'hemisphere': hemisphere,
+        'easting': easting,
+        'northing': northing,
+        'meridianConvergence': meridianConvergence,
+        'pointScaleFactor': pointScaleFactor,
+      };
 
   /// Lat/Lng dan UTM ga aylantirish (Redfearn 5/6 darajali seriya).
   ///
@@ -90,7 +90,8 @@ class UtmCoord {
     final double lngRad = lng * GeoConstants.degToRad;
 
     final int zone = ((lng + 180.0) / GeoConstants.utmZoneWidthDeg).floor() + 1;
-    final double lng0Deg = (zone - 1) * GeoConstants.utmZoneWidthDeg - 180.0 + 3.0;
+    final double lng0Deg =
+        (zone - 1) * GeoConstants.utmZoneWidthDeg - 180.0 + 3.0;
     final double lng0Rad = lng0Deg * GeoConstants.degToRad;
 
     const double a = GeoConstants.wgs84A;
@@ -169,7 +170,10 @@ class UtmCoord {
         (1 +
             (dL2 * cosLat2 / 2.0) * (1 + ePrime2 * cosLat2) +
             (dL4 * cosLat4 / 24.0) *
-                (5 - 4 * t2 + 14 * ePrime2 * cosLat2 + 13 * ePrime2 * ePrime2 * cosLat4));
+                (5 -
+                    4 * t2 +
+                    14 * ePrime2 * cosLat2 +
+                    13 * ePrime2 * ePrime2 * cosLat4));
 
     return UtmCoord(
       zone: zone,
@@ -197,8 +201,8 @@ class UtmCoord {
     }
     final lng0 = (zone - 1) * GeoConstants.utmZoneWidthDeg - 180.0 + 3.0;
 
-    final candNorth =
-        _utmBinaryLatSearch(easting, northing, lng0, 0.0, GeoConstants.utmMaxLat);
+    final candNorth = _utmBinaryLatSearch(
+        easting, northing, lng0, 0.0, GeoConstants.utmMaxLat);
     final candSouth = _utmBinaryLatSearch(easting, northing, lng0, -80.0, 0.0);
 
     double errOf(LatLng c) {
@@ -270,7 +274,8 @@ class UtmCoord {
       final mid = (a + b) / 2;
       var lng = lng0 +
           (easting - GeoConstants.utmFalseEasting) /
-              (111320.0 * math.cos(mid * GeoConstants.degToRad).clamp(0.05, 1.0));
+              (111320.0 *
+                  math.cos(mid * GeoConstants.degToRad).clamp(0.05, 1.0));
       lng = lng.clamp(
         lng0 - GeoConstants.utmInverseLngHalfWidthDeg,
         lng0 + GeoConstants.utmInverseLngHalfWidthDeg,

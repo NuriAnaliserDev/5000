@@ -81,13 +81,17 @@ class _MapSearchSheetState extends State<MapSearchSheet> {
       if (!mounted) return;
       if (resp.statusCode != 200) {
         setState(() {
-          _error = '${_loc()?.map_search_error ?? 'Search error'}: ${resp.statusCode}';
+          _error =
+              '${_loc()?.map_search_error ?? 'Search error'}: ${resp.statusCode}';
           _loading = false;
         });
         return;
       }
       final body = jsonDecode(resp.body) as List;
-      final list = body.whereType<Map<String, dynamic>>().map(_GeoResult.fromJson).toList();
+      final list = body
+          .whereType<Map<String, dynamic>>()
+          .map(_GeoResult.fromJson)
+          .toList();
       setState(() {
         _results = list;
         _loading = false;
@@ -139,7 +143,8 @@ class _MapSearchSheetState extends State<MapSearchSheet> {
                   onChanged: _onChanged,
                   onSubmitted: (v) => _search(v.trim()),
                   decoration: InputDecoration(
-                    hintText: loc?.map_search_hint ?? 'City, region or address...',
+                    hintText:
+                        loc?.map_search_hint ?? 'City, region or address...',
                     prefixIcon: const Icon(Icons.search),
                     suffixIcon: _ctrl.text.isEmpty
                         ? null
@@ -169,7 +174,10 @@ class _MapSearchSheetState extends State<MapSearchSheet> {
                       style: const TextStyle(color: Colors.redAccent),
                     ),
                   ),
-                if (!_loading && _error == null && _results.isEmpty && _ctrl.text.length >= 2)
+                if (!_loading &&
+                    _error == null &&
+                    _results.isEmpty &&
+                    _ctrl.text.length >= 2)
                   Padding(
                     padding: const EdgeInsets.all(16),
                     child: Text(
@@ -218,7 +226,8 @@ class _GeoResult {
   final String displayName;
   final LatLng point;
 
-  _GeoResult({required this.name, required this.displayName, required this.point});
+  _GeoResult(
+      {required this.name, required this.displayName, required this.point});
 
   factory _GeoResult.fromJson(Map<String, dynamic> j) {
     final lat = double.tryParse('${j['lat']}') ?? 0.0;

@@ -210,8 +210,9 @@ class _CameraSideControlsState extends State<CameraSideControls>
             : Icons.flashlight_on_outlined,
         active: widget.flashMode != FlashMode.off,
         onTap: () {
-          final next =
-              widget.flashMode == FlashMode.off ? FlashMode.torch : FlashMode.off;
+          final next = widget.flashMode == FlashMode.off
+              ? FlashMode.torch
+              : FlashMode.off;
           widget.onFlashModeChanged(next);
         },
       ),
@@ -219,8 +220,7 @@ class _CameraSideControlsState extends State<CameraSideControls>
         tooltip:
             '${context.loc('camera_scale_label')} (${widget.zoom.toStringAsFixed(1)}×)',
         icon: Icons.zoom_in_rounded,
-        onTap: () =>
-            widget.onZoomChanged((widget.zoom + 0.5).clamp(1.0, 8.0)),
+        onTap: () => widget.onZoomChanged((widget.zoom + 0.5).clamp(1.0, 8.0)),
       ),
       _CamDialItem(
         tooltip: context.loc('camera_close_label'),

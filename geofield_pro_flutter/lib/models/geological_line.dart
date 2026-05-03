@@ -148,9 +148,12 @@ class GeologicalLine extends HiveObject {
       strokeWidth: (map['strokeWidth'] ?? 3.0).toDouble(),
       isDashed: map['isDashed'] ?? false,
       isCurved: map['isCurved'] ?? false,
-      controlLats: map['controlLats'] != null ? List<double>.from(map['controlLats']) : null,
-      controlLngs: map['controlLngs'] != null ? List<double>.from(map['controlLngs']) : null,
+      controlLats: map['controlLats'] != null
+          ? List<double>.from(map['controlLats'])
+          : null,
+      controlLngs: map['controlLngs'] != null
+          ? List<double>.from(map['controlLngs'])
+          : null,
     );
   }
-
 }

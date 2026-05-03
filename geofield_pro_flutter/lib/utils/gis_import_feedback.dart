@@ -44,8 +44,7 @@ void showGisImportResultSnackbar(
   if (result.normalizedCoordinates) {
     msg = '$msg\n${strings.gis_import_normalized_hint}';
   }
-  final extendDuration =
-      result.normalizedCoordinates || skipped > 0;
+  final extendDuration = result.normalizedCoordinates || skipped > 0;
   messenger.showSnackBar(
     SnackBar(
       content: Text(msg),

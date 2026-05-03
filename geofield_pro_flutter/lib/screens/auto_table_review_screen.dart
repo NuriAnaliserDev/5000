@@ -31,7 +31,7 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
   Map<String, dynamic>? _parsedData;
   List<Map<String, dynamic>> _tableRows = [];
   String? _analysisError;
-  
+
   @override
   void initState() {
     super.initState();
@@ -75,18 +75,20 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
 
   Future<void> _submitReport() async {
     if (_parsedData == null || _analysisError != null) return;
-    
+
     setState(() => _isLoading = true);
-    
+
     try {
       final auth = context.read<AuthService>();
       final settings = context.read<SettingsController>();
       final loc = context.read<LocationService>().currentPosition;
-      final uid = auth.currentUser?.uid ?? FirebaseAuth.instance.currentUser?.uid;
+      final uid =
+          auth.currentUser?.uid ?? FirebaseAuth.instance.currentUser?.uid;
       if (uid == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Hisobot yuborish uchun avval tizimga kiring.')),
+            const SnackBar(
+                content: Text('Hisobot yuborish uchun avval tizimga kiring.')),
           );
         }
         return;
@@ -100,26 +102,32 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
       await FirebaseFirestore.instance.collection('daily_mine_reports').add({
         'reportType': reportType,
         'authorUid': uid,
-        'authorName': settings.currentUserName ?? auth.currentUser?.email ?? 'Noma\'lum',
+        'authorName':
+            settings.currentUserName ?? auth.currentUser?.email ?? 'Noma\'lum',
         'createdAt': FieldValue.serverTimestamp(),
         'status': 'pending',
-        'imageUrl': '', 
+        'imageUrl': '',
         'lat': loc?.latitude,
         'lng': loc?.longitude,
         'parsedData': {
           'header': {
             'date': _parsedData!['date'],
             'shift': _parsedData!['shift'],
-            'driller': _parsedData!['driller'] ?? _parsedData!['spotter'] ?? _parsedData!['geologist'] ?? '—',
+            'driller': _parsedData!['driller'] ??
+                _parsedData!['spotter'] ??
+                _parsedData!['geologist'] ??
+                '—',
             'location': _parsedData!['location'] ?? _parsedData!['pit'] ?? '—',
           },
           'table': updatedTable,
         },
       });
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Hisobot muvaffaqiyatli Dashboard\'ga yuborildi! ✅')),
+          const SnackBar(
+              content:
+                  Text('Hisobot muvaffaqiyatli Dashboard\'ga yuborildi! ✅')),
         );
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
@@ -144,7 +152,9 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
             TextButton.icon(
               onPressed: _submitReport,
               icon: const Icon(Icons.send, color: Colors.blue),
-              label: const Text('YUBORISH', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)),
+              label: const Text('YUBORISH',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.blue)),
             ),
         ],
       ),
@@ -163,9 +173,11 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
         children: [
           const CircularProgressIndicator(),
           const SizedBox(height: 24),
-          const Text('AI hujjatni o\'qimoqda...', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const Text('AI hujjatni o\'qimoqda...',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          Text('Bu bir necha soniya vaqt olishi mumkin', style: TextStyle(color: Colors.grey.shade600)),
+          Text('Bu bir necha soniya vaqt olishi mumkin',
+              style: TextStyle(color: Colors.grey.shade600)),
         ],
       ),
     );
@@ -199,14 +211,16 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
               Text(
                 s.ai_vertex_quota_billing_body,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: Colors.grey.shade600, height: 1.35),
+                style: TextStyle(
+                    fontSize: 14, color: Colors.grey.shade600, height: 1.35),
               ),
             ] else if (isApiOff && s != null) ...[
               const SizedBox(height: 12),
               Text(
                 s.ai_vertex_disabled_body,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: Colors.grey.shade600, height: 1.35),
+                style: TextStyle(
+                    fontSize: 14, color: Colors.grey.shade600, height: 1.35),
               ),
             ] else if (detail.isNotEmpty) ...[
               const SizedBox(height: 12),
@@ -225,7 +239,8 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
                   if (!ok) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Havolani ochib bo‘lmadi. Brauzer yoki tizim sozlamalarini tekshiring.'),
+                        content: Text(
+                            'Havolani ochib bo‘lmadi. Brauzer yoki tizim sozlamalarini tekshiring.'),
                       ),
                     );
                   }
@@ -255,27 +270,33 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                _summaryItem('Turi', (_parsedData!['report_type'] ?? '—').toString().toUpperCase()),
+                _summaryItem(
+                    'Turi',
+                    (_parsedData!['report_type'] ?? '—')
+                        .toString()
+                        .toUpperCase()),
                 _summaryItem('Sana', _parsedData!['date'] ?? '—'),
                 _summaryItem('Smena', _parsedData!['shift'] ?? '—'),
               ],
             ),
           ),
         ),
-        
+
         // Split View or Scrollable Content
         Expanded(
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             children: [
-              const Text('Hujjat nusxasi:', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text('Hujjat nusxasi:',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: _buildPreviewImage(height: 200),
               ),
               const SizedBox(height: 24),
-              const Text('AI tomonidan o\'qilgan jadval:', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text('AI tomonidan o\'qilgan jadval:',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               _buildDataTable(),
               const SizedBox(height: 100), // Spacing for bottom
@@ -289,12 +310,15 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
   Widget _buildPreviewImage({required double height}) {
     final path = widget.imagePath;
     if (path.startsWith('http')) {
-      return Image.network(path, height: height, width: double.infinity, fit: BoxFit.cover);
+      return Image.network(path,
+          height: height, width: double.infinity, fit: BoxFit.cover);
     }
     if (kIsWeb) {
-      return SizedBox(height: height, child: const Center(child: Text('Rasm ko‘rinishi')));
+      return SizedBox(
+          height: height, child: const Center(child: Text('Rasm ko‘rinishi')));
     }
-    return Image.file(File(path), height: height, width: double.infinity, fit: BoxFit.cover);
+    return Image.file(File(path),
+        height: height, width: double.infinity, fit: BoxFit.cover);
   }
 
   Widget _summaryItem(String label, String value) {
@@ -302,22 +326,29 @@ class _AutoTableReviewScreenState extends State<AutoTableReviewScreen> {
       child: Column(
         children: [
           Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+          Text(value,
+              style:
+                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
         ],
       ),
     );
   }
 
   Widget _buildDataTable() {
-    if (_tableRows.isEmpty) return const Center(child: Text('Jadval ma\'lumotlari topilmadi'));
-    
+    if (_tableRows.isEmpty)
+      return const Center(child: Text('Jadval ma\'lumotlari topilmadi'));
+
     final columns = _tableRows.first.keys.toList();
-    
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: DataTable(
         border: TableBorder.all(color: Colors.grey.shade300, width: 1),
-        columns: columns.map((c) => DataColumn(label: Text(c, style: const TextStyle(fontWeight: FontWeight.bold)))).toList(),
+        columns: columns
+            .map((c) => DataColumn(
+                label: Text(c,
+                    style: const TextStyle(fontWeight: FontWeight.bold))))
+            .toList(),
         rows: _tableRows.map((row) {
           return DataRow(
             cells: columns.map((col) {

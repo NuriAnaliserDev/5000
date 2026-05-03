@@ -76,8 +76,8 @@ GeoOrientationResult calculateGeologicalOrientation({
   double? manualDeclination,
 }) {
   // ── 1. Normalise input vectors ──────────────────────────────────────────────
-  final g = gravity.normalized();   // gravity direction (down)
-  final m = magnetic.normalized();  // raw magnetic field
+  final g = gravity.normalized(); // gravity direction (down)
+  final m = magnetic.normalized(); // raw magnetic field
 
   // ── 2. Project magnetic onto the horizontal plane (perpendicular to g) ──────
   //   mH = m – (m·g)·g
@@ -93,7 +93,7 @@ GeoOrientationResult calculateGeologicalOrientation({
   //   East   = g × mH  (right-handed, pointing East)
   //   Down   = g
   final north = mH;
-  final east  = g.cross(mH).normalized();  // g × mH is always valid now
+  final east = g.cross(mH).normalized(); // g × mH is always valid now
 
   // ── 4. Dip ─────────────────────────────────────────────────────────────────
   //   The geological plane is the phone screen face.
@@ -116,9 +116,7 @@ GeoOrientationResult calculateGeologicalOrientation({
   const phoneTop = Vec3(0, 1, 0);
   // Project +Y onto the horizontal plane
   final topHraw = phoneTop - g * phoneTop.dot(g);
-  final topH = topHraw.norm < 1e-6
-      ? north
-      : topHraw.normalized();
+  final topH = topHraw.norm < 1e-6 ? north : topHraw.normalized();
 
   // atan2(E, N) → clockwise from North = azimuth
   var azimuth = atan2(topH.dot(east), topH.dot(north)) * 180 / pi;
@@ -155,7 +153,7 @@ GeoOrientationResult calculateGeologicalOrientation({
   //   When phone is flat (g=(0,0,1)): pitch=0, roll=0 ✓
   //   When phone is face toward user (g=(0,–1,0)): pitch=90, roll=0 ✓
   final double pitch = atan2(-g.y, sqrt(g.x * g.x + g.z * g.z)) * 180 / pi;
-  final double roll  = atan2(g.x, g.z) * 180 / pi;
+  final double roll = atan2(g.x, g.z) * 180 / pi;
 
   // ── 8. Apply magnetic declination ──────────────────────────────────────────
   final declination = manualDeclination ?? _estimateDeclination(lat, lng);
@@ -185,4 +183,3 @@ double _estimateDeclination(double lat, double lng) {
   _wmmModel ??= WmmModel.embedded();
   return _wmmModel!.declination(lat: lat, lng: lng);
 }
-

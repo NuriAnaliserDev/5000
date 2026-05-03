@@ -71,10 +71,10 @@ class MapLineworkControls extends StatelessWidget {
             FloatingActionButton(
               heroTag: 'eraserFAB',
               mini: true,
-              backgroundColor:
-                  isEraserMode ? Colors.redAccent : Colors.white,
+              backgroundColor: isEraserMode ? Colors.redAccent : Colors.white,
               onPressed: onToggleEraser,
-              tooltip: GeoFieldStrings.of(context)?.map_eraser_tooltip ?? 'Eraser',
+              tooltip:
+                  GeoFieldStrings.of(context)?.map_eraser_tooltip ?? 'Eraser',
               child: Icon(
                 Icons.auto_fix_off,
                 color: isEraserMode ? Colors.white : Colors.black87,
@@ -125,7 +125,8 @@ class MapLineworkControls extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Tooltip(
-            message: GeoFieldStrings.of(context)?.map_draw_undo_caption ?? 'Undo',
+            message:
+                GeoFieldStrings.of(context)?.map_draw_undo_caption ?? 'Undo',
             child: FloatingActionButton(
               heroTag: 'undoFAB',
               mini: true,
@@ -153,7 +154,8 @@ class MapLineworkControls extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Tooltip(
-            message: GeoFieldStrings.of(context)?.map_eraser_tooltip ?? 'Eraser',
+            message:
+                GeoFieldStrings.of(context)?.map_eraser_tooltip ?? 'Eraser',
             child: FloatingActionButton(
               heroTag: 'eraserDrawFAB',
               mini: true,
@@ -199,15 +201,16 @@ class MapLineworkControls extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: isActive ? activeColor.withValues(alpha: 0.3) : Colors.transparent,
-          border: isActive ? Border.all(color: activeColor, width: 2) : Border.all(color: Colors.transparent, width: 2),
+          color: isActive
+              ? activeColor.withValues(alpha: 0.3)
+              : Colors.transparent,
+          border: isActive
+              ? Border.all(color: activeColor, width: 2)
+              : Border.all(color: Colors.transparent, width: 2),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(
-          isActive ? activeIcon : inactiveIcon, 
-          color: isActive ? activeColor : Colors.white, 
-          size: 20
-        ),
+        child: Icon(isActive ? activeIcon : inactiveIcon,
+            color: isActive ? activeColor : Colors.white, size: 20),
       ),
     );
   }
@@ -221,7 +224,9 @@ class MapLineworkControls extends StatelessWidget {
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: isSelected ? color.withValues(alpha: 0.3) : Colors.transparent,
-          border: isSelected ? Border.all(color: color, width: 2) : Border.all(color: Colors.transparent, width: 2),
+          border: isSelected
+              ? Border.all(color: color, width: 2)
+              : Border.all(color: Colors.transparent, width: 2),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(icon, color: color, size: 20),

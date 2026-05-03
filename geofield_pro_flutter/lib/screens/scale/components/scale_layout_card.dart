@@ -34,7 +34,8 @@ class ScaleLayoutCard extends StatelessWidget {
       pWidthCm = double.tryParse(customWidthCtrl.text) ?? 0;
       pHeightCm = double.tryParse(customHeightCtrl.text) ?? 0;
     } else {
-      final matches = RegExp(r'([\d.]+)\s*x\s*([\d.]+)').firstMatch(selectedPaper);
+      final matches =
+          RegExp(r'([\d.]+)\s*x\s*([\d.]+)').firstMatch(selectedPaper);
       if (matches != null) {
         pWidthCm = double.parse(matches.group(1)!);
         pHeightCm = double.parse(matches.group(2)!);
@@ -49,31 +50,47 @@ class ScaleLayoutCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black12, blurRadius: 10)],
+        boxShadow: [
+          BoxShadow(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.05)
+                  : Colors.black12,
+              blurRadius: 10)
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(context.loc('paper_format_label'), style: const TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold)),
+          Text(context.loc('paper_format_label'),
+              style: const TextStyle(
+                  color: Colors.grey,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
             decoration: InputDecoration(
               isDense: true,
               filled: true,
               fillColor: isDark ? Colors.black : Colors.white,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide.none),
             ),
             dropdownColor: isDark ? Colors.black : Colors.white,
             isExpanded: true,
             initialValue: selectedPaper,
-            items: paperFormats.map((p) => DropdownMenuItem(
-              value: p, 
-              child: Text(
-                p == 'custom' ? context.loc('custom_input') : p, 
-                style: TextStyle(color: isDark ? Colors.white : Colors.black, fontSize: 13), 
-                overflow: TextOverflow.ellipsis,
-              ),
-            )).toList(),
+            items: paperFormats
+                .map((p) => DropdownMenuItem(
+                      value: p,
+                      child: Text(
+                        p == 'custom' ? context.loc('custom_input') : p,
+                        style: TextStyle(
+                            color: isDark ? Colors.white : Colors.black,
+                            fontSize: 13),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ))
+                .toList(),
             onChanged: (val) {
               if (val != null) onPaperChanged(val);
             },
@@ -109,18 +126,23 @@ class ScaleLayoutCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: isDark ? Colors.black : Colors.white,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF1976D2).withValues(alpha: 0.4)),
+              border: Border.all(
+                  color: const Color(0xFF1976D2).withValues(alpha: 0.4)),
             ),
             child: Column(
               children: [
-                Text(context.loc('ground_area_label'), 
-                  style: TextStyle(color: Colors.grey, fontSize: 10)),
+                Text(context.loc('ground_area_label'),
+                    style: TextStyle(color: Colors.grey, fontSize: 10)),
                 const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
                   child: AutoScrollText(
-                    text: '${groundWidthM.toStringAsFixed(1)} m  x  ${groundHeightM.toStringAsFixed(1)} m', 
-                    style: const TextStyle(color: Color(0xFF1976D2), fontSize: 18, fontWeight: FontWeight.w900),
+                    text:
+                        '${groundWidthM.toStringAsFixed(1)} m  x  ${groundHeightM.toStringAsFixed(1)} m',
+                    style: const TextStyle(
+                        color: Color(0xFF1976D2),
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -139,25 +161,33 @@ class ScaleLayoutCard extends StatelessWidget {
 
   Widget _buildInputField(
     BuildContext context, {
-    required String label, 
-    required TextEditingController controller, 
+    required String label,
+    required TextEditingController controller,
     Function(String)? onChanged,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Colors.grey, fontSize: 9, fontWeight: FontWeight.bold)),
+        Text(label,
+            style: const TextStyle(
+                color: Colors.grey, fontSize: 9, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         TextField(
           controller: controller,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontWeight: FontWeight.bold),
           onChanged: onChanged,
           decoration: InputDecoration(
             isDense: true,
             filled: true,
-            fillColor: Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.white,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+            fillColor: Theme.of(context).brightness == Brightness.dark
+                ? Colors.black
+                : Colors.white,
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide.none),
           ),
         ),
       ],

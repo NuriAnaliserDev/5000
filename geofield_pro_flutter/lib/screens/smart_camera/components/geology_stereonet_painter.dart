@@ -327,8 +327,7 @@ class _StereonetPainter extends CustomPainter {
       Offset(cx + netR * 0.62, cy + netR * 0.05),
     ];
 
-    final label =
-        'Strike: ${data.strikeDeg.toStringAsFixed(0)}°\n'
+    final label = 'Strike: ${data.strikeDeg.toStringAsFixed(0)}°\n'
         'Dip: ${data.dipDeg.toStringAsFixed(0)}° ${data.dipDirectionLabel}';
 
     for (int i = 0; i < 3; i++) {

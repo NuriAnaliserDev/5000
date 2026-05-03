@@ -64,8 +64,8 @@ class MineReportRepository extends ChangeNotifier {
   }
 
   // Update report to Verified status, alongside the corrected parsedData
-  Future<void> verifyReport(
-      String reportId, Map<String, dynamic> correctedData, String verifiedByUserName) async {
+  Future<void> verifyReport(String reportId, Map<String, dynamic> correctedData,
+      String verifiedByUserName) async {
     final db = _db;
     if (db == null) return;
     try {

@@ -9,7 +9,8 @@ class ThreeDMathUtils {
   /// Project a GPS point to a local 3D space relative to a center point.
   /// Result is (x, y, z) in meters. Uses WGS84 semi-major axis for
   /// geodesic accuracy (previously used mean radius which gave ~0.1% bias).
-  static Offset3D projectToLocal(LatLng point, double altitude, LatLng center, double centerAlt) {
+  static Offset3D projectToLocal(
+      LatLng point, double altitude, LatLng center, double centerAlt) {
     const double earthRadius = GeoConstants.wgs84A;
 
     final double latRad = point.latitude * pi / 180;
@@ -29,7 +30,8 @@ class ThreeDMathUtils {
   /// Strike: Clockwise from North (0-360)
   /// Dip: Angle from horizontal (0-90)
   /// Size: Length of the square side in meters
-  static List<Offset3D> getStrikeDipPlane(Offset3D center, double strike, double dip, double size) {
+  static List<Offset3D> getStrikeDipPlane(
+      Offset3D center, double strike, double dip, double size) {
     final double sRad = strike * pi / 180;
     final double dRad = dip * pi / 180;
 
@@ -64,10 +66,11 @@ class ThreeDMathUtils {
   }
 
   /// Project a 3D point to 2D screen coordinates based on view matrix
-  static Offset projectToScreen(Offset3D p, Matrix4 viewMatrix, Size screenSize) {
+  static Offset projectToScreen(
+      Offset3D p, Matrix4 viewMatrix, Size screenSize) {
     vmath.Vector4 v = vmath.Vector4(p.x, p.y, p.z, 1.0);
     vmath.Vector4 vTransformed = viewMatrix.transform(v);
-    
+
     // Simple perspective projection divide
     if (vTransformed.w.abs() < 1e-9) return Offset.zero;
     if (vTransformed.w <= 0) {

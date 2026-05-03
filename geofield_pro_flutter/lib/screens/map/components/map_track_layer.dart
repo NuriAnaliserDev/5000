@@ -19,16 +19,15 @@ class MapTrackLayer extends StatelessWidget {
   Widget build(BuildContext context) {
     return PolylineLayer(
       polylines: [
-        ...storedTracks
-            .where((t) => t.points.isNotEmpty)
-            .map((t) => Polyline(
-                  points: t.points.map((p) => LatLng(p.lat, p.lng)).toList(),
-                  color: Colors.blue.withValues(alpha: 0.5 * gisLayerOpacity),
-                  strokeWidth: 3.0,
-                )),
+        ...storedTracks.where((t) => t.points.isNotEmpty).map((t) => Polyline(
+              points: t.points.map((p) => LatLng(p.lat, p.lng)).toList(),
+              color: Colors.blue.withValues(alpha: 0.5 * gisLayerOpacity),
+              strokeWidth: 3.0,
+            )),
         if (currentTrack != null && currentTrack!.points.isNotEmpty)
           Polyline(
-            points: currentTrack!.points.map((p) => LatLng(p.lat, p.lng)).toList(),
+            points:
+                currentTrack!.points.map((p) => LatLng(p.lat, p.lng)).toList(),
             color: Colors.red,
             strokeWidth: 4.0,
           ),

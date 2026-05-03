@@ -87,7 +87,8 @@ class DxfParser {
         final local = points
             .map((p) => LatLng(p.latitude - baseY, p.longitude - baseX))
             .toList();
-        (blockDefs[currentBlockName]!['geometries'] as List<List<LatLng>>).add(local);
+        (blockDefs[currentBlockName]!['geometries'] as List<List<LatLng>>)
+            .add(local);
       }
 
       final extracted = <BoundaryPolygon>[];
@@ -249,7 +250,8 @@ class DxfParser {
         points.add(start);
       }
 
-      final bulge = i < bulges.length ? (double.tryParse(bulges[i]) ?? 0.0) : 0.0;
+      final bulge =
+          i < bulges.length ? (double.tryParse(bulges[i]) ?? 0.0) : 0.0;
       if (bulge.abs() < 1e-9) {
         points.add(end);
       } else {
@@ -261,8 +263,9 @@ class DxfParser {
       final start = rawPoints.last;
       final end = rawPoints.first;
       final closeBulgeIndex = rawPoints.length - 1;
-      final closeBulge =
-          closeBulgeIndex < bulges.length ? (double.tryParse(bulges[closeBulgeIndex]) ?? 0.0) : 0.0;
+      final closeBulge = closeBulgeIndex < bulges.length
+          ? (double.tryParse(bulges[closeBulgeIndex]) ?? 0.0)
+          : 0.0;
 
       if (closeBulge.abs() < 1e-9) {
         points.add(end);
@@ -273,7 +276,8 @@ class DxfParser {
     return points;
   }
 
-  static List<LatLng> _buildBulgeArcPoints(LatLng start, LatLng end, double bulge) {
+  static List<LatLng> _buildBulgeArcPoints(
+      LatLng start, LatLng end, double bulge) {
     final dx = end.longitude - start.longitude;
     final dy = end.latitude - start.latitude;
     final chord = math.sqrt(dx * dx + dy * dy);
@@ -320,7 +324,8 @@ class DxfParser {
     final y1 = double.tryParse((entity['20']?.first ?? ''));
     final x2 = double.tryParse((entity['11']?.first ?? ''));
     final y2 = double.tryParse((entity['21']?.first ?? ''));
-    if (x1 == null || y1 == null || x2 == null || y2 == null) return const <LatLng>[];
+    if (x1 == null || y1 == null || x2 == null || y2 == null)
+      return const <LatLng>[];
     return [LatLng(y1, x1), LatLng(y2, x2)];
   }
 
@@ -328,7 +333,8 @@ class DxfParser {
     final cx = double.tryParse((entity['10']?.first ?? ''));
     final cy = double.tryParse((entity['20']?.first ?? ''));
     final r = double.tryParse((entity['40']?.first ?? ''));
-    if (cx == null || cy == null || r == null || r <= 0) return const <LatLng>[];
+    if (cx == null || cy == null || r == null || r <= 0)
+      return const <LatLng>[];
     return _buildArcPoints(cx, cy, r, 0, 360);
   }
 
@@ -338,7 +344,12 @@ class DxfParser {
     final r = double.tryParse((entity['40']?.first ?? ''));
     final startDeg = double.tryParse((entity['50']?.first ?? ''));
     final endDeg = double.tryParse((entity['51']?.first ?? ''));
-    if (cx == null || cy == null || r == null || r <= 0 || startDeg == null || endDeg == null) {
+    if (cx == null ||
+        cy == null ||
+        r == null ||
+        r <= 0 ||
+        startDeg == null ||
+        endDeg == null) {
       return const <LatLng>[];
     }
     return _buildArcPoints(cx, cy, r, startDeg, endDeg);
@@ -379,9 +390,15 @@ class DxfParser {
     final majorY = double.tryParse((entity['21']?.first ?? ''));
     final ratio = double.tryParse((entity['40']?.first ?? ''));
     final startParam = double.tryParse((entity['41']?.first ?? '')) ?? 0.0;
-    final endParam = double.tryParse((entity['42']?.first ?? '')) ?? (2 * math.pi);
+    final endParam =
+        double.tryParse((entity['42']?.first ?? '')) ?? (2 * math.pi);
 
-    if (cx == null || cy == null || majorX == null || majorY == null || ratio == null || ratio <= 0) {
+    if (cx == null ||
+        cy == null ||
+        majorX == null ||
+        majorY == null ||
+        ratio == null ||
+        ratio <= 0) {
       return const <LatLng>[];
     }
 

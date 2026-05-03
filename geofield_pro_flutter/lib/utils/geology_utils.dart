@@ -2,14 +2,14 @@ import 'dart:math';
 
 import 'geo/utm_coord.dart';
 
-export 'geo/stereonet_engine.dart' show StereonetEngine, StereonetProjection, ProjectedPoint;
+export 'geo/stereonet_engine.dart'
+    show StereonetEngine, StereonetProjection, ProjectedPoint;
 
 class GeologyUtils {
   /// Converts Decimal Degrees to DMS format.
   static String toDMS(double degree, bool isLat) {
-    String direction = isLat
-        ? (degree >= 0 ? 'N' : 'S')
-        : (degree >= 0 ? 'E' : 'W');
+    String direction =
+        isLat ? (degree >= 0 ? 'N' : 'S') : (degree >= 0 ? 'E' : 'W');
 
     degree = degree.abs();
     int d = degree.floor();
@@ -29,7 +29,8 @@ class GeologyUtils {
   ///
   /// Aniqlik: ~0.001m bitta UTM zona ichida (Redfearn 5/6 darajali seriya,
   /// WGS84 ellipsoidi). QField va FieldMove darajasi.
-  static UtmCoord toUtm(double lat, double lng) => UtmCoord.fromLatLng(lat, lng);
+  static UtmCoord toUtm(double lat, double lng) =>
+      UtmCoord.fromLatLng(lat, lng);
 
   /// UTM proyeksiyasining matn ko'rinishi. Eski kod uchun qoldirilgan.
   ///
@@ -133,14 +134,14 @@ class GeologyUtils {
   /// then mean is halved back. This correctly handles 10° ≡ 190°.
   static FisherStats fisherStatsAxial(List<double> strikes) {
     if (strikes.isEmpty) return fisherStats([]);
-    
+
     // Double all angles for axial treatment
     final doubled = strikes.map((s) => (2 * s) % 360).toList();
     final result = fisherStats(doubled);
-    
+
     // Halve the mean angle back
     final axialMean = (result.meanAngle / 2) % 180;
-    
+
     return FisherStats(
       n: result.n,
       meanAngle: axialMean,
@@ -186,7 +187,12 @@ class GeologyUtils {
       case 'bedding':
         return ['inclined', 'horizontal', 'vertical', 'overturned'];
       case 'cleavage':
-        return ['axial_planar', 'crenulation', 'pressure_solution', 'disjunctive'];
+        return [
+          'axial_planar',
+          'crenulation',
+          'pressure_solution',
+          'disjunctive'
+        ];
       case 'lineation':
         return ['stretching', 'mineral', 'intersection', 'crenulation'];
       case 'joint':
@@ -203,7 +209,8 @@ class GeologyUtils {
   /// Plunge va Trend dan Dip va Strike hisoblash (Lineatsiya uchun).
   /// [plunge] — 0..90°, [trend] — 0..360°
   /// Returns {strike, dip}
-  static Map<String, double> plungeTrendToDipStrike(double plunge, double trend) {
+  static Map<String, double> plungeTrendToDipStrike(
+      double plunge, double trend) {
     final plungeRad = plunge * pi / 180;
     final trendRad = trend * pi / 180;
 
@@ -238,7 +245,6 @@ class GeologyUtils {
     return apparentThickness * sin(dip * pi / 180);
   }
 }
-
 
 /// Result of Fisher statistical analysis on directional data.
 class FisherStats {

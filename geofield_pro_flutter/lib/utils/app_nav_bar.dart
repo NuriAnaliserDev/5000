@@ -65,7 +65,8 @@ class AppBottomNavBar extends StatelessWidget {
                   border: Border.all(color: borderColor),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: isDark ? 0.45 : 0.1),
+                      color:
+                          Colors.black.withValues(alpha: isDark ? 0.45 : 0.1),
                       blurRadius: 24,
                       offset: const Offset(0, 10),
                     ),
@@ -74,47 +75,47 @@ class AppBottomNavBar extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                  _navItem(
-                    context,
-                    icon: Icons.home_rounded,
-                    label: context.loc('dashboard'),
-                    route: '/dashboard',
-                    isActive: activeRoute == '/dashboard',
-                    useShellNavigation: useShellNavigation,
-                    onShellTabSelected: onShellTabSelected,
-                  ),
-                  _navItem(
-                    context,
-                    icon: Icons.map_rounded,
-                    label: context.loc('map'),
-                    route: '/map',
-                    isActive: activeRoute == '/map',
-                    useShellNavigation: useShellNavigation,
-                    onShellTabSelected: onShellTabSelected,
-                  ),
-                  _navItem(
-                    context,
-                    icon: Icons.photo_camera_rounded,
-                    label: context.loc('camera'),
-                    route: '/camera',
-                    isActive: activeRoute == '/camera',
-                    useShellNavigation: useShellNavigation,
-                    onShellTabSelected: onShellTabSelected,
-                  ),
-                  _navItem(
-                    context,
-                    icon: Icons.archive_rounded,
-                    label: context.loc('archive'),
-                    route: '/archive',
-                    isActive: activeRoute == '/archive',
-                    useShellNavigation: useShellNavigation,
-                    onShellTabSelected: onShellTabSelected,
-                  ),
-                  _moreItem(
-                    context,
-                    isExpert: isExpert,
-                    isActive: moreActive,
-                  ),
+                    _navItem(
+                      context,
+                      icon: Icons.home_rounded,
+                      label: context.loc('dashboard'),
+                      route: '/dashboard',
+                      isActive: activeRoute == '/dashboard',
+                      useShellNavigation: useShellNavigation,
+                      onShellTabSelected: onShellTabSelected,
+                    ),
+                    _navItem(
+                      context,
+                      icon: Icons.map_rounded,
+                      label: context.loc('map'),
+                      route: '/map',
+                      isActive: activeRoute == '/map',
+                      useShellNavigation: useShellNavigation,
+                      onShellTabSelected: onShellTabSelected,
+                    ),
+                    _navItem(
+                      context,
+                      icon: Icons.photo_camera_rounded,
+                      label: context.loc('camera'),
+                      route: '/camera',
+                      isActive: activeRoute == '/camera',
+                      useShellNavigation: useShellNavigation,
+                      onShellTabSelected: onShellTabSelected,
+                    ),
+                    _navItem(
+                      context,
+                      icon: Icons.archive_rounded,
+                      label: context.loc('archive'),
+                      route: '/archive',
+                      isActive: activeRoute == '/archive',
+                      useShellNavigation: useShellNavigation,
+                      onShellTabSelected: onShellTabSelected,
+                    ),
+                    _moreItem(
+                      context,
+                      isExpert: isExpert,
+                      isActive: moreActive,
+                    ),
                   ],
                 ),
               ),
@@ -164,7 +165,8 @@ class AppBottomNavBar extends StatelessWidget {
                   children: [
                     ExcludeSemantics(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: isActive
                               ? activeColor.withValues(alpha: 0.2)
@@ -245,8 +247,7 @@ class AppBottomNavBar extends StatelessWidget {
                               onTap: () {
                                 Navigator.of(ctx).pop();
                                 Navigator.of(context)
-                                    .pushReplacementNamed(
-                                        '/scale-assistant');
+                                    .pushReplacementNamed('/scale-assistant');
                               },
                             ),
                           ListTile(
@@ -271,14 +272,16 @@ class AppBottomNavBar extends StatelessWidget {
                   children: [
                     ExcludeSemantics(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: isActive
                               ? activeColor.withValues(alpha: 0.2)
                               : null,
                           borderRadius: BorderRadius.circular(14),
                         ),
-                        child: Icon(Icons.more_horiz_rounded, color: color, size: 24),
+                        child: Icon(Icons.more_horiz_rounded,
+                            color: color, size: 24),
                       ),
                     ),
                     const SizedBox(height: 2),

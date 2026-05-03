@@ -54,7 +54,7 @@ service cloud.firestore {
 
       // Smena jurnali (GPS trek) — mobil CloudSync shu yo‘l bilan yozadi.
       match /shift_logs/{logId} {
-        allow read: if isAuthed();
+        allow read: if isAuthed() && (isAdmin() || resource.data.uid == request.auth.uid);
         allow create: if isAuthed()
           && request.auth.uid == uid
           && request.resource.data.uid == uid;
@@ -67,12 +67,12 @@ service cloud.firestore {
     }
 
     match /presence/{uid} {
-      allow read: if isAuthed();
+      allow read: if isAuthed() && (isAdmin() || request.auth.uid == uid);
       allow write: if isAuthed() && request.auth.uid == uid;
     }
 
     match /emergency_signals/{doc} {
-      allow read: if isAuthed();
+      allow read: if isAuthed() && (isAdmin() || resource.data.senderUid == request.auth.uid);
       allow create: if isAuthed()
                     && request.resource.data.senderUid == request.auth.uid;
       allow update: if isAuthed()
@@ -83,7 +83,7 @@ service cloud.firestore {
     // Global chegaralar — createdByUid yozuv egasi yoki admin.
     // Legacy (createdByUid yo‘q): klient bir marta faqat ushbu maydonni qo‘shishi mumkin (claim).
     match /global_boundaries/{doc} {
-      allow read: if isAuthed();
+      allow read: if isAuthed() && (isAdmin() || resource.data.createdByUid == request.auth.uid);
       allow create: if isAuthed()
         && request.resource.data.createdByUid == request.auth.uid;
       allow update: if isAuthed() && (
@@ -111,7 +111,7 @@ service cloud.firestore {
 
     // Geologik chiziqlar — ownerUid egasi yoki admin; legacy: faqat ownerUid ni claim qilish (bitta maydon).
     match /geological_lines/{doc} {
-      allow read: if isAuthed();
+      allow read: if isAuthed() && (isAdmin() || resource.data.ownerUid == request.auth.uid);
       allow create: if isAuthed()
         && request.resource.data.ownerUid == request.auth.uid;
       allow update: if isAuthed() && (
@@ -134,7 +134,7 @@ service cloud.firestore {
 
     // Strike/dip annotatsiyalari — ownerUid egasi yoki admin; legacy: claim (bitta maydon).
     match /map_structure_annotations/{doc} {
-      allow read: if isAuthed();
+      allow read: if isAuthed() && (isAdmin() || resource.data.ownerUid == request.auth.uid);
       allow create: if isAuthed()
         && request.resource.data.ownerUid == request.auth.uid;
       allow update: if isAuthed() && (
@@ -164,7 +164,7 @@ service cloud.firestore {
 
     // Chat xabarlari — foydalanuvchining o‘ziga tegishli
     match /chat_messages/{doc} {
-      allow read: if isAuthed();
+      allow read: if isAuthed() && (isAdmin() || resource.data.senderId == request.auth.uid || resource.data.receiverId == request.auth.uid);
       allow create: if isAuthed()
                     && request.resource.data.senderId == request.auth.uid;
       allow update, delete: if isAuthed()
@@ -174,7 +174,7 @@ service cloud.firestore {
     // Kon hisobotlari: tasdiqlash/rad — admin; muallif faqat pending holatda tahrir/o‘chirish.
     // authorUid yo‘q legacy: update/delete faqat admin.
     match /daily_mine_reports/{doc} {
-      allow read: if isAuthed();
+      allow read: if isAuthed() && (isAdmin() || resource.data.authorUid == request.auth.uid);
       allow create: if isAuthed()
         && request.resource.data.authorUid == request.auth.uid
         && 'reportType' in request.resource.data
@@ -203,7 +203,7 @@ service cloud.firestore {
 
     // Guruh hujjati — faqat konsoldan; ilova faqat messages yozadi.
     match /chat_groups/{groupId} {
-      allow read: if isAuthed();
+      allow read: if isAuthed() && (isAdmin() || request.auth.uid in resource.data.members);
       allow create, update, delete: if false;
 
       match /messages/{msgId} {
@@ -216,7 +216,7 @@ service cloud.firestore {
     }
 
     match /groups/{groupId} {
-      allow read: if isAuthed();
+      allow read: if isAuthed() && (isAdmin() || request.auth.uid in resource.data.members);
       allow create, update, delete: if false;
 
       match /messages/{msgId} {

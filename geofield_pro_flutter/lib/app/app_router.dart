@@ -54,7 +54,9 @@ class AppRouter {
         builder: (context, state) {
           if (kIsWeb) {
             final auth = context.watch<AuthService>();
-            return auth.isAuthenticated ? const WebDashboardMain() : const WebLoginScreen();
+            return auth.isAuthenticated
+                ? const WebDashboardMain()
+                : const WebLoginScreen();
           }
           return const SplashScreen();
         },
@@ -113,7 +115,8 @@ class AppRouter {
         path: fieldWorkshop,
         builder: (context, state) {
           final initLoc = state.extra as Map<String, dynamic>?;
-          return GlobalMapScreen(initLocation: initLoc, fieldWorkshopMode: true);
+          return GlobalMapScreen(
+              initLocation: initLoc, fieldWorkshopMode: true);
         },
       ),
       GoRoute(

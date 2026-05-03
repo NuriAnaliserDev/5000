@@ -48,7 +48,8 @@ class StationRepository extends ChangeNotifier {
     return id;
   }
 
-  Future<void> updateStation(dynamic key, Station updated, {String? author}) async {
+  Future<void> updateStation(dynamic key, Station updated,
+      {String? author}) async {
     final error = GeologyValidator.validateStation(updated);
     if (error != null) throw Exception(error);
 
@@ -60,13 +61,14 @@ class StationRepository extends ChangeNotifier {
         updated.history!.addAll(entries);
       }
     }
-    
+
     await _box.put(key, updated);
     notifyListeners();
     _cloudSync.syncStation(key, updated); // Auto sync to cloud
   }
 
-  List<AuditEntry> _generateAuditEntries(Station oldS, Station newS, String author) {
+  List<AuditEntry> _generateAuditEntries(
+      Station oldS, Station newS, String author) {
     final entries = <AuditEntry>[];
     final now = DateTime.now();
 
@@ -90,7 +92,7 @@ class StationRepository extends ChangeNotifier {
     checkField('dip', oldS.dip, newS.dip);
     checkField('azimuth', oldS.azimuth, newS.azimuth);
     checkField('sampleId', oldS.sampleId, newS.sampleId);
-    
+
     return entries;
   }
 
@@ -100,25 +102,32 @@ class StationRepository extends ChangeNotifier {
       // Barcha rasmlarni o'chirish (yangi format)
       if (s.photoPaths != null) {
         for (var p in s.photoPaths!) {
-          try { await _deleteFile(p); } catch (e) {
+          try {
+            await _deleteFile(p);
+          } catch (e) {
             debugPrint('Failed to delete photo file "$p": $e');
           }
         }
       } else if (s.photoPath != null) {
         // Legacy format — orqaga moslik uchun
-        try { await _deleteFile(s.photoPath!); } catch (e) {
+        try {
+          await _deleteFile(s.photoPath!);
+        } catch (e) {
           debugPrint('Failed to delete legacy photo "${s.photoPath}": $e');
         }
       }
       if (s.audioPath != null) {
-        try { await _deleteFile(s.audioPath!); } catch (e) {
+        try {
+          await _deleteFile(s.audioPath!);
+        } catch (e) {
           debugPrint('Failed to delete audio "${s.audioPath}": $e');
         }
       }
     }
     await _box.delete(key);
     notifyListeners();
-    unawaited(_cloudSync.deleteStation(key)); // Remove from cloud (fon rejimida)
+    unawaited(
+        _cloudSync.deleteStation(key)); // Remove from cloud (fon rejimida)
   }
 
   /// Joriy foydalanuvchining BARCHA lokal stansiyalarini o'chiradi.
@@ -128,17 +137,23 @@ class StationRepository extends ChangeNotifier {
     for (var s in _box.values) {
       if (s.photoPaths != null) {
         for (var p in s.photoPaths!) {
-          try { await _deleteFile(p); } catch (e) {
+          try {
+            await _deleteFile(p);
+          } catch (e) {
             debugPrint('Failed to clear photo file "$p": $e');
           }
         }
       } else if (s.photoPath != null) {
-        try { await _deleteFile(s.photoPath!); } catch (e) {
+        try {
+          await _deleteFile(s.photoPath!);
+        } catch (e) {
           debugPrint('Failed to clear legacy photo "${s.photoPath}": $e');
         }
       }
       if (s.audioPath != null) {
-        try { await _deleteFile(s.audioPath!); } catch (e) {
+        try {
+          await _deleteFile(s.audioPath!);
+        } catch (e) {
           debugPrint('Failed to clear audio "${s.audioPath}": $e');
         }
       }
@@ -187,4 +202,3 @@ class StationRepository extends ChangeNotifier {
     notifyListeners();
   }
 }
-

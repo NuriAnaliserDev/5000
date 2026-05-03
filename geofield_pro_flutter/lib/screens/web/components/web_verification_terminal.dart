@@ -19,7 +19,8 @@ class WebVerificationTerminal extends StatefulWidget {
   });
 
   @override
-  State<WebVerificationTerminal> createState() => _WebVerificationTerminalState();
+  State<WebVerificationTerminal> createState() =>
+      _WebVerificationTerminalState();
 }
 
 class _WebVerificationTerminalState extends State<WebVerificationTerminal> {
@@ -45,7 +46,8 @@ class _WebVerificationTerminalState extends State<WebVerificationTerminal> {
 
   TextEditingController _getController(String key) {
     if (!_controllers.containsKey(key)) {
-      _controllers[key] = TextEditingController(text: _formData[key]?.toString() ?? '');
+      _controllers[key] =
+          TextEditingController(text: _formData[key]?.toString() ?? '');
     }
     return _controllers[key]!;
   }
@@ -79,7 +81,8 @@ class _WebVerificationTerminalState extends State<WebVerificationTerminal> {
             _buildTextField('To\'liq Blok (#)', 'block_full'),
             _buildTextField('Destination (MARG/SKLAD)', 'destination'),
             _buildTextField('Grade / Material (g/t)', 'grade'),
-            _buildTextField('Yuklar Soni (Total Loads)', 'total_loads', isNumber: true),
+            _buildTextField('Yuklar Soni (Total Loads)', 'total_loads',
+                isNumber: true),
             _buildTextField('Spoter', 'spotter'),
             _buildTextField('Ekskavator #', 'excavator', isNumber: true),
             _buildTextField('Sana', 'date'),
@@ -108,12 +111,16 @@ class _WebVerificationTerminalState extends State<WebVerificationTerminal> {
             _buildTextField('Sana', 'date'),
             _buildTextField('Smena', 'shift'),
             _buildTextField('Geolog', 'geologist'),
-            _buildTextField('Jami Yuklar (Grand Total)', 'grand_total', isNumber: true),
+            _buildTextField('Jami Yuklar (Grand Total)', 'grand_total',
+                isNumber: true),
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 8),
               child: Text(
                 'Loader ma\'lumotlari AI tomonidan o\'qiladi',
-                style: TextStyle(color: Colors.grey, fontSize: 12, fontStyle: FontStyle.italic),
+                style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic),
               ),
             ),
           ],
@@ -138,17 +145,30 @@ class _WebVerificationTerminalState extends State<WebVerificationTerminal> {
 
     return ListView(
       children: [
-        const Text('ASOSIY MA\'LUMOTLAR', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, letterSpacing: 1, color: Colors.blueGrey)),
+        const Text('ASOSIY MA\'LUMOTLAR',
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 11,
+                letterSpacing: 1,
+                color: Colors.blueGrey)),
         const SizedBox(height: 8),
         _buildTextField('Sana', 'header.date', initialValue: header['date']),
         _buildTextField('Smena', 'header.shift', initialValue: header['shift']),
-        _buildTextField('Uchastka', 'header.location', initialValue: header['location']),
-        _buildTextField('Xodim', 'header.driller', initialValue: header['driller']),
+        _buildTextField('Uchastka', 'header.location',
+            initialValue: header['location']),
+        _buildTextField('Xodim', 'header.driller',
+            initialValue: header['driller']),
         const SizedBox(height: 16),
-        const Text('HISOBOT JADVALI', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, letterSpacing: 1, color: Colors.blueGrey)),
+        const Text('HISOBOT JADVALI',
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 11,
+                letterSpacing: 1,
+                color: Colors.blueGrey)),
         const SizedBox(height: 8),
         if (table.isEmpty)
-          const Text('Jadval bo\'sh', style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic))
+          const Text('Jadval bo\'sh',
+              style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic))
         else
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -157,14 +177,21 @@ class _WebVerificationTerminalState extends State<WebVerificationTerminal> {
               dataRowMinHeight: 30,
               dataRowMaxHeight: 40,
               border: TableBorder.all(color: Colors.grey.shade200),
-              columns: (table.first as Map).keys.map((k) => DataColumn(label: Text(k.toString(), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)))).toList(),
+              columns: (table.first as Map)
+                  .keys
+                  .map((k) => DataColumn(
+                      label: Text(k.toString(),
+                          style: const TextStyle(
+                              fontSize: 10, fontWeight: FontWeight.bold))))
+                  .toList(),
               rows: table.map((row) {
                 final cells = (row as Map).keys.map((k) {
                   return DataCell(
                     TextFormField(
                       initialValue: row[k]?.toString() ?? '',
                       style: const TextStyle(fontSize: 10),
-                      decoration: const InputDecoration(border: InputBorder.none),
+                      decoration:
+                          const InputDecoration(border: InputBorder.none),
                       onChanged: (val) => row[k] = val,
                     ),
                   );
@@ -177,15 +204,19 @@ class _WebVerificationTerminalState extends State<WebVerificationTerminal> {
     );
   }
 
-  Widget _buildTextField(String label, String key, {bool isNumber = false, String? initialValue}) {
+  Widget _buildTextField(String label, String key,
+      {bool isNumber = false, String? initialValue}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10.0),
       child: TextFormField(
-        controller: initialValue != null ? (TextEditingController(text: initialValue)) : _getController(key),
+        controller: initialValue != null
+            ? (TextEditingController(text: initialValue))
+            : _getController(key),
         decoration: InputDecoration(
           labelText: label,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           isDense: true,
         ),
         keyboardType: isNumber ? TextInputType.number : TextInputType.text,
@@ -213,7 +244,8 @@ class _WebVerificationTerminalState extends State<WebVerificationTerminal> {
     setState(() => _isAiLoading = true);
     try {
       final aiService = AiTranslatorService();
-      final aiResult = await aiService.analyzeReportImage(widget.report.imageUrl);
+      final aiResult =
+          await aiService.analyzeReportImage(widget.report.imageUrl);
 
       if (aiResult.containsKey('error')) {
         throw Exception(aiResult['error']);
@@ -257,7 +289,9 @@ class _WebVerificationTerminalState extends State<WebVerificationTerminal> {
       await repo.verifyReport(widget.report.id, _formData, userName);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("✅ Muvaffaqiyatli tasdiqlandi!"), backgroundColor: Colors.green),
+          const SnackBar(
+              content: Text("✅ Muvaffaqiyatli tasdiqlandi!"),
+              backgroundColor: Colors.green),
         );
         widget.onDismiss?.call();
       }
@@ -288,7 +322,8 @@ class _WebVerificationTerminalState extends State<WebVerificationTerminal> {
             child: const Text('Bekor qilish'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red, foregroundColor: Colors.white),
             onPressed: () => ctx.pop(true),
             child: const Text('Rad etish'),
           ),
@@ -302,7 +337,9 @@ class _WebVerificationTerminalState extends State<WebVerificationTerminal> {
       await repo.deleteReport(widget.report.id);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("🗑️ Hisobot rad etildi."), backgroundColor: Colors.orange),
+        const SnackBar(
+            content: Text("🗑️ Hisobot rad etildi."),
+            backgroundColor: Colors.orange),
       );
       widget.onDismiss?.call();
     } catch (e) {
@@ -319,19 +356,27 @@ class _WebVerificationTerminalState extends State<WebVerificationTerminal> {
   // ─── Tur rangi ────────────────────────────────────────────────────────────
   Color get _typeColor {
     switch (widget.report.reportType) {
-      case 'ore_block': return const Color(0xFF1565C0);
-      case 'rc_drill': return const Color(0xFF6A1B9A);
-      case 'ore_stockpile': return const Color(0xFF2E7D32);
-      default: return Colors.grey;
+      case 'ore_block':
+        return const Color(0xFF1565C0);
+      case 'rc_drill':
+        return const Color(0xFF6A1B9A);
+      case 'ore_stockpile':
+        return const Color(0xFF2E7D32);
+      default:
+        return Colors.grey;
     }
   }
 
   String get _typeLabel {
     switch (widget.report.reportType) {
-      case 'ore_block': return '⛏️ Ore Block';
-      case 'rc_drill': return '🔩 RC Burg\'ulash';
-      case 'ore_stockpile': return '📊 Ore Stockpile';
-      default: return widget.report.reportType;
+      case 'ore_block':
+        return '⛏️ Ore Block';
+      case 'rc_drill':
+        return '🔩 RC Burg\'ulash';
+      case 'ore_stockpile':
+        return '📊 Ore Stockpile';
+      default:
+        return widget.report.reportType;
     }
   }
 
@@ -353,15 +398,20 @@ class _WebVerificationTerminalState extends State<WebVerificationTerminal> {
                     child: Image.network(
                       widget.report.imageUrl,
                       fit: BoxFit.contain,
-                      errorBuilder: (ctx, err, stack) =>
-                          const Center(child: Text("Rasm yuklanmadi", style: TextStyle(color: Colors.grey))),
+                      errorBuilder: (ctx, err, stack) => const Center(
+                          child: Text("Rasm yuklanmadi",
+                              style: TextStyle(color: Colors.grey))),
                       loadingBuilder: (ctx, child, progress) {
                         if (progress == null) return child;
-                        return const Center(child: CircularProgressIndicator(color: Colors.white));
+                        return const Center(
+                            child:
+                                CircularProgressIndicator(color: Colors.white));
                       },
                     ),
                   )
-                : const Center(child: Text("Rasm yo'q", style: TextStyle(color: Colors.white54))),
+                : const Center(
+                    child: Text("Rasm yo'q",
+                        style: TextStyle(color: Colors.white54))),
           ),
         ),
 
@@ -379,41 +429,52 @@ class _WebVerificationTerminalState extends State<WebVerificationTerminal> {
                   children: [
                     FlutterMap(
                       options: MapOptions(
-                        initialCenter: (widget.report.lat != null && widget.report.lng != null)
+                        initialCenter: (widget.report.lat != null &&
+                                widget.report.lng != null)
                             ? LatLng(widget.report.lat!, widget.report.lng!)
                             : const LatLng(41.2995, 69.2401),
                         initialZoom: 15,
-                        interactionOptions: const InteractionOptions(flags: InteractiveFlag.all),
+                        interactionOptions: const InteractionOptions(
+                            flags: InteractiveFlag.all),
                       ),
                       children: [
                         TileLayer(
-                          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                          urlTemplate:
+                              'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                           userAgentPackageName: 'com.aurum.geofieldpro',
                         ),
-                        if (widget.report.lat != null && widget.report.lng != null)
+                        if (widget.report.lat != null &&
+                            widget.report.lng != null)
                           MarkerLayer(
                             markers: [
                               Marker(
-                                point: LatLng(widget.report.lat!, widget.report.lng!),
+                                point: LatLng(
+                                    widget.report.lat!, widget.report.lng!),
                                 width: 40,
                                 height: 40,
-                                child: Icon(Icons.location_on, color: _typeColor, size: 40),
+                                child: Icon(Icons.location_on,
+                                    color: _typeColor, size: 40),
                               )
                             ],
                           ),
                       ],
                     ),
                     Positioned(
-                      top: 8, left: 8,
+                      top: 8,
+                      left: 8,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: Colors.black87,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           "📍 ${widget.report.authorName}",
-                          style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
@@ -434,15 +495,20 @@ class _WebVerificationTerminalState extends State<WebVerificationTerminal> {
                     children: [
                       // Tur badge
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
                           color: _typeColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: _typeColor.withValues(alpha: 0.4)),
+                          border: Border.all(
+                              color: _typeColor.withValues(alpha: 0.4)),
                         ),
                         child: Text(
                           "$_typeLabel — ${widget.report.authorName}",
-                          style: TextStyle(fontWeight: FontWeight.bold, color: _typeColor, fontSize: 12),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: _typeColor,
+                              fontSize: 12),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -453,10 +519,16 @@ class _WebVerificationTerminalState extends State<WebVerificationTerminal> {
                         height: 38,
                         child: ElevatedButton.icon(
                           icon: _isAiLoading
-                              ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                              ? const SizedBox(
+                                  width: 14,
+                                  height: 14,
+                                  child: CircularProgressIndicator(
+                                      color: Colors.white, strokeWidth: 2))
                               : const Icon(Icons.auto_awesome, size: 16),
                           label: Text(
-                            _isAiLoading ? "AI O'QIMOQDA..." : "🤖 AI AUTO-FILL",
+                            _isAiLoading
+                                ? "AI O'QIMOQDA..."
+                                : "🤖 AI AUTO-FILL",
                             style: const TextStyle(fontSize: 12),
                           ),
                           style: ElevatedButton.styleFrom(
@@ -483,15 +555,23 @@ class _WebVerificationTerminalState extends State<WebVerificationTerminal> {
                               height: 44,
                               child: OutlinedButton.icon(
                                 icon: _isRejecting
-                                    ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.red))
+                                    ? const SizedBox(
+                                        width: 14,
+                                        height: 14,
+                                        child: CircularProgressIndicator(
+                                            strokeWidth: 2, color: Colors.red))
                                     : const Icon(Icons.close, size: 16),
-                                label: const Text("RAD ETISH", style: TextStyle(fontSize: 12)),
+                                label: const Text("RAD ETISH",
+                                    style: TextStyle(fontSize: 12)),
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: Colors.red,
                                   side: const BorderSide(color: Colors.red),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8)),
                                 ),
-                                onPressed: (_isSaving || _isRejecting) ? null : _reject,
+                                onPressed: (_isSaving || _isRejecting)
+                                    ? null
+                                    : _reject,
                               ),
                             ),
                           ),
@@ -503,18 +583,28 @@ class _WebVerificationTerminalState extends State<WebVerificationTerminal> {
                               height: 44,
                               child: ElevatedButton.icon(
                                 icon: _isSaving
-                                    ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                                    ? const SizedBox(
+                                        width: 14,
+                                        height: 14,
+                                        child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 2))
                                     : const Icon(Icons.verified, size: 16),
                                 label: Text(
                                   _isSaving ? "SAQLANMOQDA..." : "TASDIQLASH",
-                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                  style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold),
                                 ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.green,
                                   foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8)),
                                 ),
-                                onPressed: (_isSaving || _isRejecting) ? null : _verify,
+                                onPressed: (_isSaving || _isRejecting)
+                                    ? null
+                                    : _verify,
                               ),
                             ),
                           ),

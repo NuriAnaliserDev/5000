@@ -16,12 +16,15 @@ class WebAnalyticsProductionBarCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: t.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)],
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Oxirgi 7 Kunlik Qazish (Reyslar Soni)", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const Text("Oxirgi 7 Kunlik Qazish (Reyslar Soni)",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 24),
           SizedBox(
             height: 350,
@@ -34,7 +37,8 @@ class WebAnalyticsProductionBarCard extends StatelessWidget {
 
   Widget _buildBarChart() {
     if (oreBlocks.isEmpty) {
-      return const Center(child: Text("Ma'lumot yo'q", style: TextStyle(color: Colors.grey)));
+      return const Center(
+          child: Text("Ma'lumot yo'q", style: TextStyle(color: Colors.grey)));
     }
 
     final now = DateTime.now();
@@ -49,7 +53,9 @@ class WebAnalyticsProductionBarCard extends StatelessWidget {
     for (final report in oreBlocks) {
       final key = dayFormat.format(report.createdAt);
       if (grouped.containsKey(key)) {
-        final loads = double.tryParse(report.parsedData['total_loads']?.toString() ?? '0') ?? 0;
+        final loads = double.tryParse(
+                report.parsedData['total_loads']?.toString() ?? '0') ??
+            0;
         grouped[key] = (grouped[key] ?? 0) + loads;
       }
     }
@@ -64,9 +70,13 @@ class WebAnalyticsProductionBarCard extends StatelessWidget {
         barTouchData: BarTouchData(
           enabled: true,
           touchTooltipData: BarTouchTooltipData(
-            getTooltipItem: (group, groupIndex, rod, rodIndex) => BarTooltipItem(
+            getTooltipItem: (group, groupIndex, rod, rodIndex) =>
+                BarTooltipItem(
               "${keys[group.x]} — ${rod.toY.toInt()} reys",
-              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+              const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12),
             ),
           ),
         ),
@@ -77,10 +87,15 @@ class WebAnalyticsProductionBarCard extends StatelessWidget {
               showTitles: true,
               getTitlesWidget: (value, meta) {
                 final idx = value.toInt();
-                if (idx < 0 || idx >= keys.length) return const SizedBox.shrink();
+                if (idx < 0 || idx >= keys.length)
+                  return const SizedBox.shrink();
                 return Padding(
                   padding: const EdgeInsets.only(top: 6.0),
-                  child: Text(keys[idx], style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
+                  child: Text(keys[idx],
+                      style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey)),
                 );
               },
             ),
@@ -88,8 +103,10 @@ class WebAnalyticsProductionBarCard extends StatelessWidget {
           leftTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: true, reservedSize: 36),
           ),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),
         borderData: FlBorderData(show: false),
         gridData: const FlGridData(show: true, drawVerticalLine: false),
@@ -106,7 +123,8 @@ class WebAnalyticsProductionBarCard extends StatelessWidget {
                   begin: Alignment.bottomCenter,
                   end: Alignment.topCenter,
                 ),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(6)),
               ),
             ],
           );

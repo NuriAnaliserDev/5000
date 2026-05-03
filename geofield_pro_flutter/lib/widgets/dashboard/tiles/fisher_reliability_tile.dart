@@ -45,7 +45,9 @@ class _FisherReliabilityTileState extends State<FisherReliabilityTile> {
     final reliable = stats.isReliable;
     final pct = reliable
         ? 95
-        : (100 - (stats.alpha95.isNaN ? 40 : math.min(stats.alpha95 * 4, 80))).round().clamp(15, 85);
+        : (100 - (stats.alpha95.isNaN ? 40 : math.min(stats.alpha95 * 4, 80)))
+            .round()
+            .clamp(15, 85);
     final accent = reliable ? const Color(0xFF4A90E2) : Colors.orange;
     final s = GeoFieldStrings.of(context);
 
@@ -75,9 +77,12 @@ class _FisherReliabilityTileState extends State<FisherReliabilityTile> {
                   ),
                   IconButton(
                     padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                    constraints:
+                        const BoxConstraints(minWidth: 28, minHeight: 28),
                     onPressed: () => showFisherReliabilityDetailSheet(context),
-                    icon: Icon(Icons.zoom_in_map, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    icon: Icon(Icons.zoom_in_map,
+                        size: 16,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant),
                     tooltip: context.loc('fisher_stats'),
                   ),
                 ],
@@ -125,7 +130,8 @@ class _FisherReliabilityTileState extends State<FisherReliabilityTile> {
               SizedBox(
                 height: 22,
                 child: CustomPaint(
-                  painter: _MiniWavePainter(color: accent.withValues(alpha: 0.55)),
+                  painter:
+                      _MiniWavePainter(color: accent.withValues(alpha: 0.55)),
                 ),
               ),
             ],
@@ -158,8 +164,10 @@ class _SemiGaugePainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
     const start = math.pi;
     final sweep = math.pi * progress;
-    canvas.drawArc(Rect.fromCircle(center: c, radius: r), start, math.pi, false, bg);
-    canvas.drawArc(Rect.fromCircle(center: c, radius: r), start, sweep, false, fg);
+    canvas.drawArc(
+        Rect.fromCircle(center: c, radius: r), start, math.pi, false, bg);
+    canvas.drawArc(
+        Rect.fromCircle(center: c, radius: r), start, sweep, false, fg);
   }
 
   @override

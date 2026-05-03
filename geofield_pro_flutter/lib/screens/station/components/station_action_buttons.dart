@@ -14,7 +14,7 @@ class StationActionButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Row(
       children: [
         Expanded(
@@ -22,7 +22,9 @@ class StationActionButtons extends StatelessWidget {
             height: 54,
             child: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: isDark ? Colors.white : Theme.of(context).colorScheme.primary,
+                backgroundColor: isDark
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.primary,
                 foregroundColor: isDark ? Colors.black : Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),

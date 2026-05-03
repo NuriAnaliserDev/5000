@@ -35,8 +35,11 @@ class StationMapHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasValidCoords = station != null && !(station!.lat == 0.0 && station!.lng == 0.0);
-    final center = hasValidCoords ? LatLng(station!.lat, station!.lng) : const LatLng(41.2995, 69.2401);
+    final hasValidCoords =
+        station != null && !(station!.lat == 0.0 && station!.lng == 0.0);
+    final center = hasValidCoords
+        ? LatLng(station!.lat, station!.lng)
+        : const LatLng(41.2995, 69.2401);
 
     return SizedBox(
       height: 260,

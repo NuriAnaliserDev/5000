@@ -8,6 +8,7 @@ class MapTopBar extends StatelessWidget {
   final SettingsController settings;
   final VoidCallback onStylePressed;
   final VoidCallback onSearchPressed;
+
   /// Masalan: Pro maydon (field workshop) ekranida sarlavha va orqaga chiqish.
   final Widget? leading;
   final String? titleOverride;
@@ -51,7 +52,8 @@ class MapTopBar extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    secondaryLineOverride ?? '$stationsCount ${context.loc('stations')}',
+                    secondaryLineOverride ??
+                        '$stationsCount ${context.loc('stations')}',
                     style: TextStyle(
                       fontSize: 12,
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -63,12 +65,14 @@ class MapTopBar extends StatelessWidget {
               ),
             ),
             IconButton(
-              icon: Icon(Icons.layers_outlined, color: Theme.of(context).colorScheme.primary),
+              icon: Icon(Icons.layers_outlined,
+                  color: Theme.of(context).colorScheme.primary),
               onPressed: onStylePressed,
               tooltip: context.loc('map_style'),
             ),
             IconButton(
-              icon: Icon(Icons.search, color: Theme.of(context).colorScheme.primary),
+              icon: Icon(Icons.search,
+                  color: Theme.of(context).colorScheme.primary),
               onPressed: onSearchPressed,
             ),
           ],

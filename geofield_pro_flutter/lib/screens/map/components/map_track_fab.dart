@@ -20,14 +20,16 @@ class MapTrackFab extends StatelessWidget {
             message: s.map_track_fab_aria,
             child: FloatingActionButton(
               heroTag: 'map_track_fab',
-              backgroundColor: active ? Colors.red.shade800 : const Color(0xFF1B5E20),
+              backgroundColor:
+                  active ? Colors.red.shade800 : const Color(0xFF1B5E20),
               onPressed: () async {
                 if (active) {
                   await trackSvc.stopTracking();
                   return;
                 }
-                final name = 'Trek-${DateTime.now().toIso8601String().substring(0, 19)}'
-                    .replaceAll(':', '.');
+                final name =
+                    'Trek-${DateTime.now().toIso8601String().substring(0, 19)}'
+                        .replaceAll(':', '.');
                 await trackSvc.startTracking(name);
                 if (!context.mounted) return;
                 if (!trackSvc.isTracking) {

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import '../utils/geology_utils.dart';
 
 class StereonetWidget extends StatelessWidget {
-  final List<Map<String, double>> measurements; // List of {'strike': 0.0, 'dip': 0.0}
+  final List<Map<String, double>>
+      measurements; // List of {'strike': 0.0, 'dip': 0.0}
   final bool showPoles;
   final bool showGreatCircles;
 
@@ -79,10 +80,14 @@ class _StereonetWidgetPainter extends CustomPainter {
     // N, E, S, W yorliqlari
     const textStyle = TextStyle(
         fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey);
-    _drawText(canvas, 'N', Offset(center.dx, center.dy - radius - 15), textStyle);
-    _drawText(canvas, 'S', Offset(center.dx, center.dy + radius + 5), textStyle);
-    _drawText(canvas, 'E', Offset(center.dx + radius + 10, center.dy - 5), textStyle);
-    _drawText(canvas, 'W', Offset(center.dx - radius - 20, center.dy - 5), textStyle);
+    _drawText(
+        canvas, 'N', Offset(center.dx, center.dy - radius - 15), textStyle);
+    _drawText(
+        canvas, 'S', Offset(center.dx, center.dy + radius + 5), textStyle);
+    _drawText(
+        canvas, 'E', Offset(center.dx + radius + 10, center.dy - 5), textStyle);
+    _drawText(
+        canvas, 'W', Offset(center.dx - radius - 20, center.dy - 5), textStyle);
 
     final polePaint = Paint()
       ..color = Colors.redAccent

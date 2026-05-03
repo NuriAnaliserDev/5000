@@ -12,14 +12,14 @@ class TrackPoint {
     required this.alt,
     required this.time,
   });
-  
+
   Map<String, dynamic> toJson() => {
-    'lat': lat,
-    'lng': lng,
-    'alt': alt,
-    'time': time.millisecondsSinceEpoch,
-  };
-  
+        'lat': lat,
+        'lng': lng,
+        'alt': alt,
+        'time': time.millisecondsSinceEpoch,
+      };
+
   factory TrackPoint.fromJson(Map<dynamic, dynamic> map) {
     return TrackPoint(
       lat: (map['lat'] as num).toDouble(),
@@ -36,7 +36,7 @@ class TrackData extends HiveObject {
   DateTime? endTime;
   List<TrackPoint> points;
   double distanceMeters;
-  
+
   // YANGI MAYDONLAR
   String? authorName;
   String? authorRole;
@@ -69,10 +69,13 @@ class TrackDataAdapter extends TypeAdapter<TrackData> {
     final name = reader.readString();
     final startTime = DateTime.fromMillisecondsSinceEpoch(reader.readInt());
     final hasEndTime = reader.readBool();
-    final endTime = hasEndTime ? DateTime.fromMillisecondsSinceEpoch(reader.readInt()) : null;
-    final points = (reader.readList()).map((e) => TrackPoint.fromJson(e as Map)).toList();
+    final endTime = hasEndTime
+        ? DateTime.fromMillisecondsSinceEpoch(reader.readInt())
+        : null;
+    final points =
+        (reader.readList()).map((e) => TrackPoint.fromJson(e as Map)).toList();
     final distanceMeters = reader.readDouble();
-    
+
     // Yangi maydonlarni o'qish (try-catch bilan eskirgan versiyalar uchun)
     String? authorName;
     String? authorRole;
@@ -113,7 +116,7 @@ class TrackDataAdapter extends TypeAdapter<TrackData> {
     }
     writer.writeList(obj.points.map((p) => p.toJson()).toList());
     writer.writeDouble(obj.distanceMeters);
-    
+
     // Yangi maydonlar
     writer.writeString(obj.authorName ?? '');
     writer.writeString(obj.authorRole ?? '');

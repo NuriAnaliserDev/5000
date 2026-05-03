@@ -144,7 +144,10 @@ class StationFormBody extends StatelessWidget {
             onMeasurementTypeChanged: onMeasurementTypeChanged,
             onSubMeasurementTypeChanged: onSubMeasurementTypeChanged,
           ),
-          if (expertMode) const Divider(height: 48) else const SizedBox(height: 16),
+          if (expertMode)
+            const Divider(height: 48)
+          else
+            const SizedBox(height: 16),
           StationFieldAssets(
             station: station,
             isDark: isDark,

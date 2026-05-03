@@ -92,8 +92,8 @@ class SpatialCalculator {
     final dLng = lng2 - lng1;
     final sinDLat = math.sin(dLat / 2);
     final sinDLng = math.sin(dLng / 2);
-    final a = sinDLat * sinDLat +
-        math.cos(lat1) * math.cos(lat2) * sinDLng * sinDLng;
+    final a =
+        sinDLat * sinDLat + math.cos(lat1) * math.cos(lat2) * sinDLng * sinDLng;
     return 2 * math.asin(math.sqrt(a));
   }
 

@@ -34,23 +34,27 @@ class AppCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final themeColor = Theme.of(context).colorScheme.surface;
     final effectiveBaseColor = baseColor ?? themeColor;
-    
+
     final innerContainer = Container(
       decoration: BoxDecoration(
         color: effectiveBaseColor.withValues(alpha: opacity),
         borderRadius: BorderRadius.circular(borderRadius),
-        border: border ?? Border.all(
-          color: (isDark ? Colors.white : Colors.black).withValues(alpha: isDark ? 0.16 : 0.1),
-          width: 1.0,
-        ),
-        gradient: isDark ? LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withValues(alpha: 0.05),
-            Colors.white.withValues(alpha: 0.01),
-          ],
-        ) : null,
+        border: border ??
+            Border.all(
+              color: (isDark ? Colors.white : Colors.black)
+                  .withValues(alpha: isDark ? 0.16 : 0.1),
+              width: 1.0,
+            ),
+        gradient: isDark
+            ? LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white.withValues(alpha: 0.05),
+                  Colors.white.withValues(alpha: 0.01),
+                ],
+              )
+            : null,
       ),
       padding: padding,
       child: child,
@@ -62,13 +66,14 @@ class AppCard extends StatelessWidget {
       margin: margin,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(borderRadius),
-        boxShadow: boxShadow ?? [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        boxShadow: boxShadow ??
+            [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
+              ),
+            ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius),

@@ -20,24 +20,27 @@ class AdvancedSensorTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            context.loc('gps_performance'), 
-            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)
-          ),
+          Text(context.loc('gps_performance'),
+              style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey)),
           const Spacer(),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _sensorSubItem(context.loc('hdop'), '0.8', Colors.green),
               _sensorSubItem(context.loc('satellites'), '14', Colors.blue),
-              _sensorSubItem(context.loc('acc_label'), '±${loc.accuracy.toStringAsFixed(1)}m', Colors.green),
+              _sensorSubItem(context.loc('acc_label'),
+                  '±${loc.accuracy.toStringAsFixed(1)}m', Colors.green),
             ],
           ),
           const Spacer(),
-          Text(
-            context.loc('rtk_fixed'), 
-            style: const TextStyle(fontSize: 8, color: Colors.green, fontWeight: FontWeight.bold)
-          ),
+          Text(context.loc('rtk_fixed'),
+              style: const TextStyle(
+                  fontSize: 8,
+                  color: Colors.green,
+                  fontWeight: FontWeight.bold)),
         ],
       ),
     );
@@ -46,14 +49,10 @@ class AdvancedSensorTile extends StatelessWidget {
   Widget _sensorSubItem(String label, String value, Color color) {
     return Column(
       children: [
-        Text(
-          value, 
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: color)
-        ),
-        Text(
-          label, 
-          style: const TextStyle(fontSize: 8, color: Colors.grey)
-        ),
+        Text(value,
+            style: TextStyle(
+                fontSize: 14, fontWeight: FontWeight.w900, color: color)),
+        Text(label, style: const TextStyle(fontSize: 8, color: Colors.grey)),
       ],
     );
   }

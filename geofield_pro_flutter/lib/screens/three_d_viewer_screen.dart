@@ -20,7 +20,7 @@ class _ThreeDViewerScreenState extends State<ThreeDViewerScreen> {
   double _rotationX = 0.5;
   double _rotationY = 0.5;
   double _zoom = 1.0;
-  
+
   late LatLng _center;
   late double _avgAlt;
 
@@ -29,10 +29,12 @@ class _ThreeDViewerScreenState extends State<ThreeDViewerScreen> {
     super.initState();
     final repo = context.read<StationRepository>();
     final stations = repo.stations;
-    
+
     if (stations.isNotEmpty) {
-      _center = widget.centerPoint ?? LatLng(stations.first.lat, stations.first.lng);
-      _avgAlt = stations.map((e) => e.altitude).reduce((a, b) => a + b) / stations.length;
+      _center =
+          widget.centerPoint ?? LatLng(stations.first.lat, stations.first.lng);
+      _avgAlt = stations.map((e) => e.altitude).reduce((a, b) => a + b) /
+          stations.length;
     } else {
       _center = const LatLng(0, 0);
       _avgAlt = 0;
@@ -50,7 +52,8 @@ class _ThreeDViewerScreenState extends State<ThreeDViewerScreen> {
         appBar: AppBar(
           title: Text(
             s?.three_d_structure ?? '3D',
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+            style: const TextStyle(
+                fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.2),
           ),
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -61,7 +64,8 @@ class _ThreeDViewerScreenState extends State<ThreeDViewerScreen> {
             child: Text(
               s?.viewer_3d_no_data ?? '',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.white70, fontSize: 15, height: 1.4),
+              style: const TextStyle(
+                  color: Colors.white70, fontSize: 15, height: 1.4),
             ),
           ),
         ),
@@ -73,7 +77,8 @@ class _ThreeDViewerScreenState extends State<ThreeDViewerScreen> {
       appBar: AppBar(
         title: Text(
           s?.three_d_structure ?? '3D',
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+          style: const TextStyle(
+              fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.2),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -117,11 +122,13 @@ class _ThreeDViewerScreenState extends State<ThreeDViewerScreen> {
                 color: Colors.black.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(8),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   child: Text(
                     s?.viewer_3d_nothing_visible ?? '',
                     textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white70, fontSize: 11, height: 1.3),
+                    style: const TextStyle(
+                        color: Colors.white70, fontSize: 11, height: 1.3),
                   ),
                 ),
               ),
@@ -136,7 +143,8 @@ class _ThreeDViewerScreenState extends State<ThreeDViewerScreen> {
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxHeight: 100),
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     child: Text(
                       s?.viewer_3d_legend ?? '',
                       style: const TextStyle(
@@ -172,13 +180,15 @@ class _ThreeDViewerScreenState extends State<ThreeDViewerScreen> {
             children: [
               FloatingActionButton.small(
                 heroTag: 'zoom_in',
-                onPressed: () => setState(() => _zoom = (_zoom * 1.2).clamp(0.2, 8.0)),
+                onPressed: () =>
+                    setState(() => _zoom = (_zoom * 1.2).clamp(0.2, 8.0)),
                 child: const Icon(Icons.add),
               ),
               const SizedBox(height: 16),
               FloatingActionButton.small(
                 heroTag: 'zoom_out',
-                onPressed: () => setState(() => _zoom = (_zoom / 1.2).clamp(0.2, 8.0)),
+                onPressed: () =>
+                    setState(() => _zoom = (_zoom / 1.2).clamp(0.2, 8.0)),
                 child: const Icon(Icons.remove),
               ),
             ],
@@ -209,7 +219,8 @@ class Structural3DPainter extends CustomPainter {
   /// Metr koordinatalarni ekran ichidagi qabul qilinadigan diapazonga qisqartiramiz
   static const double _worldScale = 0.00015;
 
-  Offset3D _w(Offset3D p) => Offset3D(p.x * _worldScale, p.y * _worldScale, p.z * _worldScale);
+  Offset3D _w(Offset3D p) =>
+      Offset3D(p.x * _worldScale, p.y * _worldScale, p.z * _worldScale);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -236,20 +247,24 @@ class Structural3DPainter extends CustomPainter {
         centerAlt,
       );
       final scaledCenter = _w(localPos);
-      final screenPos = ThreeDMathUtils.projectToScreen(scaledCenter, viewMatrix, size);
+      final screenPos =
+          ThreeDMathUtils.projectToScreen(scaledCenter, viewMatrix, size);
 
-      final planePoints = ThreeDMathUtils.getStrikeDipPlane(localPos, s.strike, s.dip, 40.0);
+      final planePoints =
+          ThreeDMathUtils.getStrikeDipPlane(localPos, s.strike, s.dip, 40.0);
       final screenPlanePoints = planePoints
           .map((p) => ThreeDMathUtils.projectToScreen(_w(p), viewMatrix, size))
           .toList();
-      final okPlane = screenPlanePoints.where((p) => p != Offset.zero).length >= 3;
+      final okPlane =
+          screenPlanePoints.where((p) => p != Offset.zero).length >= 3;
       if (okPlane) {
         final path = ui.Path()..addPolygon(screenPlanePoints, true);
         canvas.drawPath(
           path,
           Paint()
             ..style = PaintingStyle.fill
-            ..color = Colors.orange.withValues(alpha: 0.35 + (s.dip / 180) * 0.3),
+            ..color =
+                Colors.orange.withValues(alpha: 0.35 + (s.dip / 180) * 0.3),
         );
         canvas.drawPath(
           path,
@@ -275,9 +290,16 @@ class Structural3DPainter extends CustomPainter {
         final TextPainter tp = TextPainter(
           text: TextSpan(
             text: s.name,
-            style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w600, shadows: [
-              Shadow(offset: Offset(0.5, 0.5), blurRadius: 2, color: Colors.black),
-            ]),
+            style: const TextStyle(
+                color: Colors.white,
+                fontSize: 9,
+                fontWeight: FontWeight.w600,
+                shadows: [
+                  Shadow(
+                      offset: Offset(0.5, 0.5),
+                      blurRadius: 2,
+                      color: Colors.black),
+                ]),
           ),
           textDirection: TextDirection.ltr,
         )..layout(maxWidth: 80);
@@ -301,7 +323,9 @@ class Structural3DPainter extends CustomPainter {
         ..strokeWidth = 1.5,
     );
     final tp = TextPainter(
-      text: TextSpan(text: '${dip.toStringAsFixed(0)}°', style: const TextStyle(color: Colors.cyanAccent, fontSize: 7)),
+      text: TextSpan(
+          text: '${dip.toStringAsFixed(0)}°',
+          style: const TextStyle(color: Colors.cyanAccent, fontSize: 7)),
       textDirection: TextDirection.ltr,
     )..layout();
     tp.paint(canvas, c + const Offset(6, 0));
@@ -336,23 +360,35 @@ class Structural3DPainter extends CustomPainter {
     const ax = 0.4;
     final ox = ThreeDMathUtils.projectToScreen(o, viewMatrix, size);
     if (ox == Offset.zero) return;
-    final ex = ThreeDMathUtils.projectToScreen(_w(Offset3D(ax, 0, 0)), viewMatrix, size);
-    final ey = ThreeDMathUtils.projectToScreen(_w(Offset3D(0, ax, 0)), viewMatrix, size);
+    final ex = ThreeDMathUtils.projectToScreen(
+        _w(Offset3D(ax, 0, 0)), viewMatrix, size);
+    final ey = ThreeDMathUtils.projectToScreen(
+        _w(Offset3D(0, ax, 0)), viewMatrix, size);
     if (ex != Offset.zero) {
-      canvas.drawLine(ox, ex, Paint()..color = Colors.redAccent..strokeWidth = 1.2);
+      canvas.drawLine(
+          ox,
+          ex,
+          Paint()
+            ..color = Colors.redAccent
+            ..strokeWidth = 1.2);
     }
     if (ey != Offset.zero) {
-      canvas.drawLine(ox, ey, Paint()..color = Colors.lightGreen..strokeWidth = 1.2);
+      canvas.drawLine(
+          ox,
+          ey,
+          Paint()
+            ..color = Colors.lightGreen
+            ..strokeWidth = 1.2);
     }
   }
 
   @override
   bool shouldRepaint(covariant Structural3DPainter oldDelegate) {
     return oldDelegate.stations != stations ||
-           oldDelegate.center != center ||
-           oldDelegate.centerAlt != centerAlt ||
-           oldDelegate.rotX != rotX ||
-           oldDelegate.rotY != rotY ||
-           oldDelegate.zoom != zoom;
+        oldDelegate.center != center ||
+        oldDelegate.centerAlt != centerAlt ||
+        oldDelegate.rotX != rotX ||
+        oldDelegate.rotY != rotY ||
+        oldDelegate.zoom != zoom;
   }
 }

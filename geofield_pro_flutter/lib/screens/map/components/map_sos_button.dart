@@ -121,8 +121,7 @@ class MapSosButton extends StatelessWidget {
             child: InkWell(
               onTap: () async {
                 HapticFeedback.mediumImpact();
-                final ok =
-                    await context.read<SosService>().cancelMyActiveSos();
+                final ok = await context.read<SosService>().cancelMyActiveSos();
                 if (!context.mounted) {
                   return;
                 }

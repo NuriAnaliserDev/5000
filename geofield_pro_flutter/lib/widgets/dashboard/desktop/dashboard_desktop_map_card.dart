@@ -10,7 +10,9 @@ class DashboardDesktopMapCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final center = stations.isEmpty ? const LatLng(41.2995, 69.2401) : LatLng(stations.last.lat, stations.last.lng);
+    final center = stations.isEmpty
+        ? const LatLng(41.2995, 69.2401)
+        : LatLng(stations.last.lat, stations.last.lng);
 
     return Container(
       decoration: BoxDecoration(
@@ -27,12 +29,17 @@ class DashboardDesktopMapCard extends StatelessWidget {
               userAgentPackageName: 'com.geofield.pro.flutter',
             ),
             MarkerLayer(
-              markers: stations.map((s) => Marker(
-                point: LatLng(s.lat, s.lng),
-                width: 12,
-                height: 12,
-                child: Container(decoration: const BoxDecoration(color: Colors.blueAccent, shape: BoxShape.circle)),
-              )).toList(),
+              markers: stations
+                  .map((s) => Marker(
+                        point: LatLng(s.lat, s.lng),
+                        width: 12,
+                        height: 12,
+                        child: Container(
+                            decoration: const BoxDecoration(
+                                color: Colors.blueAccent,
+                                shape: BoxShape.circle)),
+                      ))
+                  .toList(),
             ),
             const Positioned(
               top: 10,
@@ -42,7 +49,11 @@ class DashboardDesktopMapCard extends StatelessWidget {
                   children: [
                     Icon(Icons.map, color: Colors.blue, size: 16),
                     SizedBox(width: 8),
-                    Text('Field Map View', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.black87)),
+                    Text('Field Map View',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            color: Colors.black87)),
                   ],
                 ),
               ),

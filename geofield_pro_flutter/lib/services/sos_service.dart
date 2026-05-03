@@ -34,8 +34,7 @@ class EmergencySignal {
       senderUid: map['senderUid'] ?? '',
       senderName: map['senderName'] ?? 'Unknown',
       position: LatLng(map['lat'] ?? 0.0, map['lng'] ?? 0.0),
-      timestamp:
-          (map['timestamp'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      timestamp: (map['timestamp'] as Timestamp?)?.toDate() ?? DateTime.now(),
       isActive: map['isActive'] ?? true,
     );
   }

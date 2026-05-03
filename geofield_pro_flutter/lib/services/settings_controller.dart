@@ -15,6 +15,7 @@ class SettingsController extends ChangeNotifier {
   static const _languageKey = 'language';
   static const _ecoModeKey = 'ecoMode';
   static const _geologicalArKey = 'geologicalArEnabled';
+
   /// Bir martalik: avvalgi standart (AR yoqilgan) tufayli qora ekran/snapshot muammolaridan chiqish.
   static const _geologicalArMigratedDefaultOffKey =
       'geologicalArMigratedDefaultOff202605';
@@ -56,7 +57,7 @@ class SettingsController extends ChangeNotifier {
   }
 
   static const _calibrationKey = 'hasDismissedCalibration';
-  
+
   bool get hasDismissedCalibration =>
       _box.get(_calibrationKey, defaultValue: false) as bool;
 
@@ -72,20 +73,22 @@ class SettingsController extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool get hasSeenMapTutorial => _box.get(_mapTutorialKey, defaultValue: false) as bool;
+  bool get hasSeenMapTutorial =>
+      _box.get(_mapTutorialKey, defaultValue: false) as bool;
   set hasSeenMapTutorial(bool value) {
     _box.put(_mapTutorialKey, value);
     notifyListeners();
   }
 
-  bool get hasSeenCameraTutorial => _box.get(_cameraTutorialKey, defaultValue: false) as bool;
+  bool get hasSeenCameraTutorial =>
+      _box.get(_cameraTutorialKey, defaultValue: false) as bool;
   set hasSeenCameraTutorial(bool value) {
     _box.put(_cameraTutorialKey, value);
     notifyListeners();
   }
 
   static const _pixelsPerMmKey = 'pixelsPerMm';
-  
+
   double get pixelsPerMm =>
       _box.get(_pixelsPerMmKey, defaultValue: 6.0) as double;
 
@@ -95,7 +98,7 @@ class SettingsController extends ChangeNotifier {
   }
 
   String get language => _box.get(_languageKey, defaultValue: 'uz') as String;
-  
+
   set language(String value) {
     _box.put(_languageKey, value);
     notifyListeners();
@@ -138,14 +141,14 @@ class SettingsController extends ChangeNotifier {
   set currentProject(String value) {
     final v = value.trim().isEmpty ? 'Default' : value.trim();
     _box.put(_projectKey, v);
-    
+
     // Add to project list if not exists
     final currentList = projects;
     if (!currentList.contains(v)) {
       currentList.add(v);
       _box.put(_projectsListKey, currentList);
     }
-    
+
     notifyListeners();
   }
 
@@ -161,7 +164,7 @@ class SettingsController extends ChangeNotifier {
 
   void renameProject(String oldName, String newName) {
     if (oldName == 'Default' || oldName == newName) return;
-    
+
     final currentList = projects;
     if (currentList.contains(oldName)) {
       currentList.remove(oldName);
@@ -169,7 +172,7 @@ class SettingsController extends ChangeNotifier {
         currentList.add(newName);
       }
       _box.put(_projectsListKey, currentList);
-      
+
       if (currentProject == oldName) {
         _box.put(_projectKey, newName);
       }
@@ -179,12 +182,12 @@ class SettingsController extends ChangeNotifier {
 
   void deleteProject(String projectName) {
     if (projectName == 'Default') return;
-    
+
     final currentList = projects;
     if (currentList.contains(projectName)) {
       currentList.remove(projectName);
       _box.put(_projectsListKey, currentList);
-      
+
       if (currentProject == projectName) {
         _box.put(_projectKey, 'Default');
       }
@@ -240,7 +243,8 @@ class SettingsController extends ChangeNotifier {
 
   static const _mapStyleKey = 'mapStyle';
 
-  String get mapStyle => _box.get(_mapStyleKey, defaultValue: 'opentopomap') as String;
+  String get mapStyle =>
+      _box.get(_mapStyleKey, defaultValue: 'opentopomap') as String;
 
   set mapStyle(String value) {
     if (['opentopomap', 'osm', 'satellite', 'mbtiles'].contains(value)) {
@@ -252,7 +256,8 @@ class SettingsController extends ChangeNotifier {
   static const _snapToGridMetersKey = 'snapToGridMeters';
 
   /// 0 — panjaraga yopishish yo‘q; 5 / 10 / 25 m.
-  int get snapToGridMeters => _box.get(_snapToGridMetersKey, defaultValue: 0) as int;
+  int get snapToGridMeters =>
+      _box.get(_snapToGridMetersKey, defaultValue: 0) as int;
 
   set snapToGridMeters(int value) {
     const allowed = {0, 5, 10, 25};
@@ -307,4 +312,3 @@ class SettingsController extends ChangeNotifier {
     notifyListeners();
   }
 }
-

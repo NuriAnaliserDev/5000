@@ -13,8 +13,8 @@ Polygon mapPolygonForBoundary(
   dynamic currentPos,
   double gisLayerOpacity,
 ) {
-  final isActive =
-      currentPos != null && b.containsPoint(LatLng(currentPos.latitude, currentPos.longitude));
+  final isActive = currentPos != null &&
+      b.containsPoint(LatLng(currentPos.latitude, currentPos.longitude));
   final fillAlpha = isActive ? 0.32 : math.max(0.18, 0.38 * gisLayerOpacity);
   return Polygon(
     points: b.points,
@@ -31,7 +31,8 @@ Polygon mapPolygonForBoundary(
 Polygon mapPolygonForGeologicalLine(GeologicalLine l) {
   final color = l.colorHex != null
       ? Color(int.parse(l.colorHex!, radix: 16) + 0xFF000000)
-      : Color(int.parse(GeologicalLine.defaultColorHex(l.lineType), radix: 16) + 0xFF000000);
+      : Color(int.parse(GeologicalLine.defaultColorHex(l.lineType), radix: 16) +
+          0xFF000000);
   return Polygon(
     points: List.generate(l.lats.length, (i) => LatLng(l.lats[i], l.lngs[i])),
     color: color.withValues(alpha: 0.4),

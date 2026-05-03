@@ -38,22 +38,31 @@ class Structural3DPainter extends CustomPainter {
 
     final paintPoint = Paint()..color = pointColor;
     final paintPlane = Paint()..style = PaintingStyle.fill;
-    final paintLine = Paint()..style = PaintingStyle.stroke..strokeWidth = 1;
+    final paintLine = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
 
     for (var s in stations) {
-      final localPos = ThreeDMathUtils.projectToLocal(LatLng(s.lat, s.lng), s.altitude, center, centerAlt);
-      final screenPos = ThreeDMathUtils.projectToScreen(localPos, viewMatrix, size);
+      final localPos = ThreeDMathUtils.projectToLocal(
+          LatLng(s.lat, s.lng), s.altitude, center, centerAlt);
+      final screenPos =
+          ThreeDMathUtils.projectToScreen(localPos, viewMatrix, size);
 
       if (screenPos == Offset.zero) continue;
 
       // Draw Strike/Dip Plane
-      final planePoints = ThreeDMathUtils.getStrikeDipPlane(localPos, s.strike, s.dip, 50.0);
-      final screenPlanePoints = planePoints.map((p) => ThreeDMathUtils.projectToScreen(p, viewMatrix, size)).toList();
+      final planePoints =
+          ThreeDMathUtils.getStrikeDipPlane(localPos, s.strike, s.dip, 50.0);
+      final screenPlanePoints = planePoints
+          .map((p) => ThreeDMathUtils.projectToScreen(p, viewMatrix, size))
+          .toList();
 
       if (screenPlanePoints.every((p) => p != Offset.zero)) {
         final path = ui.Path()..addPolygon(screenPlanePoints, true);
-        canvas.drawPath(path, paintPlane..color = planeColor.withValues(alpha: 0.25));
-        canvas.drawPath(path, paintLine..color = planeColor.withValues(alpha: 0.5));
+        canvas.drawPath(
+            path, paintPlane..color = planeColor.withValues(alpha: 0.25));
+        canvas.drawPath(
+            path, paintLine..color = planeColor.withValues(alpha: 0.5));
       }
 
       // Draw point

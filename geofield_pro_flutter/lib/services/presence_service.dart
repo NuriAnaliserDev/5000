@@ -77,7 +77,8 @@ class PresenceService extends ChangeNotifier {
   }
 
   /// Starts periodic location updates for the current user
-  void startBroadcasting(LatLng Function() getPosition, String name, String role) {
+  void startBroadcasting(
+      LatLng Function() getPosition, String name, String role) {
     _presenceTimer?.cancel();
     final first = getPosition();
     _lastSentPosition = first;
@@ -100,7 +101,8 @@ class PresenceService extends ChangeNotifier {
     });
   }
 
-  Future<void> _updatePresence(LatLng position, String name, String role, bool isOnline) async {
+  Future<void> _updatePresence(
+      LatLng position, String name, String role, bool isOnline) async {
     final user = _auth?.currentUser;
     if (user == null) return;
     final fs = _firestore;

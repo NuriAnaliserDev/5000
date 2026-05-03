@@ -32,10 +32,8 @@ class GeologicalLineRepository extends ChangeNotifier {
     _remoteSubscription?.cancel();
     final fs = _firestore;
     if (fs == null) return;
-    _remoteSubscription = fs
-        .collection('geological_lines')
-        .snapshots()
-        .listen((snapshot) async {
+    _remoteSubscription =
+        fs.collection('geological_lines').snapshots().listen((snapshot) async {
       bool changed = false;
       for (var doc in snapshot.docs) {
         final remoteLine = GeologicalLine.fromMap(doc.data());
@@ -77,7 +75,10 @@ class GeologicalLineRepository extends ChangeNotifier {
       if (!snap.exists) return;
       final v = snap.data()?['ownerUid'];
       if (v != null && v.toString().isNotEmpty) return;
-      await fs.collection('geological_lines').doc(docId).update({'ownerUid': uid});
+      await fs
+          .collection('geological_lines')
+          .doc(docId)
+          .update({'ownerUid': uid});
     } catch (e) {
       debugPrint('_ensureLineOwnerClaim: $e');
     }

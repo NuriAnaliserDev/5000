@@ -50,7 +50,8 @@ class _WebSettingsScreenState extends State<WebSettingsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tizim Sozlamalari', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('Tizim Sozlamalari',
+            style: TextStyle(fontWeight: FontWeight.bold)),
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),
@@ -61,7 +62,6 @@ class _WebSettingsScreenState extends State<WebSettingsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               // ── Foydalanuvchi Ma'lumotlari ──────────────────────────────
               _sectionTitle(context, 'Foydalanuvchi', Icons.person_outline),
               _card(
@@ -71,7 +71,9 @@ class _WebSettingsScreenState extends State<WebSettingsScreen> {
                     _infoRow(
                       icon: Icons.badge_outlined,
                       label: 'Foydalanuvchi',
-                      value: auth.currentUser?.email ?? settings.currentUserName ?? 'Noma\'lum',
+                      value: auth.currentUser?.email ??
+                          settings.currentUserName ??
+                          'Noma\'lum',
                     ),
                     const Divider(height: 1),
                     _infoRow(
@@ -81,9 +83,12 @@ class _WebSettingsScreenState extends State<WebSettingsScreen> {
                     ),
                     const Divider(height: 1),
                     ListTile(
-                      leading: const Icon(Icons.logout, color: Colors.redAccent),
-                      title: const Text('Tizimdan Chiqish', style: TextStyle(color: Colors.redAccent)),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.redAccent),
+                      leading:
+                          const Icon(Icons.logout, color: Colors.redAccent),
+                      title: const Text('Tizimdan Chiqish',
+                          style: TextStyle(color: Colors.redAccent)),
+                      trailing: const Icon(Icons.arrow_forward_ios,
+                          size: 14, color: Colors.redAccent),
                       onTap: () async {
                         await auth.logout();
                         if (context.mounted) {
@@ -99,17 +104,28 @@ class _WebSettingsScreenState extends State<WebSettingsScreen> {
               const SizedBox(height: 24),
 
               // ── Ko'rinish ───────────────────────────────────────────────
-              _sectionTitle(context, 'Ko\'rinish (Tema)', Icons.palette_outlined),
+              _sectionTitle(
+                  context, 'Ko\'rinish (Tema)', Icons.palette_outlined),
               _card(
                 t,
                 child: SegmentedButton<ThemeMode>(
                   segments: const [
-                    ButtonSegment(value: ThemeMode.light, label: Text('Yorug\''), icon: Icon(Icons.light_mode, size: 16)),
-                    ButtonSegment(value: ThemeMode.dark, label: Text('Qorong\'u'), icon: Icon(Icons.dark_mode, size: 16)),
-                    ButtonSegment(value: ThemeMode.system, label: Text('Tizim'), icon: Icon(Icons.settings_suggest, size: 16)),
+                    ButtonSegment(
+                        value: ThemeMode.light,
+                        label: Text('Yorug\''),
+                        icon: Icon(Icons.light_mode, size: 16)),
+                    ButtonSegment(
+                        value: ThemeMode.dark,
+                        label: Text('Qorong\'u'),
+                        icon: Icon(Icons.dark_mode, size: 16)),
+                    ButtonSegment(
+                        value: ThemeMode.system,
+                        label: Text('Tizim'),
+                        icon: Icon(Icons.settings_suggest, size: 16)),
                   ],
                   selected: {themeCtrl.mode},
-                  onSelectionChanged: (values) => themeCtrl.setMode(values.first),
+                  onSelectionChanged: (values) =>
+                      themeCtrl.setMode(values.first),
                 ),
               ),
 
@@ -121,11 +137,14 @@ class _WebSettingsScreenState extends State<WebSettingsScreen> {
                 t,
                 child: Column(
                   children: [
-                    _mapStyleTile(settings, 'opentopomap', 'OpenTopoMap (Topografik)', Icons.terrain),
+                    _mapStyleTile(settings, 'opentopomap',
+                        'OpenTopoMap (Topografik)', Icons.terrain),
                     const Divider(height: 1),
-                    _mapStyleTile(settings, 'osm', 'OpenStreetMap (Standart)', Icons.map),
+                    _mapStyleTile(
+                        settings, 'osm', 'OpenStreetMap (Standart)', Icons.map),
                     const Divider(height: 1),
-                    _mapStyleTile(settings, 'satellite', 'Yo\'ldosh Tasviri', Icons.satellite_alt),
+                    _mapStyleTile(settings, 'satellite', 'Yo\'ldosh Tasviri',
+                        Icons.satellite_alt),
                   ],
                 ),
               ),
@@ -133,7 +152,8 @@ class _WebSettingsScreenState extends State<WebSettingsScreen> {
               const SizedBox(height: 24),
 
               // ── Sinxronizatsiya ─────────────────────────────────────────
-              _sectionTitle(context, 'Ma\'lumotlar Sinxronizatsiyasi', Icons.sync_outlined),
+              _sectionTitle(context, 'Ma\'lumotlar Sinxronizatsiyasi',
+                  Icons.sync_outlined),
               _card(
                 t,
                 child: Column(
@@ -144,9 +164,12 @@ class _WebSettingsScreenState extends State<WebSettingsScreen> {
                         padding: const EdgeInsets.all(12),
                         child: Row(
                           children: [
-                            const Icon(Icons.check_circle, color: Colors.green, size: 16),
+                            const Icon(Icons.check_circle,
+                                color: Colors.green, size: 16),
                             const SizedBox(width: 8),
-                            Text(_lastSyncText!, style: const TextStyle(color: Colors.green, fontSize: 13)),
+                            Text(_lastSyncText!,
+                                style: const TextStyle(
+                                    color: Colors.green, fontSize: 13)),
                           ],
                         ),
                       ),
@@ -154,18 +177,26 @@ class _WebSettingsScreenState extends State<WebSettingsScreen> {
                     ],
                     ListTile(
                       leading: _isSyncing
-                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                          : const Icon(Icons.cloud_sync_outlined, color: Color(0xFF1565C0)),
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2))
+                          : const Icon(Icons.cloud_sync_outlined,
+                              color: Color(0xFF1565C0)),
                       title: const Text('Hozir Sinxronizatsiya Qilish'),
-                      subtitle: const Text('Barcha ma\'lumotlarni Firebase ga yuklaydi', style: TextStyle(fontSize: 12)),
+                      subtitle: const Text(
+                          'Barcha ma\'lumotlarni Firebase ga yuklaydi',
+                          style: TextStyle(fontSize: 12)),
                       trailing: ElevatedButton(
                         onPressed: _isSyncing ? null : _triggerSync,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF1565C0),
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
                         ),
-                        child: Text(_isSyncing ? 'YUKLANMOQDA...' : 'SINXRONLASH'),
+                        child:
+                            Text(_isSyncing ? 'YUKLANMOQDA...' : 'SINXRONLASH'),
                       ),
                     ),
                   ],
@@ -175,15 +206,18 @@ class _WebSettingsScreenState extends State<WebSettingsScreen> {
               const SizedBox(height: 24),
 
               // ── Ma'lumotlarni Tozalash ──────────────────────────────────
-              _sectionTitle(context, 'Ma\'lumotlarni Boshqarish', Icons.storage_outlined),
+              _sectionTitle(
+                  context, 'Ma\'lumotlarni Boshqarish', Icons.storage_outlined),
               _card(
                 t,
                 child: Column(
                   children: [
                     ListTile(
-                      leading: const Icon(Icons.auto_delete_outlined, color: Colors.orange),
+                      leading: const Icon(Icons.auto_delete_outlined,
+                          color: Colors.orange),
                       title: const Text('Avtomatik Tozalash (Kunlar)'),
-                      subtitle: Text('${settings.autoPurgeDays} kundan eski ma\'lumotlar o\'chiriladi'),
+                      subtitle: Text(
+                          '${settings.autoPurgeDays} kundan eski ma\'lumotlar o\'chiriladi'),
                       trailing: SizedBox(
                         width: 80,
                         child: DropdownButton<int>(
@@ -194,7 +228,8 @@ class _WebSettingsScreenState extends State<WebSettingsScreen> {
                             DropdownMenuItem(value: 30, child: Text('30 kun')),
                             DropdownMenuItem(value: 60, child: Text('60 kun')),
                             DropdownMenuItem(value: 90, child: Text('90 kun')),
-                            DropdownMenuItem(value: 180, child: Text('180 kun')),
+                            DropdownMenuItem(
+                                value: 180, child: Text('180 kun')),
                           ],
                           onChanged: (val) {
                             if (val != null) settings.autoPurgeDays = val;
@@ -220,13 +255,25 @@ class _WebSettingsScreenState extends State<WebSettingsScreen> {
                 t,
                 child: Column(
                   children: [
-                    _infoRow(icon: Icons.app_settings_alt, label: 'Ilova Versiyasi', value: 'v${settings.appVersion} (Web)'),
+                    _infoRow(
+                        icon: Icons.app_settings_alt,
+                        label: 'Ilova Versiyasi',
+                        value: 'v${settings.appVersion} (Web)'),
                     const Divider(height: 1),
-                    _infoRow(icon: Icons.verified_user_outlined, label: 'Xavfsizlik', value: 'Firebase Auth + HTTPS'),
+                    _infoRow(
+                        icon: Icons.verified_user_outlined,
+                        label: 'Xavfsizlik',
+                        value: 'Firebase Auth + HTTPS'),
                     const Divider(height: 1),
-                    _infoRow(icon: Icons.business, label: 'Tashkilot', value: 'Aurum Global Group'),
+                    _infoRow(
+                        icon: Icons.business,
+                        label: 'Tashkilot',
+                        value: 'Aurum Global Group'),
                     const Divider(height: 1),
-                    _infoRow(icon: Icons.copyright_outlined, label: 'Huquqlar', value: '© 2026 GeoField Pro N'),
+                    _infoRow(
+                        icon: Icons.copyright_outlined,
+                        label: 'Huquqlar',
+                        value: '© 2026 GeoField Pro N'),
                   ],
                 ),
               ),
@@ -248,7 +295,10 @@ class _WebSettingsScreenState extends State<WebSettingsScreen> {
           const SizedBox(width: 8),
           Text(
             title,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1565C0)),
+            style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1565C0)),
           ),
         ],
       ),
@@ -261,17 +311,21 @@ class _WebSettingsScreenState extends State<WebSettingsScreen> {
         color: t.colorScheme.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: Colors.grey.withValues(alpha: 0.15)),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8)],
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8)
+        ],
       ),
       child: child,
     );
   }
 
-  Widget _infoRow({required IconData icon, required String label, required String value}) {
+  Widget _infoRow(
+      {required IconData icon, required String label, required String value}) {
     return ListTile(
       dense: true,
       leading: Icon(icon, size: 20, color: Colors.grey),
-      title: Text(label, style: const TextStyle(fontSize: 13, color: Colors.grey)),
+      title:
+          Text(label, style: const TextStyle(fontSize: 13, color: Colors.grey)),
       trailing: Text(
         value,
         style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
@@ -279,13 +333,21 @@ class _WebSettingsScreenState extends State<WebSettingsScreen> {
     );
   }
 
-  Widget _mapStyleTile(SettingsController settings, String styleKey, String label, IconData icon) {
+  Widget _mapStyleTile(SettingsController settings, String styleKey,
+      String label, IconData icon) {
     final isSelected = settings.mapStyle == styleKey;
     return ListTile(
       dense: true,
-      leading: Icon(icon, size: 20, color: isSelected ? const Color(0xFF1565C0) : Colors.grey),
-      title: Text(label, style: TextStyle(fontSize: 13, color: isSelected ? const Color(0xFF1565C0) : null, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
-      trailing: isSelected ? const Icon(Icons.check_circle, color: Color(0xFF1565C0), size: 18) : null,
+      leading: Icon(icon,
+          size: 20, color: isSelected ? const Color(0xFF1565C0) : Colors.grey),
+      title: Text(label,
+          style: TextStyle(
+              fontSize: 13,
+              color: isSelected ? const Color(0xFF1565C0) : null,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
+      trailing: isSelected
+          ? const Icon(Icons.check_circle, color: Color(0xFF1565C0), size: 18)
+          : null,
       onTap: () => settings.mapStyle = styleKey,
     );
   }

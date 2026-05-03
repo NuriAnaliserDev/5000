@@ -162,8 +162,7 @@ class ExportService {
       buffer.writeln('    <time>${s.date.toUtc().toIso8601String()}</time>');
       buffer.writeln('    <name>${_escapeXml(s.name)}</name>');
       if (s.description != null && s.description!.isNotEmpty) {
-        buffer.writeln(
-            '    <desc>${_escapeXml(s.description!)}</desc>');
+        buffer.writeln('    <desc>${_escapeXml(s.description!)}</desc>');
       }
       buffer.writeln('  </wpt>');
     }

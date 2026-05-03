@@ -30,8 +30,9 @@ class AiTranslatorService {
           throw Exception("Rasmni yuklashda xatolik: ${response.statusCode}");
         }
         bytes = response.bodyBytes;
-        mime = mimeTypeFromContentTypeHeader(response.headers['content-type']) ??
-            mimeTypeForImagePath(imagePath);
+        mime =
+            mimeTypeFromContentTypeHeader(response.headers['content-type']) ??
+                mimeTypeForImagePath(imagePath);
       } else {
         if (kIsWeb) {
           throw Exception("Web muhitda lokal fayl yo'llari ruxsat etilmagan");
@@ -139,7 +140,8 @@ DIQQAT:
       ]);
 
       if (response.text != null) {
-        final rawJson = response.text!.trim()
+        final rawJson = response.text!
+            .trim()
             .replaceAll('```json', '')
             .replaceAll('```', '')
             .trim();

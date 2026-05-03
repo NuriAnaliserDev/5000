@@ -19,8 +19,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
   bool _isCurvedMode = false;
   double _projectionDepth = 0;
   bool _showProjections = false;
-  bool _isSnapEnabled = true; 
-  
+  bool _isSnapEnabled = true;
+
   double _baseLayerOpacity = 1.0;
   double _gisLayerOpacity = 0.6;
   double _drawingLayerOpacity = 1.0;
@@ -34,6 +34,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
   bool _isVertexEditMode = false;
 
   bool _isSliceMode = false;
+
   /// Field Move uslubida: xaritada qo'lda strike/dip belgisi
   bool _isStructurePlaceMode = false;
 
@@ -44,13 +45,14 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
 
   double _centerLat = 41.2995;
   double _centerLng = 69.2401;
+
   /// GPS yangilanishi bilan xaritani surib yuritish.
   bool _followGps = false;
   LocationService? _locationForFollow;
 
   /// Pro maydon: qisqacha tushuntirish (yopguncha).
   bool _workshopInfoBanner = true;
-  
+
   @override
   void initState() {
     super.initState();
@@ -92,7 +94,9 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     presence.startBroadcasting(
       () {
         final pos = context.read<LocationService>().currentPosition;
-        return pos != null ? LatLng(pos.latitude, pos.longitude) : LatLng(_centerLat, _centerLng);
+        return pos != null
+            ? LatLng(pos.latitude, pos.longitude)
+            : LatLng(_centerLat, _centerLng);
       },
       settings.currentUserName ?? 'Geolog',
       settings.expertMode ? 'Professional' : 'Standard',
@@ -113,13 +117,15 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
           key: _drawButtonKey,
           identify: "draw_btn",
           title: "Chizish Rejimi",
-          description: "Bu yerda siz Fault (Uzilmalar), Contact (Kontaklar) va Bedding Trace (Qatlam izlari) chizishingiz mumkin.",
+          description:
+              "Bu yerda siz Fault (Uzilmalar), Contact (Kontaklar) va Bedding Trace (Qatlam izlari) chizishingiz mumkin.",
         ),
         TutorialService.createTarget(
           key: _downloadButtonKey,
           identify: "download_btn",
           title: "Oflayn Xaritalar",
-          description: "Dala sharoitida internet bo'lmaganda ham ishlash uchun xarita hududini yuklab oling.",
+          description:
+              "Dala sharoitida internet bo'lmaganda ham ishlash uchun xarita hududini yuklab oling.",
         ),
       ],
       onFinish: () => settings.hasSeenMapTutorial = true,
@@ -187,19 +193,24 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
       (svc) => svc.boundaries,
     );
     final boundarySvc = context.read<BoundaryService>();
-    final geoLines = context.select<GeologicalLineRepository, List<GeologicalLine>>(
+    final geoLines =
+        context.select<GeologicalLineRepository, List<GeologicalLine>>(
       (repo) => repo.getAllLines(),
     );
-    final structureAnnotations = context
-        .select<MapStructureRepository, List<MapStructureAnnotation>>((r) => r.annotations);
+    final structureAnnotations =
+        context.select<MapStructureRepository, List<MapStructureAnnotation>>(
+            (r) => r.annotations);
     final trackSvc = context.read<TrackService>();
     final locationSvc = context.read<LocationService>();
     final currentPos = locationSvc.currentPosition;
 
-    LatLng center = widget.initLocation != null 
+    LatLng center = widget.initLocation != null
         ? LatLng(widget.initLocation!['lat'], widget.initLocation!['lng'])
-        : (currentPos != null ? LatLng(currentPos.latitude, currentPos.longitude) 
-        : (stations.isNotEmpty ? LatLng(stations.first.lat, stations.first.lng) : const LatLng(41.2995, 69.2401)));
+        : (currentPos != null
+            ? LatLng(currentPos.latitude, currentPos.longitude)
+            : (stations.isNotEmpty
+                ? LatLng(stations.first.lat, stations.first.lng)
+                : const LatLng(41.2995, 69.2401)));
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -211,7 +222,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
               options: MapOptions(
                 initialCenter: center,
                 initialZoom: 12,
-                onTap: (tapPosition, point) => _handleMapTap(point, boundarySvc),
+                onTap: (tapPosition, point) =>
+                    _handleMapTap(point, boundarySvc),
                 onSecondaryTap: (tapPosition, point) {
                   if (_isDrawingMode && _drawingPoints.isNotEmpty) {
                     setState(() => _drawingPoints.removeLast());
@@ -264,7 +276,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 shape: BoxShape.circle,
-                                border: Border.all(color: const Color(0xFFFF9800), width: 2),
+                                border: Border.all(
+                                    color: const Color(0xFFFF9800), width: 2),
                               ),
                             ),
                           ),
@@ -274,7 +287,10 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                 if (_isSliceMode && _drawingPoints.isNotEmpty)
                   PolylineLayer(
                     polylines: [
-                      Polyline(points: _drawingPoints, color: Colors.orange, strokeWidth: 3.0),
+                      Polyline(
+                          points: _drawingPoints,
+                          color: Colors.orange,
+                          strokeWidth: 3.0),
                     ],
                   ),
                 if (_isMeasureMode && _measurePoints.length >= 2)
@@ -306,22 +322,28 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                       selectedVertexIndex: _selectedVertexIndex,
                     ),
                   ),
-                
                 PolygonLayer(
                   polygons: [
                     ...boundaries
                         .where((b) => b.points.length >= 3)
-                        .map<Polygon>((b) => mapPolygonForBoundary(b, currentPos, _gisLayerOpacity)),
+                        .map<Polygon>((b) => mapPolygonForBoundary(
+                            b, currentPos, _gisLayerOpacity)),
                     ...geoLines
                         .where((l) => l.isClosed)
                         .map((l) => mapPolygonForGeologicalLine(l)),
-                    if (_isDrawingMode && _selectedLineType == 'polygon' && _drawingPoints.length >= 3)
-                       Polygon(
-                         points: _drawingPoints,
-                         color: Color(int.parse(GeologicalLine.defaultColorHex(_selectedLineType), radix: 16) + 0x66000000),
-                         borderColor: Colors.transparent,
-                         borderStrokeWidth: 0,
-                       ),
+                    if (_isDrawingMode &&
+                        _selectedLineType == 'polygon' &&
+                        _drawingPoints.length >= 3)
+                      Polygon(
+                        points: _drawingPoints,
+                        color: Color(int.parse(
+                                GeologicalLine.defaultColorHex(
+                                    _selectedLineType),
+                                radix: 16) +
+                            0x66000000),
+                        borderColor: Colors.transparent,
+                        borderStrokeWidth: 0,
+                      ),
                   ],
                 ),
                 PolylineLayer(
@@ -329,7 +351,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                     ...boundaries.where((b) => b.points.length == 2).map(
                           (b) => Polyline(
                             points: b.points,
-                            color: b.displayColor.withValues(alpha: math.max(0.75, _gisLayerOpacity)),
+                            color: b.displayColor.withValues(
+                                alpha: math.max(0.75, _gisLayerOpacity)),
                             strokeWidth: 3,
                           ),
                         ),
@@ -342,15 +365,19 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                 ),
                 MapStationLayer(
                   stations: stations,
-                  onStationTap: (s) => Navigator.of(context, rootNavigator: true).pushNamed('/station', arguments: s.key as int?),
+                  onStationTap: (s) =>
+                      Navigator.of(context, rootNavigator: true)
+                          .pushNamed('/station', arguments: s.key as int?),
                 ),
                 if (widget.initLocation != null)
                   MarkerLayer(
                     markers: [
                       Marker(
-                        width: 40, height: 40,
+                        width: 40,
+                        height: 40,
                         point: center,
-                        child: const Icon(Icons.pin_drop, color: Colors.redAccent, size: 40),
+                        child: const Icon(Icons.pin_drop,
+                            color: Colors.redAccent, size: 40),
                       ),
                     ],
                   ),
@@ -360,7 +387,10 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
               ],
             ),
             if (widget.fieldWorkshopMode) const MapGpsHud(),
-            MapLegend(stations: stations, currentPos: currentPos, mapController: _mapController),
+            MapLegend(
+                stations: stations,
+                currentPos: currentPos,
+                mapController: _mapController),
             if (widget.fieldWorkshopMode)
               MapTopBar(
                 stationsCount: stations.length,
@@ -372,7 +402,9 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                   onPressed: () => Navigator.of(context).maybePop(),
                   tooltip: MaterialLocalizations.of(context).backButtonTooltip,
                 ),
-                titleOverride: GeoFieldStrings.of(context)?.field_workshop_title ?? 'Field workshop',
+                titleOverride:
+                    GeoFieldStrings.of(context)?.field_workshop_title ??
+                        'Field workshop',
                 secondaryLineOverride:
                     '${settings.currentProject} · ${stations.length} ${context.loc('stations')}',
               )
@@ -383,9 +415,11 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                 onStylePressed: () => _showMapStyleSelector(context, settings),
                 onSearchPressed: _openSearch,
               ),
-            if (widget.fieldWorkshopMode && _workshopInfoBanner) _buildWorkshopInfoBanner(),
+            if (widget.fieldWorkshopMode && _workshopInfoBanner)
+              _buildWorkshopInfoBanner(),
             if (widget.fieldWorkshopMode) _buildFieldWorkshopToolRail(),
-            if (currentTrack != null) MapLiveTrackStats(track: trackSvc.currentTrack!),
+            if (currentTrack != null)
+              MapLiveTrackStats(track: trackSvc.currentTrack!),
             if (widget.fieldWorkshopMode)
               _buildMapFloatingLayer(currentPos: currentPos)
             else
@@ -401,9 +435,12 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
               isEraserMode: _isEraserMode,
               suppressIdleSideRail: !widget.fieldWorkshopMode,
               onStartDrawing: _startLineDrawing,
-              onLineTypeChanged: (type) => setState(() => _selectedLineType = type),
-              onToggleCurve: () => setState(() => _isCurvedMode = !_isCurvedMode),
-              onToggleSnap: () => setState(() => _isSnapEnabled = !_isSnapEnabled),
+              onLineTypeChanged: (type) =>
+                  setState(() => _selectedLineType = type),
+              onToggleCurve: () =>
+                  setState(() => _isCurvedMode = !_isCurvedMode),
+              onToggleSnap: () =>
+                  setState(() => _isSnapEnabled = !_isSnapEnabled),
               onUndo: () => setState(() {
                 if (_drawingPoints.isNotEmpty) {
                   _redoStack.add(_drawingPoints.removeLast());
@@ -426,7 +463,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
               showProjections: _showProjections,
               projectionDepth: _projectionDepth,
               suppressFloatingToggle: !widget.fieldWorkshopMode,
-              onToggleProjections: () => setState(() => _showProjections = !_showProjections),
+              onToggleProjections: () =>
+                  setState(() => _showProjections = !_showProjections),
               onDepthChanged: (v) => setState(() => _projectionDepth = v),
             ),
             MapLayerDrawer(
@@ -435,13 +473,19 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
               gisLayerOpacity: _gisLayerOpacity,
               drawingLayerOpacity: _drawingLayerOpacity,
               isVertexEditMode: _isVertexEditMode,
-              onToggleDrawer: () => setState(() => _showLayerDrawer = !_showLayerDrawer),
-              onBaseOpacityChanged: (v) => setState(() => _baseLayerOpacity = v),
+              onToggleDrawer: () =>
+                  setState(() => _showLayerDrawer = !_showLayerDrawer),
+              onBaseOpacityChanged: (v) =>
+                  setState(() => _baseLayerOpacity = v),
               onGisOpacityChanged: (v) => setState(() => _gisOpacityChanged(v)),
-              onDrawingOpacityChanged: (v) => setState(() => _drawingLayerOpacity = v),
+              onDrawingOpacityChanged: (v) =>
+                  setState(() => _drawingLayerOpacity = v),
               onToggleVertexEdit: () => setState(() {
                 _isVertexEditMode = !_isVertexEditMode;
-                if (!_isVertexEditMode) { _editingPolygonId = null; _selectedVertexIndex = null; }
+                if (!_isVertexEditMode) {
+                  _editingPolygonId = null;
+                  _selectedVertexIndex = null;
+                }
               }),
               onImportGis: _importGisFromMap,
               onOpenExportArchive: () => MainTabNavigation.openArchive(context),
@@ -457,10 +501,12 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                   color: Colors.black.withValues(alpha: 0.75),
                   borderRadius: BorderRadius.circular(12),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     child: Text(
                       GeoFieldStrings.of(context)?.map_gesture_undo_hint ?? '',
-                      style: const TextStyle(color: Colors.white, fontSize: 12, height: 1.3),
+                      style: const TextStyle(
+                          color: Colors.white, fontSize: 12, height: 1.3),
                     ),
                   ),
                 ),
@@ -474,10 +520,13 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                   color: Colors.amber.shade900.withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(12),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     child: Text(
-                      GeoFieldStrings.of(context)?.map_structure_mode_hint ?? '',
-                      style: const TextStyle(color: Colors.white, fontSize: 12, height: 1.3),
+                      GeoFieldStrings.of(context)?.map_structure_mode_hint ??
+                          '',
+                      style: const TextStyle(
+                          color: Colors.white, fontSize: 12, height: 1.3),
                     ),
                   ),
                 ),
@@ -601,8 +650,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
       await trackSvc.stopTracking();
       return;
     }
-    final name =
-        'Trek-${DateTime.now().toIso8601String().substring(0, 19)}'.replaceAll(':', '.');
+    final name = 'Trek-${DateTime.now().toIso8601String().substring(0, 19)}'
+        .replaceAll(':', '.');
     await trackSvc.startTracking(name);
     if (!mounted) {
       return;
@@ -658,7 +707,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
               followGps: _followGps,
               onOpenProTools: _openMapProTools,
               onDraw: _startLineDrawing,
-              onAddStation: () => Navigator.of(context, rootNavigator: true).pushNamed('/station'),
+              onAddStation: () => Navigator.of(context, rootNavigator: true)
+                  .pushNamed('/station'),
               onFollowToggle: () {
                 setState(() {
                   _followGps = !_followGps;
@@ -671,7 +721,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
               },
               onMyLocation: () => _goToMyLocation(currentPos),
               onStrikeDip: _toggleStructureMode,
-              onSampling: () => Navigator.of(context, rootNavigator: true).pushNamed('/station'),
+              onSampling: () => Navigator.of(context, rootNavigator: true)
+                  .pushNamed('/station'),
               onFieldNotes: () => MainTabNavigation.openCamera(context),
               onProjectLayers: () => setState(() {
                 _mapFieldMenuOpen = false;
@@ -775,9 +826,11 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.close, size: 18),
-                    onPressed: () => setState(() => _workshopInfoBanner = false),
+                    onPressed: () =>
+                        setState(() => _workshopInfoBanner = false),
                     padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                    constraints:
+                        const BoxConstraints(minWidth: 32, minHeight: 32),
                     tooltip: MaterialLocalizations.of(context).closeButtonLabel,
                   ),
                 ],
@@ -787,29 +840,36 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                 s.field_workshop_banner,
                 style: TextStyle(
                   fontSize: 10,
-                  color: t.colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
+                  color:
+                      t.colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
                 ),
               ),
               CheckboxListTile(
                 value: _workshopChecklist[0],
-                onChanged: (v) => setState(() => _workshopChecklist[0] = v ?? false),
-                title: Text(s.field_workshop_ch1, style: const TextStyle(fontSize: 11)),
+                onChanged: (v) =>
+                    setState(() => _workshopChecklist[0] = v ?? false),
+                title: Text(s.field_workshop_ch1,
+                    style: const TextStyle(fontSize: 11)),
                 dense: true,
                 contentPadding: EdgeInsets.zero,
                 controlAffinity: ListTileControlAffinity.leading,
               ),
               CheckboxListTile(
                 value: _workshopChecklist[1],
-                onChanged: (v) => setState(() => _workshopChecklist[1] = v ?? false),
-                title: Text(s.field_workshop_ch2, style: const TextStyle(fontSize: 11)),
+                onChanged: (v) =>
+                    setState(() => _workshopChecklist[1] = v ?? false),
+                title: Text(s.field_workshop_ch2,
+                    style: const TextStyle(fontSize: 11)),
                 dense: true,
                 contentPadding: EdgeInsets.zero,
                 controlAffinity: ListTileControlAffinity.leading,
               ),
               CheckboxListTile(
                 value: _workshopChecklist[2],
-                onChanged: (v) => setState(() => _workshopChecklist[2] = v ?? false),
-                title: Text(s.field_workshop_ch3, style: const TextStyle(fontSize: 11)),
+                onChanged: (v) =>
+                    setState(() => _workshopChecklist[2] = v ?? false),
+                title: Text(s.field_workshop_ch3,
+                    style: const TextStyle(fontSize: 11)),
                 dense: true,
                 contentPadding: EdgeInsets.zero,
                 controlAffinity: ListTileControlAffinity.leading,
@@ -855,7 +915,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     }
     if (m.length >= 3) {
       final area = SpatialCalculator.calculateArea(m);
-      line += '  |  S ≈ ${(area / 1e6).toStringAsFixed(3)} km² (≈${area.toStringAsFixed(0)} m²)';
+      line +=
+          '  |  S ≈ ${(area / 1e6).toStringAsFixed(3)} km² (≈${area.toStringAsFixed(0)} m²)';
       line +=
           '  |  P: ${SpatialCalculator.calculatePerimeter(m).toStringAsFixed(0)} m';
     }
@@ -883,7 +944,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
               if (line.isNotEmpty)
                 Text(
                   line,
-                  style: const TextStyle(color: Colors.white, fontSize: 11, height: 1.2),
+                  style: const TextStyle(
+                      color: Colors.white, fontSize: 11, height: 1.2),
                 )
               else
                 Text(
@@ -984,7 +1046,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
         );
         break;
       case MapProToolAction.stereonet:
-        Navigator.of(context, rootNavigator: true).pushNamed(AppRouter.analysis);
+        Navigator.of(context, rootNavigator: true)
+            .pushNamed(AppRouter.analysis);
         break;
       case MapProToolAction.copyUtm:
         _copyUtmCenterToClipboard();
@@ -1046,9 +1109,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
             onPressed: _toggleStructureMode,
             icon: Icon(
               Icons.architecture,
-              color: _isStructurePlaceMode
-                  ? Colors.white
-                  : Colors.amber.shade200,
+              color:
+                  _isStructurePlaceMode ? Colors.white : Colors.amber.shade200,
             ),
           ),
         ),
@@ -1240,8 +1302,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
       final picked = boundarySvc.getBoundaryAt(point);
       if (picked != null) {
         setState(() {
-           _editingPolygonId = picked.id;
-           _selectedVertexIndex = 0;
+          _editingPolygonId = picked.id;
+          _selectedVertexIndex = 0;
         });
       }
     } else if (_isDrawingMode) {
@@ -1433,7 +1495,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                 children: [
                   TextField(
                     controller: nameCtrl,
-                    decoration: InputDecoration(labelText: s.line_property_name),
+                    decoration:
+                        InputDecoration(labelText: s.line_property_name),
                   ),
                   const SizedBox(height: 8),
                   InputDecorator(
@@ -1449,15 +1512,15 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                             ),
                           )
                           .toList(),
-                      onChanged: (v) =>
-                          setL(() => lineType = v ?? lineType),
+                      onChanged: (v) => setL(() => lineType = v ?? lineType),
                     ),
                   ),
                   const SizedBox(height: 8),
                   TextField(
                     controller: notesCtrl,
                     maxLines: 3,
-                    decoration: InputDecoration(labelText: s.line_property_notes),
+                    decoration:
+                        InputDecoration(labelText: s.line_property_notes),
                   ),
                 ],
               ),
@@ -1597,7 +1660,15 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
   Future<void> _showAddStructureDialog(LatLng point) async {
     final s = GeoFieldStrings.of(context);
     if (s == null) return;
-    const types = <String>['bedding', 'cleavage', 'lineation', 'joint', 'contact', 'fault', 'other'];
+    const types = <String>[
+      'bedding',
+      'cleavage',
+      'lineation',
+      'joint',
+      'contact',
+      'fault',
+      'other'
+    ];
     var selectedType = 'bedding';
     final strikeCtrl = TextEditingController(text: '0');
     final dipCtrl = TextEditingController(text: '45');
@@ -1614,14 +1685,18 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
                 children: [
                   TextField(
                     controller: strikeCtrl,
-                    decoration: InputDecoration(labelText: s.map_structure_strike_label),
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    decoration: InputDecoration(
+                        labelText: s.map_structure_strike_label),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
                   ),
                   const SizedBox(height: 8),
                   TextField(
                     controller: dipCtrl,
-                    decoration: InputDecoration(labelText: s.map_structure_dip_label),
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    decoration:
+                        InputDecoration(labelText: s.map_structure_dip_label),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
                   ),
                   const SizedBox(height: 4),
                   Align(
@@ -1694,7 +1769,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('${a.strike.toStringAsFixed(0)}° / ${a.dip.toStringAsFixed(0)}°'),
+        title: Text(
+            '${a.strike.toStringAsFixed(0)}° / ${a.dip.toStringAsFixed(0)}°'),
         content: Text(s.map_structure_delete_body),
         actions: [
           TextButton(
@@ -1725,20 +1801,33 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     return MarkerLayer(
       markers: [
         Marker(
-          width: 64, height: 64,
+          width: 64,
+          height: 64,
           point: LatLng(currentPos.latitude, currentPos.longitude),
           child: Stack(
             alignment: Alignment.center,
             children: [
-              Container(width: 44, height: 44, decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.lightBlueAccent.withValues(alpha: 0.18))),
-              Container(width: 14, height: 14, decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.lightBlueAccent)),
+              Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.lightBlueAccent.withValues(alpha: 0.18))),
+              Container(
+                  width: 14,
+                  height: 14,
+                  decoration: const BoxDecoration(
+                      shape: BoxShape.circle, color: Colors.lightBlueAccent)),
               ValueListenableBuilder<double?>(
                 valueListenable: _headingNotifier,
                 builder: (context, heading, child) {
                   if (heading == null) return const SizedBox.shrink();
                   return Transform.rotate(
                     angle: heading * math.pi / 180,
-                    child: Transform.translate(offset: const Offset(0, -18), child: const Icon(Icons.navigation, color: Colors.blueAccent, size: 22)),
+                    child: Transform.translate(
+                        offset: const Offset(0, -18),
+                        child: const Icon(Icons.navigation,
+                            color: Colors.blueAccent, size: 22)),
                   );
                 },
               ),
@@ -1749,7 +1838,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     );
   }
 
-  void _showMapStyleSelector(BuildContext context, SettingsController settings) {
+  void _showMapStyleSelector(
+      BuildContext context, SettingsController settings) {
     showModalBottomSheet(
       context: context,
       builder: (ctx) => Column(
@@ -1763,25 +1853,37 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     );
   }
 
-  Widget _styleTile(BuildContext context, SettingsController settings, String style, IconData icon) {
+  Widget _styleTile(BuildContext context, SettingsController settings,
+      String style, IconData icon) {
     return ListTile(
       leading: Icon(icon),
       title: Text(context.loc(style)),
       selected: settings.mapStyle == style,
-      onTap: () { settings.mapStyle = style; Navigator.pop(context); },
+      onTap: () {
+        settings.mapStyle = style;
+        Navigator.pop(context);
+      },
     );
   }
 
   Future<void> _saveDrawing() async {
-    final nameCtrl = TextEditingController(text: '${GeologicalLine.localizedName(_selectedLineType)} 1');
+    final nameCtrl = TextEditingController(
+        text: '${GeologicalLine.localizedName(_selectedLineType)} 1');
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(context.loc('save_drawing_title')),
-        content: TextField(controller: nameCtrl, decoration: InputDecoration(labelText: context.loc('drawing_name'))),
+        content: TextField(
+            controller: nameCtrl,
+            decoration:
+                InputDecoration(labelText: context.loc('drawing_name'))),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(context.loc('cancel'))),
-          ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: Text(context.loc('save_label'))),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(context.loc('cancel'))),
+          ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(context.loc('save_label'))),
         ],
       ),
     );
@@ -1801,19 +1903,30 @@ class _GlobalMapScreenState extends State<GlobalMapScreen> {
     );
 
     await context.read<GeologicalLineRepository>().addLine(newLine);
-    setState(() { _isDrawingMode = false; _drawingPoints.clear(); });
-    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.locRead('drawing_saved'))));
+    setState(() {
+      _isDrawingMode = false;
+      _drawingPoints.clear();
+    });
+    if (mounted)
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.locRead('drawing_saved'))));
   }
 
   void _finalizeSlice() {
     final start = _drawingPoints[0];
     final end = _drawingPoints[1];
-    setState(() { _isSliceMode = false; _drawingPoints = []; });
-    Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => CrossSectionScreen(start: start, end: end)));
+    setState(() {
+      _isSliceMode = false;
+      _drawingPoints = [];
+    });
+    Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
+        builder: (context) => CrossSectionScreen(start: start, end: end)));
   }
 
   void _moveVertex(LatLng newPos) {
     if (_editingPolygonId == null || _selectedVertexIndex == null) return;
-    context.read<BoundaryService>().updatePolygonVertex(_editingPolygonId!, _selectedVertexIndex!, newPos);
+    context
+        .read<BoundaryService>()
+        .updatePolygonVertex(_editingPolygonId!, _selectedVertexIndex!, newPos);
   }
 }

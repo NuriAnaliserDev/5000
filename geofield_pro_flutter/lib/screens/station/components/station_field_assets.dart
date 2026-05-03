@@ -29,7 +29,8 @@ class StationFieldAssets extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final photoPaths = station?.photoPaths ?? (station?.photoPath != null ? [station!.photoPath!] : []);
+    final photoPaths = station?.photoPaths ??
+        (station?.photoPath != null ? [station!.photoPath!] : []);
     final theme = Theme.of(context);
 
     return Column(
@@ -63,8 +64,7 @@ class StationFieldAssets extends StatelessWidget {
                 onAddGallery,
               ),
               ...photoPaths.map((p) => _buildPhotoItem(context, p)),
-              if (station?.audioPath != null)
-                _buildAudioItem(context, theme),
+              if (station?.audioPath != null) _buildAudioItem(context, theme),
             ],
           ),
         ),
@@ -72,7 +72,8 @@ class StationFieldAssets extends StatelessWidget {
     );
   }
 
-  Widget _buildAddButton(BuildContext context, IconData icon, String label, VoidCallback onTap) {
+  Widget _buildAddButton(
+      BuildContext context, IconData icon, String label, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -174,7 +175,9 @@ class StationFieldAssets extends StatelessWidget {
           color: Colors.lightBlueAccent.withValues(alpha: 0.5),
           width: 2,
         ),
-        color: isDark ? const Color(0xFF1A237E) : theme.colorScheme.primary.withValues(alpha: 0.1),
+        color: isDark
+            ? const Color(0xFF1A237E)
+            : theme.colorScheme.primary.withValues(alpha: 0.1),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -190,7 +193,8 @@ class StationFieldAssets extends StatelessWidget {
           const SizedBox(height: 4),
           const Text(
             'AUDIO NOTE',
-            style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 1),
+            style: TextStyle(
+                fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 1),
           ),
         ],
       ),

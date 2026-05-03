@@ -18,8 +18,7 @@ import 'package:geofield_pro_flutter/utils/app_localizations.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:vector_math/vector_math_64.dart' hide Colors;
 
-bool geologicalArSupportedPlatform() =>
-    Platform.isAndroid || Platform.isIOS;
+bool geologicalArSupportedPlatform() => Platform.isAndroid || Platform.isIOS;
 
 /// AR sessiyasidan surat fayl yo‘liga yozish.
 class GeologicalArSessionController {
@@ -93,7 +92,8 @@ class GeologicalArView extends StatefulWidget {
 }
 
 class _GeologicalArViewState extends State<GeologicalArView> {
-  final GeologicalArSessionController _controller = GeologicalArSessionController();
+  final GeologicalArSessionController _controller =
+      GeologicalArSessionController();
   ARSessionManager? _arSession;
   ARObjectManager? _objectManager;
   ARAnchorManager? _anchorManager;
@@ -311,8 +311,7 @@ class _GeologicalArViewState extends State<GeologicalArView> {
       return const ColoredBox(color: Colors.black);
     }
 
-    final showTapHint =
-        _reportedReady && _followCamera && _arSession != null;
+    final showTapHint = _reportedReady && _followCamera && _arSession != null;
 
     return Stack(
       fit: StackFit.expand,
@@ -333,7 +332,8 @@ class _GeologicalArViewState extends State<GeologicalArView> {
                 border: Border.all(color: Colors.white24),
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 child: Text(
                   context.locRead('camera_ar_tap_plane_hint'),
                   textAlign: TextAlign.center,

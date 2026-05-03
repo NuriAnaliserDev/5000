@@ -5,467 +5,928 @@ import 'package:geofield_pro_flutter/l10n/app_strings.dart';
 /// `trend_recommend_good` / `apparent_result_hint` — parametrlar: [GeoFieldStrings]dagi to'g'ri metodni ishlating.
 String? lookupGeoFieldString(GeoFieldStrings s, String key) {
   switch (key) {
-    case 'about_app': return s.about_app;
-    case 'acc_label': return s.acc_label;
-    case 'accuracy': return s.accuracy;
-    case 'actions_label': return s.actions_label;
-    case 'active_point_label': return s.active_point_label;
-    case 'add_first_station': return s.add_first_station;
-    case 'add_gallery': return s.add_gallery;
-    case 'admin': return s.admin;
-    case 'admin_full_title': return s.admin_full_title;
-    case 'ai_lithology_applied_hint': return s.ai_lithology_applied_hint;
-    case 'ai_lithology_btn': return s.ai_lithology_btn;
-    case 'ai_lithology_error': return s.ai_lithology_error;
-    case 'ai_lithology_minerals_prefix': return s.ai_lithology_minerals_prefix;
-    case 'ai_lithology_need_photo': return s.ai_lithology_need_photo;
-    case 'ai_lithology_verify_type_prefix': return s.ai_lithology_verify_type_prefix;
-    case 'ai_vertex_disabled_body': return s.ai_vertex_disabled_body;
-    case 'ai_vertex_disabled_title': return s.ai_vertex_disabled_title;
-    case 'ai_vertex_open_console': return s.ai_vertex_open_console;
-    case 'ai_vertex_quota_billing_body': return s.ai_vertex_quota_billing_body;
-    case 'ai_vertex_quota_billing_title': return s.ai_vertex_quota_billing_title;
-    case 'all_projects': return s.all_projects;
-    case 'all_stations': return s.all_stations;
-    case 'altitude': return s.altitude;
-    case 'altitude_offset_desc': return s.altitude_offset_desc;
-    case 'analysis_alt_range': return s.analysis_alt_range;
-    case 'analysis_avg_dip': return s.analysis_avg_dip;
-    case 'analysis_circular_mean_strike': return s.analysis_circular_mean_strike;
-    case 'analysis_dip_direction': return s.analysis_dip_direction;
-    case 'analysis_extra_measurements': return s.analysis_extra_measurements;
-    case 'analysis_fisher_stats': return s.analysis_fisher_stats;
-    case 'analysis_general': return s.analysis_general;
-    case 'analysis_measure_types': return s.analysis_measure_types;
-    case 'analysis_orientation_mean': return s.analysis_orientation_mean;
-    case 'analysis_primary_measurement': return s.analysis_primary_measurement;
-    case 'analysis_project_count': return s.analysis_project_count;
-    case 'analysis_projects': return s.analysis_projects;
-    case 'analysis_rock_type': return s.analysis_rock_type;
-    case 'analysis_rocks': return s.analysis_rocks;
-    case 'analysis_stat_reliable': return s.analysis_stat_reliable;
-    case 'analysis_stat_unreliable': return s.analysis_stat_unreliable;
-    case 'analysis_station_count': return s.analysis_station_count;
-    case 'analysis_strike_std': return s.analysis_strike_std;
-    case 'analysis_tab_rose': return s.analysis_tab_rose;
-    case 'analysis_tab_stereonet': return s.analysis_tab_stereonet;
-    case 'analysis_tab_trends': return s.analysis_tab_trends;
-    case 'analysis_with_gps': return s.analysis_with_gps;
-    case 'analytics_weekly': return s.analytics_weekly;
-    case 'app_description': return s.app_description;
-    case 'app_look_label': return s.app_look_label;
-    case 'app_title': return s.app_title;
-    case 'apparent_dip_calc_title': return s.apparent_dip_calc_title;
-    case 'apparent_dip_direction': return s.apparent_dip_direction;
-    case 'apparent_dip_formula_hint': return s.apparent_dip_formula_hint;
-    case 'apparent_dip_title': return s.apparent_dip_title;
-    case 'apparent_note_body': return s.apparent_note_body;
-    case 'apparent_section_azimuth': return s.apparent_section_azimuth;
-    case 'apparent_true_dip': return s.apparent_true_dip;
-    case 'archive': return s.archive;
-    case 'area_label': return s.area_label;
-    case 'auto_recommendation': return s.auto_recommendation;
-    case 'azimuth_label': return s.azimuth_label;
-    case 'bedding': return s.bedding;
-    case 'by_project': return s.by_project;
-    case 'by_rock_type': return s.by_rock_type;
-    case 'calculate': return s.calculate;
-    case 'calibration_instruction': return s.calibration_instruction;
-    case 'camera': return s.camera;
-    case 'camera_ar_anchor_failed': return s.camera_ar_anchor_failed;
-    case 'camera_ar_geology_subtitle': return s.camera_ar_geology_subtitle;
-    case 'camera_ar_geology_title': return s.camera_ar_geology_title;
-    case 'camera_ar_no_plane_hit': return s.camera_ar_no_plane_hit;
-    case 'camera_ar_node_failed': return s.camera_ar_node_failed;
-    case 'camera_ar_session_stalled': return s.camera_ar_session_stalled;
-    case 'camera_ar_snapshot_failed': return s.camera_ar_snapshot_failed;
-    case 'camera_ar_tap_plane_hint': return s.camera_ar_tap_plane_hint;
-    case 'camera_ar_torch_unavailable': return s.camera_ar_torch_unavailable;
-    case 'camera_azimuth_short': return s.camera_azimuth_short;
-    case 'camera_azimuth_subtitle': return s.camera_azimuth_subtitle;
-    case 'camera_close_label': return s.camera_close_label;
-    case 'camera_error': return s.camera_error;
-    case 'camera_focus_mode_title': return s.camera_focus_mode_title;
-    case 'camera_guide_button': return s.camera_guide_button;
-    case 'camera_header_document': return s.camera_header_document;
-    case 'camera_header_geology': return s.camera_header_geology;
-    case 'camera_heading_info_line': return s.camera_heading_info_line;
-    case 'camera_mode_document': return s.camera_mode_document;
-    case 'camera_mode_geology': return s.camera_mode_geology;
-    case 'camera_plane_attitude_subtitle': return s.camera_plane_attitude_subtitle;
-    case 'camera_pro_sheet_hint': return s.camera_pro_sheet_hint;
-    case 'camera_pro_short_label': return s.camera_pro_short_label;
-    case 'camera_scale_label': return s.camera_scale_label;
-    case 'camera_torch_label': return s.camera_torch_label;
-    case 'camera_voice_mic_hint': return s.camera_voice_mic_hint;
-    case 'camera_voice_record_label': return s.camera_voice_record_label;
-    case 'cancel': return s.cancel;
-    case 'cleavage': return s.cleavage;
-    case 'close': return s.close;
-    case 'color': return s.color;
-    case 'color_chart_title': return s.color_chart_title;
-    case 'compass': return s.compass;
-    case 'compass_8_motion': return s.compass_8_motion;
-    case 'compass_calibration': return s.compass_calibration;
-    case 'compass_calibration_long': return s.compass_calibration_long;
-    case 'compass_unreliable_warn': return s.compass_unreliable_warn;
-    case 'confidence': return s.confidence;
-    case 'confirm': return s.confirm;
-    case 'confirm_delete': return s.confirm_delete;
-    case 'confirm_delete_all': return s.confirm_delete_all;
-    case 'confirm_delete_all_tracks': return s.confirm_delete_all_tracks;
-    case 'contact': return s.contact;
-    case 'coordinate_sync': return s.coordinate_sync;
-    case 'count_suffix': return s.count_suffix;
-    case 'create_btn': return s.create_btn;
-    case 'custom_input': return s.custom_input;
-    case 'dark_grey': return s.dark_grey;
-    case 'dashboard': return s.dashboard;
-    case 'dashboard_data_export': return s.dashboard_data_export;
-    case 'dashboard_gis_import': return s.dashboard_gis_import;
-    case 'dashboard_hero_title': return s.dashboard_hero_title;
-    case 'dashboard_view_all': return s.dashboard_view_all;
-    case 'delete': return s.delete;
-    case 'delete_all_label': return s.delete_all_label;
-    case 'delete_confirm_btn': return s.delete_confirm_btn;
-    case 'delete_photo': return s.delete_photo;
-    case 'delete_project_title': return s.delete_project_title;
-    case 'delete_project_warn': return s.delete_project_warn;
-    case 'density_heatmap': return s.density_heatmap;
-    case 'description': return s.description;
-    case 'description_hint': return s.description_hint;
-    case 'dip': return s.dip;
-    case 'dip_direction': return s.dip_direction;
-    case 'dip_distribution': return s.dip_distribution;
-    case 'dip_label': return s.dip_label;
-    case 'distance_label': return s.distance_label;
-    case 'distance_warning': return s.distance_warning;
-    case 'document_align_hint': return s.document_align_hint;
-    case 'dominant_direction': return s.dominant_direction;
-    case 'download_confirm': return s.download_confirm;
-    case 'download_pdf': return s.download_pdf;
-    case 'download_region_tooltip': return s.download_region_tooltip;
-    case 'draw_first_point_hint': return s.draw_first_point_hint;
-    case 'draw_on_photo': return s.draw_on_photo;
-    case 'drawing_name': return s.drawing_name;
-    case 'drawing_saved': return s.drawing_saved;
-    case 'dxf_notice_body': return s.dxf_notice_body;
-    case 'dxf_notice_title': return s.dxf_notice_title;
-    case 'echo_mode_on': return s.echo_mode_on;
-    case 'eco_mode': return s.eco_mode;
-    case 'edit_coordinates': return s.edit_coordinates;
-    case 'edit_disable': return s.edit_disable;
-    case 'edit_enable': return s.edit_enable;
-    case 'edit_project': return s.edit_project;
-    case 'elevation_lookup_failed': return s.elevation_lookup_failed;
-    case 'elevation_lookup_progress': return s.elevation_lookup_progress;
-    case 'expert_mode': return s.expert_mode;
-    case 'export_actions_section': return s.export_actions_section;
-    case 'export_csv': return s.export_csv;
-    case 'export_geojson': return s.export_geojson;
-    case 'export_kml': return s.export_kml;
-    case 'export_no_stations': return s.export_no_stations;
-    case 'export_pdf': return s.export_pdf;
-    case 'export_select_project': return s.export_select_project;
-    case 'export_stations_excel': return s.export_stations_excel;
-    case 'export_title': return s.export_title;
-    case 'field_assets': return s.field_assets;
-    case 'field_utm_tap': return s.field_utm_tap;
-    case 'field_workshop_banner': return s.field_workshop_banner;
-    case 'field_workshop_ch1': return s.field_workshop_ch1;
-    case 'field_workshop_ch2': return s.field_workshop_ch2;
-    case 'field_workshop_ch3': return s.field_workshop_ch3;
-    case 'field_workshop_checklist': return s.field_workshop_checklist;
-    case 'field_workshop_fab_tooltip': return s.field_workshop_fab_tooltip;
-    case 'field_workshop_stereonet': return s.field_workshop_stereonet;
-    case 'field_workshop_title': return s.field_workshop_title;
-    case 'filter': return s.filter;
-    case 'firebase_local_only_banner': return s.firebase_local_only_banner;
-    case 'fisher_dispersion': return s.fisher_dispersion;
-    case 'fisher_gauge_high': return s.fisher_gauge_high;
-    case 'fisher_reliability': return s.fisher_reliability;
-    case 'fisher_reliability_help': return s.fisher_reliability_help;
-    case 'fisher_stable': return s.fisher_stable;
-    case 'fisher_stats': return s.fisher_stats;
-    case 'foliated': return s.foliated;
-    case 'general_settings_section': return s.general_settings_section;
-    case 'geoloc_header': return s.geoloc_header;
-    case 'gis_import_choose_file': return s.gis_import_choose_file;
-    case 'gis_import_empty_result': return s.gis_import_empty_result;
-    case 'gis_import_normalized_hint': return s.gis_import_normalized_hint;
-    case 'gis_import_precheck_body': return s.gis_import_precheck_body;
-    case 'gis_import_precheck_title': return s.gis_import_precheck_title;
-    case 'gis_monitoring_active': return s.gis_monitoring_active;
-    case 'gps_error': return s.gps_error;
-    case 'gps_locked': return s.gps_locked;
-    case 'gps_not_locked': return s.gps_not_locked;
-    case 'gps_off_alert': return s.gps_off_alert;
-    case 'gps_performance': return s.gps_performance;
-    case 'gps_status_good': return s.gps_status_good;
-    case 'gps_status_medium': return s.gps_status_medium;
-    case 'gps_status_medium_short': return s.gps_status_medium_short;
-    case 'gps_status_off': return s.gps_status_off;
-    case 'gps_status_poor': return s.gps_status_poor;
-    case 'gps_status_poor_short': return s.gps_status_poor_short;
-    case 'gps_status_searching': return s.gps_status_searching;
-    case 'gpx_export_unavailable': return s.gpx_export_unavailable;
-    case 'grade_dist': return s.grade_dist;
-    case 'ground_area_label': return s.ground_area_label;
-    case 'hdop': return s.hdop;
-    case 'height_cm': return s.height_cm;
-    case 'high_accuracy_good': return s.high_accuracy_good;
-    case 'hold': return s.hold;
-    case 'horizon_level': return s.horizon_level;
-    case 'hud_toggle': return s.hud_toggle;
-    case 'input_data': return s.input_data;
-    case 'joint': return s.joint;
-    case 'language': return s.language;
-    case 'last_update': return s.last_update;
-    case 'lat_label': return s.lat_label;
-    case 'lat_lon_error': return s.lat_lon_error;
-    case 'layer_base_map': return s.layer_base_map;
-    case 'layer_drawings': return s.layer_drawings;
-    case 'layer_gis_kml': return s.layer_gis_kml;
-    case 'layer_management': return s.layer_management;
-    case 'layered': return s.layered;
-    case 'layout_explanation': return s.layout_explanation;
-    case 'layout_planner': return s.layout_planner;
-    case 'light_grey': return s.light_grey;
-    case 'light_toggle': return s.light_toggle;
-    case 'line_action_edit': return s.line_action_edit;
-    case 'line_property_name': return s.line_property_name;
-    case 'line_property_notes': return s.line_property_notes;
-    case 'line_property_title': return s.line_property_title;
-    case 'lineation': return s.lineation;
-    case 'lithology_data': return s.lithology_data;
-    case 'lng_label': return s.lng_label;
-    case 'loading': return s.loading;
-    case 'location_denied_alert': return s.location_denied_alert;
-    case 'mag_decl_short': return s.mag_decl_short;
-    case 'magmatic': return s.magmatic;
-    case 'magnetic_declination': return s.magnetic_declination;
-    case 'magnetic_declination_desc': return s.magnetic_declination_desc;
-    case 'mandatory_step_label': return s.mandatory_step_label;
-    case 'map': return s.map;
-    case 'map_3d_tooltip': return s.map_3d_tooltip;
-    case 'map_draw_undo_caption': return s.map_draw_undo_caption;
-    case 'map_elevation_center_tooltip': return s.map_elevation_center_tooltip;
-    case 'map_eraser_hint': return s.map_eraser_hint;
-    case 'map_eraser_tooltip': return s.map_eraser_tooltip;
-    case 'map_error_prefix': return s.map_error_prefix;
-    case 'map_export_geojson': return s.map_export_geojson;
-    case 'map_follow_gps': return s.map_follow_gps;
-    case 'map_gesture_undo_hint': return s.map_gesture_undo_hint;
-    case 'map_layer_export_data': return s.map_layer_export_data;
-    case 'map_layer_import_gis': return s.map_layer_import_gis;
-    case 'map_line_deleted_snack': return s.map_line_deleted_snack;
-    case 'map_measure_angle': return s.map_measure_angle;
-    case 'map_measure_bearing': return s.map_measure_bearing;
-    case 'map_measure_clear': return s.map_measure_clear;
-    case 'map_measure_hint': return s.map_measure_hint;
-    case 'map_measure_mode': return s.map_measure_mode;
-    case 'map_my_location': return s.map_my_location;
-    case 'map_offline_tiles_hint': return s.map_offline_tiles_hint;
-    case 'map_pro_tools_subtitle': return s.map_pro_tools_subtitle;
-    case 'map_pro_tools_title': return s.map_pro_tools_title;
-    case 'map_radial_field_notes': return s.map_radial_field_notes;
-    case 'map_radial_project_layers': return s.map_radial_project_layers;
-    case 'map_radial_sampling': return s.map_radial_sampling;
-    case 'map_radial_strike_dip': return s.map_radial_strike_dip;
-    case 'map_redo_tooltip': return s.map_redo_tooltip;
-    case 'map_search_empty': return s.map_search_empty;
-    case 'map_search_error': return s.map_search_error;
-    case 'map_search_hint': return s.map_search_hint;
-    case 'map_search_locations_hint': return s.map_search_locations_hint;
-    case 'map_search_searching': return s.map_search_searching;
-    case 'map_slice_tooltip': return s.map_slice_tooltip;
-    case 'map_start_stop_tracking': return s.map_start_stop_tracking;
-    case 'map_structure_add_title': return s.map_structure_add_title;
-    case 'map_structure_delete_body': return s.map_structure_delete_body;
-    case 'map_structure_deleted_snack': return s.map_structure_deleted_snack;
-    case 'map_structure_dip_label': return s.map_structure_dip_label;
-    case 'map_structure_mode_hint': return s.map_structure_mode_hint;
-    case 'map_structure_mode_tooltip': return s.map_structure_mode_tooltip;
-    case 'map_structure_strike_label': return s.map_structure_strike_label;
-    case 'map_structure_type_label': return s.map_structure_type_label;
-    case 'map_style_osm': return s.map_style_osm;
-    case 'map_style_satellite': return s.map_style_satellite;
-    case 'map_style_topo': return s.map_style_topo;
-    case 'map_tap_line_delete_message': return s.map_tap_line_delete_message;
-    case 'map_track_fab_aria': return s.map_track_fab_aria;
-    case 'map_ultra_pro_tooltip': return s.map_ultra_pro_tooltip;
-    case 'massive': return s.massive;
-    case 'measurement_error_high': return s.measurement_error_high;
-    case 'measurement_label': return s.measurement_label;
-    case 'measurements_count': return s.measurements_count;
-    case 'medium_accuracy_warn': return s.medium_accuracy_warn;
-    case 'messages_hub_title': return s.messages_hub_title;
-    case 'messages_no_groups': return s.messages_no_groups;
-    case 'messages_sync_started': return s.messages_sync_started;
-    case 'messages_sync_tooltip': return s.messages_sync_tooltip;
-    case 'metamorphic': return s.metamorphic;
-    case 'mic_error': return s.mic_error;
-    case 'millimetrovka_calc': return s.millimetrovka_calc;
-    case 'munsell_color': return s.munsell_color;
-    case 'nav_messages': return s.nav_messages;
-    case 'nav_more': return s.nav_more;
-    case 'new_project_hint': return s.new_project_hint;
-    case 'new_project_title': return s.new_project_title;
-    case 'new_station_btn': return s.new_station_btn;
-    case 'next_station': return s.next_station;
-    case 'no_data': return s.no_data;
-    case 'no_local_data': return s.no_local_data;
-    case 'no_stations_in_project': return s.no_stations_in_project;
-    case 'note': return s.note;
-    case 'note_saved': return s.note_saved;
-    case 'notifications_empty_hint': return s.notifications_empty_hint;
-    case 'notifications_open_chats': return s.notifications_open_chats;
-    case 'notifications_screen_title': return s.notifications_screen_title;
-    case 'observation_area_label': return s.observation_area_label;
-    case 'offline_download': return s.offline_download;
-    case 'open_map': return s.open_map;
-    case 'other': return s.other;
-    case 'paper_distance': return s.paper_distance;
-    case 'paper_format_label': return s.paper_format_label;
-    case 'pdf_report': return s.pdf_report;
-    case 'perimeter_label': return s.perimeter_label;
-    case 'photo_added': return s.photo_added;
-    case 'photo_deleted_snack': return s.photo_deleted_snack;
-    case 'photo_saved_limited_gps': return s.photo_saved_limited_gps;
-    case 'poor_accuracy_warn': return s.poor_accuracy_warn;
-    case 'power_saver': return s.power_saver;
-    case 'professional_tag': return s.professional_tag;
-    case 'profile_section_label': return s.profile_section_label;
-    case 'project': return s.project;
-    case 'project_and_archive': return s.project_and_archive;
-    case 'project_label': return s.project_label;
-    case 'project_stats': return s.project_stats;
-    case 'projection_depth': return s.projection_depth;
-    case 'projects_count': return s.projects_count;
-    case 'real_distance': return s.real_distance;
-    case 'record_error': return s.record_error;
-    case 'recording_started': return s.recording_started;
-    case 'records_count': return s.records_count;
-    case 'red_ochre': return s.red_ochre;
-    case 'reliability_index': return s.reliability_index;
-    case 'rename': return s.rename;
-    case 'rename_route': return s.rename_route;
-    case 'results_count': return s.results_count;
-    case 'rock_classification': return s.rock_classification;
-    case 'rock_type': return s.rock_type;
-    case 'role_geologist_admin': return s.role_geologist_admin;
-    case 'rose_diagram_subtitle': return s.rose_diagram_subtitle;
-    case 'rose_diagram_title': return s.rose_diagram_title;
-    case 'route_name_prefix': return s.route_name_prefix;
-    case 'route_not_found_back': return s.route_not_found_back;
-    case 'route_not_found_body': return s.route_not_found_body;
-    case 'route_not_found_title': return s.route_not_found_title;
-    case 'route_saved_snack': return s.route_saved_snack;
-    case 'routes': return s.routes;
-    case 'rtk_fixed': return s.rtk_fixed;
-    case 'ruler_calibration_title': return s.ruler_calibration_title;
-    case 'ruler_label': return s.ruler_label;
-    case 'sample_id': return s.sample_id;
-    case 'sample_type': return s.sample_type;
-    case 'satellites': return s.satellites;
-    case 'save': return s.save;
-    case 'save_drawing_title': return s.save_drawing_title;
-    case 'save_first_hint': return s.save_first_hint;
-    case 'save_label': return s.save_label;
-    case 'scale_assistant_help_content': return s.scale_assistant_help_content;
-    case 'scale_assistant_help_title': return s.scale_assistant_help_title;
-    case 'scale_assistant_title': return s.scale_assistant_title;
-    case 'scale_short': return s.scale_short;
-    case 'search': return s.search;
-    case 'searching_gps': return s.searching_gps;
-    case 'sedimentary': return s.sedimentary;
-    case 'select_two_points': return s.select_two_points;
-    case 'selected_label': return s.selected_label;
-    case 'selected_scale': return s.selected_scale;
-    case 'session': return s.session;
-    case 'session_pause_tooltip': return s.session_pause_tooltip;
-    case 'settings': return s.settings;
-    case 'share': return s.share;
-    case 'signal_searching': return s.signal_searching;
-    case 'snackbar_undo_restore': return s.snackbar_undo_restore;
-    case 'snap_to_grid_label': return s.snap_to_grid_label;
-    case 'sos_cancel': return s.sos_cancel;
-    case 'sos_cancel_failed': return s.sos_cancel_failed;
-    case 'sos_cancelled': return s.sos_cancelled;
-    case 'sos_gps_unavailable': return s.sos_gps_unavailable;
-    case 'sos_login_required': return s.sos_login_required;
-    case 'sos_queue_cancel': return s.sos_queue_cancel;
-    case 'sos_queue_cleared': return s.sos_queue_cleared;
-    case 'sos_sent': return s.sos_sent;
-    case 'splash_error_local_db': return s.splash_error_local_db;
-    case 'splash_status_firebase': return s.splash_status_firebase;
-    case 'splash_status_local_db': return s.splash_status_local_db;
-    case 'splash_status_offline_tiles': return s.splash_status_offline_tiles;
-    case 'splash_status_profile': return s.splash_status_profile;
-    case 'splash_status_ready': return s.splash_status_ready;
-    case 'splash_status_session': return s.splash_status_session;
-    case 'splash_status_wmm': return s.splash_status_wmm;
-    case 'start': return s.start;
-    case 'station_project_label': return s.station_project_label;
-    case 'station_saved': return s.station_saved;
-    case 'stations': return s.stations;
-    case 'stations_count': return s.stations_count;
-    case 'stations_suffix': return s.stations_suffix;
-    case 'statistics_label': return s.statistics_label;
-    case 'stereonet_density_hint_label': return s.stereonet_density_hint_label;
-    case 'stereonet_density_hint_value': return s.stereonet_density_hint_value;
-    case 'stereonet_mean': return s.stereonet_mean;
-    case 'stereonet_no_data': return s.stereonet_no_data;
-    case 'stereonet_planes': return s.stereonet_planes;
-    case 'stereonet_schmidt': return s.stereonet_schmidt;
-    case 'stereonet_schmidt_desc': return s.stereonet_schmidt_desc;
-    case 'stereonet_summary': return s.stereonet_summary;
-    case 'stereonet_wulff': return s.stereonet_wulff;
-    case 'stereonet_wulff_desc': return s.stereonet_wulff_desc;
-    case 'stop': return s.stop;
-    case 'strike': return s.strike;
-    case 'strike_label': return s.strike_label;
-    case 'structural_measurements': return s.structural_measurements;
-    case 'structure': return s.structure;
-    case 'structure_label': return s.structure_label;
-    case 'success_saved': return s.success_saved;
-    case 'sync': return s.sync;
-    case 'sync_purpose_tooltip': return s.sync_purpose_tooltip;
-    case 'system_online': return s.system_online;
-    case 'tahlil_label': return s.tahlil_label;
-    case 'theme_dark': return s.theme_dark;
-    case 'theme_light': return s.theme_light;
-    case 'theme_system': return s.theme_system;
-    case 'three_d_structure': return s.three_d_structure;
-    case 'time_label': return s.time_label;
-    case 'today_only': return s.today_only;
-    case 'total_stations': return s.total_stations;
-    case 'total_stations_short': return s.total_stations_short;
-    case 'track_start_failed': return s.track_start_failed;
-    case 'tracking_started_snack': return s.tracking_started_snack;
-    case 'trend_analysis': return s.trend_analysis;
-    case 'trend_density': return s.trend_density;
-    case 'trend_growth': return s.trend_growth;
-    case 'trend_orientation': return s.trend_orientation;
-    case 'trend_recommend_poor': return s.trend_recommend_poor;
-    case 'trend_reliability': return s.trend_reliability;
-    case 'understood': return s.understood;
-    case 'undo': return s.undo;
-    case 'unknown': return s.unknown;
-    case 'unsaved_changes': return s.unsaved_changes;
-    case 'unsaved_changes_desc': return s.unsaved_changes_desc;
-    case 'utm_coordinates': return s.utm_coordinates;
-    case 'version': return s.version;
-    case 'viewer_3d_legend': return s.viewer_3d_legend;
-    case 'viewer_3d_no_data': return s.viewer_3d_no_data;
-    case 'viewer_3d_nothing_visible': return s.viewer_3d_nothing_visible;
-    case 'voice_note': return s.voice_note;
-    case 'voice_open_camera_hint': return s.voice_open_camera_hint;
-    case 'voice_record': return s.voice_record;
-    case 'warning_label': return s.warning_label;
-    case 'welcome_text': return s.welcome_text;
-    case 'width_cm': return s.width_cm;
-    case 'zoom_label': return s.zoom_label;
+    case 'about_app':
+      return s.about_app;
+    case 'acc_label':
+      return s.acc_label;
+    case 'accuracy':
+      return s.accuracy;
+    case 'actions_label':
+      return s.actions_label;
+    case 'active_point_label':
+      return s.active_point_label;
+    case 'add_first_station':
+      return s.add_first_station;
+    case 'add_gallery':
+      return s.add_gallery;
+    case 'admin':
+      return s.admin;
+    case 'admin_full_title':
+      return s.admin_full_title;
+    case 'ai_lithology_applied_hint':
+      return s.ai_lithology_applied_hint;
+    case 'ai_lithology_btn':
+      return s.ai_lithology_btn;
+    case 'ai_lithology_error':
+      return s.ai_lithology_error;
+    case 'ai_lithology_minerals_prefix':
+      return s.ai_lithology_minerals_prefix;
+    case 'ai_lithology_need_photo':
+      return s.ai_lithology_need_photo;
+    case 'ai_lithology_verify_type_prefix':
+      return s.ai_lithology_verify_type_prefix;
+    case 'ai_vertex_disabled_body':
+      return s.ai_vertex_disabled_body;
+    case 'ai_vertex_disabled_title':
+      return s.ai_vertex_disabled_title;
+    case 'ai_vertex_open_console':
+      return s.ai_vertex_open_console;
+    case 'ai_vertex_quota_billing_body':
+      return s.ai_vertex_quota_billing_body;
+    case 'ai_vertex_quota_billing_title':
+      return s.ai_vertex_quota_billing_title;
+    case 'all_projects':
+      return s.all_projects;
+    case 'all_stations':
+      return s.all_stations;
+    case 'altitude':
+      return s.altitude;
+    case 'altitude_offset_desc':
+      return s.altitude_offset_desc;
+    case 'analysis_alt_range':
+      return s.analysis_alt_range;
+    case 'analysis_avg_dip':
+      return s.analysis_avg_dip;
+    case 'analysis_circular_mean_strike':
+      return s.analysis_circular_mean_strike;
+    case 'analysis_dip_direction':
+      return s.analysis_dip_direction;
+    case 'analysis_extra_measurements':
+      return s.analysis_extra_measurements;
+    case 'analysis_fisher_stats':
+      return s.analysis_fisher_stats;
+    case 'analysis_general':
+      return s.analysis_general;
+    case 'analysis_measure_types':
+      return s.analysis_measure_types;
+    case 'analysis_orientation_mean':
+      return s.analysis_orientation_mean;
+    case 'analysis_primary_measurement':
+      return s.analysis_primary_measurement;
+    case 'analysis_project_count':
+      return s.analysis_project_count;
+    case 'analysis_projects':
+      return s.analysis_projects;
+    case 'analysis_rock_type':
+      return s.analysis_rock_type;
+    case 'analysis_rocks':
+      return s.analysis_rocks;
+    case 'analysis_stat_reliable':
+      return s.analysis_stat_reliable;
+    case 'analysis_stat_unreliable':
+      return s.analysis_stat_unreliable;
+    case 'analysis_station_count':
+      return s.analysis_station_count;
+    case 'analysis_strike_std':
+      return s.analysis_strike_std;
+    case 'analysis_tab_rose':
+      return s.analysis_tab_rose;
+    case 'analysis_tab_stereonet':
+      return s.analysis_tab_stereonet;
+    case 'analysis_tab_trends':
+      return s.analysis_tab_trends;
+    case 'analysis_with_gps':
+      return s.analysis_with_gps;
+    case 'analytics_weekly':
+      return s.analytics_weekly;
+    case 'app_description':
+      return s.app_description;
+    case 'app_look_label':
+      return s.app_look_label;
+    case 'app_title':
+      return s.app_title;
+    case 'apparent_dip_calc_title':
+      return s.apparent_dip_calc_title;
+    case 'apparent_dip_direction':
+      return s.apparent_dip_direction;
+    case 'apparent_dip_formula_hint':
+      return s.apparent_dip_formula_hint;
+    case 'apparent_dip_title':
+      return s.apparent_dip_title;
+    case 'apparent_note_body':
+      return s.apparent_note_body;
+    case 'apparent_section_azimuth':
+      return s.apparent_section_azimuth;
+    case 'apparent_true_dip':
+      return s.apparent_true_dip;
+    case 'archive':
+      return s.archive;
+    case 'area_label':
+      return s.area_label;
+    case 'auto_recommendation':
+      return s.auto_recommendation;
+    case 'azimuth_label':
+      return s.azimuth_label;
+    case 'bedding':
+      return s.bedding;
+    case 'by_project':
+      return s.by_project;
+    case 'by_rock_type':
+      return s.by_rock_type;
+    case 'calculate':
+      return s.calculate;
+    case 'calibration_instruction':
+      return s.calibration_instruction;
+    case 'camera':
+      return s.camera;
+    case 'camera_ar_anchor_failed':
+      return s.camera_ar_anchor_failed;
+    case 'camera_ar_geology_subtitle':
+      return s.camera_ar_geology_subtitle;
+    case 'camera_ar_geology_title':
+      return s.camera_ar_geology_title;
+    case 'camera_ar_no_plane_hit':
+      return s.camera_ar_no_plane_hit;
+    case 'camera_ar_node_failed':
+      return s.camera_ar_node_failed;
+    case 'camera_ar_session_stalled':
+      return s.camera_ar_session_stalled;
+    case 'camera_ar_snapshot_failed':
+      return s.camera_ar_snapshot_failed;
+    case 'camera_ar_tap_plane_hint':
+      return s.camera_ar_tap_plane_hint;
+    case 'camera_ar_torch_unavailable':
+      return s.camera_ar_torch_unavailable;
+    case 'camera_azimuth_short':
+      return s.camera_azimuth_short;
+    case 'camera_azimuth_subtitle':
+      return s.camera_azimuth_subtitle;
+    case 'camera_close_label':
+      return s.camera_close_label;
+    case 'camera_error':
+      return s.camera_error;
+    case 'camera_focus_mode_title':
+      return s.camera_focus_mode_title;
+    case 'camera_guide_button':
+      return s.camera_guide_button;
+    case 'camera_header_document':
+      return s.camera_header_document;
+    case 'camera_header_geology':
+      return s.camera_header_geology;
+    case 'camera_heading_info_line':
+      return s.camera_heading_info_line;
+    case 'camera_mode_document':
+      return s.camera_mode_document;
+    case 'camera_mode_geology':
+      return s.camera_mode_geology;
+    case 'camera_plane_attitude_subtitle':
+      return s.camera_plane_attitude_subtitle;
+    case 'camera_pro_sheet_hint':
+      return s.camera_pro_sheet_hint;
+    case 'camera_pro_short_label':
+      return s.camera_pro_short_label;
+    case 'camera_scale_label':
+      return s.camera_scale_label;
+    case 'camera_torch_label':
+      return s.camera_torch_label;
+    case 'camera_voice_mic_hint':
+      return s.camera_voice_mic_hint;
+    case 'camera_voice_record_label':
+      return s.camera_voice_record_label;
+    case 'cancel':
+      return s.cancel;
+    case 'cleavage':
+      return s.cleavage;
+    case 'close':
+      return s.close;
+    case 'color':
+      return s.color;
+    case 'color_chart_title':
+      return s.color_chart_title;
+    case 'compass':
+      return s.compass;
+    case 'compass_8_motion':
+      return s.compass_8_motion;
+    case 'compass_calibration':
+      return s.compass_calibration;
+    case 'compass_calibration_long':
+      return s.compass_calibration_long;
+    case 'compass_unreliable_warn':
+      return s.compass_unreliable_warn;
+    case 'confidence':
+      return s.confidence;
+    case 'confirm':
+      return s.confirm;
+    case 'confirm_delete':
+      return s.confirm_delete;
+    case 'confirm_delete_all':
+      return s.confirm_delete_all;
+    case 'confirm_delete_all_tracks':
+      return s.confirm_delete_all_tracks;
+    case 'contact':
+      return s.contact;
+    case 'coordinate_sync':
+      return s.coordinate_sync;
+    case 'count_suffix':
+      return s.count_suffix;
+    case 'create_btn':
+      return s.create_btn;
+    case 'custom_input':
+      return s.custom_input;
+    case 'dark_grey':
+      return s.dark_grey;
+    case 'dashboard':
+      return s.dashboard;
+    case 'dashboard_data_export':
+      return s.dashboard_data_export;
+    case 'dashboard_gis_import':
+      return s.dashboard_gis_import;
+    case 'dashboard_hero_title':
+      return s.dashboard_hero_title;
+    case 'dashboard_view_all':
+      return s.dashboard_view_all;
+    case 'delete':
+      return s.delete;
+    case 'delete_all_label':
+      return s.delete_all_label;
+    case 'delete_confirm_btn':
+      return s.delete_confirm_btn;
+    case 'delete_photo':
+      return s.delete_photo;
+    case 'delete_project_title':
+      return s.delete_project_title;
+    case 'delete_project_warn':
+      return s.delete_project_warn;
+    case 'density_heatmap':
+      return s.density_heatmap;
+    case 'description':
+      return s.description;
+    case 'description_hint':
+      return s.description_hint;
+    case 'dip':
+      return s.dip;
+    case 'dip_direction':
+      return s.dip_direction;
+    case 'dip_distribution':
+      return s.dip_distribution;
+    case 'dip_label':
+      return s.dip_label;
+    case 'distance_label':
+      return s.distance_label;
+    case 'distance_warning':
+      return s.distance_warning;
+    case 'document_align_hint':
+      return s.document_align_hint;
+    case 'dominant_direction':
+      return s.dominant_direction;
+    case 'download_confirm':
+      return s.download_confirm;
+    case 'download_pdf':
+      return s.download_pdf;
+    case 'download_region_tooltip':
+      return s.download_region_tooltip;
+    case 'draw_first_point_hint':
+      return s.draw_first_point_hint;
+    case 'draw_on_photo':
+      return s.draw_on_photo;
+    case 'drawing_name':
+      return s.drawing_name;
+    case 'drawing_saved':
+      return s.drawing_saved;
+    case 'dxf_notice_body':
+      return s.dxf_notice_body;
+    case 'dxf_notice_title':
+      return s.dxf_notice_title;
+    case 'echo_mode_on':
+      return s.echo_mode_on;
+    case 'eco_mode':
+      return s.eco_mode;
+    case 'edit_coordinates':
+      return s.edit_coordinates;
+    case 'edit_disable':
+      return s.edit_disable;
+    case 'edit_enable':
+      return s.edit_enable;
+    case 'edit_project':
+      return s.edit_project;
+    case 'elevation_lookup_failed':
+      return s.elevation_lookup_failed;
+    case 'elevation_lookup_progress':
+      return s.elevation_lookup_progress;
+    case 'expert_mode':
+      return s.expert_mode;
+    case 'export_actions_section':
+      return s.export_actions_section;
+    case 'export_csv':
+      return s.export_csv;
+    case 'export_geojson':
+      return s.export_geojson;
+    case 'export_kml':
+      return s.export_kml;
+    case 'export_no_stations':
+      return s.export_no_stations;
+    case 'export_pdf':
+      return s.export_pdf;
+    case 'export_select_project':
+      return s.export_select_project;
+    case 'export_stations_excel':
+      return s.export_stations_excel;
+    case 'export_title':
+      return s.export_title;
+    case 'field_assets':
+      return s.field_assets;
+    case 'field_utm_tap':
+      return s.field_utm_tap;
+    case 'field_workshop_banner':
+      return s.field_workshop_banner;
+    case 'field_workshop_ch1':
+      return s.field_workshop_ch1;
+    case 'field_workshop_ch2':
+      return s.field_workshop_ch2;
+    case 'field_workshop_ch3':
+      return s.field_workshop_ch3;
+    case 'field_workshop_checklist':
+      return s.field_workshop_checklist;
+    case 'field_workshop_fab_tooltip':
+      return s.field_workshop_fab_tooltip;
+    case 'field_workshop_stereonet':
+      return s.field_workshop_stereonet;
+    case 'field_workshop_title':
+      return s.field_workshop_title;
+    case 'filter':
+      return s.filter;
+    case 'firebase_local_only_banner':
+      return s.firebase_local_only_banner;
+    case 'fisher_dispersion':
+      return s.fisher_dispersion;
+    case 'fisher_gauge_high':
+      return s.fisher_gauge_high;
+    case 'fisher_reliability':
+      return s.fisher_reliability;
+    case 'fisher_reliability_help':
+      return s.fisher_reliability_help;
+    case 'fisher_stable':
+      return s.fisher_stable;
+    case 'fisher_stats':
+      return s.fisher_stats;
+    case 'foliated':
+      return s.foliated;
+    case 'general_settings_section':
+      return s.general_settings_section;
+    case 'geoloc_header':
+      return s.geoloc_header;
+    case 'gis_import_choose_file':
+      return s.gis_import_choose_file;
+    case 'gis_import_empty_result':
+      return s.gis_import_empty_result;
+    case 'gis_import_normalized_hint':
+      return s.gis_import_normalized_hint;
+    case 'gis_import_precheck_body':
+      return s.gis_import_precheck_body;
+    case 'gis_import_precheck_title':
+      return s.gis_import_precheck_title;
+    case 'gis_monitoring_active':
+      return s.gis_monitoring_active;
+    case 'gps_error':
+      return s.gps_error;
+    case 'gps_locked':
+      return s.gps_locked;
+    case 'gps_not_locked':
+      return s.gps_not_locked;
+    case 'gps_off_alert':
+      return s.gps_off_alert;
+    case 'gps_performance':
+      return s.gps_performance;
+    case 'gps_status_good':
+      return s.gps_status_good;
+    case 'gps_status_medium':
+      return s.gps_status_medium;
+    case 'gps_status_medium_short':
+      return s.gps_status_medium_short;
+    case 'gps_status_off':
+      return s.gps_status_off;
+    case 'gps_status_poor':
+      return s.gps_status_poor;
+    case 'gps_status_poor_short':
+      return s.gps_status_poor_short;
+    case 'gps_status_searching':
+      return s.gps_status_searching;
+    case 'gpx_export_unavailable':
+      return s.gpx_export_unavailable;
+    case 'grade_dist':
+      return s.grade_dist;
+    case 'ground_area_label':
+      return s.ground_area_label;
+    case 'hdop':
+      return s.hdop;
+    case 'height_cm':
+      return s.height_cm;
+    case 'high_accuracy_good':
+      return s.high_accuracy_good;
+    case 'hold':
+      return s.hold;
+    case 'horizon_level':
+      return s.horizon_level;
+    case 'hud_toggle':
+      return s.hud_toggle;
+    case 'input_data':
+      return s.input_data;
+    case 'joint':
+      return s.joint;
+    case 'language':
+      return s.language;
+    case 'last_update':
+      return s.last_update;
+    case 'lat_label':
+      return s.lat_label;
+    case 'lat_lon_error':
+      return s.lat_lon_error;
+    case 'layer_base_map':
+      return s.layer_base_map;
+    case 'layer_drawings':
+      return s.layer_drawings;
+    case 'layer_gis_kml':
+      return s.layer_gis_kml;
+    case 'layer_management':
+      return s.layer_management;
+    case 'layered':
+      return s.layered;
+    case 'layout_explanation':
+      return s.layout_explanation;
+    case 'layout_planner':
+      return s.layout_planner;
+    case 'light_grey':
+      return s.light_grey;
+    case 'light_toggle':
+      return s.light_toggle;
+    case 'line_action_edit':
+      return s.line_action_edit;
+    case 'line_property_name':
+      return s.line_property_name;
+    case 'line_property_notes':
+      return s.line_property_notes;
+    case 'line_property_title':
+      return s.line_property_title;
+    case 'lineation':
+      return s.lineation;
+    case 'lithology_data':
+      return s.lithology_data;
+    case 'lng_label':
+      return s.lng_label;
+    case 'loading':
+      return s.loading;
+    case 'location_denied_alert':
+      return s.location_denied_alert;
+    case 'mag_decl_short':
+      return s.mag_decl_short;
+    case 'magmatic':
+      return s.magmatic;
+    case 'magnetic_declination':
+      return s.magnetic_declination;
+    case 'magnetic_declination_desc':
+      return s.magnetic_declination_desc;
+    case 'mandatory_step_label':
+      return s.mandatory_step_label;
+    case 'map':
+      return s.map;
+    case 'map_3d_tooltip':
+      return s.map_3d_tooltip;
+    case 'map_draw_undo_caption':
+      return s.map_draw_undo_caption;
+    case 'map_elevation_center_tooltip':
+      return s.map_elevation_center_tooltip;
+    case 'map_eraser_hint':
+      return s.map_eraser_hint;
+    case 'map_eraser_tooltip':
+      return s.map_eraser_tooltip;
+    case 'map_error_prefix':
+      return s.map_error_prefix;
+    case 'map_export_geojson':
+      return s.map_export_geojson;
+    case 'map_follow_gps':
+      return s.map_follow_gps;
+    case 'map_gesture_undo_hint':
+      return s.map_gesture_undo_hint;
+    case 'map_layer_export_data':
+      return s.map_layer_export_data;
+    case 'map_layer_import_gis':
+      return s.map_layer_import_gis;
+    case 'map_line_deleted_snack':
+      return s.map_line_deleted_snack;
+    case 'map_measure_angle':
+      return s.map_measure_angle;
+    case 'map_measure_bearing':
+      return s.map_measure_bearing;
+    case 'map_measure_clear':
+      return s.map_measure_clear;
+    case 'map_measure_hint':
+      return s.map_measure_hint;
+    case 'map_measure_mode':
+      return s.map_measure_mode;
+    case 'map_my_location':
+      return s.map_my_location;
+    case 'map_offline_tiles_hint':
+      return s.map_offline_tiles_hint;
+    case 'map_pro_tools_subtitle':
+      return s.map_pro_tools_subtitle;
+    case 'map_pro_tools_title':
+      return s.map_pro_tools_title;
+    case 'map_radial_field_notes':
+      return s.map_radial_field_notes;
+    case 'map_radial_project_layers':
+      return s.map_radial_project_layers;
+    case 'map_radial_sampling':
+      return s.map_radial_sampling;
+    case 'map_radial_strike_dip':
+      return s.map_radial_strike_dip;
+    case 'map_redo_tooltip':
+      return s.map_redo_tooltip;
+    case 'map_search_empty':
+      return s.map_search_empty;
+    case 'map_search_error':
+      return s.map_search_error;
+    case 'map_search_hint':
+      return s.map_search_hint;
+    case 'map_search_locations_hint':
+      return s.map_search_locations_hint;
+    case 'map_search_searching':
+      return s.map_search_searching;
+    case 'map_slice_tooltip':
+      return s.map_slice_tooltip;
+    case 'map_start_stop_tracking':
+      return s.map_start_stop_tracking;
+    case 'map_structure_add_title':
+      return s.map_structure_add_title;
+    case 'map_structure_delete_body':
+      return s.map_structure_delete_body;
+    case 'map_structure_deleted_snack':
+      return s.map_structure_deleted_snack;
+    case 'map_structure_dip_label':
+      return s.map_structure_dip_label;
+    case 'map_structure_mode_hint':
+      return s.map_structure_mode_hint;
+    case 'map_structure_mode_tooltip':
+      return s.map_structure_mode_tooltip;
+    case 'map_structure_strike_label':
+      return s.map_structure_strike_label;
+    case 'map_structure_type_label':
+      return s.map_structure_type_label;
+    case 'map_style_osm':
+      return s.map_style_osm;
+    case 'map_style_satellite':
+      return s.map_style_satellite;
+    case 'map_style_topo':
+      return s.map_style_topo;
+    case 'map_tap_line_delete_message':
+      return s.map_tap_line_delete_message;
+    case 'map_track_fab_aria':
+      return s.map_track_fab_aria;
+    case 'map_ultra_pro_tooltip':
+      return s.map_ultra_pro_tooltip;
+    case 'massive':
+      return s.massive;
+    case 'measurement_error_high':
+      return s.measurement_error_high;
+    case 'measurement_label':
+      return s.measurement_label;
+    case 'measurements_count':
+      return s.measurements_count;
+    case 'medium_accuracy_warn':
+      return s.medium_accuracy_warn;
+    case 'messages_hub_title':
+      return s.messages_hub_title;
+    case 'messages_no_groups':
+      return s.messages_no_groups;
+    case 'messages_sync_started':
+      return s.messages_sync_started;
+    case 'messages_sync_tooltip':
+      return s.messages_sync_tooltip;
+    case 'metamorphic':
+      return s.metamorphic;
+    case 'mic_error':
+      return s.mic_error;
+    case 'millimetrovka_calc':
+      return s.millimetrovka_calc;
+    case 'munsell_color':
+      return s.munsell_color;
+    case 'nav_messages':
+      return s.nav_messages;
+    case 'nav_more':
+      return s.nav_more;
+    case 'new_project_hint':
+      return s.new_project_hint;
+    case 'new_project_title':
+      return s.new_project_title;
+    case 'new_station_btn':
+      return s.new_station_btn;
+    case 'next_station':
+      return s.next_station;
+    case 'no_data':
+      return s.no_data;
+    case 'no_local_data':
+      return s.no_local_data;
+    case 'no_stations_in_project':
+      return s.no_stations_in_project;
+    case 'note':
+      return s.note;
+    case 'note_saved':
+      return s.note_saved;
+    case 'notifications_empty_hint':
+      return s.notifications_empty_hint;
+    case 'notifications_open_chats':
+      return s.notifications_open_chats;
+    case 'notifications_screen_title':
+      return s.notifications_screen_title;
+    case 'observation_area_label':
+      return s.observation_area_label;
+    case 'offline_download':
+      return s.offline_download;
+    case 'open_map':
+      return s.open_map;
+    case 'other':
+      return s.other;
+    case 'paper_distance':
+      return s.paper_distance;
+    case 'paper_format_label':
+      return s.paper_format_label;
+    case 'pdf_report':
+      return s.pdf_report;
+    case 'perimeter_label':
+      return s.perimeter_label;
+    case 'photo_added':
+      return s.photo_added;
+    case 'photo_deleted_snack':
+      return s.photo_deleted_snack;
+    case 'photo_saved_limited_gps':
+      return s.photo_saved_limited_gps;
+    case 'poor_accuracy_warn':
+      return s.poor_accuracy_warn;
+    case 'power_saver':
+      return s.power_saver;
+    case 'professional_tag':
+      return s.professional_tag;
+    case 'profile_section_label':
+      return s.profile_section_label;
+    case 'project':
+      return s.project;
+    case 'project_and_archive':
+      return s.project_and_archive;
+    case 'project_label':
+      return s.project_label;
+    case 'project_stats':
+      return s.project_stats;
+    case 'projection_depth':
+      return s.projection_depth;
+    case 'projects_count':
+      return s.projects_count;
+    case 'real_distance':
+      return s.real_distance;
+    case 'record_error':
+      return s.record_error;
+    case 'recording_started':
+      return s.recording_started;
+    case 'records_count':
+      return s.records_count;
+    case 'red_ochre':
+      return s.red_ochre;
+    case 'reliability_index':
+      return s.reliability_index;
+    case 'rename':
+      return s.rename;
+    case 'rename_route':
+      return s.rename_route;
+    case 'results_count':
+      return s.results_count;
+    case 'rock_classification':
+      return s.rock_classification;
+    case 'rock_type':
+      return s.rock_type;
+    case 'role_geologist_admin':
+      return s.role_geologist_admin;
+    case 'rose_diagram_subtitle':
+      return s.rose_diagram_subtitle;
+    case 'rose_diagram_title':
+      return s.rose_diagram_title;
+    case 'route_name_prefix':
+      return s.route_name_prefix;
+    case 'route_not_found_back':
+      return s.route_not_found_back;
+    case 'route_not_found_body':
+      return s.route_not_found_body;
+    case 'route_not_found_title':
+      return s.route_not_found_title;
+    case 'route_saved_snack':
+      return s.route_saved_snack;
+    case 'routes':
+      return s.routes;
+    case 'rtk_fixed':
+      return s.rtk_fixed;
+    case 'ruler_calibration_title':
+      return s.ruler_calibration_title;
+    case 'ruler_label':
+      return s.ruler_label;
+    case 'sample_id':
+      return s.sample_id;
+    case 'sample_type':
+      return s.sample_type;
+    case 'satellites':
+      return s.satellites;
+    case 'save':
+      return s.save;
+    case 'save_drawing_title':
+      return s.save_drawing_title;
+    case 'save_first_hint':
+      return s.save_first_hint;
+    case 'save_label':
+      return s.save_label;
+    case 'scale_assistant_help_content':
+      return s.scale_assistant_help_content;
+    case 'scale_assistant_help_title':
+      return s.scale_assistant_help_title;
+    case 'scale_assistant_title':
+      return s.scale_assistant_title;
+    case 'scale_short':
+      return s.scale_short;
+    case 'search':
+      return s.search;
+    case 'searching_gps':
+      return s.searching_gps;
+    case 'sedimentary':
+      return s.sedimentary;
+    case 'select_two_points':
+      return s.select_two_points;
+    case 'selected_label':
+      return s.selected_label;
+    case 'selected_scale':
+      return s.selected_scale;
+    case 'session':
+      return s.session;
+    case 'session_pause_tooltip':
+      return s.session_pause_tooltip;
+    case 'settings':
+      return s.settings;
+    case 'share':
+      return s.share;
+    case 'signal_searching':
+      return s.signal_searching;
+    case 'snackbar_undo_restore':
+      return s.snackbar_undo_restore;
+    case 'snap_to_grid_label':
+      return s.snap_to_grid_label;
+    case 'sos_cancel':
+      return s.sos_cancel;
+    case 'sos_cancel_failed':
+      return s.sos_cancel_failed;
+    case 'sos_cancelled':
+      return s.sos_cancelled;
+    case 'sos_gps_unavailable':
+      return s.sos_gps_unavailable;
+    case 'sos_login_required':
+      return s.sos_login_required;
+    case 'sos_queue_cancel':
+      return s.sos_queue_cancel;
+    case 'sos_queue_cleared':
+      return s.sos_queue_cleared;
+    case 'sos_sent':
+      return s.sos_sent;
+    case 'splash_error_local_db':
+      return s.splash_error_local_db;
+    case 'splash_status_firebase':
+      return s.splash_status_firebase;
+    case 'splash_status_local_db':
+      return s.splash_status_local_db;
+    case 'splash_status_offline_tiles':
+      return s.splash_status_offline_tiles;
+    case 'splash_status_profile':
+      return s.splash_status_profile;
+    case 'splash_status_ready':
+      return s.splash_status_ready;
+    case 'splash_status_session':
+      return s.splash_status_session;
+    case 'splash_status_wmm':
+      return s.splash_status_wmm;
+    case 'start':
+      return s.start;
+    case 'station_project_label':
+      return s.station_project_label;
+    case 'station_saved':
+      return s.station_saved;
+    case 'stations':
+      return s.stations;
+    case 'stations_count':
+      return s.stations_count;
+    case 'stations_suffix':
+      return s.stations_suffix;
+    case 'statistics_label':
+      return s.statistics_label;
+    case 'stereonet_density_hint_label':
+      return s.stereonet_density_hint_label;
+    case 'stereonet_density_hint_value':
+      return s.stereonet_density_hint_value;
+    case 'stereonet_mean':
+      return s.stereonet_mean;
+    case 'stereonet_no_data':
+      return s.stereonet_no_data;
+    case 'stereonet_planes':
+      return s.stereonet_planes;
+    case 'stereonet_schmidt':
+      return s.stereonet_schmidt;
+    case 'stereonet_schmidt_desc':
+      return s.stereonet_schmidt_desc;
+    case 'stereonet_summary':
+      return s.stereonet_summary;
+    case 'stereonet_wulff':
+      return s.stereonet_wulff;
+    case 'stereonet_wulff_desc':
+      return s.stereonet_wulff_desc;
+    case 'stop':
+      return s.stop;
+    case 'strike':
+      return s.strike;
+    case 'strike_label':
+      return s.strike_label;
+    case 'structural_measurements':
+      return s.structural_measurements;
+    case 'structure':
+      return s.structure;
+    case 'structure_label':
+      return s.structure_label;
+    case 'success_saved':
+      return s.success_saved;
+    case 'sync':
+      return s.sync;
+    case 'sync_purpose_tooltip':
+      return s.sync_purpose_tooltip;
+    case 'system_online':
+      return s.system_online;
+    case 'tahlil_label':
+      return s.tahlil_label;
+    case 'theme_dark':
+      return s.theme_dark;
+    case 'theme_light':
+      return s.theme_light;
+    case 'theme_system':
+      return s.theme_system;
+    case 'three_d_structure':
+      return s.three_d_structure;
+    case 'time_label':
+      return s.time_label;
+    case 'today_only':
+      return s.today_only;
+    case 'total_stations':
+      return s.total_stations;
+    case 'total_stations_short':
+      return s.total_stations_short;
+    case 'track_start_failed':
+      return s.track_start_failed;
+    case 'tracking_started_snack':
+      return s.tracking_started_snack;
+    case 'trend_analysis':
+      return s.trend_analysis;
+    case 'trend_density':
+      return s.trend_density;
+    case 'trend_growth':
+      return s.trend_growth;
+    case 'trend_orientation':
+      return s.trend_orientation;
+    case 'trend_recommend_poor':
+      return s.trend_recommend_poor;
+    case 'trend_reliability':
+      return s.trend_reliability;
+    case 'understood':
+      return s.understood;
+    case 'undo':
+      return s.undo;
+    case 'unknown':
+      return s.unknown;
+    case 'unsaved_changes':
+      return s.unsaved_changes;
+    case 'unsaved_changes_desc':
+      return s.unsaved_changes_desc;
+    case 'utm_coordinates':
+      return s.utm_coordinates;
+    case 'version':
+      return s.version;
+    case 'viewer_3d_legend':
+      return s.viewer_3d_legend;
+    case 'viewer_3d_no_data':
+      return s.viewer_3d_no_data;
+    case 'viewer_3d_nothing_visible':
+      return s.viewer_3d_nothing_visible;
+    case 'voice_note':
+      return s.voice_note;
+    case 'voice_open_camera_hint':
+      return s.voice_open_camera_hint;
+    case 'voice_record':
+      return s.voice_record;
+    case 'warning_label':
+      return s.warning_label;
+    case 'welcome_text':
+      return s.welcome_text;
+    case 'width_cm':
+      return s.width_cm;
+    case 'zoom_label':
+      return s.zoom_label;
 
     default:
       return null;

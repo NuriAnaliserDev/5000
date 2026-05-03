@@ -42,7 +42,8 @@ class Station extends HiveObject {
   @HiveField(11)
   String? description;
 
-  @Deprecated('Use photoPaths instead. This is kept for backward compatibility.')
+  @Deprecated(
+      'Use photoPaths instead. This is kept for backward compatibility.')
   @HiveField(12)
   String? photoPath;
 
@@ -68,7 +69,7 @@ class Station extends HiveObject {
   double? dipDirection;
 
   @HiveField(19)
-  String? subMeasurementType; 
+  String? subMeasurementType;
 
   @HiveField(20)
   String? sampleId;
@@ -187,4 +188,3 @@ class Station extends HiveObject {
     );
   }
 }
-

@@ -41,7 +41,8 @@ class GeologyValidator {
     }
 
     // 4. Dip Direction (agar qo'yilgan bo'lsa) 0-360°
-    if (s.dipDirection != null && (s.dipDirection! < 0 || s.dipDirection! >= 360)) {
+    if (s.dipDirection != null &&
+        (s.dipDirection! < 0 || s.dipDirection! >= 360)) {
       return 'Dip Direction 0° va 360° oralig\'ida bo\'lishi shart!';
     }
 
@@ -115,7 +116,15 @@ class GeologyValidator {
     if (m.dipDirection < 0 || m.dipDirection >= 360) {
       return 'Dip Direction 0-360° oralig\'ida bo\'lishi shart!';
     }
-    const validTypes = {'bedding', 'cleavage', 'lineation', 'joint', 'contact', 'fault', 'other'};
+    const validTypes = {
+      'bedding',
+      'cleavage',
+      'lineation',
+      'joint',
+      'contact',
+      'fault',
+      'other'
+    };
     if (!validTypes.contains(m.type)) {
       return 'Noto\'g\'ri measurement type: ${m.type}';
     }
@@ -135,7 +144,8 @@ class GeologyValidator {
       return 'Chuqurlik 10000m dan katta bo\'lishi mumkin emas (yana tekshiring).';
     }
 
-    final totalLoads = int.tryParse(data['total_loads']?.toString() ?? '1') ?? 1;
+    final totalLoads =
+        int.tryParse(data['total_loads']?.toString() ?? '1') ?? 1;
     if (totalLoads <= 0) {
       return 'Reyslar soni kamida 1 ta bo\'lishi shart!';
     }
@@ -150,7 +160,8 @@ class GeologyValidator {
   /// Berilgan stansiyalar ro'yxatida sampleId takrorlanishi bo'lsa —
   /// qaytaradi. Professional geologik laboratoriyalar duplikatni qabul
   /// qilmaydi.
-  static String? findDuplicateSampleId(List<Station> stations, {String? excludeName}) {
+  static String? findDuplicateSampleId(List<Station> stations,
+      {String? excludeName}) {
     final seen = <String, String>{};
     for (final s in stations) {
       if (excludeName != null && s.name == excludeName) continue;

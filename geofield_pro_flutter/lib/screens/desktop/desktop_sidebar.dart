@@ -57,8 +57,7 @@ class DesktopSidebar extends StatelessWidget {
                 children: [
                   Icon(Icons.explore, color: theme.colorScheme.primary),
                   const SizedBox(width: 8),
-                  Text('GeoField Pro',
-                      style: theme.textTheme.titleMedium),
+                  Text('GeoField Pro', style: theme.textTheme.titleMedium),
                 ],
               ),
             ),
@@ -99,8 +98,10 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final bg = selected ? theme.colorScheme.primary.withValues(alpha: .12) : null;
-    final fg = selected ? theme.colorScheme.primary : theme.colorScheme.onSurface;
+    final bg =
+        selected ? theme.colorScheme.primary.withValues(alpha: .12) : null;
+    final fg =
+        selected ? theme.colorScheme.primary : theme.colorScheme.onSurface;
     return InkWell(
       onTap: onTap,
       child: Container(

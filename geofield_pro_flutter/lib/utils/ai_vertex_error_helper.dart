@@ -73,7 +73,8 @@ Uri fallbackVertexApiEnableUri() {
 
 /// Konsol havolasini ochadi: avvalo xatodan URL, bo‘lmasa Vertex AI API / loyiha.
 Future<bool> openVertexErrorLink(String rawError) async {
-  final u = parseGoogleCloudUrlFromError(rawError) ?? fallbackVertexApiEnableUri();
+  final u =
+      parseGoogleCloudUrlFromError(rawError) ?? fallbackVertexApiEnableUri();
   try {
     if (await canLaunchUrl(u)) {
       return await launchUrl(u, mode: LaunchMode.externalApplication);

@@ -16,7 +16,9 @@ class DashboardDesktopProjectSection extends StatelessWidget {
       decoration: BoxDecoration(
         color: t.colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 15)],
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 15)
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -25,7 +27,8 @@ class DashboardDesktopProjectSection extends StatelessWidget {
             children: [
               const Icon(Icons.folder_open, color: Colors.indigo, size: 22),
               const SizedBox(width: 12),
-              const Text('Active Project', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text('Active Project',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const Spacer(),
               _ProjectPicker(
                 projects: settings.projects,
@@ -61,9 +64,15 @@ class DashboardDesktopProjectSection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.bold)),
+            Text(label,
+                style: const TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.bold)),
             const SizedBox(height: 6),
-            Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: color)),
+            Text(value,
+                style: TextStyle(
+                    fontSize: 16, fontWeight: FontWeight.bold, color: color)),
           ],
         ),
       ),
@@ -76,13 +85,15 @@ class _ProjectPicker extends StatelessWidget {
   final String current;
   final Function(String) onSelect;
 
-  const _ProjectPicker({required this.projects, required this.current, required this.onSelect});
+  const _ProjectPicker(
+      {required this.projects, required this.current, required this.onSelect});
 
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<String>(
       onSelected: onSelect,
-      itemBuilder: (ctx) => projects.map((p) => PopupMenuItem(value: p, child: Text(p))).toList(),
+      itemBuilder: (ctx) =>
+          projects.map((p) => PopupMenuItem(value: p, child: Text(p))).toList(),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
@@ -91,7 +102,9 @@ class _ProjectPicker extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Text(current, style: const TextStyle(color: Colors.indigo, fontWeight: FontWeight.bold)),
+            Text(current,
+                style: const TextStyle(
+                    color: Colors.indigo, fontWeight: FontWeight.bold)),
             const Icon(Icons.arrow_drop_down, color: Colors.indigo),
           ],
         ),

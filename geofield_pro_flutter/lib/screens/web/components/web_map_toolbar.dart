@@ -30,21 +30,27 @@ class WebMapToolbar extends StatelessWidget {
             icon: Icons.add,
             label: '',
             color: Colors.grey.shade700,
-            onTap: () => mapController.move(mapController.camera.center, mapController.camera.zoom + 1),
+            onTap: () => mapController.move(
+                mapController.camera.center, mapController.camera.zoom + 1),
           ),
           const SizedBox(height: 4),
           _toolbarBtn(
             icon: Icons.remove,
             label: '',
             color: Colors.grey.shade700,
-            onTap: () => mapController.move(mapController.camera.center, mapController.camera.zoom - 1),
+            onTap: () => mapController.move(
+                mapController.camera.center, mapController.camera.zoom - 1),
           ),
         ],
       ),
     );
   }
 
-  Widget _toolbarBtn({required IconData icon, required String label, required Color color, required VoidCallback onTap}) {
+  Widget _toolbarBtn(
+      {required IconData icon,
+      required String label,
+      required Color color,
+      required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -52,7 +58,9 @@ class WebMapToolbar extends StatelessWidget {
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(8),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 6)],
+          boxShadow: [
+            BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 6)
+          ],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -60,7 +68,11 @@ class WebMapToolbar extends StatelessWidget {
             Icon(icon, color: Colors.white, size: 16),
             if (label.isNotEmpty) ...[
               const SizedBox(width: 6),
-              Text(label, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+              Text(label,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold)),
             ]
           ],
         ),

@@ -18,7 +18,8 @@ class AutoScrollText extends StatefulWidget {
   State<AutoScrollText> createState() => _AutoScrollTextState();
 }
 
-class _AutoScrollTextState extends State<AutoScrollText> with SingleTickerProviderStateMixin {
+class _AutoScrollTextState extends State<AutoScrollText>
+    with SingleTickerProviderStateMixin {
   late ScrollController _scrollController;
   late AnimationController _animationController;
 
@@ -26,15 +27,15 @@ class _AutoScrollTextState extends State<AutoScrollText> with SingleTickerProvid
   void initState() {
     super.initState();
     _scrollController = ScrollController();
-    _animationController = AnimationController(
-        vsync: this, duration: widget.scrollDuration)
-      ..addListener(() {
-        if (_scrollController.hasClients &&
-            _scrollController.position.maxScrollExtent > 0) {
-          _scrollController.jumpTo(_animationController.value *
-              _scrollController.position.maxScrollExtent);
-        }
-      });
+    _animationController =
+        AnimationController(vsync: this, duration: widget.scrollDuration)
+          ..addListener(() {
+            if (_scrollController.hasClients &&
+                _scrollController.position.maxScrollExtent > 0) {
+              _scrollController.jumpTo(_animationController.value *
+                  _scrollController.position.maxScrollExtent);
+            }
+          });
     _animationController.repeat(reverse: true);
   }
 

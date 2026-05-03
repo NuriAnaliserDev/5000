@@ -42,24 +42,38 @@ class UtmWgs84 {
     final n = a / math.sqrt(1 - e2 * math.sin(lat) * math.sin(lat));
     final t = math.tan(lat) * math.tan(lat);
     final c = ep2 * math.cos(lat) * math.cos(lat);
-    final m = a * ((1 - e2 / 4 - 3 * e4 / 64 - 5 * e6 / 256) * lat -
-        (3 * e2 / 8 + 3 * e4 / 32 + 45 * e6 / 1024) * math.sin(2 * lat) +
-        (15 * e4 / 256 + 45 * e6 / 1024) * math.sin(4 * lat) -
-        (35 * e6 / 3072) * math.sin(6 * lat));
+    final m = a *
+        ((1 - e2 / 4 - 3 * e4 / 64 - 5 * e6 / 256) * lat -
+            (3 * e2 / 8 + 3 * e4 / 32 + 45 * e6 / 1024) * math.sin(2 * lat) +
+            (15 * e4 / 256 + 45 * e6 / 1024) * math.sin(4 * lat) -
+            (35 * e6 / 3072) * math.sin(6 * lat));
     final dlon = lon - lon0;
     final d2 = dlon * dlon;
     final d3 = d2 * dlon;
     final d4 = d3 * dlon;
     final d5 = d4 * dlon;
     final d6 = d5 * dlon;
-    var x = k0 * n * (dlon * math.cos(lat) +
-        (1 - t + c) * d3 * math.pow(math.cos(lat), 3) / 6 +
-        (5 - 18 * t + t * t + 72 * c - 58 * ep2) *
-            d5 * math.pow(math.cos(lat), 5) / 120);
-    var y = k0 * (m + n * math.tan(lat) * (d2 * math.cos(lat) * math.cos(lat) / 2 +
-        (5 - t + 9 * c + 4 * c * c) * d4 * math.pow(math.cos(lat), 4) / 24 +
-        (61 - 58 * t + t * t + 600 * c - 330 * ep2) *
-            d6 * math.pow(math.cos(lat), 6) / 720));
+    var x = k0 *
+        n *
+        (dlon * math.cos(lat) +
+            (1 - t + c) * d3 * math.pow(math.cos(lat), 3) / 6 +
+            (5 - 18 * t + t * t + 72 * c - 58 * ep2) *
+                d5 *
+                math.pow(math.cos(lat), 5) /
+                120);
+    var y = k0 *
+        (m +
+            n *
+                math.tan(lat) *
+                (d2 * math.cos(lat) * math.cos(lat) / 2 +
+                    (5 - t + 9 * c + 4 * c * c) *
+                        d4 *
+                        math.pow(math.cos(lat), 4) /
+                        24 +
+                    (61 - 58 * t + t * t + 600 * c - 330 * ep2) *
+                        d6 *
+                        math.pow(math.cos(lat), 6) /
+                        720));
     x = x + 500000;
     if (p.latitude < 0) {
       y += 10000000; // South hemisphere

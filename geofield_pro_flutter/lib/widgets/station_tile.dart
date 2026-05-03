@@ -31,14 +31,13 @@ class StationTile extends StatelessWidget {
     final onSurface = Theme.of(context).colorScheme.onSurface;
 
     return Material(
-      color: selected
-          ? primary.withValues(alpha: 0.12)
-          : surface,
+      color: selected ? primary.withValues(alpha: 0.12) : surface,
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         borderRadius: BorderRadius.circular(14),
         onTap: onTap ??
-            () => Navigator.of(context, rootNavigator: true).pushNamed('/station', arguments: station.key),
+            () => Navigator.of(context, rootNavigator: true)
+                .pushNamed('/station', arguments: station.key),
         onLongPress: onLongPress,
         child: Padding(
           padding: const EdgeInsets.all(12),
@@ -52,7 +51,8 @@ class StationTile extends StatelessWidget {
                         ? Icons.check_circle_rounded
                         : Icons.radio_button_unchecked,
                     size: 22,
-                    color: selected ? primary : onSurface.withValues(alpha: 0.4),
+                    color:
+                        selected ? primary : onSurface.withValues(alpha: 0.4),
                   ),
                 )
               else

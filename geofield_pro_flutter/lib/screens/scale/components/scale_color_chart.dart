@@ -60,8 +60,11 @@ class ScaleColorChart extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: AutoScrollText(
-                  text: colors[index]['name'], 
-                  style: const TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold),
+                  text: colors[index]['name'],
+                  style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold),
                 ),
               ),
             ],

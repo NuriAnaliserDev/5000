@@ -11,7 +11,8 @@ class DashboardDesktopBentoGrid extends StatelessWidget {
 
   final bool isDark;
 
-  const DashboardDesktopBentoGrid({super.key, required this.stations, required this.isDark});
+  const DashboardDesktopBentoGrid(
+      {super.key, required this.stations, required this.isDark});
 
   @override
   Widget build(BuildContext context) {
@@ -37,9 +38,15 @@ class DashboardDesktopBentoGrid extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(colors: [Color(0xFF1565C0), Color(0xFF1E88E5)]),
+        gradient: const LinearGradient(
+            colors: [Color(0xFF1565C0), Color(0xFF1E88E5)]),
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.blue.withValues(alpha: 0.2), blurRadius: 15, offset: const Offset(0, 8))],
+        boxShadow: [
+          BoxShadow(
+              color: Colors.blue.withValues(alpha: 0.2),
+              blurRadius: 15,
+              offset: const Offset(0, 8))
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,13 +54,23 @@ class DashboardDesktopBentoGrid extends StatelessWidget {
         children: [
           const Icon(Icons.bolt, color: Colors.white, size: 32),
           const SizedBox(height: 16),
-          const Text('New Survey', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+          const Text('New Survey',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          Text('Quickly start a new geological station survey.', style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 13)),
+          Text('Quickly start a new geological station survey.',
+              style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.8), fontSize: 13)),
           const Spacer(),
           ElevatedButton(
             onPressed: () {},
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.blue, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.blue,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10))),
             child: const Text('Launch Tool'),
           ),
         ],

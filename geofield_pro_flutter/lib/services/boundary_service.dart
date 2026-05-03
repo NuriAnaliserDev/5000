@@ -23,11 +23,14 @@ class BoundaryImportResult {
   final String extension;
   final int importedCount;
   final int skippedCount;
+
   /// WGS-84 tekshiruvidan keyin rad etilgan (UTM/koordinata buzilgan)
   final int skippedInvalidCoordinates;
+
   /// Nuqtalar soni kamida 2 emas
   final int skippedTooFewPoints;
   final bool normalizedCoordinates;
+
   /// Xarita oynasini ushbu importga yig‘ish (bo‘sh bo‘lmasa).
   final List<LatLng> fitPoints;
 
@@ -74,14 +77,17 @@ class BoundaryService extends ChangeNotifier {
       if (data == null) return;
       final v = data['createdByUid'];
       if (v != null && v.toString().isNotEmpty) return;
-      await fs.collection('global_boundaries').doc(docId).update({'createdByUid': uid});
+      await fs
+          .collection('global_boundaries')
+          .doc(docId)
+          .update({'createdByUid': uid});
     } catch (e) {
       debugPrint('_ensureGlobalBoundaryCreatorClaim: $e');
     }
   }
 
-  List<BoundaryPolygon> get boundaries =>
-      List<BoundaryPolygon>.unmodifiable([..._cloudBoundaries, ..._localBoundaries]);
+  List<BoundaryPolygon> get boundaries => List<BoundaryPolygon>.unmodifiable(
+      [..._cloudBoundaries, ..._localBoundaries]);
 
   BoundaryService() {
     _initCloudSync();
@@ -104,7 +110,10 @@ class BoundaryService extends ChangeNotifier {
   }
 
   static String _decodeImportText(Uint8List bytes) {
-    if (bytes.length >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF) {
+    if (bytes.length >= 3 &&
+        bytes[0] == 0xEF &&
+        bytes[1] == 0xBB &&
+        bytes[2] == 0xBF) {
       return utf8.decode(bytes.sublist(3));
     }
     try {
@@ -253,7 +262,8 @@ class BoundaryService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updatePolygonVertex(String polygonId, int vertexIndex, LatLng newPos) async {
+  Future<void> updatePolygonVertex(
+      String polygonId, int vertexIndex, LatLng newPos) async {
     final li = _localBoundaries.indexWhere((b) => b.id == polygonId);
     if (li >= 0) {
       final poly = _localBoundaries[li];
@@ -290,7 +300,9 @@ class BoundaryService extends ChangeNotifier {
     try {
       await _ensureGlobalBoundaryCreatorClaim(polygonId);
       await fs.collection('global_boundaries').doc(polygonId).update({
-        'points': newPoints.map((p) => {'lat': p.latitude, 'lng': p.longitude}).toList(),
+        'points': newPoints
+            .map((p) => {'lat': p.latitude, 'lng': p.longitude})
+            .toList(),
       });
     } catch (e) {
       debugPrint("updatePolygonVertex error: $e");
@@ -334,15 +346,17 @@ class BoundaryService extends ChangeNotifier {
           newPolys = GeojsonImportParser.parse(content, filename);
         }
       } else if (ext == 'shp') {
-        newPolys = ShpShapefileParser.parse(
-            Uint8List.fromList(file.bytes!), filename);
+        newPolys =
+            ShpShapefileParser.parse(Uint8List.fromList(file.bytes!), filename);
       } else if (ext == 'gpkg') {
         if (kIsWeb) {
-          throw Exception("GeoPackage (.gpkg) brauzerda import qilib bo'lmaydi (SQLite yo'q).");
+          throw Exception(
+              "GeoPackage (.gpkg) brauzerda import qilib bo'lmaydi (SQLite yo'q).");
         }
         final dir = await getTemporaryDirectory();
         final tmp = io.File(
-          p.join(dir.path, 'gpkg_import_${DateTime.now().millisecondsSinceEpoch}.gpkg'),
+          p.join(dir.path,
+              'gpkg_import_${DateTime.now().millisecondsSinceEpoch}.gpkg'),
         );
         await tmp.writeAsBytes(file.bytes!);
         try {

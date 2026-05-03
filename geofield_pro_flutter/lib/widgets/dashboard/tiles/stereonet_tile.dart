@@ -25,8 +25,7 @@ class _StereonetTileState extends State<StereonetTile> {
   List<List<double>>? _densityGrid;
   int? _scheduledForGen;
 
-  Future<void> _loadForStations(
-    int gen, List<Station> stations) async {
+  Future<void> _loadForStations(int gen, List<Station> stations) async {
     const r = _size / 2 - 12;
     final g = await runStereonetDensityCompute(
       stations: stations,
@@ -67,7 +66,10 @@ class _StereonetTileState extends State<StereonetTile> {
               size: const Size(_size, _size),
               painter: StereonetPainter(
                 stations: stations,
-                typeColor: const {'bedding': Colors.blue, 'foliation': Colors.orange},
+                typeColor: const {
+                  'bedding': Colors.blue,
+                  'foliation': Colors.orange
+                },
                 isDark: widget.isDark,
                 projection: StereonetProjection.schmidt,
                 showContours: true,
@@ -80,7 +82,8 @@ class _StereonetTileState extends State<StereonetTile> {
             left: 4,
             child: Text(
               context.loc('stereonet_summary'),
-              style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.grey),
+              style: const TextStyle(
+                  fontSize: 9, fontWeight: FontWeight.bold, color: Colors.grey),
             ),
           ),
         ],

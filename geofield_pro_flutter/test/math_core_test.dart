@@ -95,7 +95,8 @@ void main() {
     });
 
     test('perpendicular: nol kenglik', () {
-      expect(ThicknessCalculator.perpendicular(outcropWidth: 0, trueDip: 45), 0);
+      expect(
+          ThicknessCalculator.perpendicular(outcropWidth: 0, trueDip: 45), 0);
     });
 
     test('horizontalGround: traverse parallel strike → qalinlik 0', () {
@@ -119,7 +120,9 @@ void main() {
       );
     });
 
-    test('dippingGround: α=0 — Palmer (cos β) sin δ; horizontalGround esa sin β sin δ', () {
+    test(
+        'dippingGround: α=0 — Palmer (cos β) sin δ; horizontalGround esa sin β sin δ',
+        () {
       const w = 12.0;
       const d = 35.0;
       const tr = 30.0;
@@ -128,9 +131,8 @@ void main() {
       // β = 30°: Palmer α=0 da TT = W·cos(β)·sin(δ) (belgiga qarab);
       double beta = (tr - st).abs() % 180.0;
       if (beta > 90.0) beta = 180.0 - beta;
-      final expected = w *
-          math.cos(beta * math.pi / 180) *
-          math.sin(d * math.pi / 180);
+      final expected =
+          w * math.cos(beta * math.pi / 180) * math.sin(d * math.pi / 180);
       final palmer = ThicknessCalculator.dippingGround(
         outcropWidth: w,
         trueDip: d,
@@ -186,7 +188,9 @@ void main() {
   });
 
   group('WmmModel', () {
-    test('declination: hisoblanganda cheksiz emas (model NOAA bilan keyinroq solishtiriladi)', () {
+    test(
+        'declination: hisoblanganda cheksiz emas (model NOAA bilan keyinroq solishtiriladi)',
+        () {
       final wmm = WmmModel.embedded();
       final dec = wmm.declination(
         lat: 38.9,
@@ -199,7 +203,8 @@ void main() {
 
     test('inclination: shimoliy yarim sharda odatda musbat (pastga)', () {
       final wmm = WmmModel.embedded();
-      final f = wmm.calculate(lat: 50, lng: 10, date: DateTime.utc(2026, 6, 15));
+      final f =
+          wmm.calculate(lat: 50, lng: 10, date: DateTime.utc(2026, 6, 15));
       expect(f.inclination, inInclusiveRange(40.0, 80.0));
     });
 

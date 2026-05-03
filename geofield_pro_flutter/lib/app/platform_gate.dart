@@ -32,9 +32,7 @@ class PlatformGate extends StatelessWidget {
 
     if (_isDesktopExe()) {
       final auth = context.watch<AuthService>();
-      return auth.isAuthenticated
-          ? const DesktopShell()
-          : const AuthScreen();
+      return auth.isAuthenticated ? const DesktopShell() : const AuthScreen();
     }
 
     return const MainTabShell();

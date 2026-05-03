@@ -378,11 +378,8 @@ class CloudSyncService extends ChangeNotifier {
       final fs = _firestore;
       if (fs == null) return;
       final batch = fs.batch();
-      final snapshot = await fs
-          .collection('users')
-          .doc(uid)
-          .collection('stations')
-          .get();
+      final snapshot =
+          await fs.collection('users').doc(uid).collection('stations').get();
 
       for (var doc in snapshot.docs) {
         batch.delete(doc.reference);

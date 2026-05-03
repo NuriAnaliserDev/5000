@@ -55,7 +55,8 @@ class AiLithologyService {
         model: 'gemini-2.5-flash',
         generationConfig: GenerationConfig(
           responseMimeType: 'application/json',
-          temperature: 0.1, // Low temperature for factual, deterministic analysis
+          temperature:
+              0.1, // Low temperature for factual, deterministic analysis
         ),
       );
 
@@ -86,7 +87,7 @@ Javob berish formati (JSON):
       ];
 
       final response = await model.generateContent(content);
-      
+
       final respText = response.text;
       if (respText == null || respText.isEmpty) {
         throw Exception("Vertex AIDan javob kelmadi.");

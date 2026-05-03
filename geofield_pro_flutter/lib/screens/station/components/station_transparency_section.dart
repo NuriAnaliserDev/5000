@@ -23,7 +23,11 @@ class StationTransparencySection extends StatelessWidget {
       children: [
         const Text(
           "SHAFFOFLIK VA HISOBOT (JORC)",
-          style: TextStyle(fontSize: 11, letterSpacing: 2, color: Colors.grey, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              fontSize: 11,
+              letterSpacing: 2,
+              color: Colors.grey,
+              fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         Container(
@@ -31,7 +35,9 @@ class StationTransparencySection extends StatelessWidget {
           decoration: BoxDecoration(
             color: formFill,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.1)),
+            border: Border.all(
+                color: (isDark ? Colors.white : Colors.black)
+                    .withValues(alpha: 0.1)),
           ),
           child: Column(
             children: [
@@ -39,7 +45,8 @@ class StationTransparencySection extends StatelessWidget {
                 context,
                 icon: Icons.history,
                 title: 'O\'zgarishlar Tarixi',
-                subtitle: '${station.history?.length ?? 0} ta o\'zgarish qayd etilgan',
+                subtitle:
+                    '${station.history?.length ?? 0} ta o\'zgarish qayd etilgan',
                 onTap: onShowAudit,
                 color: Colors.orange,
               ),
@@ -73,7 +80,8 @@ class StationTransparencySection extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
+            decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
             child: Icon(icon, color: color, size: 20),
           ),
           const SizedBox(width: 16),
@@ -81,8 +89,11 @@ class StationTransparencySection extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                Text(subtitle, style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                Text(title,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 13)),
+                Text(subtitle,
+                    style: const TextStyle(color: Colors.grey, fontSize: 11)),
               ],
             ),
           ),

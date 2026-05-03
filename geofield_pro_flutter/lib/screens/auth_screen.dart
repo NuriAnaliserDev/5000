@@ -66,9 +66,8 @@ class _AuthScreenState extends State<AuthScreen> {
         ? await auth.register(
             email,
             password,
-            displayName: _nameCtrl.text.trim().isEmpty
-                ? null
-                : _nameCtrl.text.trim(),
+            displayName:
+                _nameCtrl.text.trim().isEmpty ? null : _nameCtrl.text.trim(),
           )
         : await auth.login(email, password);
 
@@ -99,9 +98,8 @@ class _AuthScreenState extends State<AuthScreen> {
     final completed = await UserFlagsService.getOnboardingCompleted(user.uid);
     if (!mounted) return;
 
-    final showOnboarding = _register
-        ? (completed != true)
-        : (completed == false);
+    final showOnboarding =
+        _register ? (completed != true) : (completed == false);
 
     if (showOnboarding) {
       Navigator.of(context).pushReplacementNamed(AppRouter.onboarding);
@@ -194,7 +192,8 @@ class _AuthScreenState extends State<AuthScreen> {
                       });
                     },
                     borderRadius: BorderRadius.circular(12),
-                    constraints: const BoxConstraints(minHeight: 40, minWidth: 88),
+                    constraints:
+                        const BoxConstraints(minHeight: 40, minWidth: 88),
                     children: const [
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16),
@@ -236,7 +235,9 @@ class _AuthScreenState extends State<AuthScreen> {
                       border: const OutlineInputBorder(),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                          _obscure
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
                         ),
                         onPressed: () => setState(() => _obscure = !_obscure),
                       ),
@@ -278,7 +279,8 @@ class _AuthScreenState extends State<AuthScreen> {
                           ? const SizedBox(
                               width: 22,
                               height: 22,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.white),
                             )
                           : Text(
                               _register ? 'RO\'YXATDAN O\'TISH' : 'KIRISH',

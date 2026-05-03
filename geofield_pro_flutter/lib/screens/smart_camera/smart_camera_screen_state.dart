@@ -61,8 +61,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
       geologicalArSupportedPlatform();
 
   /// IndexedStack: boshqa tab ochiqida vidjet ochilgan bo‘lsa ham kamera/AR ishlamasin.
-  bool get _cameraSurfaceActive =>
-      !widget.embedded || widget.tabVisible;
+  bool get _cameraSurfaceActive => !widget.embedded || widget.tabVisible;
 
   /// Tab ko‘rinishi yoki hayotiy sikl — faqat ochiq tabda sessiya ishga tushadi.
   void _ensureCameraMatchesMode() {
@@ -554,7 +553,8 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
     if (settings.hasSeenCameraTutorial) {
       return;
     }
-    _presentCameraTutorial(onFinish: () => settings.hasSeenCameraTutorial = true);
+    _presentCameraTutorial(
+        onFinish: () => settings.hasSeenCameraTutorial = true);
   }
 
   void _presentCameraTutorial({required VoidCallback onFinish}) {
@@ -791,8 +791,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
             s.geologicalArEnabled = false;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content:
-                    Text(context.locRead('camera_ar_session_stalled')),
+                content: Text(context.locRead('camera_ar_session_stalled')),
                 behavior: SnackBarBehavior.floating,
               ),
             );
@@ -986,7 +985,9 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
                 right: 0,
                 child: Center(child: _buildGuideChip()),
               ),
-            if (_cameraMode == CameraMode.geological && _showHud && !_geologicalArActive)
+            if (_cameraMode == CameraMode.geological &&
+                _showHud &&
+                !_geologicalArActive)
               _buildLevelIndicator(),
             if (_cameraMode == CameraMode.document) ...[
               const CameraDocumentViewfinder(),

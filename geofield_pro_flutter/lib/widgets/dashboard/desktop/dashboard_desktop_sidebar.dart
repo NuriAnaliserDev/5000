@@ -17,18 +17,23 @@ class DashboardDesktopSidebar extends StatelessWidget {
       width: 280,
       decoration: BoxDecoration(
         color: t.colorScheme.surface,
-        border: Border(right: BorderSide(color: t.dividerColor.withValues(alpha: 0.5))),
+        border: Border(
+            right: BorderSide(color: t.dividerColor.withValues(alpha: 0.5))),
       ),
       child: Column(
         children: [
           _buildBrand(t),
           const SizedBox(height: 32),
-          _buildItem(context, 0, Icons.dashboard_outlined, Icons.dashboard, 'Workbench'),
+          _buildItem(context, 0, Icons.dashboard_outlined, Icons.dashboard,
+              'Workbench'),
           _buildItem(context, 1, Icons.map_outlined, Icons.map, 'Field Map'),
-          _buildItem(context, 2, Icons.analytics_outlined, Icons.analytics, 'Analytics'),
-          _buildItem(context, 3, Icons.cloud_outlined, Icons.cloud, 'Cloud Sync'),
+          _buildItem(context, 2, Icons.analytics_outlined, Icons.analytics,
+              'Analytics'),
+          _buildItem(
+              context, 3, Icons.cloud_outlined, Icons.cloud, 'Cloud Sync'),
           const Spacer(),
-          _buildItem(context, 4, Icons.settings_outlined, Icons.settings, 'Settings'),
+          _buildItem(
+              context, 4, Icons.settings_outlined, Icons.settings, 'Settings'),
           const SizedBox(height: 24),
         ],
       ),
@@ -96,7 +101,9 @@ class DashboardDesktopSidebar extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? c.primary.withValues(alpha: 0.12) : Colors.transparent,
+            color: isSelected
+                ? c.primary.withValues(alpha: 0.12)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
@@ -112,7 +119,9 @@ class DashboardDesktopSidebar extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  color: isSelected ? c.primary : c.onSurface.withValues(alpha: 0.75),
+                  color: isSelected
+                      ? c.primary
+                      : c.onSurface.withValues(alpha: 0.75),
                 ),
               ),
               if (isSelected) ...[
@@ -120,7 +129,8 @@ class DashboardDesktopSidebar extends StatelessWidget {
                 Container(
                   width: 4,
                   height: 4,
-                  decoration: BoxDecoration(color: c.primary, shape: BoxShape.circle),
+                  decoration:
+                      BoxDecoration(color: c.primary, shape: BoxShape.circle),
                 ),
               ]
             ],

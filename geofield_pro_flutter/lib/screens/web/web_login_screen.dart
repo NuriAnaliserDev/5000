@@ -130,9 +130,11 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                         decoration: BoxDecoration(
                           color: const Color(0xFF1565C0).withValues(alpha: 0.2),
                           shape: BoxShape.circle,
-                          border: Border.all(color: const Color(0xFF1565C0), width: 2),
+                          border: Border.all(
+                              color: const Color(0xFF1565C0), width: 2),
                         ),
-                        child: const Icon(Icons.terrain, size: 40, color: Color(0xFF42A5F5)),
+                        child: const Icon(Icons.terrain,
+                            size: 40, color: Color(0xFF42A5F5)),
                       ),
                     ),
                   ),
@@ -151,7 +153,10 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                   const Text(
                     'Dashboard',
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Color(0xFF42A5F5), fontSize: 13, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                        color: Color(0xFF42A5F5),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 12),
                   ToggleButtons(
@@ -185,16 +190,19 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                       decoration: BoxDecoration(
                         color: Colors.redAccent.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.redAccent.withValues(alpha: 0.5)),
+                        border: Border.all(
+                            color: Colors.redAccent.withValues(alpha: 0.5)),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.error_outline, color: Colors.redAccent, size: 18),
+                          const Icon(Icons.error_outline,
+                              color: Colors.redAccent, size: 18),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               _errorMsg!,
-                              style: const TextStyle(color: Colors.redAccent, fontSize: 13),
+                              style: const TextStyle(
+                                  color: Colors.redAccent, fontSize: 13),
                             ),
                           ),
                         ],
@@ -226,11 +234,14 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                     onSubmitted: (_) => _submit(),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                        _obscurePassword
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
                         color: Colors.grey,
                         size: 18,
                       ),
-                      onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                      onPressed: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
                     ),
                   ),
                   if (_register) ...[
@@ -251,19 +262,27 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF1565C0),
                         foregroundColor: Colors.white,
-                        disabledBackgroundColor: const Color(0xFF1565C0).withValues(alpha: 0.5),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        disabledBackgroundColor:
+                            const Color(0xFF1565C0).withValues(alpha: 0.5),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
                         elevation: 0,
                       ),
                       child: _isLoading
                           ? const SizedBox(
                               width: 20,
                               height: 20,
-                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                              child: CircularProgressIndicator(
+                                  color: Colors.white, strokeWidth: 2),
                             )
                           : Text(
-                              _register ? 'RO\'YXATDAN O\'TISH' : 'TIZIMGA KIRISH',
-                              style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 14),
+                              _register
+                                  ? 'RO\'YXATDAN O\'TISH'
+                                  : 'TIZIMGA KIRISH',
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.5,
+                                  fontSize: 14),
                             ),
                     ),
                   ),
@@ -312,7 +331,8 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFF1565C0), width: 1.5),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
     );
   }

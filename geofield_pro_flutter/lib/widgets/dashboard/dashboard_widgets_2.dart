@@ -22,9 +22,8 @@ class DashboardSliverAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final name = settings.currentUserName;
-    final greeting = name == null || name.isEmpty
-        ? 'GeoField Pro'
-        : 'Xush kelibsiz, $name';
+    final greeting =
+        name == null || name.isEmpty ? 'GeoField Pro' : 'Xush kelibsiz, $name';
     final dateStr = DateFormat('EEEE, d MMMM').format(DateTime.now());
     final scheme = Theme.of(context).colorScheme;
     final heroTitle = context.loc('dashboard_hero_title');
@@ -80,9 +79,11 @@ class DashboardSliverAppBar extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.notifications_none_rounded, color: scheme.onSurface),
+                  icon: Icon(Icons.notifications_none_rounded,
+                      color: scheme.onSurface),
                   tooltip: context.loc('notifications_screen_title'),
-                  onPressed: () => Navigator.of(context).pushNamed('/notifications'),
+                  onPressed: () =>
+                      Navigator.of(context).pushNamed('/notifications'),
                 ),
               ],
             ),
@@ -178,7 +179,8 @@ class DashboardEmptyState extends StatelessWidget {
           children: [
             Positioned.fill(
               child: CustomPaint(
-                painter: _EmptyStateMapPainter(color: scheme.onSurface.withValues(alpha: 0.06)),
+                painter: _EmptyStateMapPainter(
+                    color: scheme.onSurface.withValues(alpha: 0.06)),
               ),
             ),
             Column(
@@ -187,9 +189,12 @@ class DashboardEmptyState extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.explore_outlined, size: 48, color: scheme.primary.withValues(alpha: 0.65)),
+                    Icon(Icons.explore_outlined,
+                        size: 48,
+                        color: scheme.primary.withValues(alpha: 0.65)),
                     const SizedBox(width: 16),
-                    Icon(Icons.hardware_outlined, size: 40, color: muted.withValues(alpha: 0.5)),
+                    Icon(Icons.hardware_outlined,
+                        size: 40, color: muted.withValues(alpha: 0.5)),
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -205,7 +210,8 @@ class DashboardEmptyState extends StatelessWidget {
                 Text(
                   'Yangi nuqta qo\'shish uchun + tugmasini bosing',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: muted.withValues(alpha: 0.85), fontSize: 12),
+                  style: TextStyle(
+                      color: muted.withValues(alpha: 0.85), fontSize: 12),
                 ),
               ],
             ),

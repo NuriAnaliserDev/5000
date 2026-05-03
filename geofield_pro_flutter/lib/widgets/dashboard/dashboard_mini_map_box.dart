@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../app/main_tab_navigation.dart';
+
 /// Kichik xarita ko'rinishi — hozirgi joylashuvni ko'rsatadi.
 ///
 /// Faqat [userLatLng] + [mapStyle] o'zgarishiga bog'liq (Selector
@@ -110,10 +111,26 @@ class DashboardMiniMapBox extends StatelessWidget {
   static Widget _darkTileBuilder(BuildContext _, Widget tile, TileImage __) {
     return ColorFiltered(
       colorFilter: const ColorFilter.matrix(<double>[
-        -0.8, 0, 0, 0, 255,
-        0, -0.8, 0, 0, 255,
-        0, 0, -0.8, 0, 255,
-        0, 0, 0, 1, 0,
+        -0.8,
+        0,
+        0,
+        0,
+        255,
+        0,
+        -0.8,
+        0,
+        0,
+        255,
+        0,
+        0,
+        -0.8,
+        0,
+        255,
+        0,
+        0,
+        0,
+        1,
+        0,
       ]),
       child: tile,
     );
@@ -148,7 +165,8 @@ class _OverlayChip extends StatelessWidget {
           const SizedBox(width: 4),
           Text(
             label,
-            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: fg),
+            style:
+                TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: fg),
           ),
         ],
       ),
@@ -162,7 +180,8 @@ class _GpsPulse extends StatefulWidget {
   State<_GpsPulse> createState() => _GpsPulseState();
 }
 
-class _GpsPulseState extends State<_GpsPulse> with SingleTickerProviderStateMixin {
+class _GpsPulseState extends State<_GpsPulse>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _ctrl = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 1400),
@@ -201,8 +220,7 @@ class _PulsePainter extends CustomPainter {
     canvas.drawCircle(
       c,
       ringR,
-      Paint()
-        ..color = const Color(0xFF1976D2).withValues(alpha: (1 - t) * 0.6),
+      Paint()..color = const Color(0xFF1976D2).withValues(alpha: (1 - t) * 0.6),
     );
     // Core dot
     canvas.drawCircle(c, 4, Paint()..color = const Color(0xFF1976D2));

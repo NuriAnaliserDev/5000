@@ -52,16 +52,19 @@ class CameraBottomControls extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.red.withValues(alpha: 0.25),
                   borderRadius: BorderRadius.circular(999),
-                  border: Border.all(color: Colors.redAccent.withValues(alpha: 0.5)),
+                  border: Border.all(
+                      color: Colors.redAccent.withValues(alpha: 0.5)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.fiber_manual_record, color: Color(0xFFFF1744), size: 14),
+                    const Icon(Icons.fiber_manual_record,
+                        color: Color(0xFFFF1744), size: 14),
                     const SizedBox(width: 8),
                     Text(
                       formatDuration(recordSeconds),
@@ -83,7 +86,8 @@ class CameraBottomControls extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 2, right: 8, bottom: 20),
                   child: StatusBadge(
                     label: '±${pos.accuracy.toStringAsFixed(1)}m',
-                    level: pos.accuracy < 15 ? StatusLevel.good : StatusLevel.warn,
+                    level:
+                        pos.accuracy < 15 ? StatusLevel.good : StatusLevel.warn,
                     fontSize: 11,
                   ),
                 )
@@ -155,8 +159,8 @@ class CameraBottomControls extends StatelessWidget {
                                     horizontal: 10, vertical: 10),
                                 decoration: BoxDecoration(
                                   border: Border.all(
-                                      color: Colors.white
-                                          .withValues(alpha: 0.35)),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.35)),
                                   borderRadius: BorderRadius.circular(22),
                                 ),
                                 child: Row(
@@ -246,8 +250,9 @@ class _VoiceWavePainter extends CustomPainter {
     for (var i = 0; i < n; i++) {
       var h = 3.0;
       if (active) {
-        h =
-            5 + (size.height * 0.38) * (0.5 + 0.5 * math.sin(i * 0.55 + tick * 0.35));
+        h = 5 +
+            (size.height * 0.38) *
+                (0.5 + 0.5 * math.sin(i * 0.55 + tick * 0.35));
       } else {
         h = 2 + math.sin(i * 0.45 + tick * 0.05) * 2;
       }

@@ -11,15 +11,16 @@ class ExcelGeneratorService {
     try {
       // 1. Shablon faylini o'qish
       final byteData = await rootBundle.load('assets/KUNLIK HISOBOTLAR.xlsx');
-      final bytes = byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes);
+      final bytes = byteData.buffer
+          .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes);
       final excel = Excel.decodeBytes(bytes);
 
       final targetSheetName = excel.tables.keys.first;
       final sheet = excel[targetSheetName];
 
       // 2. Har tur uchun boshlanish qatori — shablon tuzilmasiga mos
-      int oreBlockRow = 3;   // Spotter / Ore Block jadvali boshlanishi
-      int rcDrillRow = 20;   // RC Burg'ulash jadvali boshlanishi
+      int oreBlockRow = 3; // Spotter / Ore Block jadvali boshlanishi
+      int rcDrillRow = 20; // RC Burg'ulash jadvali boshlanishi
       int stockpileRow = 40; // Ore Stockpile Monitoring jadvali boshlanishi
 
       for (final report in reports) {
@@ -55,7 +56,8 @@ class ExcelGeneratorService {
             _writeText(sheet, 9, row, data['sample_to']?.toString() ?? '');
             _writeText(sheet, 10, row, data['sample_count']?.toString() ?? '');
             _writeText(sheet, 11, row, data['total_depth']?.toString() ?? '');
-            _writeText(sheet, 12, row, data['downtime_cause']?.toString() ?? '');
+            _writeText(
+                sheet, 12, row, data['downtime_cause']?.toString() ?? '');
             break;
 
           // ── Ore Stockpile Daily Monitoring ───────────────────────────────────
@@ -72,10 +74,14 @@ class ExcelGeneratorService {
               for (int li = 0; li < loaders.length; li++) {
                 final loader = loaders[li];
                 if (loader is Map) {
-                  _writeText(sheet, 5 + li * 4, row, loader['loader_id']?.toString() ?? '');
-                  _writeText(sheet, 6 + li * 4, row, loader['material']?.toString() ?? '');
-                  _writeText(sheet, 7 + li * 4, row, loader['grade']?.toString() ?? '');
-                  _writeText(sheet, 8 + li * 4, row, loader['total_loads']?.toString() ?? '');
+                  _writeText(sheet, 5 + li * 4, row,
+                      loader['loader_id']?.toString() ?? '');
+                  _writeText(sheet, 6 + li * 4, row,
+                      loader['material']?.toString() ?? '');
+                  _writeText(sheet, 7 + li * 4, row,
+                      loader['grade']?.toString() ?? '');
+                  _writeText(sheet, 8 + li * 4, row,
+                      loader['total_loads']?.toString() ?? '');
                 }
               }
             }

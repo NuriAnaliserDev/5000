@@ -40,7 +40,7 @@ class SecurityProvider with ChangeNotifier {
   /// Unlocks the app using either Biometrics or PIN
   Future<bool> unlockWithBiometrics() async {
     if (!_isBioSupported || !_isBioEnabled) return false;
-    
+
     final success = await _service.authenticateBiometrically();
     if (success) {
       _isLocked = false;

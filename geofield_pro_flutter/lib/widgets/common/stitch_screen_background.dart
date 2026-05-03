@@ -46,7 +46,8 @@ class _VeinPainter extends CustomPainter {
         Colors.tealAccent,
         Colors.deepPurpleAccent,
         rnd.nextDouble(),
-      )!.withValues(alpha: 0.04 + rnd.nextDouble() * 0.06);
+      )!
+          .withValues(alpha: 0.04 + rnd.nextDouble() * 0.06);
       final p = Path()
         ..moveTo(x, y)
         ..quadraticBezierTo(

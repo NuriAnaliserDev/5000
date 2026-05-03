@@ -14,9 +14,8 @@ class GisGeoJsonExport {
     final features = <Map<String, dynamic>>[];
     for (final b in boundaries) {
       if (b.points.length < 2) continue;
-      final ring = b.points
-          .map((p) => <double>[p.longitude, p.latitude])
-          .toList();
+      final ring =
+          b.points.map((p) => <double>[p.longitude, p.latitude]).toList();
       if (b.points.length >= 3) {
         if (ring.isNotEmpty &&
             (ring.first[0] != ring.last[0] || ring.first[1] != ring.last[1])) {

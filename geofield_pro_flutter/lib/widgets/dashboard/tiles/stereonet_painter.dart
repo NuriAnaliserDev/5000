@@ -10,6 +10,7 @@ class StereonetPainter extends CustomPainter {
   final bool isDark;
   final StereonetProjection projection;
   final bool showContours;
+
   /// Ixtiyoriy: [compute]da hisoblangan zichlik (UI threadni tushirmaslik).
   final List<List<double>>? densityGrid;
   final bool showGreatCircles;
@@ -43,7 +44,9 @@ class StereonetPainter extends CustomPainter {
     canvas.drawCircle(
       Offset(cx, cy),
       r,
-      Paint()..color = (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
+      Paint()
+        ..color =
+            (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
     );
 
     // Extract all points (Primary + Measurements)
@@ -88,30 +91,32 @@ class StereonetPainter extends CustomPainter {
       } else {
         grid = StereonetEngine.calculateDensityGrid(points, r, gridSize, bw);
       }
-      
+
       double maxDensity = 0.0;
       for (var row in grid) {
         for (var v in row) {
           if (v > maxDensity) maxDensity = v;
         }
       }
-      
+
       if (maxDensity > 0) {
         final cellSize = (r * 2) / gridSize;
         for (int y = 0; y < gridSize; y++) {
           for (int x = 0; x < gridSize; x++) {
             final density = grid[y][x];
-            if (density < maxDensity * 0.05) continue; 
-            
+            if (density < maxDensity * 0.05) continue;
+
             final px = cx - r + x * cellSize;
             final py = cy - r + y * cellSize;
-            
+
             final dfx = px + cellSize / 2 - cx;
             final dfy = py + cellSize / 2 - cy;
             if (dfx * dfx + dfy * dfy > r * r) continue;
-            
+
             final color = _getHeatColor(density / maxDensity);
-            canvas.drawRect(Rect.fromLTWH(px, py, cellSize + 0.5, cellSize + 0.5), Paint()..color = color);
+            canvas.drawRect(
+                Rect.fromLTWH(px, py, cellSize + 0.5, cellSize + 0.5),
+                Paint()..color = color);
           }
         }
       }
@@ -123,7 +128,7 @@ class StereonetPainter extends CustomPainter {
         ..color = (isDark ? Colors.white24 : Colors.black12)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.0;
-      
+
       for (final s in stations) {
         final gcPoints = StereonetEngine.calculateGreatCircle(
           strike: s.strike,
@@ -156,7 +161,7 @@ class StereonetPainter extends CustomPainter {
     final gridPaint = Paint()
       ..color = (isDark ? Colors.white : Colors.black).withValues(alpha: 0.1)
       ..strokeWidth = 0.6;
-    
+
     // Dip circles (10, 30, 50, 70 degrees)
     for (double dip in [10, 30, 50, 70]) {
       double circleR;
@@ -165,9 +170,10 @@ class StereonetPainter extends CustomPainter {
       } else {
         circleR = r * math.sqrt(2) * math.sin(((90 - dip) / 2) * math.pi / 180);
       }
-      canvas.drawCircle(Offset(cx, cy), circleR, gridPaint..style = PaintingStyle.stroke);
+      canvas.drawCircle(
+          Offset(cx, cy), circleR, gridPaint..style = PaintingStyle.stroke);
     }
-    
+
     canvas.drawLine(Offset(cx - r, cy), Offset(cx + r, cy), gridPaint);
     canvas.drawLine(Offset(cx, cy - r), Offset(cx, cy + r), gridPaint);
 
@@ -182,10 +188,11 @@ class StereonetPainter extends CustomPainter {
       int tickLen = 2;
       if (i % 10 == 0) tickLen = 5;
       if (i % 90 == 0) tickLen = 10;
-      
+
       final innerX = cx + (r - tickLen) * math.cos(angle);
       final innerY = cy + (r - tickLen) * math.sin(angle);
-      canvas.drawLine(Offset(outerX, outerY), Offset(innerX, innerY), tickPaint);
+      canvas.drawLine(
+          Offset(outerX, outerY), Offset(innerX, innerY), tickPaint);
     }
 
     // Plot Individual Points
@@ -195,15 +202,27 @@ class StereonetPainter extends CustomPainter {
       if (s is Station) {
         mType = s.measurementType ?? 'bedding';
       }
-      final color = typeColor[mType] ?? (isDark ? const Color(0xFF64B5F6) : const Color(0xFF1976D2));
+      final color = typeColor[mType] ??
+          (isDark ? const Color(0xFF64B5F6) : const Color(0xFF1976D2));
 
       // Glow effect
-      canvas.drawCircle(Offset(cx + pt.x, cy + pt.y), 5.0,
-          Paint()..color = color.withValues(alpha: 0.2)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2));
-      
-      canvas.drawCircle(Offset(cx + pt.x, cy + pt.y), 3.5, Paint()..color = color);
-      canvas.drawCircle(Offset(cx + pt.x, cy + pt.y), 3.5,
-          Paint()..color = (isDark ? Colors.white : Colors.black).withValues(alpha: 0.5)..style = PaintingStyle.stroke..strokeWidth = 0.5);
+      canvas.drawCircle(
+          Offset(cx + pt.x, cy + pt.y),
+          5.0,
+          Paint()
+            ..color = color.withValues(alpha: 0.2)
+            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2));
+
+      canvas.drawCircle(
+          Offset(cx + pt.x, cy + pt.y), 3.5, Paint()..color = color);
+      canvas.drawCircle(
+          Offset(cx + pt.x, cy + pt.y),
+          3.5,
+          Paint()
+            ..color =
+                (isDark ? Colors.white : Colors.black).withValues(alpha: 0.5)
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 0.5);
     }
 
     // Mean Vector & α₉₅ (haqiqiy 3D Fisher — geologik to'g'ri)
@@ -266,12 +285,15 @@ class StereonetPainter extends CustomPainter {
           fontSize: 12,
           fontWeight: FontWeight.w900,
           letterSpacing: 2,
-          color: isDark ? Colors.white.withValues(alpha: 0.7) : Colors.black.withValues(alpha: 0.6),
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.7)
+              : Colors.black.withValues(alpha: 0.6),
         ),
       );
       tp.layout();
       tp.paint(canvas, pos - Offset(tp.width / 2, tp.height / 2));
     }
+
     drawLabel('N', Offset(cx, cy - r - 18));
     drawLabel('S', Offset(cx, cy + r + 18));
     drawLabel('E', Offset(cx + r + 18, cy));

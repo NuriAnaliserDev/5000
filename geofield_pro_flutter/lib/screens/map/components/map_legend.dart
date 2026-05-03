@@ -36,11 +36,13 @@ class MapLegend extends StatelessWidget {
             GestureDetector(
               onTap: () {
                 if (stations.isEmpty) return;
-                final points = stations.map((s) => LatLng(s.lat, s.lng)).toList();
+                final points =
+                    stations.map((s) => LatLng(s.lat, s.lng)).toList();
                 if (points.isEmpty) return;
                 final bounds = LatLngBounds.fromPoints(points);
                 mapController.fitCamera(
-                  CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(40)),
+                  CameraFit.bounds(
+                      bounds: bounds, padding: const EdgeInsets.all(40)),
                 );
               },
               child: Row(

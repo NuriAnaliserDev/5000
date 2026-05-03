@@ -44,6 +44,7 @@ class MapStitchMapHub extends StatelessWidget {
   final VoidCallback onFieldNotes;
   final VoidCallback onProjectLayers;
   final Future<void> Function() onToggleTrack;
+
   /// `true` — tugmalar GPS / qidiruv blokining ostida (2-rasmdagi tartib).
   final bool anchorTop;
 
@@ -235,7 +236,8 @@ class _MapFieldSpeedDialState extends State<_MapFieldSpeedDial>
 
   List<_DialItem> _buildItems(GeoFieldStrings s, bool trackOn) {
     return [
-      _DialItem(label: s.layer_drawings, icon: Icons.edit_road, onTap: widget.onDraw),
+      _DialItem(
+          label: s.layer_drawings, icon: Icons.edit_road, onTap: widget.onDraw),
       _DialItem(
         label: context.loc('new_station_btn'),
         icon: Icons.add_location_alt_outlined,
@@ -243,7 +245,9 @@ class _MapFieldSpeedDialState extends State<_MapFieldSpeedDial>
       ),
       _DialItem(
         label: s.map_follow_gps,
-        icon: widget.followGps ? Icons.navigation_rounded : Icons.wifi_tethering_rounded,
+        icon: widget.followGps
+            ? Icons.navigation_rounded
+            : Icons.wifi_tethering_rounded,
         onTap: widget.onFollowToggle,
       ),
       _DialItem(
@@ -310,7 +314,8 @@ class _MapFieldSpeedDialState extends State<_MapFieldSpeedDial>
           child: Tooltip(
             message: item.label,
             child: Material(
-              color: trackActive ? Colors.red.shade800 : const Color(0xFF1976D2),
+              color:
+                  trackActive ? Colors.red.shade800 : const Color(0xFF1976D2),
               shape: const CircleBorder(),
               elevation: 3,
               child: InkWell(
@@ -355,7 +360,8 @@ class _MapFieldSpeedDialState extends State<_MapFieldSpeedDial>
       height: 244,
       child: Stack(
         clipBehavior: Clip.none,
-        alignment: widget.anchorTop ? Alignment.topRight : Alignment.bottomRight,
+        alignment:
+            widget.anchorTop ? Alignment.topRight : Alignment.bottomRight,
         children: [
           AnimatedBuilder(
             animation: _curve,
@@ -363,11 +369,13 @@ class _MapFieldSpeedDialState extends State<_MapFieldSpeedDial>
               final t = _curve.value.clamp(0.0, 1.0);
               return Stack(
                 clipBehavior: Clip.none,
-                alignment:
-                    widget.anchorTop ? Alignment.topRight : Alignment.bottomRight,
+                alignment: widget.anchorTop
+                    ? Alignment.topRight
+                    : Alignment.bottomRight,
                 children: [
                   for (var i = 0; i < actions.length; i++)
-                    if (t >= 0.03) _body(i, actions.length, actions[i], t, trackOn),
+                    if (t >= 0.03)
+                      _body(i, actions.length, actions[i], t, trackOn),
                 ],
               );
             },

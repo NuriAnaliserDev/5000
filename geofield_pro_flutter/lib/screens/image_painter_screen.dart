@@ -21,7 +21,8 @@ class _ImagePainterScreenState extends State<ImagePainterScreen> {
 
   void _onPanStart(DragStartDetails details) {
     setState(() {
-      _lines.add(DrawnLine([details.localPosition], _selectedColor, _strokeWidth));
+      _lines.add(
+          DrawnLine([details.localPosition], _selectedColor, _strokeWidth));
     });
   }
 
@@ -49,7 +50,8 @@ class _ImagePainterScreenState extends State<ImagePainterScreen> {
         builder: (_) => const Center(child: CircularProgressIndicator()),
       );
 
-      final boundary = _repaintKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+      final boundary = _repaintKey.currentContext!.findRenderObject()
+          as RenderRepaintBoundary;
       final image = await boundary.toImage(pixelRatio: 3.0);
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       final pngBytes = byteData!.buffer.asUint8List();
@@ -57,7 +59,7 @@ class _ImagePainterScreenState extends State<ImagePainterScreen> {
       final dir = await getApplicationDocumentsDirectory();
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final newPath = '${dir.path}/annotated_$timestamp.png';
-      
+
       final file = File(newPath);
       await file.writeAsBytes(pngBytes);
 
@@ -78,7 +80,8 @@ class _ImagePainterScreenState extends State<ImagePainterScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text(context.loc('draw_on_photo'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        title: Text(context.loc('draw_on_photo'),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
         actions: [
@@ -150,9 +153,11 @@ class _ImagePainterScreenState extends State<ImagePainterScreen> {
         decoration: BoxDecoration(
           color: color,
           shape: BoxShape.circle,
-          border: Border.all(color: isSelected ? Colors.white : Colors.transparent, width: 3),
+          border: Border.all(
+              color: isSelected ? Colors.white : Colors.transparent, width: 3),
           boxShadow: [
-            if (isSelected) BoxShadow(color: color.withValues(alpha: 0.5), blurRadius: 8)
+            if (isSelected)
+              BoxShadow(color: color.withValues(alpha: 0.5), blurRadius: 8)
           ],
         ),
       ),
@@ -179,7 +184,7 @@ class PhotoPainter extends CustomPainter {
         ..strokeWidth = line.strokeWidth
         ..strokeCap = StrokeCap.round
         ..style = PaintingStyle.stroke;
-      
+
       final path = Path();
       if (line.path.isNotEmpty) {
         path.moveTo(line.path.first.dx, line.path.first.dy);
@@ -192,5 +197,6 @@ class PhotoPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(PhotoPainter oldDelegate) => oldDelegate.lines.length != lines.length || oldDelegate.lines != lines;
+  bool shouldRepaint(PhotoPainter oldDelegate) =>
+      oldDelegate.lines.length != lines.length || oldDelegate.lines != lines;
 }

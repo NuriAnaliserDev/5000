@@ -25,13 +25,15 @@ class ScaleCalculatorCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor = isDark ? const Color(0xFF1A1A1A) : Colors.grey.shade100;
-    
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05)),
+        border: Border.all(
+            color:
+                (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05)),
       ),
       child: Column(
         children: [
@@ -61,7 +63,8 @@ class ScaleCalculatorCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 20),
-          Text(context.loc('selected_scale'), style: const TextStyle(color: Colors.grey, fontSize: 10)),
+          Text(context.loc('selected_scale'),
+              style: const TextStyle(color: Colors.grey, fontSize: 10)),
           const SizedBox(height: 8),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -81,9 +84,12 @@ class ScaleCalculatorCard extends StatelessWidget {
                     selectedColor: const Color(0xFF1976D2),
                     backgroundColor: isDark ? Colors.black : Colors.white,
                     labelStyle: TextStyle(
-                      color: selected ? Colors.black : (isDark ? Colors.white : Colors.black), 
+                      color: selected
+                          ? Colors.black
+                          : (isDark ? Colors.white : Colors.black),
                       fontSize: 12,
-                      fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight:
+                          selected ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
                 );
@@ -97,28 +103,36 @@ class ScaleCalculatorCard extends StatelessWidget {
 
   Widget _buildInputField(
     BuildContext context, {
-    required String label, 
-    required TextEditingController controller, 
+    required String label,
+    required TextEditingController controller,
     String? suffix,
     Function(String)? onChanged,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Colors.grey, fontSize: 9, fontWeight: FontWeight.bold)),
+        Text(label,
+            style: const TextStyle(
+                color: Colors.grey, fontSize: 9, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         TextField(
           controller: controller,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontWeight: FontWeight.bold),
           onChanged: onChanged,
           decoration: InputDecoration(
             isDense: true,
             suffixText: suffix,
             suffixStyle: const TextStyle(color: Color(0xFF1976D2)),
             filled: true,
-            fillColor: Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.white,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+            fillColor: Theme.of(context).brightness == Brightness.dark
+                ? Colors.black
+                : Colors.white,
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide.none),
           ),
         ),
       ],

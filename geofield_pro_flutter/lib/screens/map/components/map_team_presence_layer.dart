@@ -21,18 +21,23 @@ class MapTeamPresenceLayer extends StatelessWidget {
                 child: Column(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: Colors.blueAccent,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
                         member.name,
-                        style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 8,
+                            fontWeight: FontWeight.bold),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    const Icon(Icons.person_pin_circle, color: Colors.blue, size: 30),
+                    const Icon(Icons.person_pin_circle,
+                        color: Colors.blue, size: 30),
                   ],
                 ),
               ),

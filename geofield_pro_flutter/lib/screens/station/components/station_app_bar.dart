@@ -37,7 +37,8 @@ class StationAppBar extends StatelessWidget implements PreferredSizeWidget {
               child: Text(
                 station?.name ?? context.loc('camera'),
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -58,7 +59,8 @@ class StationAppBar extends StatelessWidget implements PreferredSizeWidget {
               value: 'pdf',
               child: Row(
                 children: [
-                  const Icon(Icons.picture_as_pdf_outlined, color: Colors.blue, size: 20),
+                  const Icon(Icons.picture_as_pdf_outlined,
+                      color: Colors.blue, size: 20),
                   const SizedBox(width: 8),
                   Text(context.loc('pdf_report')),
                 ],
@@ -69,9 +71,11 @@ class StationAppBar extends StatelessWidget implements PreferredSizeWidget {
                 value: 'delete',
                 child: Row(
                   children: [
-                    const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+                    const Icon(Icons.delete_outline,
+                        color: Colors.red, size: 20),
                     const SizedBox(width: 8),
-                    Text(context.loc('delete'), style: const TextStyle(color: Colors.red)),
+                    Text(context.loc('delete'),
+                        style: const TextStyle(color: Colors.red)),
                   ],
                 ),
               ),

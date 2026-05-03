@@ -10,6 +10,7 @@ class CameraHeadingHud extends StatelessWidget {
   final Color glassColor;
   final Color glassBorder;
   final Color textColor;
+
   /// Pastki navigatsiya va boshqaruv ustidan bo‘sh joy (masalan `overlayClearanceAboveNav + 140`).
   final double bottomInset;
 

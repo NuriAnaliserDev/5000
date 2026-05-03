@@ -26,24 +26,26 @@ class MapStationLayer extends StatelessWidget {
         alignment: Alignment.center,
         padding: const EdgeInsets.all(50),
         maxZoom: 15,
-        markers: stations.map(
-          (Station s) => Marker(
-            width: 40,
-            height: 40,
-            point: LatLng(s.lat, s.lng),
-            child: GestureDetector(
-              onTap: () => onStationTap(s),
-              child: GeologicalSymbolWidget(
-                measurementType: s.measurementType ?? 'bedding',
-                subType: s.subMeasurementType ?? 'inclined',
-                dip: s.dip,
-                strike: s.strike,
-                size: 36,
-                color: Colors.black87,
+        markers: stations
+            .map(
+              (Station s) => Marker(
+                width: 40,
+                height: 40,
+                point: LatLng(s.lat, s.lng),
+                child: GestureDetector(
+                  onTap: () => onStationTap(s),
+                  child: GeologicalSymbolWidget(
+                    measurementType: s.measurementType ?? 'bedding',
+                    subType: s.subMeasurementType ?? 'inclined',
+                    dip: s.dip,
+                    strike: s.strike,
+                    size: 36,
+                    color: Colors.black87,
+                  ),
+                ),
               ),
-            ),
-          ),
-        ).toList(),
+            )
+            .toList(),
         builder: (context, markers) {
           return Container(
             decoration: BoxDecoration(
@@ -54,7 +56,10 @@ class MapStationLayer extends StatelessWidget {
             child: Center(
               child: Text(
                 markers.length.toString(),
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13),
               ),
             ),
           );

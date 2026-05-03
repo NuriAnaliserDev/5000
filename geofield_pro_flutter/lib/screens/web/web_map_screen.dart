@@ -31,7 +31,8 @@ class _WebMapScreenState extends State<WebMapScreen> {
   bool _isDrawingMode = false;
   final List<LatLng> _drawingPoints = [];
   ZoneType _selectedZoneType = ZoneType.workArea;
-  final TextEditingController _zoneNameCtrl = TextEditingController(text: 'Yangi Zona');
+  final TextEditingController _zoneNameCtrl =
+      TextEditingController(text: 'Yangi Zona');
   final TextEditingController _zoneDescCtrl = TextEditingController();
 
   // ─── Editing State ────────────────────────────────────────────────────────
@@ -54,13 +55,17 @@ class _WebMapScreenState extends State<WebMapScreen> {
   Future<void> _saveDrawnZone() async {
     if (_drawingPoints.length < 3) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Kamida 3 nuqta chizing!'), backgroundColor: Colors.orange),
+        const SnackBar(
+            content: Text('Kamida 3 nuqta chizing!'),
+            backgroundColor: Colors.orange),
       );
       return;
     }
 
-    final name = _zoneNameCtrl.text.trim().isEmpty ? 'Zona' : _zoneNameCtrl.text.trim();
-    final desc = _zoneDescCtrl.text.trim().isEmpty ? null : _zoneDescCtrl.text.trim();
+    final name =
+        _zoneNameCtrl.text.trim().isEmpty ? 'Zona' : _zoneNameCtrl.text.trim();
+    final desc =
+        _zoneDescCtrl.text.trim().isEmpty ? null : _zoneDescCtrl.text.trim();
 
     try {
       await context.read<BoundaryService>().addPolygonFromPoints(
@@ -79,7 +84,9 @@ class _WebMapScreenState extends State<WebMapScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('✅ "$name" saqlandi!'), backgroundColor: Colors.green),
+          SnackBar(
+              content: Text('✅ "$name" saqlandi!'),
+              backgroundColor: Colors.green),
         );
       }
     } catch (e) {
@@ -100,9 +107,12 @@ class _WebMapScreenState extends State<WebMapScreen> {
         title: const Text('Zonani o\'chirish'),
         content: Text('"${polygon.name}" ni o\'chirishni tasdiqlaysizmi?'),
         actions: [
-          TextButton(onPressed: () => ctx.pop(false), child: const Text('Bekor qilish')),
+          TextButton(
+              onPressed: () => ctx.pop(false),
+              child: const Text('Bekor qilish')),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red, foregroundColor: Colors.white),
             onPressed: () => ctx.pop(true),
             child: const Text('O\'chirish'),
           ),
@@ -134,15 +144,20 @@ class _WebMapScreenState extends State<WebMapScreen> {
               children: [
                 TextField(
                   controller: nameCtrl,
-                  decoration: const InputDecoration(labelText: 'Zona nomi', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                      labelText: 'Zona nomi', border: OutlineInputBorder()),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: descCtrl,
-                  decoration: const InputDecoration(labelText: 'Tavsif (ixtiyoriy)', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                      labelText: 'Tavsif (ixtiyoriy)',
+                      border: OutlineInputBorder()),
                 ),
                 const SizedBox(height: 12),
-                const Text('Zona turi:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                const Text('Zona turi:',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                 const SizedBox(height: 6),
                 Wrap(
                   spacing: 6,
@@ -150,7 +165,11 @@ class _WebMapScreenState extends State<WebMapScreen> {
                   children: ZoneType.values.map((zt) {
                     final isSelected = selectedType == zt;
                     return FilterChip(
-                      label: Text(zt.label, style: TextStyle(fontSize: 11, color: isSelected ? Colors.white : zt.color, fontWeight: FontWeight.bold)),
+                      label: Text(zt.label,
+                          style: TextStyle(
+                              fontSize: 11,
+                              color: isSelected ? Colors.white : zt.color,
+                              fontWeight: FontWeight.bold)),
                       selected: isSelected,
                       selectedColor: zt.color,
                       onSelected: (_) => setDlgState(() => selectedType = zt),
@@ -161,7 +180,8 @@ class _WebMapScreenState extends State<WebMapScreen> {
             ),
           ),
           actions: [
-            TextButton(onPressed: () => ctx.pop(), child: const Text('Bekor qilish')),
+            TextButton(
+                onPressed: () => ctx.pop(), child: const Text('Bekor qilish')),
             ElevatedButton(
               child: const Text('Saqlash'),
               onPressed: () async {
@@ -170,9 +190,13 @@ class _WebMapScreenState extends State<WebMapScreen> {
                 if (pid != null) {
                   await context.read<BoundaryService>().updatePolygon(
                         firestoreId: pid,
-                        name: nameCtrl.text.trim().isEmpty ? polygon.name : nameCtrl.text.trim(),
+                        name: nameCtrl.text.trim().isEmpty
+                            ? polygon.name
+                            : nameCtrl.text.trim(),
                         zoneType: selectedType,
-                        description: descCtrl.text.trim().isEmpty ? null : descCtrl.text.trim(),
+                        description: descCtrl.text.trim().isEmpty
+                            ? null
+                            : descCtrl.text.trim(),
                       );
                 }
               },
@@ -191,9 +215,9 @@ class _WebMapScreenState extends State<WebMapScreen> {
       final pos = context.read<LocationService>().currentPosition;
       final c = _mapController.camera.center;
       final r = await context.read<BoundaryService>().importFileFromWeb(
-        hintLatitude: pos?.latitude ?? c.latitude,
-        hintLongitude: pos?.longitude ?? c.longitude,
-      );
+            hintLatitude: pos?.latitude ?? c.latitude,
+            hintLongitude: pos?.longitude ?? c.longitude,
+          );
       if (!mounted) return;
       if (r == null) return;
       if (s != null) {
@@ -201,7 +225,8 @@ class _WebMapScreenState extends State<WebMapScreen> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('GIS: ${r.importedCount} / skipped ${r.skippedCount}'),
+            content:
+                Text('GIS: ${r.importedCount} / skipped ${r.skippedCount}'),
             backgroundColor: r.importedCount > 0 ? Colors.green : Colors.orange,
           ),
         );
@@ -266,7 +291,8 @@ class _WebMapScreenState extends State<WebMapScreen> {
                     nameCtrl: _zoneNameCtrl,
                     descCtrl: _zoneDescCtrl,
                     selectedType: _selectedZoneType,
-                    onTypeChanged: (zt) => setState(() => _selectedZoneType = zt),
+                    onTypeChanged: (zt) =>
+                        setState(() => _selectedZoneType = zt),
                     onClear: () => setState(() => _drawingPoints.clear()),
                     onSave: _saveDrawnZone,
                     pointsCount: _drawingPoints.length,
@@ -309,7 +335,8 @@ class _WebMapScreenState extends State<WebMapScreen> {
     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
       stream: stream,
       builder: (context, shiftSnap) {
-        final docs = shiftSnap.data?.docs ?? const <QueryDocumentSnapshot<Map<String, dynamic>>>[];
+        final docs = shiftSnap.data?.docs ??
+            const <QueryDocumentSnapshot<Map<String, dynamic>>>[];
         return _buildMapInner(boundaries, shiftDocs: docs);
       },
     );
@@ -353,8 +380,10 @@ class _WebMapScreenState extends State<WebMapScreen> {
             .map((p) => LatLng(p['lat'] as double, p['lng'] as double))
             .toList();
         if (pts.isNotEmpty) {
-          polylines
-              .add(Polyline(points: pts, strokeWidth: 3.0, color: Colors.redAccent.withValues(alpha: 0.6)));
+          polylines.add(Polyline(
+              points: pts,
+              strokeWidth: 3.0,
+              color: Colors.redAccent.withValues(alpha: 0.6)));
         }
       }
     }
@@ -388,7 +417,9 @@ class _WebMapScreenState extends State<WebMapScreen> {
       options: MapOptions(
         initialCenter: const LatLng(41.2995, 69.2401),
         initialZoom: 13,
-        onTap: _isDrawingMode ? (tapPos, latLng) => setState(() => _drawingPoints.add(latLng)) : null,
+        onTap: _isDrawingMode
+            ? (tapPos, latLng) => setState(() => _drawingPoints.add(latLng))
+            : null,
       ),
       children: [
         TileLayer(
@@ -422,7 +453,10 @@ class _WebMapScreenState extends State<WebMapScreen> {
               const SizedBox(width: 8),
               Text(
                 'Xaritani bosing — ${_drawingPoints.length} nuqta',
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13),
               ),
               if (_drawingPoints.isNotEmpty) ...[
                 const SizedBox(width: 12),

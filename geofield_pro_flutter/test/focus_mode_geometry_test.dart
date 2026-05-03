@@ -23,7 +23,8 @@ GeoOrientationResult _o({
 
 void main() {
   group('computeFocusModeGeometry', () {
-    test('gorizontal telefon: strike degenerate, geografik strike ishlatiladi', () {
+    test('gorizontal telefon: strike degenerate, geografik strike ishlatiladi',
+        () {
       final g = Vec3(0, 0, 9.81);
       final geo = _o(strike: 45, dip: 0, azimuth: 10, pitch: 0, roll: 0);
       final m = computeFocusModeGeometry(orientation: geo, gravity: g);

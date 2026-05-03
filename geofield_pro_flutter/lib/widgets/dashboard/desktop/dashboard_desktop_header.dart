@@ -12,7 +12,8 @@ class DashboardDesktopHeader extends StatelessWidget {
   final SettingsController settings;
   final bool isDark;
 
-  const DashboardDesktopHeader({super.key, required this.settings, required this.isDark});
+  const DashboardDesktopHeader(
+      {super.key, required this.settings, required this.isDark});
 
   @override
   Widget build(BuildContext context) {
@@ -25,22 +26,30 @@ class DashboardDesktopHeader extends StatelessWidget {
               children: [
                 Text(
                   context.loc('welcome_text'),
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w300, color: isDark ? Colors.white70 : Colors.black54),
+                  style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w300,
+                      color: isDark ? Colors.white70 : Colors.black54),
                 ),
                 Text(
                   settings.currentUserName ?? "Geologist",
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 24, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
             const SizedBox(height: 4),
             Row(
               children: [
-                Icon(Icons.calendar_today_rounded, size: 12, color: Colors.grey.withValues(alpha: 0.8)),
+                Icon(Icons.calendar_today_rounded,
+                    size: 12, color: Colors.grey.withValues(alpha: 0.8)),
                 const SizedBox(width: 6),
                 Text(
                   DateFormat('EEEE, d MMMM yyyy').format(DateTime.now()),
-                  style: TextStyle(color: Colors.grey.withValues(alpha: 0.8), fontSize: 13, letterSpacing: 0.5),
+                  style: TextStyle(
+                      color: Colors.grey.withValues(alpha: 0.8),
+                      fontSize: 13,
+                      letterSpacing: 0.5),
                 ),
               ],
             ),
@@ -90,7 +99,10 @@ class DashboardDesktopHeader extends StatelessWidget {
               context.read<SettingsController>().expertMode
                   ? 'PROFESSIONAL'
                   : 'STANDARD',
-              style: TextStyle(fontSize: 9, color: Colors.grey.withValues(alpha: 0.8), letterSpacing: 1),
+              style: TextStyle(
+                  fontSize: 9,
+                  color: Colors.grey.withValues(alpha: 0.8),
+                  letterSpacing: 1),
             ),
           ],
         ),
@@ -98,7 +110,11 @@ class DashboardDesktopHeader extends StatelessWidget {
     );
   }
 
-  Widget _buildStatChip({required IconData icon, required String label, required Color color, required bool isDark}) {
+  Widget _buildStatChip(
+      {required IconData icon,
+      required String label,
+      required Color color,
+      required bool isDark}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
@@ -113,7 +129,11 @@ class DashboardDesktopHeader extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             label,
-            style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+            style: TextStyle(
+                color: color,
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5),
           ),
         ],
       ),
@@ -131,7 +151,8 @@ class DashboardDesktopHeader extends StatelessWidget {
             backgroundColor: const Color(0xFF1976D2),
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
         const SizedBox(width: 12),

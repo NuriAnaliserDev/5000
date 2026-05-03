@@ -67,7 +67,8 @@ class AuthService extends ChangeNotifier {
       await ref.set(
         {
           if (em != null && em.isNotEmpty) 'email': em,
-          'displayName': (dn != null && dn.isNotEmpty) ? dn : displayNameFromUser(user),
+          'displayName':
+              (dn != null && dn.isNotEmpty) ? dn : displayNameFromUser(user),
           'role': 'geologist',
           'createdAt': FieldValue.serverTimestamp(),
         },

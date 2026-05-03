@@ -47,7 +47,10 @@ class ShapefileWriter {
   }
 
   static void _points(String base, List<Station> s, Map<String, List<int>> o) {
-    var minX = s.first.lng, maxX = s.first.lng, minY = s.first.lat, maxY = s.first.lat;
+    var minX = s.first.lng,
+        maxX = s.first.lng,
+        minY = s.first.lat,
+        maxY = s.first.lat;
     for (final x in s) {
       if (x.lng < minX) minX = x.lng;
       if (x.lng > maxX) maxX = x.lng;
@@ -63,7 +66,10 @@ class ShapefileWriter {
 
   static void _line(String base, TrackData t, Map<String, List<int>> o) {
     final p = t.points;
-    var minX = p.first.lng, maxX = p.first.lng, minY = p.first.lat, maxY = p.first.lat;
+    var minX = p.first.lng,
+        maxX = p.first.lng,
+        minY = p.first.lat,
+        maxY = p.first.lat;
     for (final q in p) {
       if (q.lng < minX) minX = q.lng;
       if (q.lng > maxX) maxX = q.lng;
@@ -87,7 +93,10 @@ class ShapefileWriter {
 
   static Uint8List _pl(List<TrackPoint> pts) {
     final n = pts.length;
-    var minX = pts.first.lng, maxX = pts.first.lng, minY = pts.first.lat, maxY = pts.first.lat;
+    var minX = pts.first.lng,
+        maxX = pts.first.lng,
+        minY = pts.first.lat,
+        maxY = pts.first.lat;
     for (final q in pts) {
       if (q.lng < minX) minX = q.lng;
       if (q.lng > maxX) maxX = q.lng;

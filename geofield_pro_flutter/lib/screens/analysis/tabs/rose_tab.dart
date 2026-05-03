@@ -27,6 +27,7 @@ class _RoseTabState extends State<RoseTab> {
 
   late List<int> _counts;
   late int _maxCount;
+
   /// 0..(binCount/2-1) — strike aksial (0–180°) bo‘yicha, 10° va 190° bir xil bin.
   late int _dominantHalfBin;
   late double _axialBinWidthDeg;
@@ -53,9 +54,7 @@ class _RoseTabState extends State<RoseTab> {
     _axialBinWidthDeg = 180.0 / halfBins;
     final core = RoseStrikeBinning.halfBinsCore(widget.stations, _binCount);
     _counts = RoseStrikeBinning.fullRingCounts(core, _binCount);
-    _maxCount = core.isNotEmpty
-        ? core.reduce((a, b) => a > b ? a : b)
-        : 0;
+    _maxCount = core.isNotEmpty ? core.reduce((a, b) => a > b ? a : b) : 0;
     if (_maxCount == 0) {
       _dominantHalfBin = 0;
     } else {
@@ -122,8 +121,8 @@ class _RoseTabState extends State<RoseTab> {
                   },
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 5),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
                       color: selected
                           ? const Color(0xFF1976D2)
@@ -135,9 +134,8 @@ class _RoseTabState extends State<RoseTab> {
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
-                        color: selected
-                            ? Colors.white
-                            : const Color(0xFF1976D2),
+                        color:
+                            selected ? Colors.white : const Color(0xFF1976D2),
                       ),
                     ),
                   ),
@@ -179,8 +177,7 @@ class _RoseTabState extends State<RoseTab> {
         // ── Bin Table ─────────────────────────────────────────────────────
         Container(
           decoration: BoxDecoration(
-            color:
-                isDark ? const Color(0xFF181818) : Colors.grey.shade100,
+            color: isDark ? const Color(0xFF181818) : Colors.grey.shade100,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
                 color: const Color(0xFF1976D2).withValues(alpha: 0.2)),
@@ -192,17 +189,15 @@ class _RoseTabState extends State<RoseTab> {
             children: List.generate(_binCount, (i) {
               final seg = i % halfBins;
               final start = seg * _axialBinWidthDeg;
-              final deg =
-                  '${start.toStringAsFixed(_binCount > 16 ? 0 : 1)}°';
+              final deg = '${start.toStringAsFixed(_binCount > 16 ? 0 : 1)}°';
               final cnt = _counts[i];
               return Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 7, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                 decoration: BoxDecoration(
                   color: cnt == _maxCount && _maxCount > 0
                       ? const Color(0xFF1976D2)
-                      : const Color(0xFF1976D2).withValues(
-                          alpha: cnt > 0 ? 0.15 : 0.05),
+                      : const Color(0xFF1976D2)
+                          .withValues(alpha: cnt > 0 ? 0.15 : 0.05),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
@@ -247,7 +242,8 @@ class RoseDiagramPainter extends CustomPainter {
       Offset(cx, cy),
       r,
       Paint()
-        ..color = (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
+        ..color =
+            (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
     );
 
     final ringPaint = Paint()

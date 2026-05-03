@@ -134,12 +134,16 @@ class StationStructuralSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.bold)),
+        Text(label,
+            style: const TextStyle(
+                fontSize: 11, color: Colors.grey, fontWeight: FontWeight.bold)),
         const SizedBox(height: 6),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF181818) : Colors.grey.shade200,
+            color: Theme.of(context).brightness == Brightness.dark
+                ? const Color(0xFF181818)
+                : Colors.grey.shade200,
             borderRadius: BorderRadius.circular(12),
           ),
           child: DropdownButtonHideUnderline(
@@ -148,10 +152,14 @@ class StationStructuralSection extends StatelessWidget {
               isExpanded: true,
               icon: const Icon(Icons.keyboard_arrow_down, size: 18),
               onChanged: onChanged,
-              items: items.map((t) => DropdownMenuItem(
-                value: t,
-                child: Text(t, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-              )).toList(),
+              items: items
+                  .map((t) => DropdownMenuItem(
+                        value: t,
+                        child: Text(t,
+                            style: const TextStyle(
+                                fontSize: 13, fontWeight: FontWeight.w600)),
+                      ))
+                  .toList(),
             ),
           ),
         ),
@@ -170,7 +178,9 @@ class StationStructuralSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.bold)),
+        Text(label,
+            style: const TextStyle(
+                fontSize: 11, color: Colors.grey, fontWeight: FontWeight.bold)),
         const SizedBox(height: 6),
         TextField(
           controller: controller,
@@ -181,8 +191,11 @@ class StationStructuralSection extends StatelessWidget {
             hintText: hint,
             filled: true,
             fillColor: fillColor,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none),
           ),
         ),
       ],

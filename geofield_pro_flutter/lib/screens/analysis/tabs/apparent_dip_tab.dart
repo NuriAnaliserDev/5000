@@ -55,23 +55,30 @@ class _ApparentDipTabState extends State<ApparentDipTab> {
           children: [
             SizedBox(
               width: 160,
-              child: Text(label, style: TextStyle(fontWeight: FontWeight.bold, color: onSurf.withValues(alpha: 0.8))),
+              child: Text(label,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: onSurf.withValues(alpha: 0.8))),
             ),
             Expanded(
               child: TextField(
                 controller: ctrl,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
                 decoration: InputDecoration(
                   suffix: const Text('°'),
                   filled: true,
-                  fillColor: isDark ? const Color(0xFF222222) : Colors.grey.shade200,
+                  fillColor:
+                      isDark ? const Color(0xFF222222) : Colors.grey.shade200,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide.none,
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 ),
-                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+                style:
+                    const TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
               ),
             ),
           ],
@@ -86,7 +93,11 @@ class _ApparentDipTabState extends State<ApparentDipTab> {
         Text(
           context.loc('apparent_dip_calc_title'),
           textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 11, letterSpacing: 2, color: Color(0xFF1976D2), fontWeight: FontWeight.w900),
+          style: const TextStyle(
+              fontSize: 11,
+              letterSpacing: 2,
+              color: Color(0xFF1976D2),
+              fontWeight: FontWeight.w900),
         ),
         const SizedBox(height: 6),
         Text(
@@ -100,12 +111,18 @@ class _ApparentDipTabState extends State<ApparentDipTab> {
           decoration: BoxDecoration(
             color: cardColor,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFF1976D2).withValues(alpha: 0.2)),
+            border: Border.all(
+                color: const Color(0xFF1976D2).withValues(alpha: 0.2)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(context.loc('input_data'), style: const TextStyle(fontSize: 10, letterSpacing: 2, color: Color(0xFF1976D2), fontWeight: FontWeight.w900)),
+              Text(context.loc('input_data'),
+                  style: const TextStyle(
+                      fontSize: 10,
+                      letterSpacing: 2,
+                      color: Color(0xFF1976D2),
+                      fontWeight: FontWeight.w900)),
               const Divider(height: 20, color: Color(0xFF1976D2)),
               inputRow(context.loc('apparent_true_dip'), _dipCtrl),
               inputRow(context.loc('apparent_dip_direction'), _dipDirCtrl),
@@ -119,10 +136,13 @@ class _ApparentDipTabState extends State<ApparentDipTab> {
                     backgroundColor: const Color(0xFF1976D2),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
                   ),
                   icon: const Icon(Icons.calculate),
-                  label: Text(context.loc('calculate'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                  label: Text(context.loc('calculate'),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 15)),
                 ),
               ),
             ],
@@ -139,13 +159,28 @@ class _ApparentDipTabState extends State<ApparentDipTab> {
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(20),
-              boxShadow: [BoxShadow(color: const Color(0xFF1976D2).withValues(alpha: 0.4), blurRadius: 20, offset: const Offset(0, 8))],
+              boxShadow: [
+                BoxShadow(
+                    color: const Color(0xFF1976D2).withValues(alpha: 0.4),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8))
+              ],
             ),
             child: Column(
               children: [
-                Text(context.loc('apparent_dip_title'), style: const TextStyle(fontSize: 10, letterSpacing: 2, color: Colors.white70, fontWeight: FontWeight.w900)),
+                Text(context.loc('apparent_dip_title'),
+                    style: const TextStyle(
+                        fontSize: 10,
+                        letterSpacing: 2,
+                        color: Colors.white70,
+                        fontWeight: FontWeight.w900)),
                 const SizedBox(height: 12),
-                Text('${_result!.toStringAsFixed(2)}°', style: const TextStyle(fontSize: 56, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: -2)),
+                Text('${_result!.toStringAsFixed(2)}°',
+                    style: const TextStyle(
+                        fontSize: 56,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                        letterSpacing: -2)),
                 const SizedBox(height: 8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
@@ -153,7 +188,8 @@ class _ApparentDipTabState extends State<ApparentDipTab> {
                     value: _result! / 90.0,
                     minHeight: 8,
                     backgroundColor: Colors.white24,
-                    valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                    valueColor:
+                        const AlwaysStoppedAnimation<Color>(Colors.white),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -173,16 +209,25 @@ class _ApparentDipTabState extends State<ApparentDipTab> {
             decoration: BoxDecoration(
               color: cardColor,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF1976D2).withValues(alpha: 0.15)),
+              border: Border.all(
+                  color: const Color(0xFF1976D2).withValues(alpha: 0.15)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(context.loc('note'), style: const TextStyle(fontSize: 10, letterSpacing: 2, color: Color(0xFF1976D2), fontWeight: FontWeight.w900)),
+                Text(context.loc('note'),
+                    style: const TextStyle(
+                        fontSize: 10,
+                        letterSpacing: 2,
+                        color: Color(0xFF1976D2),
+                        fontWeight: FontWeight.w900)),
                 const SizedBox(height: 8),
                 Text(
                   context.loc('apparent_note_body'),
-                  style: TextStyle(fontSize: 11, color: onSurf.withValues(alpha: 0.6), height: 1.6),
+                  style: TextStyle(
+                      fontSize: 11,
+                      color: onSurf.withValues(alpha: 0.6),
+                      height: 1.6),
                 ),
               ],
             ),

@@ -65,7 +65,8 @@ class MapStructureAnnotation extends HiveObject {
       dip: (m['dip'] as num?)?.toDouble() ?? 0,
       structureType: m['structureType'] as String? ?? 'bedding',
       note: m['note'] as String?,
-      createdAt: DateTime.tryParse(m['createdAt'] as String? ?? '') ?? DateTime.now(),
+      createdAt:
+          DateTime.tryParse(m['createdAt'] as String? ?? '') ?? DateTime.now(),
     );
   }
 }

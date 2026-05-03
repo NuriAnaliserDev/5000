@@ -49,8 +49,7 @@ class _PulseMarkerState extends State<PulseMarker>
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
               decoration: BoxDecoration(
                 color: Colors.red.shade700,
                 borderRadius: BorderRadius.circular(6),

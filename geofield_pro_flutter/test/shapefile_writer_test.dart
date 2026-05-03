@@ -33,7 +33,8 @@ void main() {
         azimuth: 0,
         date: DateTime.utc(2026, 1, 1),
       );
-      final file = await ShapefileWriter.writeZip(stations: [s], tracks: const []);
+      final file =
+          await ShapefileWriter.writeZip(stations: [s], tracks: const []);
       expect(await file.exists(), isTrue);
       final bytes = await file.readAsBytes();
       final zip = ZipDecoder().decodeBytes(bytes);
@@ -64,14 +65,17 @@ void main() {
         ],
         distanceMeters: 0,
       );
-      final file = await ShapefileWriter.writeZip(stations: const [], tracks: [t]);
+      final file =
+          await ShapefileWriter.writeZip(stations: const [], tracks: [t]);
       final zip = ZipDecoder().decodeBytes(await file.readAsBytes());
       final names = zip.map((f) => f.name).toList();
-      expect(names.any((n) => n.endsWith('.shp') && n.startsWith('track_')), isTrue);
+      expect(names.any((n) => n.endsWith('.shp') && n.startsWith('track_')),
+          isTrue);
     });
 
     test('bo‘sh — nol hajmli yoki bo‘sh arxiv', () async {
-      final file = await ShapefileWriter.writeZip(stations: const [], tracks: const []);
+      final file =
+          await ShapefileWriter.writeZip(stations: const [], tracks: const []);
       expect(await file.exists(), isTrue);
       final len = await file.length();
       expect(len, greaterThanOrEqualTo(0));

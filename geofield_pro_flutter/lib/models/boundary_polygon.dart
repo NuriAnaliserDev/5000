@@ -5,63 +5,89 @@ import '../utils/spatial_calculator.dart';
 
 /// Zona turi — Dashboard'da ranglar va mantiq shu enum bilan boshqariladi.
 enum ZoneType {
-  workArea,   // Ishchi hudud — yashil
-  cafeteria,  // Oshxona / ovqatlanish — to'q sariq
-  restArea,   // Dam olish, karantin — sariq
-  hazard,     // Xavfli zona — qizil
-  base,       // Asosiy lager / baza — moviy
+  workArea, // Ishchi hudud — yashil
+  cafeteria, // Oshxona / ovqatlanish — to'q sariq
+  restArea, // Dam olish, karantin — sariq
+  hazard, // Xavfli zona — qizil
+  base, // Asosiy lager / baza — moviy
 }
 
 extension ZoneTypeExtension on ZoneType {
   String get label {
     switch (this) {
-      case ZoneType.workArea:  return "Ish Hududi";
-      case ZoneType.cafeteria: return "Oshxona";
-      case ZoneType.restArea:  return "Dam Olish";
-      case ZoneType.hazard:    return "Xavfli Zona";
-      case ZoneType.base:      return "Baza / Lager";
+      case ZoneType.workArea:
+        return "Ish Hududi";
+      case ZoneType.cafeteria:
+        return "Oshxona";
+      case ZoneType.restArea:
+        return "Dam Olish";
+      case ZoneType.hazard:
+        return "Xavfli Zona";
+      case ZoneType.base:
+        return "Baza / Lager";
     }
   }
 
   Color get color {
     switch (this) {
-      case ZoneType.workArea:  return Colors.green;
-      case ZoneType.cafeteria: return Colors.amber;
-      case ZoneType.restArea:  return Colors.orange;
-      case ZoneType.hazard:    return Colors.red;
-      case ZoneType.base:      return Colors.blue;
+      case ZoneType.workArea:
+        return Colors.green;
+      case ZoneType.cafeteria:
+        return Colors.amber;
+      case ZoneType.restArea:
+        return Colors.orange;
+      case ZoneType.hazard:
+        return Colors.red;
+      case ZoneType.base:
+        return Colors.blue;
     }
   }
 
   /// Dashboard statistikasida ish vaqtiga kirmaydi (false = dam olish hududi)
   bool get countsAsWorkTime {
     switch (this) {
-      case ZoneType.workArea:  return true;
-      case ZoneType.cafeteria: return false;
-      case ZoneType.restArea:  return false;
-      case ZoneType.hazard:    return false;
-      case ZoneType.base:      return false;
+      case ZoneType.workArea:
+        return true;
+      case ZoneType.cafeteria:
+        return false;
+      case ZoneType.restArea:
+        return false;
+      case ZoneType.hazard:
+        return false;
+      case ZoneType.base:
+        return false;
     }
   }
 
   String get firestoreKey {
     switch (this) {
-      case ZoneType.workArea:  return "workArea";
-      case ZoneType.cafeteria: return "cafeteria";
-      case ZoneType.restArea:  return "restArea";
-      case ZoneType.hazard:    return "hazard";
-      case ZoneType.base:      return "base";
+      case ZoneType.workArea:
+        return "workArea";
+      case ZoneType.cafeteria:
+        return "cafeteria";
+      case ZoneType.restArea:
+        return "restArea";
+      case ZoneType.hazard:
+        return "hazard";
+      case ZoneType.base:
+        return "base";
     }
   }
 
   static ZoneType fromString(String? s) {
     switch (s) {
-      case "workArea":  return ZoneType.workArea;
-      case "cafeteria": return ZoneType.cafeteria;
-      case "restArea":  return ZoneType.restArea;
-      case "hazard":    return ZoneType.hazard;
-      case "base":      return ZoneType.base;
-      default:          return ZoneType.workArea;
+      case "workArea":
+        return ZoneType.workArea;
+      case "cafeteria":
+        return ZoneType.cafeteria;
+      case "restArea":
+        return ZoneType.restArea;
+      case "hazard":
+        return ZoneType.hazard;
+      case "base":
+        return ZoneType.base;
+      default:
+        return ZoneType.workArea;
     }
   }
 }
@@ -69,6 +95,7 @@ extension ZoneTypeExtension on ZoneType {
 class BoundaryPolygon {
   /// Firestore hujjat ID
   final String? firestoreId;
+
   /// Tarmoq yo‘q / login yo‘q holatda import yoki chizma (Firestore’siz)
   final String? localId;
   final String name;
@@ -101,7 +128,8 @@ class BoundaryPolygon {
       'sourceFile': sourceFile,
       'zoneType': zoneType.firestoreKey,
       'description': description,
-      'points': points.map((p) => {'lat': p.latitude, 'lng': p.longitude}).toList(),
+      'points':
+          points.map((p) => {'lat': p.latitude, 'lng': p.longitude}).toList(),
       'areaSqMeters': areaSqMeters,
       'perimeterMeters': perimeterMeters,
       'countsAsWorkTime': countsAsWorkTime,
@@ -159,9 +187,12 @@ class BoundaryPolygon {
   }
 
   static double _isLeft(
-    double x1, double y1,
-    double x2, double y2,
-    double px, double py,
+    double x1,
+    double y1,
+    double x2,
+    double y2,
+    double px,
+    double py,
   ) {
     return (x2 - x1) * (py - y1) - (px - x1) * (y2 - y1);
   }

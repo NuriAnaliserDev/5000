@@ -31,27 +31,36 @@ List<SingleChildWidget> buildAppChangeNotifierProviders() {
     ),
     ChangeNotifierProxyProvider<CloudSyncService, StationRepository>(
       lazy: true,
-      create: (ctx) => StationRepository(Provider.of<CloudSyncService>(ctx, listen: false)),
+      create: (ctx) =>
+          StationRepository(Provider.of<CloudSyncService>(ctx, listen: false)),
       update: (_, sync, prev) => prev ?? StationRepository(sync),
     ),
-    ChangeNotifierProvider<ThemeController>(lazy: false, create: (_) => ThemeController()),
-    ChangeNotifierProvider<AuthService>(lazy: false, create: (_) => AuthService()),
-    ChangeNotifierProvider<SettingsController>(lazy: false, create: (_) => SettingsController()),
+    ChangeNotifierProvider<ThemeController>(
+        lazy: false, create: (_) => ThemeController()),
+    ChangeNotifierProvider<AuthService>(
+        lazy: false, create: (_) => AuthService()),
+    ChangeNotifierProvider<SettingsController>(
+        lazy: false, create: (_) => SettingsController()),
     ChangeNotifierProxyProvider<SettingsController, ChatRepository>(
       lazy: true,
       create: (ctx) => ChatRepository(
         settingsController: Provider.of<SettingsController>(ctx, listen: false),
       ),
-      update: (_, settings, chatRepo) => chatRepo ?? ChatRepository(settingsController: settings),
+      update: (_, settings, chatRepo) =>
+          chatRepo ?? ChatRepository(settingsController: settings),
     ),
     ChangeNotifierProxyProvider<CloudSyncService, TrackService>(
       lazy: true,
-      create: (ctx) => TrackService(Provider.of<CloudSyncService>(ctx, listen: false)),
+      create: (ctx) =>
+          TrackService(Provider.of<CloudSyncService>(ctx, listen: false)),
       update: (_, sync, prev) => prev ?? TrackService(sync),
     ),
-    ChangeNotifierProvider<LocationService>(lazy: true, create: (_) => LocationService()),
-    ChangeNotifierProvider<BoundaryService>(lazy: true, create: (_) => BoundaryService()),
-    ChangeNotifierProvider<MineReportRepository>(lazy: true, create: (_) => MineReportRepository()),
+    ChangeNotifierProvider<LocationService>(
+        lazy: true, create: (_) => LocationService()),
+    ChangeNotifierProvider<BoundaryService>(
+        lazy: true, create: (_) => BoundaryService()),
+    ChangeNotifierProvider<MineReportRepository>(
+        lazy: true, create: (_) => MineReportRepository()),
     ChangeNotifierProvider<GeologicalLineRepository>(
       lazy: true,
       create: (_) {
@@ -68,8 +77,10 @@ List<SingleChildWidget> buildAppChangeNotifierProviders() {
         return r;
       },
     ),
-    ChangeNotifierProvider<SecurityProvider>(lazy: true, create: (_) => SecurityProvider()),
-    ChangeNotifierProvider<PresenceService>(lazy: true, create: (_) => PresenceService()),
+    ChangeNotifierProvider<SecurityProvider>(
+        lazy: true, create: (_) => SecurityProvider()),
+    ChangeNotifierProvider<PresenceService>(
+        lazy: true, create: (_) => PresenceService()),
     ChangeNotifierProvider<SosService>(lazy: true, create: (_) => SosService()),
   ];
 }

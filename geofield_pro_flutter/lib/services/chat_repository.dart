@@ -13,9 +13,11 @@ import 'hive_db.dart';
 import 'settings_controller.dart';
 
 class ChatRepository extends ChangeNotifier {
-  final Box<ChatMessage> _messagesBox = Hive.box<ChatMessage>(HiveDb.chatMessagesBox);
+  final Box<ChatMessage> _messagesBox =
+      Hive.box<ChatMessage>(HiveDb.chatMessagesBox);
   final Box<ChatGroup> _groupsBox = Hive.box<ChatGroup>(HiveDb.chatGroupsBox);
-  final List<StreamSubscription<QuerySnapshot<Map<String, dynamic>>>> _chatSubscriptions = [];
+  final List<StreamSubscription<QuerySnapshot<Map<String, dynamic>>>>
+      _chatSubscriptions = [];
 
   final SettingsController settingsController;
 
@@ -58,7 +60,9 @@ class ChatRepository extends ChangeNotifier {
         final data = doc.data();
         if (data == null) continue;
 
-        final id = (data['id'] as String?)?.isNotEmpty == true ? data['id'] as String : doc.id;
+        final id = (data['id'] as String?)?.isNotEmpty == true
+            ? data['id'] as String
+            : doc.id;
         if (id.isEmpty) continue;
 
         final senderName = (data['senderName'] as String?) ?? 'Noma\'lum';
@@ -68,7 +72,8 @@ class ChatRepository extends ChangeNotifier {
         final mediaUrl = data['mediaUrl'] as String?;
         final lat = (data['lat'] as num?)?.toDouble();
         final lng = (data['lng'] as num?)?.toDouble();
-        final ts = DateTime.tryParse((data['timestamp'] as String?) ?? '') ?? DateTime.now();
+        final ts = DateTime.tryParse((data['timestamp'] as String?) ?? '') ??
+            DateTime.now();
         DateTime? editedAt;
         final eaRaw = data['editedAt'];
         if (eaRaw is String) {
@@ -124,7 +129,8 @@ class ChatRepository extends ChangeNotifier {
           needSave = true;
         }
         if (editedAt != null &&
-            (existing.editedAt == null || !editedAt.isAtSameMomentAs(existing.editedAt!))) {
+            (existing.editedAt == null ||
+                !editedAt.isAtSameMomentAs(existing.editedAt!))) {
           existing.editedAt = editedAt;
           needSave = true;
         }
@@ -170,7 +176,8 @@ class ChatRepository extends ChangeNotifier {
     final messages = getMessages(groupId);
     if (messages.isEmpty) return;
     final latest = messages.last;
-    group.lastMessage = latest.messageType == 'text' ? latest.text : '[${latest.messageType}]';
+    group.lastMessage =
+        latest.messageType == 'text' ? latest.text : '[${latest.messageType}]';
     group.lastMessageTime = latest.timestamp;
     await group.save();
   }
@@ -184,7 +191,8 @@ class ChatRepository extends ChangeNotifier {
   }
 
   List<ChatMessage> getMessages(String groupId) {
-    final msgs = _messagesBox.values.where((m) => m.groupId == groupId).toList();
+    final msgs =
+        _messagesBox.values.where((m) => m.groupId == groupId).toList();
     msgs.sort((a, b) => a.timestamp.compareTo(b.timestamp));
     return msgs;
   }
@@ -205,7 +213,8 @@ class ChatRepository extends ChangeNotifier {
     final msg = _messagesBox.get(messageId);
     if (msg == null) return 'Xabar topilmadi';
     if (!_isMessageMine(msg)) return 'Faqat o‘z xabaringizni tahrirlaysiz';
-    if (msg.messageType != 'text') return 'Faqat matn xabarlarini tahrirlash mumkin';
+    if (msg.messageType != 'text')
+      return 'Faqat matn xabarlarini tahrirlash mumkin';
 
     msg.text = t;
     msg.editedAt = DateTime.now();
@@ -214,20 +223,20 @@ class ChatRepository extends ChangeNotifier {
     if (msg.status == 'sent') {
       final fs = _firestore;
       if (fs != null) {
-      try {
-        await fs
-            .collection('chat_groups')
-            .doc(msg.groupId)
-            .collection('messages')
-            .doc(msg.id)
-            .update({
-          'text': t,
-          'editedAt': msg.editedAt!.toIso8601String(),
-        });
-      } catch (e) {
-        debugPrint('updateMessageText firestore: $e');
-        return 'Bulutga yozilmadi: $e';
-      }
+        try {
+          await fs
+              .collection('chat_groups')
+              .doc(msg.groupId)
+              .collection('messages')
+              .doc(msg.id)
+              .update({
+            'text': t,
+            'editedAt': msg.editedAt!.toIso8601String(),
+          });
+        } catch (e) {
+          debugPrint('updateMessageText firestore: $e');
+          return 'Bulutga yozilmadi: $e';
+        }
       }
     }
 

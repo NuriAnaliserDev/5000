@@ -51,7 +51,8 @@ class CameraProSettingsSheet extends StatelessWidget {
         children: [
           Text(
             s.map_pro_tools_title,
-            style: t.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+            style:
+                t.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 4),
           Text(

@@ -30,7 +30,10 @@ class _StereonetTabState extends State<StereonetTab> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final onSurf = Theme.of(context).colorScheme.onSurface;
 
-    final types = widget.stations.map((s) => s.measurementType ?? 'bedding').toSet().toList();
+    final types = widget.stations
+        .map((s) => s.measurementType ?? 'bedding')
+        .toSet()
+        .toList();
     final colors = [
       const Color(0xFF1976D2),
       Colors.orange,
@@ -39,7 +42,9 @@ class _StereonetTabState extends State<StereonetTab> {
       Colors.red,
       Colors.teal,
     ];
-    final typeColor = {for (int i = 0; i < types.length; i++) types[i]: colors[i % colors.length]};
+    final typeColor = {
+      for (int i = 0; i < types.length; i++) types[i]: colors[i % colors.length]
+    };
 
     return ListView(
       physics: AppScrollPhysics.list(),
@@ -50,7 +55,11 @@ class _StereonetTabState extends State<StereonetTab> {
               ? context.loc('stereonet_wulff')
               : context.loc('stereonet_schmidt'),
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 11, letterSpacing: 2, color: onSurf.withValues(alpha: 0.5), fontWeight: FontWeight.bold),
+          style: TextStyle(
+              fontSize: 11,
+              letterSpacing: 2,
+              color: onSurf.withValues(alpha: 0.5),
+              fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         Text(
@@ -84,19 +93,22 @@ class _StereonetTabState extends State<StereonetTab> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(context.loc('density_heatmap'), style: const TextStyle(fontSize: 12)),
+            Text(context.loc('density_heatmap'),
+                style: const TextStyle(fontSize: 12)),
             Switch(
               value: _showContours,
               onChanged: (val) => setState(() => _showContours = val),
             ),
             const SizedBox(width: 8),
-            Text(context.loc('stereonet_planes'), style: const TextStyle(fontSize: 12)),
+            Text(context.loc('stereonet_planes'),
+                style: const TextStyle(fontSize: 12)),
             Switch(
               value: _showGreatCircles,
               onChanged: (val) => setState(() => _showGreatCircles = val),
             ),
             const SizedBox(width: 8),
-            Text(context.loc('stereonet_mean'), style: const TextStyle(fontSize: 12)),
+            Text(context.loc('stereonet_mean'),
+                style: const TextStyle(fontSize: 12)),
             Switch(
               value: _showMeanVector,
               onChanged: (val) => setState(() => _showMeanVector = val),
@@ -105,15 +117,15 @@ class _StereonetTabState extends State<StereonetTab> {
         ),
         const SizedBox(height: 12),
         Center(
-            child: AspectRatio(
+          child: AspectRatio(
             aspectRatio: 1,
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final size = constraints.maxWidth;
                 final r = size / 2 - 12;
                 final dKey = Object.hash(
-                    Object.hashAll(widget.stations.map((s) =>
-                        Object.hash(s.strike, s.dip, s.measurements?.length ?? 0))),
+                    Object.hashAll(widget.stations.map((s) => Object.hash(
+                        s.strike, s.dip, s.measurements?.length ?? 0))),
                     _proj,
                     _showContours,
                     r.round());
@@ -167,14 +179,24 @@ class _StereonetTabState extends State<StereonetTab> {
         Wrap(
           spacing: 12,
           runSpacing: 8,
-          children: types.map((t) => Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(width: 10, height: 10, decoration: BoxDecoration(color: typeColor[t], shape: BoxShape.circle)),
-              const SizedBox(width: 6),
-              Text(t.toUpperCase(), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
-            ],
-          )).toList(),
+          children: types
+              .map((t) => Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                              color: typeColor[t], shape: BoxShape.circle)),
+                      const SizedBox(width: 6),
+                      Text(t.toUpperCase(),
+                          style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey)),
+                    ],
+                  ))
+              .toList(),
         ),
         const SizedBox(height: 20),
         AnalysisInfoTile(
@@ -217,7 +239,6 @@ class _StereonetTabState extends State<StereonetTab> {
           ));
         }
       }
-
     }
 
     double minDistSq = double.infinity;
@@ -227,7 +248,7 @@ class _StereonetTabState extends State<StereonetTab> {
       final targetX = cx + pt.x;
       final targetY = cy + pt.y;
       final distSq = pow(tapX - targetX, 2) + pow(tapY - targetY, 2);
-      if (distSq < minDistSq && distSq < 100) { 
+      if (distSq < minDistSq && distSq < 100) {
         minDistSq = distSq.toDouble();
         if (pt.data is Station) {
           closestStation = pt.data;

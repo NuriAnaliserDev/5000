@@ -65,11 +65,21 @@ class _AnalysisScreenState extends State<AnalysisScreen>
                 unselectedLabelColor: Colors.grey,
                 indicatorColor: const Color(0xFF1976D2),
                 tabs: [
-                  Tab(icon: const Icon(Icons.bar_chart), text: context.loc('statistics_label')),
-                  Tab(icon: const Icon(Icons.rotate_right), text: context.loc('analysis_tab_rose')),
-                  Tab(icon: const Icon(Icons.circle_outlined), text: context.loc('analysis_tab_stereonet')),
-                  Tab(icon: const Icon(Icons.trending_up), text: context.loc('analysis_tab_trends')),
-                  Tab(icon: const Icon(Icons.calculate_outlined), text: context.loc('apparent_dip_title')),
+                  Tab(
+                      icon: const Icon(Icons.bar_chart),
+                      text: context.loc('statistics_label')),
+                  Tab(
+                      icon: const Icon(Icons.rotate_right),
+                      text: context.loc('analysis_tab_rose')),
+                  Tab(
+                      icon: const Icon(Icons.circle_outlined),
+                      text: context.loc('analysis_tab_stereonet')),
+                  Tab(
+                      icon: const Icon(Icons.trending_up),
+                      text: context.loc('analysis_tab_trends')),
+                  Tab(
+                      icon: const Icon(Icons.calculate_outlined),
+                      text: context.loc('apparent_dip_title')),
                 ],
               ),
       ),
@@ -95,11 +105,15 @@ class _AnalysisScreenState extends State<AnalysisScreen>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.analytics_outlined, size: 64, color: onSurf.withValues(alpha: 0.4)),
+          Icon(Icons.analytics_outlined,
+              size: 64, color: onSurf.withValues(alpha: 0.4)),
           const SizedBox(height: 16),
           Text(
             context.loc('no_data'),
-            style: TextStyle(fontSize: 16, color: onSurf.withValues(alpha: 0.7), fontWeight: FontWeight.bold),
+            style: TextStyle(
+                fontSize: 16,
+                color: onSurf.withValues(alpha: 0.7),
+                fontWeight: FontWeight.bold),
           ),
         ],
       ),

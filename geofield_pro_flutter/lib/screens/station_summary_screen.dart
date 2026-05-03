@@ -364,7 +364,8 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
         final prev = _descriptionController.text.trim();
         final desc = result.description.trim();
         final tail = mineralsLine.trim();
-        final unmatchedType = matched == null && result.rockType.trim().isNotEmpty
+        final unmatchedType = matched == null &&
+                result.rockType.trim().isNotEmpty
             ? '${context.locRead('ai_lithology_verify_type_prefix')} ${result.rockType}'
             : '';
         final parts = <String>[];
@@ -393,7 +394,8 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${context.locRead('ai_lithology_error')}: $e')),
+          SnackBar(
+              content: Text('${context.locRead('ai_lithology_error')}: $e')),
         );
       }
     } finally {
@@ -464,10 +466,8 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
               onAddCamera: _openCameraForStation,
               onAddGallery: _pickFromGallery,
               onDeletePhoto: _deletePhoto,
-              onViewPhoto: (p) =>
-                  context.push('/painter', extra: p),
-              onOpenPainter: (p) =>
-                  context.push('/painter', extra: p),
+              onViewPhoto: (p) => context.push('/painter', extra: p),
+              onOpenPainter: (p) => context.push('/painter', extra: p),
               onPlayAudio: _playAudio,
             ),
           ),
@@ -483,8 +483,10 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
     final sid = id is int ? id : null;
     if (sid == null) return;
     MainTabNavigation.openCamera(context, stationId: sid);
-    for (final d
-        in [const Duration(milliseconds: 1200), const Duration(seconds: 4)]) {
+    for (final d in [
+      const Duration(milliseconds: 1200),
+      const Duration(seconds: 4)
+    ]) {
       Future<void>.delayed(d, () {
         if (!mounted) return;
         final repo = context.read<StationRepository>();

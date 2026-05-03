@@ -58,7 +58,8 @@ class DashboardQuickTools extends StatelessWidget {
           _buildQuickToolItem(
             context,
             Icons.maps_home_work_rounded,
-            GeoFieldStrings.of(context)?.field_workshop_title ?? 'Field workshop',
+            GeoFieldStrings.of(context)?.field_workshop_title ??
+                'Field workshop',
             const Color(0xFF2E7D32),
             () => Navigator.of(context, rootNavigator: true)
                 .pushNamed(AppRouter.fieldWorkshop),
@@ -148,7 +149,8 @@ class DashboardQuickTools extends StatelessWidget {
     );
   }
 
-  Widget _buildQuickToolItem(BuildContext context, IconData icon, String label, Color color, VoidCallback onTap) {
+  Widget _buildQuickToolItem(BuildContext context, IconData icon, String label,
+      Color color, VoidCallback onTap) {
     return InkWell(
       onTap: () {
         HapticFeedback.lightImpact();
@@ -227,7 +229,8 @@ class DashboardProjectPicker extends StatelessWidget {
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 value: settings.currentProject,
-                dropdownColor: isDark ? const Color(0xFF1A2433) : scheme.surface,
+                dropdownColor:
+                    isDark ? const Color(0xFF1A2433) : scheme.surface,
                 isExpanded: true,
                 isDense: true,
                 style: TextStyle(
@@ -241,7 +244,8 @@ class DashboardProjectPicker extends StatelessWidget {
                         value: p,
                         child: AutoScrollText(
                           text: p,
-                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.bold),
                         ),
                       ),
                     )
@@ -263,7 +267,8 @@ class DashboardProjectPicker extends StatelessWidget {
             IconButton(
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-              icon: const Icon(Icons.delete_outline, color: Colors.red, size: 22),
+              icon:
+                  const Icon(Icons.delete_outline, color: Colors.red, size: 22),
               onPressed: () => _deleteProject(context, settings),
             ),
           ],
@@ -272,14 +277,16 @@ class DashboardProjectPicker extends StatelessWidget {
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
             onPressed: () => _createProject(context, settings),
-            icon: Icon(Icons.add_circle_rounded, color: scheme.primary, size: 26),
+            icon:
+                Icon(Icons.add_circle_rounded, color: scheme.primary, size: 26),
           ),
         ],
       ),
     );
   }
 
-  Future<void> _editProject(BuildContext context, SettingsController settings) async {
+  Future<void> _editProject(
+      BuildContext context, SettingsController settings) async {
     final ctrl = TextEditingController(text: settings.currentProject);
     final name = await showDialog<String?>(
       context: context,
@@ -288,10 +295,13 @@ class DashboardProjectPicker extends StatelessWidget {
         content: TextField(
           controller: ctrl,
           autofocus: true,
-          decoration: InputDecoration(hintText: context.loc('new_project_hint')),
+          decoration:
+              InputDecoration(hintText: context.loc('new_project_hint')),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(context.loc('cancel'))),
+          TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(context.loc('cancel'))),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(ctrl.text),
             child: Text(context.loc('save')),
@@ -303,23 +313,27 @@ class DashboardProjectPicker extends StatelessWidget {
     final old = settings.currentProject;
     final newName = name.trim();
     if (old == newName) return;
-    
+
     if (!context.mounted) return;
     settings.renameProject(old, newName);
     await context.read<StationRepository>().renameProject(old, newName);
   }
 
-  Future<void> _deleteProject(BuildContext context, SettingsController settings) async {
+  Future<void> _deleteProject(
+      BuildContext context, SettingsController settings) async {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(context.loc('delete_project_title')),
         content: Text(context.loc('delete_project_warn')),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(context.loc('cancel'))),
+          TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(context.loc('cancel'))),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(context.loc('delete'), style: const TextStyle(color: Colors.red)),
+            child: Text(context.loc('delete'),
+                style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -332,7 +346,8 @@ class DashboardProjectPicker extends StatelessWidget {
     }
   }
 
-  Future<void> _createProject(BuildContext context, SettingsController settings) async {
+  Future<void> _createProject(
+      BuildContext context, SettingsController settings) async {
     final ctrl = TextEditingController();
     final name = await showDialog<String?>(
       context: context,

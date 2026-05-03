@@ -190,9 +190,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // Firebase keyin o‘zi tiklanadi (authStateChanges orqali).
     if (rememberedUid != null && rememberedUid.isNotEmpty) {
       final name = settings.lastAuthName;
-      if (name != null &&
-          name.isNotEmpty &&
-          settings.currentUserName != name) {
+      if (name != null && name.isNotEmpty && settings.currentUserName != name) {
         settings.setLocalDisplayName(name);
       }
       if (settings.isFirstRun) {

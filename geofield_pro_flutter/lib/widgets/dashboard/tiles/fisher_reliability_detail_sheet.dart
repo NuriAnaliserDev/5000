@@ -83,7 +83,8 @@ void showFisherReliabilityDetailSheet(BuildContext context) {
                   const SizedBox(height: 12),
                   Text(
                     s.fisher_reliability_help,
-                    style: const TextStyle(color: Colors.white60, fontSize: 12, height: 1.4),
+                    style: const TextStyle(
+                        color: Colors.white60, fontSize: 12, height: 1.4),
                   ),
                 ],
               );
@@ -130,8 +131,7 @@ class _FisherConePainter extends CustomPainter {
     if (!alpha95.isNaN && n >= 2 && mean.isFinite) {
       final a1 = mean - alpha95 / 2;
       final a2 = mean + alpha95 / 2;
-      final path = Path()
-        ..moveTo(c.dx, c.dy);
+      final path = Path()..moveTo(c.dx, c.dy);
       const segments = 24;
       for (var i = 0; i <= segments; i++) {
         final t = a1 + (a2 - a1) * (i / segments);
@@ -166,7 +166,6 @@ class _FisherConePainter extends CustomPainter {
       ray(mean - alpha95 / 2, pEdge);
       ray(mean + alpha95 / 2, pEdge);
     }
-
   }
 
   @override

@@ -5,7 +5,8 @@ import '../models/station.dart';
 class CrossSectionData {
   final Station station;
   final double distanceAlongProfile; // meters from start of section
-  final double projectedDepth; // calculated based on apparent dip and distance if depth projection is used
+  final double
+      projectedDepth; // calculated based on apparent dip and distance if depth projection is used
   final double apparentDip; // degrees
   final double offsetFromProfile; // how far from the line (buffer distance)
 
@@ -35,15 +36,16 @@ class CrossSectionService {
 
     for (var station in stations) {
       final LatLng stationPos = LatLng(station.lat, station.lng);
-      
+
       // 1. Calculate the projection of station onto the infinite line A-B
       // Simplified approach: Distance from start and cross-track distance
-      final double distFromStart = _distance.as(LengthUnit.Meter, start, stationPos);
+      final double distFromStart =
+          _distance.as(LengthUnit.Meter, start, stationPos);
       final double bearingFromStart = _distance.bearing(start, stationPos);
-      
+
       // Relative angle between profile direction and station direction
       final double angleRad = (bearingFromStart - sectionBearing) * pi / 180.0;
-      
+
       final double alongProfile = distFromStart * cos(angleRad);
       final double crossProfile = (distFromStart * sin(angleRad)).abs();
 
@@ -56,13 +58,14 @@ class CrossSectionService {
       final double strike = station.strike;
       double beta = (strike - sectionBearing).abs() % 180;
       if (beta > 90) beta = 180 - beta;
-      
+
       // True Dip
       final double alpha = station.dip;
-      
+
       // tan(alpha') = tan(alpha) * sin(beta)
       // Note: This assumes profile is perpendicular to strike for beta=90
-      final double apparentDipRad = atan(tan(alpha * pi / 180.0) * sin(beta * pi / 180.0));
+      final double apparentDipRad =
+          atan(tan(alpha * pi / 180.0) * sin(beta * pi / 180.0));
       final double apparentDip = apparentDipRad * 180.0 / pi;
 
       results.add(CrossSectionData(
@@ -75,7 +78,8 @@ class CrossSectionService {
     }
 
     // Sort by distance for easier rendering/labeling
-    results.sort((a, b) => a.distanceAlongProfile.compareTo(b.distanceAlongProfile));
+    results.sort(
+        (a, b) => a.distanceAlongProfile.compareTo(b.distanceAlongProfile));
     return results;
   }
 }

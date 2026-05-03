@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 abstract final class AppPageRoutes {
   static const Duration _d = Duration(milliseconds: 260);
 
-  static Route<T> material<T>(WidgetBuilder builder, {RouteSettings? settings}) {
+  static Route<T> material<T>(WidgetBuilder builder,
+      {RouteSettings? settings}) {
     return PageRouteBuilder<T>(
       settings: settings,
       transitionDuration: _d,
@@ -19,7 +20,9 @@ abstract final class AppPageRoutes {
         return FadeTransition(
           opacity: t,
           child: SlideTransition(
-            position: Tween<Offset>(begin: const Offset(0.04, 0), end: Offset.zero).animate(t),
+            position:
+                Tween<Offset>(begin: const Offset(0.04, 0), end: Offset.zero)
+                    .animate(t),
             child: child,
           ),
         );

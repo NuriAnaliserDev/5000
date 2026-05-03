@@ -31,7 +31,8 @@ class _WebDashboardMainState extends State<WebDashboardMain> {
     final isDark = themeCtrl.mode == ThemeMode.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF0F2F5),
+      backgroundColor:
+          isDark ? const Color(0xFF121212) : const Color(0xFFF0F2F5),
       body: Row(
         children: [
           WebSidebar(

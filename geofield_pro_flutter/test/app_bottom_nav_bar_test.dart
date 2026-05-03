@@ -30,7 +30,8 @@ void main() {
     }
   });
 
-  testWidgets('5 ta yorliq + Yana; expert bo‘lmasa Scale matni pastki panda yo‘q',
+  testWidgets(
+      '5 ta yorliq + Yana; expert bo‘lmasa Scale matni pastki panda yo‘q',
       (tester) async {
     await tester.pumpWidget(
       ChangeNotifierProvider<SettingsController>.value(

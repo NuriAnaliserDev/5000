@@ -47,7 +47,8 @@ class CameraTopBar extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppTheme.stitchBlueDeep.withValues(alpha: 0.58),
                 border: Border(
-                  bottom: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+                  bottom:
+                      BorderSide(color: Colors.white.withValues(alpha: 0.2)),
                 ),
               ),
               child: Padding(
@@ -58,8 +59,11 @@ class CameraTopBar extends StatelessWidget {
                     children: [
                       IconButton(
                         icon: Icon(Icons.arrow_back_ios_new_rounded,
-                            color: AppTheme.stitchBlue.withValues(alpha: 0.95), size: 20),
-                        onPressed: () { if (context.canPop()) context.pop(); },
+                            color: AppTheme.stitchBlue.withValues(alpha: 0.95),
+                            size: 20),
+                        onPressed: () {
+                          if (context.canPop()) context.pop();
+                        },
                       ),
                       Expanded(
                         child: Text(
@@ -79,7 +83,8 @@ class CameraTopBar extends StatelessWidget {
                         IconButton(
                           key: modeToggleKey,
                           icon: Icon(Icons.description_outlined,
-                              color: Colors.white.withValues(alpha: 0.92), size: 22),
+                              color: Colors.white.withValues(alpha: 0.92),
+                              size: 22),
                           tooltip: context.loc('camera_mode_document'),
                           onPressed: () => onModeChanged(CameraMode.document),
                         )
@@ -202,7 +207,8 @@ class CameraTopBar extends StatelessWidget {
     );
   }
 
-  Widget _modeTab(BuildContext context, CameraMode mode, IconData icon, String label) {
+  Widget _modeTab(
+      BuildContext context, CameraMode mode, IconData icon, String label) {
     final selected = cameraMode == mode;
     return InkWell(
       borderRadius: BorderRadius.circular(8),
@@ -217,7 +223,8 @@ class CameraTopBar extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 14, color: selected ? Colors.white : Colors.white54),
+            Icon(icon,
+                size: 14, color: selected ? Colors.white : Colors.white54),
             const SizedBox(width: 4),
             Flexible(
               child: Text(

@@ -49,7 +49,7 @@ class _CrossSectionScreenState extends State<CrossSectionScreen> {
         children: [
           // Settings Panel
           _buildSettings(colorScheme),
-          
+
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
@@ -62,7 +62,8 @@ class _CrossSectionScreenState extends State<CrossSectionScreen> {
                     painter: _ProfilePainter(
                       data: data,
                       exaggeration: _exaggeration,
-                      totalLength: const Distance().as(LengthUnit.Meter, widget.start, widget.end),
+                      totalLength: const Distance()
+                          .as(LengthUnit.Meter, widget.start, widget.end),
                       colorScheme: colorScheme,
                     ),
                   ),
@@ -70,7 +71,7 @@ class _CrossSectionScreenState extends State<CrossSectionScreen> {
               ),
             ),
           ),
-          
+
           _buildStatsSummary(data),
         ],
       ),
@@ -88,7 +89,9 @@ class _CrossSectionScreenState extends State<CrossSectionScreen> {
               const Icon(Icons.line_weight, color: Colors.blueAccent, size: 20),
               const SizedBox(width: 8),
               Expanded(
-                child: Text('Buffer (Masofa): ${_buffer.toInt()} m', style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                child: Text('Buffer (Masofa): ${_buffer.toInt()} m',
+                    style:
+                        const TextStyle(color: Colors.white70, fontSize: 12)),
               ),
               Slider(
                 value: _buffer,
@@ -104,7 +107,10 @@ class _CrossSectionScreenState extends State<CrossSectionScreen> {
               const Icon(Icons.height, color: Colors.orangeAccent, size: 20),
               const SizedBox(width: 8),
               Expanded(
-                child: Text('Exaggeration (Bo\'rttirish): ${_exaggeration.toStringAsFixed(1)}x', style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                child: Text(
+                    'Exaggeration (Bo\'rttirish): ${_exaggeration.toStringAsFixed(1)}x',
+                    style:
+                        const TextStyle(color: Colors.white70, fontSize: 12)),
               ),
               Slider(
                 value: _exaggeration,
@@ -127,7 +133,10 @@ class _CrossSectionScreenState extends State<CrossSectionScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _statItem('Nuqtalar', data.length.toString(), Icons.analytics),
-          _statItem('Masofa', '${const Distance().as(LengthUnit.Meter, widget.start, widget.end).toInt()} m', Icons.straighten),
+          _statItem(
+              'Masofa',
+              '${const Distance().as(LengthUnit.Meter, widget.start, widget.end).toInt()} m',
+              Icons.straighten),
         ],
       ),
     );
@@ -138,8 +147,13 @@ class _CrossSectionScreenState extends State<CrossSectionScreen> {
       children: [
         Icon(icon, color: Colors.white30, size: 20),
         const SizedBox(height: 4),
-        Text(value, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-        Text(label, style: const TextStyle(color: Colors.white54, fontSize: 10)),
+        Text(value,
+            style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold)),
+        Text(label,
+            style: const TextStyle(color: Colors.white54, fontSize: 10)),
       ],
     );
   }
@@ -168,9 +182,9 @@ class _ProfilePainter extends CustomPainter {
     final double padding = 40.0;
     final double drawWidth = size.width - (padding * 2);
     final double drawHeight = size.height - (padding * 2);
-    
+
     final double horizontalScale = drawWidth / totalLength;
-    
+
     // Find altitude range for vertical scale
     double minAlt = 0;
     double maxAlt = 100;
@@ -182,19 +196,24 @@ class _ProfilePainter extends CustomPainter {
     // Removed unused verticalScale variable
 
     // 2. Draw Grid Boxes
-    _drawGrid(canvas, size, padding, drawWidth, drawHeight, minAlt, maxAlt, totalLength);
+    _drawGrid(canvas, size, padding, drawWidth, drawHeight, minAlt, maxAlt,
+        totalLength);
 
     // 3. Draw Topography (Surface line connecting stations)
     final surfacePath = ui.Path();
     bool first = true;
-    
+
     // Removed unused pointPaint variable
-    final dipPaint = Paint()..strokeWidth = 3..strokeCap = StrokeCap.round;
+    final dipPaint = Paint()
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round;
 
     for (var d in data) {
       final double x = padding + (d.distanceAlongProfile * horizontalScale);
       // Flip Y (0 is top)
-      final double y = size.height - padding - ((d.station.altitude - minAlt) * (drawHeight / altRange));
+      final double y = size.height -
+          padding -
+          ((d.station.altitude - minAlt) * (drawHeight / altRange));
 
       if (first) {
         surfacePath.moveTo(x, y);
@@ -206,14 +225,16 @@ class _ProfilePainter extends CustomPainter {
       // Draw "Dip Stick"
       final double angleRad = d.apparentDip * pi / 180.0;
       final double stickLen = 30.0;
-      
+
       dipPaint.color = _getDipColor(d.apparentDip);
-      
+
       // Calculate stick endpoints
-      // Note: Apparent dip is angle from horizontal. 
+      // Note: Apparent dip is angle from horizontal.
       // If we are looking from the side, a 45 degree dip is a line.
       final dx = stickLen * cos(angleRad);
-      final dy = stickLen * sin(angleRad) * exaggeration; // Apply exaggeration to the slope
+      final dy = stickLen *
+          sin(angleRad) *
+          exaggeration; // Apply exaggeration to the slope
 
       canvas.drawLine(
         Offset(x, y),
@@ -223,10 +244,12 @@ class _ProfilePainter extends CustomPainter {
 
       // Station Point
       canvas.drawCircle(Offset(x, y), 4, Paint()..color = Colors.white);
-      
+
       // Label
       final TextPainter tp = TextPainter(
-        text: TextSpan(text: d.station.name, style: const TextStyle(color: Colors.white, fontSize: 8)),
+        text: TextSpan(
+            text: d.station.name,
+            style: const TextStyle(color: Colors.white, fontSize: 8)),
         textDirection: TextDirection.ltr,
       )..layout();
       tp.paint(canvas, Offset(x - tp.width / 2, y - 15));
@@ -242,30 +265,38 @@ class _ProfilePainter extends CustomPainter {
     );
   }
 
-  void _drawGrid(Canvas canvas, Size size, double padding, double w, double h, double minAlt, double maxAlt, double len) {
-    final gridPaint = Paint()..color = Colors.white10..strokeWidth = 0.5;
-    
+  void _drawGrid(Canvas canvas, Size size, double padding, double w, double h,
+      double minAlt, double maxAlt, double len) {
+    final gridPaint = Paint()
+      ..color = Colors.white10
+      ..strokeWidth = 0.5;
+
     // Vertical lines (Distance)
     for (double d = 0; d <= len; d += len / 5) {
       final double x = padding + (d * (w / len));
-      canvas.drawLine(Offset(x, padding), Offset(x, size.height - padding), gridPaint);
-      
-      _drawText(canvas, '${d.toInt()}m', Offset(x - 10, size.height - padding + 5));
+      canvas.drawLine(
+          Offset(x, padding), Offset(x, size.height - padding), gridPaint);
+
+      _drawText(
+          canvas, '${d.toInt()}m', Offset(x - 10, size.height - padding + 5));
     }
 
     // Horizontal lines (Altitude)
     final double range = maxAlt - minAlt;
     for (double a = minAlt; a <= maxAlt; a += range / 5) {
       final double y = size.height - padding - ((a - minAlt) * (h / range));
-      canvas.drawLine(Offset(padding, y), Offset(size.width - padding, y), gridPaint);
-      
+      canvas.drawLine(
+          Offset(padding, y), Offset(size.width - padding, y), gridPaint);
+
       _drawText(canvas, '${a.toInt()}m', Offset(padding - 35, y - 5));
     }
   }
 
   void _drawText(Canvas canvas, String text, Offset offset) {
     final tp = TextPainter(
-      text: TextSpan(text: text, style: const TextStyle(color: Colors.white38, fontSize: 9)),
+      text: TextSpan(
+          text: text,
+          style: const TextStyle(color: Colors.white38, fontSize: 9)),
       textDirection: TextDirection.ltr,
     )..layout();
     tp.paint(canvas, offset);

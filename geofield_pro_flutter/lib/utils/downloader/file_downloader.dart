@@ -5,7 +5,7 @@ import 'dart:io' as io;
 // Import conditional implementations
 // Ignore the error if the environment doesn't match
 import 'web_downloader_stub.dart'
-  if (dart.library.html) 'web_downloader_web.dart';
+    if (dart.library.html) 'web_downloader_web.dart';
 
 class FileDownloader {
   static Future<void> downloadBytes(List<int> bytes, String fileName) async {

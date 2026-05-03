@@ -33,7 +33,9 @@ class WebMapDrawingPanel extends StatelessWidget {
       decoration: BoxDecoration(
         color: surfaceColor,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 10)],
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 10)
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -42,14 +44,17 @@ class WebMapDrawingPanel extends StatelessWidget {
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: const Color(0xFF1565C0).withValues(alpha: 0.1),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(16)),
             ),
             child: Row(
               children: [
                 const Icon(Icons.draw_outlined, color: Color(0xFF1565C0)),
                 const SizedBox(width: 8),
                 const Expanded(
-                  child: Text('Zona Chizish', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  child: Text('Zona Chizish',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                 ),
                 Switch(
                   value: isDrawingMode,
@@ -70,8 +75,10 @@ class WebMapDrawingPanel extends StatelessWidget {
                   decoration: InputDecoration(
                     labelText: 'Zona nomi',
                     prefixIcon: const Icon(Icons.label_outline),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -81,12 +88,18 @@ class WebMapDrawingPanel extends StatelessWidget {
                   decoration: InputDecoration(
                     labelText: 'Tavsif (ixtiyoriy)',
                     prefixIcon: const Icon(Icons.notes_outlined),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
                   ),
                 ),
                 const SizedBox(height: 12),
-                const Text('Zona turi:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+                const Text('Zona turi:',
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey)),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 6,
@@ -97,11 +110,17 @@ class WebMapDrawingPanel extends StatelessWidget {
                       onTap: isDrawingMode ? () => onTypeChanged(zt) : null,
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 180),
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: isSelected ? zt.color : zt.color.withValues(alpha: 0.08),
+                          color: isSelected
+                              ? zt.color
+                              : zt.color.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: zt.color.withValues(alpha: isSelected ? 1.0 : 0.4), width: 1.5),
+                          border: Border.all(
+                              color: zt.color
+                                  .withValues(alpha: isSelected ? 1.0 : 0.4),
+                              width: 1.5),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -137,7 +156,8 @@ class WebMapDrawingPanel extends StatelessWidget {
                         child: OutlinedButton.icon(
                           onPressed: onClear,
                           icon: const Icon(Icons.clear, size: 16),
-                          label: const Text('Tozalash', style: TextStyle(fontSize: 12)),
+                          label: const Text('Tozalash',
+                              style: TextStyle(fontSize: 12)),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: Colors.red,
                             side: const BorderSide(color: Colors.red),
@@ -150,7 +170,8 @@ class WebMapDrawingPanel extends StatelessWidget {
                         child: ElevatedButton.icon(
                           onPressed: pointsCount >= 3 ? onSave : null,
                           icon: const Icon(Icons.save_outlined, size: 16),
-                          label: const Text('Saqlash', style: TextStyle(fontSize: 12)),
+                          label: const Text('Saqlash',
+                              style: TextStyle(fontSize: 12)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: selectedType.color,
                             foregroundColor: Colors.white,
@@ -167,7 +188,8 @@ class WebMapDrawingPanel extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: selectedType.color.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: selectedType.color.withValues(alpha: 0.3)),
+                      border: Border.all(
+                          color: selectedType.color.withValues(alpha: 0.3)),
                     ),
                     child: Text(
                       'Xaritada $pointsCount nuqta chizildi',

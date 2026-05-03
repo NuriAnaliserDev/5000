@@ -21,19 +21,24 @@ class ScaleAssistantScreen extends StatefulWidget {
 class _ScaleAssistantScreenState extends State<ScaleAssistantScreen> {
   final _realDistController = TextEditingController(text: '100');
   final _paperDistController = TextEditingController();
-  
+
   double _scaleDenominator = 1000; // 1:1000
   final String _unit = 'm'; // 'm' or 'km'
 
   // Layout Planner State
-  final TextEditingController _customWidthCtrl = TextEditingController(text: '21.0');
-  final TextEditingController _customHeightCtrl = TextEditingController(text: '29.7');
+  final TextEditingController _customWidthCtrl =
+      TextEditingController(text: '21.0');
+  final TextEditingController _customHeightCtrl =
+      TextEditingController(text: '29.7');
 
   String _selectedPaper = 'A4 (21 x 29.7 sm)';
   final List<String> _paperFormats = [
-    'A4 (21 x 29.7 sm)', 'A3 (29.7 x 42 sm)', 'A2 (42 x 59.4 sm)', 
-    'A1 (59.4 x 84.1 sm)', 'A0 (84.1 x 118.9 sm)', 
-    'Millimetrovka A4 (21 x 29.7 sm)', 
+    'A4 (21 x 29.7 sm)',
+    'A3 (29.7 x 42 sm)',
+    'A2 (42 x 59.4 sm)',
+    'A1 (59.4 x 84.1 sm)',
+    'A0 (84.1 x 118.9 sm)',
+    'Millimetrovka A4 (21 x 29.7 sm)',
     'Millimetrovka A3 (29.7 x 42 sm)',
     'Millimetrovka Rulon (88 sm x 10 m)',
     'custom'
@@ -87,8 +92,9 @@ class _ScaleAssistantScreenState extends State<ScaleAssistantScreen> {
     return Scaffold(
       backgroundColor: surf,
       appBar: AppBar(
-        title: Text(context.loc('scale_assistant_title'), 
-          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 1.2)),
+        title: Text(context.loc('scale_assistant_title'),
+            style: const TextStyle(
+                fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 1.2)),
         backgroundColor: surf,
         foregroundColor: textColor,
         elevation: 0,
@@ -104,7 +110,9 @@ class _ScaleAssistantScreenState extends State<ScaleAssistantScreen> {
                     context.loc('scale_assistant_help_content'),
                   ),
                   actions: [
-                    TextButton(onPressed: () => ctx.pop(), child: Text(context.loc('confirm'))),
+                    TextButton(
+                        onPressed: () => ctx.pop(),
+                        child: Text(context.loc('confirm'))),
                   ],
                 ),
               );
@@ -114,49 +122,54 @@ class _ScaleAssistantScreenState extends State<ScaleAssistantScreen> {
       ),
       body: SingleChildScrollView(
         physics: AppScrollPhysics.list(),
-        padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + AppBottomNavBar.listScrollEndGap(context)),
+        padding: EdgeInsets.fromLTRB(
+            20, 20, 20, 20 + AppBottomNavBar.listScrollEndGap(context)),
         child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSectionHeader(context.loc('millimetrovka_calc'), Icons.calculate),
-                const SizedBox(height: 16),
-                ScaleCalculatorCard(
-                  realDistController: _realDistController,
-                  paperDistController: _paperDistController,
-                  unit: _unit,
-                  scaleDenominator: _scaleDenominator,
-                  onScaleChanged: (s) {
-                    setState(() => _scaleDenominator = s);
-                    _calculatePaperFromReal();
-                  },
-                  onRealChanged: _calculatePaperFromReal,
-                  onPaperChanged: _calculateRealFromPaper,
-                ),
-                const SizedBox(height: 32),
-                _buildSectionHeader(context.loc('layout_planner'), Icons.layers),
-                const SizedBox(height: 16),
-                ScaleLayoutCard(
-                  selectedPaper: _selectedPaper,
-                  paperFormats: _paperFormats,
-                  customWidthCtrl: _customWidthCtrl,
-                  customHeightCtrl: _customHeightCtrl,
-                  scaleDenominator: _scaleDenominator,
-                  onPaperChanged: (v) => setState(() => _selectedPaper = v),
-                  onCustomChanged: () => setState(() {}),
-                ),
-                const SizedBox(height: 32),
-                _buildSectionHeader(context.loc('ruler_calibration_title'), Icons.straighten),
-                const SizedBox(height: 16),
-                ScaleDigitalRuler(settings: settings),
-                const SizedBox(height: 32),
-                _buildSectionHeader(context.loc('color_chart_title'), Icons.palette),
-                const SizedBox(height: 16),
-                const ScaleColorChart(),
-                const SizedBox(height: 40),
-              ],
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSectionHeader(
+                context.loc('millimetrovka_calc'), Icons.calculate),
+            const SizedBox(height: 16),
+            ScaleCalculatorCard(
+              realDistController: _realDistController,
+              paperDistController: _paperDistController,
+              unit: _unit,
+              scaleDenominator: _scaleDenominator,
+              onScaleChanged: (s) {
+                setState(() => _scaleDenominator = s);
+                _calculatePaperFromReal();
+              },
+              onRealChanged: _calculatePaperFromReal,
+              onPaperChanged: _calculateRealFromPaper,
             ),
-          ),
-      bottomNavigationBar: const AppBottomNavBar(activeRoute: '/scale-assistant'),
+            const SizedBox(height: 32),
+            _buildSectionHeader(context.loc('layout_planner'), Icons.layers),
+            const SizedBox(height: 16),
+            ScaleLayoutCard(
+              selectedPaper: _selectedPaper,
+              paperFormats: _paperFormats,
+              customWidthCtrl: _customWidthCtrl,
+              customHeightCtrl: _customHeightCtrl,
+              scaleDenominator: _scaleDenominator,
+              onPaperChanged: (v) => setState(() => _selectedPaper = v),
+              onCustomChanged: () => setState(() {}),
+            ),
+            const SizedBox(height: 32),
+            _buildSectionHeader(
+                context.loc('ruler_calibration_title'), Icons.straighten),
+            const SizedBox(height: 16),
+            ScaleDigitalRuler(settings: settings),
+            const SizedBox(height: 32),
+            _buildSectionHeader(
+                context.loc('color_chart_title'), Icons.palette),
+            const SizedBox(height: 16),
+            const ScaleColorChart(),
+            const SizedBox(height: 40),
+          ],
+        ),
+      ),
+      bottomNavigationBar:
+          const AppBottomNavBar(activeRoute: '/scale-assistant'),
     );
   }
 
@@ -167,7 +180,11 @@ class _ScaleAssistantScreenState extends State<ScaleAssistantScreen> {
         children: [
           Icon(icon, color: const Color(0xFF1976D2)),
           const SizedBox(width: 8),
-          Text(title, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 1.2)),
+          Text(title,
+              style: const TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 16,
+                  letterSpacing: 1.2)),
         ],
       ),
     );

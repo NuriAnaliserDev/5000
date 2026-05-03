@@ -22,11 +22,31 @@ class _WebReportsScreenState extends State<WebReportsScreen>
 
   // Tab filtr turlari
   final List<_TabConfig> _tabs = const [
-    _TabConfig(label: 'Ore Block', icon: Icons.fire_truck, type: 'ore_block', color: Color(0xFF1565C0)),
-    _TabConfig(label: 'RC Burg\'ulash', icon: Icons.precision_manufacturing, type: 'rc_drill', color: Color(0xFF6A1B9A)),
-    _TabConfig(label: 'Ore Stockpile', icon: Icons.stacked_bar_chart, type: 'ore_stockpile', color: Color(0xFF2E7D32)),
-    _TabConfig(label: 'Spotter Log', icon: Icons.assignment, type: 'spotter', color: Color(0xFFE65100)),
-    _TabConfig(label: 'Drilling Tally', icon: Icons.straighten, type: 'drilling', color: Color(0xFFBF360C)),
+    _TabConfig(
+        label: 'Ore Block',
+        icon: Icons.fire_truck,
+        type: 'ore_block',
+        color: Color(0xFF1565C0)),
+    _TabConfig(
+        label: 'RC Burg\'ulash',
+        icon: Icons.precision_manufacturing,
+        type: 'rc_drill',
+        color: Color(0xFF6A1B9A)),
+    _TabConfig(
+        label: 'Ore Stockpile',
+        icon: Icons.stacked_bar_chart,
+        type: 'ore_stockpile',
+        color: Color(0xFF2E7D32)),
+    _TabConfig(
+        label: 'Spotter Log',
+        icon: Icons.assignment,
+        type: 'spotter',
+        color: Color(0xFFE65100)),
+    _TabConfig(
+        label: 'Drilling Tally',
+        icon: Icons.straighten,
+        type: 'drilling',
+        color: Color(0xFFBF360C)),
   ];
 
   @override
@@ -67,7 +87,9 @@ class _WebReportsScreenState extends State<WebReportsScreen>
       if (reports.isEmpty) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Eksport qilish uchun Tasdiqlangan ma'lumot yo'q!")),
+            const SnackBar(
+                content:
+                    Text("Eksport qilish uchun Tasdiqlangan ma'lumot yo'q!")),
           );
         }
         return;
@@ -105,11 +127,13 @@ class _WebReportsScreenState extends State<WebReportsScreen>
           .orderBy('createdAt', descending: false)
           .get();
 
-      final List<MineReport> reports = snap.docs.map((d) => MineReport.fromFirestore(d)).toList();
+      final List<MineReport> reports =
+          snap.docs.map((d) => MineReport.fromFirestore(d)).toList();
 
       if (reports.isEmpty) {
         if (mounted) {
-           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Bu yerda tasdiqlangan ma'lumotlar yo'q!")));
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text("Bu yerda tasdiqlangan ma'lumotlar yo'q!")));
         }
         return;
       }
@@ -118,12 +142,16 @@ class _WebReportsScreenState extends State<WebReportsScreen>
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Master Report muvaffaqiyatli hosil qilindi!"), backgroundColor: Colors.green),
+          const SnackBar(
+              content: Text("Master Report muvaffaqiyatli hosil qilindi!"),
+              backgroundColor: Colors.green),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Master Report xatosi: $e"), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("Master Report xatosi: $e"),
+            backgroundColor: Colors.red));
       }
     } finally {
       if (mounted) setState(() => _isExporting = false);
@@ -136,21 +164,24 @@ class _WebReportsScreenState extends State<WebReportsScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Qabulxona (Inbox)', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('Qabulxona (Inbox)',
+            style: TextStyle(fontWeight: FontWeight.bold)),
         elevation: 0,
         backgroundColor: Colors.transparent,
         bottom: TabBar(
           controller: _tabController,
-          tabs: _tabs.map((tab) => Tab(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(tab.icon, size: 16),
-                const SizedBox(width: 6),
-                Text(tab.label),
-              ],
-            ),
-          )).toList(),
+          tabs: _tabs
+              .map((tab) => Tab(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(tab.icon, size: 16),
+                        const SizedBox(width: 6),
+                        Text(tab.label),
+                      ],
+                    ),
+                  ))
+              .toList(),
           labelColor: _currentColor,
           unselectedLabelColor: Colors.grey,
           indicatorColor: _currentColor,
@@ -161,9 +192,14 @@ class _WebReportsScreenState extends State<WebReportsScreen>
             padding: const EdgeInsets.only(right: 8.0, top: 8, bottom: 8),
             child: ElevatedButton.icon(
               icon: _isExporting
-                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                          color: Colors.white, strokeWidth: 2))
                   : const Icon(Icons.summarize, size: 18),
-              label: Text(_isExporting ? "JARAYONDA..." : "MASTER REPORT (HISOBOT)"),
+              label: Text(
+                  _isExporting ? "JARAYONDA..." : "MASTER REPORT (HISOBOT)"),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF1B5E20),
                 foregroundColor: Colors.white,
@@ -176,9 +212,14 @@ class _WebReportsScreenState extends State<WebReportsScreen>
             padding: const EdgeInsets.only(right: 16.0, top: 8, bottom: 8),
             child: ElevatedButton.icon(
               icon: _isExporting
-                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                          color: Colors.white, strokeWidth: 2))
                   : const Icon(Icons.download, size: 18),
-              label: Text(_isExporting ? "YUKLANMOQDA..." : "EKSPORT (TANLANGAN)"),
+              label:
+                  Text(_isExporting ? "YUKLANMOQDA..." : "EKSPORT (TANLANGAN)"),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.amber.shade700,
                 foregroundColor: Colors.white,
@@ -207,7 +248,10 @@ class _WebReportsScreenState extends State<WebReportsScreen>
           decoration: BoxDecoration(
             color: t.colorScheme.surface,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)],
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)
+            ],
           ),
           child: Column(
             children: [
@@ -216,7 +260,8 @@ class _WebReportsScreenState extends State<WebReportsScreen>
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   color: tab.color.withValues(alpha: 0.1),
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(16)),
                 ),
                 child: Row(
                   children: [
@@ -225,7 +270,10 @@ class _WebReportsScreenState extends State<WebReportsScreen>
                     Expanded(
                       child: Text(
                         'Tasdiq Kutayotganlar — ${tab.label}',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: tab.color),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: tab.color),
                       ),
                     ),
                   ],
@@ -238,19 +286,24 @@ class _WebReportsScreenState extends State<WebReportsScreen>
                     return StreamBuilder<List<MineReport>>(
                       stream: repo.streamPendingReportsByType(tab.type),
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
                         }
                         if (!snapshot.hasData || snapshot.data!.isEmpty) {
                           return Center(
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.check_circle_outline, size: 48, color: Colors.grey.shade400),
+                                Icon(Icons.check_circle_outline,
+                                    size: 48, color: Colors.grey.shade400),
                                 const SizedBox(height: 12),
                                 Text(
                                   "Yangi hisobot yo'q",
-                                  style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
+                                  style: TextStyle(
+                                      color: Colors.grey.shade500,
+                                      fontSize: 14),
                                 ),
                               ],
                             ),
@@ -267,25 +320,34 @@ class _WebReportsScreenState extends State<WebReportsScreen>
 
                             return ListTile(
                               selected: isSelected,
-                              selectedTileColor: tab.color.withValues(alpha: 0.08),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                              selectedTileColor:
+                                  tab.color.withValues(alpha: 0.08),
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 4),
                               leading: CircleAvatar(
                                 radius: 20,
-                                backgroundColor: tab.color.withValues(alpha: 0.15),
-                                child: Icon(tab.icon, color: tab.color, size: 18),
+                                backgroundColor:
+                                    tab.color.withValues(alpha: 0.15),
+                                child:
+                                    Icon(tab.icon, color: tab.color, size: 18),
                               ),
                               title: Text(
                                 report.authorName,
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 14),
                               ),
                               subtitle: Text(
-                                DateFormat('dd-MM-yyyy HH:mm').format(report.createdAt),
+                                DateFormat('dd-MM-yyyy HH:mm')
+                                    .format(report.createdAt),
                                 style: const TextStyle(fontSize: 11),
                               ),
                               trailing: isSelected
-                                  ? Icon(Icons.arrow_forward_ios, size: 14, color: tab.color)
-                                  : const Icon(Icons.chevron_right, color: Colors.grey, size: 18),
-                              onTap: () => setState(() => _selectedReport = report),
+                                  ? Icon(Icons.arrow_forward_ios,
+                                      size: 14, color: tab.color)
+                                  : const Icon(Icons.chevron_right,
+                                      color: Colors.grey, size: 18),
+                              onTap: () =>
+                                  setState(() => _selectedReport = report),
                             );
                           },
                         );
@@ -305,7 +367,10 @@ class _WebReportsScreenState extends State<WebReportsScreen>
             decoration: BoxDecoration(
               color: t.colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
-              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)],
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)
+              ],
             ),
             child: _selectedReport == null
                 ? Center(
@@ -316,12 +381,16 @@ class _WebReportsScreenState extends State<WebReportsScreen>
                         const SizedBox(height: 16),
                         Text(
                           "Chapdan hisobotni tanlang",
-                          style: TextStyle(color: Colors.grey.shade500, fontSize: 18),
+                          style: TextStyle(
+                              color: Colors.grey.shade500, fontSize: 18),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           tab.label,
-                          style: TextStyle(color: tab.color, fontSize: 13, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                              color: tab.color,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600),
                         ),
                       ],
                     ),
@@ -344,5 +413,9 @@ class _TabConfig {
   final IconData icon;
   final String type;
   final Color color;
-  const _TabConfig({required this.label, required this.icon, required this.type, required this.color});
+  const _TabConfig(
+      {required this.label,
+      required this.icon,
+      required this.type,
+      required this.color});
 }

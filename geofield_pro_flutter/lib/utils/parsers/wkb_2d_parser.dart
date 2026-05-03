@@ -259,7 +259,22 @@ List<BoundaryPolygon> wkbOrGpkgPayloadToBoundaries(
   String sourceFile, {
   ZoneType zone = ZoneType.workArea,
 }) {
-  const tried = <int>[8, 12, 16, 20, 24, 32, 40, 48, 56, 64, 72, 8 + 32, 8 + 48, 0];
+  const tried = <int>[
+    8,
+    12,
+    16,
+    20,
+    24,
+    32,
+    40,
+    48,
+    56,
+    64,
+    72,
+    8 + 32,
+    8 + 48,
+    0
+  ];
   for (final off in tried) {
     if (off < 0 || off >= blob.length) continue;
     if (!Wkb2dParser.looksLikeWkb(blob, off)) continue;

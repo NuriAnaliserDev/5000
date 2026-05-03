@@ -63,7 +63,8 @@ class MapStitchTopCluster extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.72),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.45)),
+                  border:
+                      Border.all(color: Colors.white.withValues(alpha: 0.45)),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.12),
@@ -75,7 +76,8 @@ class MapStitchTopCluster extends StatelessWidget {
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.search_rounded, color: Color(0xFF37474F)),
+                      icon: const Icon(Icons.search_rounded,
+                          color: Color(0xFF37474F)),
                       onPressed: onSearchPressed,
                       tooltip: hint,
                     ),
@@ -86,7 +88,8 @@ class MapStitchTopCluster extends StatelessWidget {
                           onTap: onSearchPressed,
                           borderRadius: BorderRadius.circular(14),
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 4),
                             child: Text(
                               hint,
                               style: TextStyle(
@@ -100,7 +103,8 @@ class MapStitchTopCluster extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.layers_outlined, color: Color(0xFF1976D2)),
+                      icon: const Icon(Icons.layers_outlined,
+                          color: Color(0xFF1976D2)),
                       onPressed: onStylePressed,
                       tooltip: context.loc('map_style'),
                     ),
@@ -151,10 +155,14 @@ class _WorkshopTop extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.85),
+              color:
+                  Theme.of(context).colorScheme.surface.withValues(alpha: 0.85),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                color: Theme.of(context)
+                    .colorScheme
+                    .outline
+                    .withValues(alpha: 0.2),
               ),
             ),
             child: Row(
@@ -176,7 +184,8 @@ class _WorkshopTop extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        secondaryLineOverride ?? '$stationsCount ${context.loc('stations')}',
+                        secondaryLineOverride ??
+                            '$stationsCount ${context.loc('stations')}',
                         style: TextStyle(
                           fontSize: 12,
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -188,11 +197,13 @@ class _WorkshopTop extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.layers_outlined, color: Theme.of(context).colorScheme.primary),
+                  icon: Icon(Icons.layers_outlined,
+                      color: Theme.of(context).colorScheme.primary),
                   onPressed: onStylePressed,
                 ),
                 IconButton(
-                  icon: Icon(Icons.search, color: Theme.of(context).colorScheme.primary),
+                  icon: Icon(Icons.search,
+                      color: Theme.of(context).colorScheme.primary),
                   onPressed: onSearchPressed,
                 ),
               ],
@@ -248,7 +259,8 @@ class _StitchGpsPill extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.66),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: statusColor.withValues(alpha: 0.85), width: 1.5),
+            border: Border.all(
+                color: statusColor.withValues(alpha: 0.85), width: 1.5),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,

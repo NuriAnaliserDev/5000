@@ -48,7 +48,8 @@ class GpsBroadcaster {
     }
     if (kIsWeb) {
       _attachStream(
-        const LocationSettings(accuracy: LocationAccuracy.best, distanceFilter: 0),
+        const LocationSettings(
+            accuracy: LocationAccuracy.best, distanceFilter: 0),
       );
       return;
     }
@@ -83,7 +84,8 @@ class GpsBroadcaster {
       return;
     }
     _attachStream(
-      const LocationSettings(accuracy: LocationAccuracy.best, distanceFilter: 0),
+      const LocationSettings(
+          accuracy: LocationAccuracy.best, distanceFilter: 0),
     );
   }
 

@@ -99,7 +99,8 @@ class WmmModel {
     final cosLat = math.cos(latRad);
     final sinLat = math.sin(latRad);
     final rc = math.sqrt(
-      ((a * a * cosLat) * (a * a * cosLat) + (b * b * sinLat) * (b * b * sinLat)) /
+      ((a * a * cosLat) * (a * a * cosLat) +
+              (b * b * sinLat) * (b * b * sinLat)) /
           ((a * cosLat) * (a * cosLat) + (b * sinLat) * (b * sinLat)),
     );
     final r = math.sqrt(
@@ -131,7 +132,8 @@ class WmmModel {
     double bTheta = 0.0; // Colatitude component
     double bPhi = 0.0; // Longitude component
 
-    double ratioPow = ratio * ratio; // (a/r)^(n+2), boshlanadi n=1 → ^3, oshiradi
+    double ratioPow =
+        ratio * ratio; // (a/r)^(n+2), boshlanadi n=1 → ^3, oshiradi
     for (int n = 1; n <= wmmMaxDegree; n++) {
       ratioPow *= ratio; // now (a/r)^(n+2)
 
@@ -210,7 +212,8 @@ class WmmModel {
         } else if (n == 1 || m == n - 1) {
           p[n][m] = sinLat * p[n - 1][m] * math.sqrt((2.0 * n - 1));
         } else {
-          final k = ((n - 1) * (n - 1) - m * m) / ((2.0 * n - 1) * (2.0 * n - 3));
+          final k =
+              ((n - 1) * (n - 1) - m * m) / ((2.0 * n - 1) * (2.0 * n - 3));
           p[n][m] = sinLat * p[n - 1][m] - math.sqrt(k) * p[n - 2][m];
           p[n][m] /= math.sqrt(1.0 - k);
         }
@@ -220,8 +223,7 @@ class WmmModel {
   }
 
   /// dP/dθ — Schmidt Legendre hosilasi.
-  List<List<double>> _schmidtLegendreDeriv(
-      double gcLat, List<List<double>> p) {
+  List<List<double>> _schmidtLegendreDeriv(double gcLat, List<List<double>> p) {
     final sinLat = math.sin(gcLat);
     final cosLat = math.cos(gcLat);
     final dp = List.generate(
@@ -231,18 +233,19 @@ class WmmModel {
     for (int n = 1; n <= wmmMaxDegree; n++) {
       for (int m = 0; m <= n; m++) {
         if (n == m) {
-          dp[n][m] = (m == 0 ? -n : 0) * sinLat * p[n][m] / math.max(cosLat, 1e-10);
+          dp[n][m] =
+              (m == 0 ? -n : 0) * sinLat * p[n][m] / math.max(cosLat, 1e-10);
         } else {
           // Numerik hosila: cosθ · (dP/dsinθ)
           final factor = math.sqrt((n + m) * (n - m + 1.0));
           if (m > 0) {
-            dp[n][m] = cosLat * (factor * p[n][m - 1] - m * sinLat * p[n][m] / math.max(cosLat, 1e-10));
+            dp[n][m] = cosLat *
+                (factor * p[n][m - 1] -
+                    m * sinLat * p[n][m] / math.max(cosLat, 1e-10));
           } else {
             // Central recursion
             if (n > 1) {
-              dp[n][0] = cosLat *
-                  math.sqrt(n * (n + 1.0) / 2.0) *
-                  (p[n][1]);
+              dp[n][0] = cosLat * math.sqrt(n * (n + 1.0) / 2.0) * (p[n][1]);
             } else {
               dp[1][0] = cosLat;
             }

@@ -132,8 +132,7 @@ class CircularStats {
     } else if (rBar < 0.85) {
       kappa = -0.4 + 1.39 * rBar + 0.43 / (1 - rBar);
     } else {
-      kappa =
-          1 / (math.pow(rBar, 3) - 4 * math.pow(rBar, 2) + 3 * rBar);
+      kappa = 1 / (math.pow(rBar, 3) - 4 * math.pow(rBar, 2) + 3 * rBar);
     }
 
     // α₉₅ — Fisher 1953 95% ishonch konusi

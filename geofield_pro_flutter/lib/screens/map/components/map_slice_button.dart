@@ -21,7 +21,8 @@ class MapSliceButton extends StatelessWidget {
         heroTag: 'slice_fab',
         backgroundColor: isSliceMode ? Colors.orange : Colors.white,
         onPressed: onPressed,
-        child: Icon(Icons.content_cut, color: isSliceMode ? Colors.white : Colors.black87),
+        child: Icon(Icons.content_cut,
+            color: isSliceMode ? Colors.white : Colors.black87),
       ),
     );
   }

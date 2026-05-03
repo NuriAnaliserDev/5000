@@ -22,9 +22,13 @@ class _DashboardDesktop3DCardState extends State<DashboardDesktop3DCard> {
       return _buildEmpty();
     }
 
-    final avgLat = widget.stations.map((e) => e.lat).reduce((a, b) => a + b) / widget.stations.length;
-    final avgLng = widget.stations.map((e) => e.lng).reduce((a, b) => a + b) / widget.stations.length;
-    final avgAlt = widget.stations.map((e) => e.altitude).reduce((a, b) => a + b) / widget.stations.length;
+    final avgLat = widget.stations.map((e) => e.lat).reduce((a, b) => a + b) /
+        widget.stations.length;
+    final avgLng = widget.stations.map((e) => e.lng).reduce((a, b) => a + b) /
+        widget.stations.length;
+    final avgAlt =
+        widget.stations.map((e) => e.altitude).reduce((a, b) => a + b) /
+            widget.stations.length;
 
     return GestureDetector(
       onPanUpdate: (d) => setState(() {
@@ -45,7 +49,11 @@ class _DashboardDesktop3DCardState extends State<DashboardDesktop3DCard> {
               children: [
                 Icon(Icons.view_in_ar, color: Colors.orange, size: 18),
                 SizedBox(width: 8),
-                Text('3D Geological Model', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                Text('3D Geological Model',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13)),
               ],
             ),
             Expanded(
@@ -71,8 +79,10 @@ class _DashboardDesktop3DCardState extends State<DashboardDesktop3DCard> {
 
   Widget _buildEmpty() {
     return Container(
-      decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(20)),
-      child: const Center(child: Text('No data for 3D', style: TextStyle(color: Colors.grey))),
+      decoration: BoxDecoration(
+          color: Colors.black54, borderRadius: BorderRadius.circular(20)),
+      child: const Center(
+          child: Text('No data for 3D', style: TextStyle(color: Colors.grey))),
     );
   }
 }

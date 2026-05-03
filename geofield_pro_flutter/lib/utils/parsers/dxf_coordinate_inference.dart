@@ -58,9 +58,7 @@ class DxfCoordinateInference {
             hintLatitude: hintLat,
           );
     }
-    if (hintLat != null &&
-        hintLng != null &&
-        _looksLikeLocalMeters(flat)) {
+    if (hintLat != null && hintLng != null && _looksLikeLocalMeters(flat)) {
       return (p) => _localMetersToWgs(
             p.longitude,
             p.latitude,
@@ -155,7 +153,8 @@ class DxfCoordinateInference {
     );
   }
 
-  static int _bestUtmZone(List<LatLng> pts, {double? hintLng, double? hintLat}) {
+  static int _bestUtmZone(List<LatLng> pts,
+      {double? hintLng, double? hintLat}) {
     if (hintLng != null) {
       return UtmWgs84.zoneFromLongitude(hintLng);
     }
@@ -172,8 +171,8 @@ class DxfCoordinateInference {
     var bestZ = 35;
     var bestPen = double.infinity;
     for (var z = 1; z <= 60; z++) {
-      final ll =
-          UtmCoord.toLatLngFromUtmMeters(zone: z, easting: cx, northing: cy, hintLatitude: hintLat);
+      final ll = UtmCoord.toLatLngFromUtmMeters(
+          zone: z, easting: cx, northing: cy, hintLatitude: hintLat);
       var pen = 0.0;
       if (!ll.latitude.isFinite || !ll.longitude.isFinite) {
         pen = 1e12;

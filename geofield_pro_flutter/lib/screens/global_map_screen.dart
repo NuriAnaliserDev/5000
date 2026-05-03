@@ -73,8 +73,10 @@ part 'global_map_screen_state.dart';
 
 class GlobalMapScreen extends StatefulWidget {
   final Map<String, dynamic>? initLocation;
+
   /// `true` — alohida marshrut: Pro maydon (qatlam, GIS, chizim, struktura bitta fokus).
   final bool fieldWorkshopMode;
+
   /// `true` — [MainTabShell] ostida; pastki tab bar tashqi scaffoldda.
   final bool embedded;
 

@@ -20,7 +20,8 @@ class WebAnalyticsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
-        title: const Text('Analytics Dashboard', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('Analytics Dashboard',
+            style: TextStyle(fontWeight: FontWeight.bold)),
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),
@@ -30,15 +31,18 @@ class WebAnalyticsScreen extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          
+
           final reports = snapshot.data ?? [];
           if (reports.isEmpty && stations.isEmpty) {
             return _buildEmptyState();
           }
 
-          final oreBlocks = reports.where((r) => r.reportType == 'ore_block').toList();
-          final rcDrills = reports.where((r) => r.reportType == 'rc_drill').toList();
-          final oreStockpile = reports.where((r) => r.reportType == 'ore_stockpile').toList();
+          final oreBlocks =
+              reports.where((r) => r.reportType == 'ore_block').toList();
+          final rcDrills =
+              reports.where((r) => r.reportType == 'rc_drill').toList();
+          final oreStockpile =
+              reports.where((r) => r.reportType == 'ore_stockpile').toList();
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
@@ -64,7 +68,8 @@ class WebAnalyticsScreen extends StatelessWidget {
                     const SizedBox(width: 20),
                     Expanded(
                       flex: 4,
-                      child: WebAnalyticsProductionBarCard(oreBlocks: oreBlocks),
+                      child:
+                          WebAnalyticsProductionBarCard(oreBlocks: oreBlocks),
                     ),
                   ],
                 ),

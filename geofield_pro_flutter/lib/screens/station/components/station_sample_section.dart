@@ -60,10 +60,15 @@ class StationSampleSection extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(context.loc('confidence'), style: const TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.bold)),
+                  Text(context.loc('confidence'),
+                      style: const TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey,
+                          fontWeight: FontWeight.bold)),
                   Slider(
                     value: confidence.toDouble(),
-                    min: 1, max: 5,
+                    min: 1,
+                    max: 5,
                     divisions: 4,
                     label: confidence.toString(),
                     onChanged: (v) => onConfidenceChanged(v.toInt()),
@@ -77,7 +82,11 @@ class StationSampleSection extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(context.loc('munsell'), style: const TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.bold)),
+                  Text(context.loc('munsell'),
+                      style: const TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey,
+                          fontWeight: FontWeight.bold)),
                   const SizedBox(height: 6),
                   InkWell(
                     onTap: onPickMunsell,
@@ -88,7 +97,8 @@ class StationSampleSection extends StatelessWidget {
                         color: formFill,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Text(munsellColor, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      child: Text(munsellColor,
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
@@ -122,7 +132,9 @@ class StationSampleSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.bold)),
+        Text(label,
+            style: const TextStyle(
+                fontSize: 11, color: Colors.grey, fontWeight: FontWeight.bold)),
         const SizedBox(height: 6),
         TextField(
           controller: controller,
@@ -131,8 +143,11 @@ class StationSampleSection extends StatelessWidget {
             hintText: hint,
             filled: true,
             fillColor: fillColor,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none),
           ),
         ),
       ],

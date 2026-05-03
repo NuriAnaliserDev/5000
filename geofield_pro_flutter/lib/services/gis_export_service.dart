@@ -52,10 +52,13 @@ class GisExportService {
       for (int i = 0; i < l.lats.length; i++) {
         coords.add([l.lngs[i], l.lats[i]]); // [lng, lat]
       }
-      
+
       // Close polygon if requested
-      if (l.isClosed && coords.isNotEmpty && (coords.first[0] != coords.last[0] || coords.first[1] != coords.last[1])) {
-         coords.add(coords.first);
+      if (l.isClosed &&
+          coords.isNotEmpty &&
+          (coords.first[0] != coords.last[0] ||
+              coords.first[1] != coords.last[1])) {
+        coords.add(coords.first);
       }
 
       features.add({
@@ -78,10 +81,7 @@ class GisExportService {
       final coords = t.points.map((p) => [p.lng, p.lat, p.alt]).toList();
       features.add({
         "type": "Feature",
-        "geometry": {
-          "type": "LineString",
-          "coordinates": coords
-        },
+        "geometry": {"type": "LineString", "coordinates": coords},
         "properties": {
           "name": t.name,
           "author": t.authorName ?? "Unknown",
@@ -91,10 +91,7 @@ class GisExportService {
       });
     }
 
-    final geoJson = {
-      "type": "FeatureCollection",
-      "features": features
-    };
+    final geoJson = {"type": "FeatureCollection", "features": features};
 
     return jsonEncode(geoJson);
   }
@@ -102,7 +99,7 @@ class GisExportService {
   /// 2. Eng muhimi: DXF eksport algoritmi (AutoCAD qatlamlari bilan yagona fayl!)
   String generateDXF() {
     final buffer = StringBuffer();
-    
+
     // Header
     buffer.write("  0\nSECTION\n  2\nENTITIES\n");
 
@@ -110,29 +107,33 @@ class GisExportService {
     for (final s in stations) {
       buffer.write("  0\nPOINT\n");
       buffer.write("  8\nGeoField_Stations\n"); // Layer
-      buffer.write(" 10\n${s.lng}\n 20\n${s.lat}\n 30\n${s.altitude}\n"); // Coordinates
-      
+      buffer.write(
+          " 10\n${s.lng}\n 20\n${s.lat}\n 30\n${s.altitude}\n"); // Coordinates
+
       // Matni qo'shish (Station Code text on DXF)
       buffer.write("  0\nTEXT\n");
       buffer.write("  8\nGeoField_Station_Labels\n");
-      buffer.write(" 10\n${s.lng + 0.0001}\n 20\n${s.lat + 0.0001}\n 30\n${s.altitude}\n");
+      buffer.write(
+          " 10\n${s.lng + 0.0001}\n 20\n${s.lat + 0.0001}\n 30\n${s.altitude}\n");
       buffer.write(" 40\n0.001\n"); // Text height
-      buffer.write("  1\n${s.name} (S${s.strike.toStringAsFixed(0)}/D${s.dip.toStringAsFixed(0)})\n");
+      buffer.write(
+          "  1\n${s.name} (S${s.strike.toStringAsFixed(0)}/D${s.dip.toStringAsFixed(0)})\n");
     }
 
     // Chiziqlar (Geological Lines)
     for (final l in geoLines) {
       if (l.lats.isEmpty) continue;
       buffer.write("  0\nPOLYLINE\n");
-      buffer.write("  8\nGeoField_Lines_${l.lineType}\n"); // Differ layers by line type
+      buffer.write(
+          "  8\nGeoField_Lines_${l.lineType}\n"); // Differ layers by line type
       buffer.write(" 66\n1\n"); // Vertices follow
       buffer.write(" 10\n0.0\n 20\n0.0\n 30\n0.0\n"); // Dummy base point
       if (l.isClosed) {
-          buffer.write(" 70\n1\n"); // Closed polyline flag
+        buffer.write(" 70\n1\n"); // Closed polyline flag
       } else {
-          buffer.write(" 70\n0\n");
+        buffer.write(" 70\n0\n");
       }
-      
+
       for (int i = 0; i < l.lats.length; i++) {
         buffer.write("  0\nVERTEX\n");
         buffer.write("  8\nGeoField_Lines_${l.lineType}\n");
@@ -143,19 +144,19 @@ class GisExportService {
 
     // Tracks (Marshrut)
     for (final t in tracks) {
-       if (t.points.isEmpty) continue;
-       buffer.write("  0\nPOLYLINE\n");
-       buffer.write("  8\nGeoField_Tracks\n");
-       buffer.write(" 66\n1\n");
-       buffer.write(" 10\n0.0\n 20\n0.0\n 30\n0.0\n");
-       buffer.write(" 70\n0\n"); // Open
-       
-       for (final p in t.points) {
-         buffer.write("  0\nVERTEX\n");
-         buffer.write("  8\nGeoField_Tracks\n");
-         buffer.write(" 10\n${p.lng}\n 20\n${p.lat}\n 30\n${p.alt}\n");
-       }
-       buffer.write("  0\nSEQEND\n");
+      if (t.points.isEmpty) continue;
+      buffer.write("  0\nPOLYLINE\n");
+      buffer.write("  8\nGeoField_Tracks\n");
+      buffer.write(" 66\n1\n");
+      buffer.write(" 10\n0.0\n 20\n0.0\n 30\n0.0\n");
+      buffer.write(" 70\n0\n"); // Open
+
+      for (final p in t.points) {
+        buffer.write("  0\nVERTEX\n");
+        buffer.write("  8\nGeoField_Tracks\n");
+        buffer.write(" 10\n${p.lng}\n 20\n${p.lat}\n 30\n${p.alt}\n");
+      }
+      buffer.write("  0\nSEQEND\n");
     }
 
     // Footer
@@ -169,23 +170,30 @@ class GisExportService {
     try {
       final geoJsonStr = generateGeoJSON();
       final dxfStr = generateDXF();
-      
+
       final archive = Archive();
-      archive.addFile(ArchiveFile('geofield_export.geojson', geoJsonStr.length, utf8.encode(geoJsonStr)));
+      archive.addFile(ArchiveFile('geofield_export.geojson', geoJsonStr.length,
+          utf8.encode(geoJsonStr)));
       final dxfBytes = utf8.encode(dxfStr);
-      archive.addFile(ArchiveFile('geofield_export.dxf', dxfBytes.length, dxfBytes));
+      archive.addFile(
+          ArchiveFile('geofield_export.dxf', dxfBytes.length, dxfBytes));
 
       final zipData = ZipEncoder().encode(archive)!;
-      
+
       final dir = await getApplicationDocumentsDirectory();
-      final date = DateTime.now().toIso8601String().replaceAll(':', '-').split('.').first;
+      final date = DateTime.now()
+          .toIso8601String()
+          .replaceAll(':', '-')
+          .split('.')
+          .first;
       final file = File('${dir.path}/GeoField_GIS_Export_$date.zip');
-      
+
       await file.writeAsBytes(zipData);
-      
+
       await Share.shareXFiles(
-        [XFile(file.path)], 
-        text: 'GeoField Pro N - Barcha geologik nuqta, chiziq va marshrutlar (DXF va GeoJSON formadida)',
+        [XFile(file.path)],
+        text:
+            'GeoField Pro N - Barcha geologik nuqta, chiziq va marshrutlar (DXF va GeoJSON formadida)',
       );
     } catch (e) {
       debugPrint('GIS Export error: $e');

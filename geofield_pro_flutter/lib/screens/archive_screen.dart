@@ -26,7 +26,8 @@ class ArchiveScreen extends StatefulWidget {
   State<ArchiveScreen> createState() => _ArchiveScreenState();
 }
 
-class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProviderStateMixin {
+class _ArchiveScreenState extends State<ArchiveScreen>
+    with SingleTickerProviderStateMixin {
   String _searchQuery = '';
   String? _selectedProject;
   bool _isSelectionMode = false;
@@ -57,15 +58,21 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
     super.dispose();
   }
 
-  Future<void> _deleteWithUndo(BuildContext context, StationRepository repo, Station s) async {
+  Future<void> _deleteWithUndo(
+      BuildContext context, StationRepository repo, Station s) async {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(context.loc('delete')),
         content: Text('"${s.name}"?'),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(context.loc('cancel'))),
-          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(context.loc('delete'), style: const TextStyle(color: Colors.red))),
+          TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(context.loc('cancel'))),
+          TextButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(context.loc('delete'),
+                  style: const TextStyle(color: Colors.red))),
         ],
       ),
     );
@@ -95,15 +102,21 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
     );
   }
 
-  Future<void> _deleteTrack(BuildContext context, TrackService trackSvc, int key) async {
+  Future<void> _deleteTrack(
+      BuildContext context, TrackService trackSvc, int key) async {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(context.loc('delete')),
         content: Text(context.loc('confirm_delete')),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(context.loc('cancel'))),
-          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(context.loc('delete'), style: const TextStyle(color: Colors.red))),
+          TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(context.loc('cancel'))),
+          TextButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(context.loc('delete'),
+                  style: const TextStyle(color: Colors.red))),
         ],
       ),
     );
@@ -121,14 +134,17 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(context.loc('export_title'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(context.loc('export_title'),
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               ListTile(
                 leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
                 title: Text(context.loc('export_pdf')),
                 onTap: () async {
                   Navigator.pop(ctx);
-                  final file = await PdfExportService.generateProjectReport(stations, _selectedProject ?? 'Archive');
+                  final file = await PdfExportService.generateProjectReport(
+                      stations, _selectedProject ?? 'Archive');
                   _shareFile(file);
                 },
               ),
@@ -168,7 +184,8 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
                 ),
                 onTap: () async {
                   Navigator.pop(ctx);
-                  final file = await ExportService.exportToShapefileZip(stations, const []);
+                  final file = await ExportService.exportToShapefileZip(
+                      stations, const []);
                   _shareFile(file);
                 },
               ),
@@ -213,7 +230,9 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(context.loc('export_title'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(context.loc('export_title'),
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               ListTile(
                 leading: const Icon(Icons.map, color: Colors.blue),
@@ -242,7 +261,8 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
                 ),
                 onTap: () async {
                   Navigator.pop(ctx);
-                  final file = await ExportService.exportToShapefileZip(const [], tracks);
+                  final file = await ExportService.exportToShapefileZip(
+                      const [], tracks);
                   _shareFile(file);
                 },
               ),
@@ -273,10 +293,16 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(context.loc('delete')),
-        content: Text('${_selectedStationKeys.length} ${context.loc('selected_label')}?'),
+        content: Text(
+            '${_selectedStationKeys.length} ${context.loc('selected_label')}?'),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(context.loc('cancel'))),
-          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(context.loc('delete'), style: const TextStyle(color: Colors.red))),
+          TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(context.loc('cancel'))),
+          TextButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(context.loc('delete'),
+                  style: const TextStyle(color: Colors.red))),
         ],
       ),
     );
@@ -290,7 +316,8 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
         _selectedStationKeys.clear();
       });
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.loc('success_saved'))));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(context.loc('success_saved'))));
     }
   }
 
@@ -300,10 +327,16 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(context.loc('delete')),
-        content: Text('${_selectedTrackKeys.length} ${context.loc('selected_label')}?'),
+        content: Text(
+            '${_selectedTrackKeys.length} ${context.loc('selected_label')}?'),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(context.loc('cancel'))),
-          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(context.loc('delete'), style: const TextStyle(color: Colors.red))),
+          TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(context.loc('cancel'))),
+          TextButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(context.loc('delete'),
+                  style: const TextStyle(color: Colors.red))),
         ],
       ),
     );
@@ -317,7 +350,8 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
         _selectedTrackKeys.clear();
       });
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.loc('success_saved'))));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(context.loc('success_saved'))));
     }
   }
 
@@ -332,7 +366,9 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(context.loc('filter'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(context.loc('filter'),
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               DropdownButtonFormField<String?>(
                 decoration: InputDecoration(
@@ -341,8 +377,10 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
                 ),
                 initialValue: _selectedProject,
                 items: [
-                  DropdownMenuItem(value: null, child: Text(context.loc('all_projects'))),
-                  ...settings.projects.map((p) => DropdownMenuItem(value: p, child: Text(p))),
+                  DropdownMenuItem(
+                      value: null, child: Text(context.loc('all_projects'))),
+                  ...settings.projects
+                      .map((p) => DropdownMenuItem(value: p, child: Text(p))),
                 ],
                 onChanged: (val) {
                   setState(() => _selectedProject = val);
@@ -363,16 +401,18 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
     final onSurf = Theme.of(context).colorScheme.onSurface;
 
     final bool isStationsTab = _tabController.index == 0;
-    final bool isSelecting = isStationsTab ? _isSelectionMode : _isTrackSelectionMode;
-    final int selCount = isStationsTab ? _selectedStationKeys.length : _selectedTrackKeys.length;
+    final bool isSelecting =
+        isStationsTab ? _isSelectionMode : _isTrackSelectionMode;
+    final int selCount =
+        isStationsTab ? _selectedStationKeys.length : _selectedTrackKeys.length;
 
     return Scaffold(
       backgroundColor: surf,
       appBar: AppBar(
         backgroundColor: surf,
-        title: isSelecting 
-          ? Text('$selCount ${context.loc('selected_label')}')
-          : Text(context.loc('archive')),
+        title: isSelecting
+            ? Text('$selCount ${context.loc('selected_label')}')
+            : Text(context.loc('archive')),
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: const Color(0xFF1976D2),
@@ -382,46 +422,50 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
             Tab(text: context.loc('routes')),
           ],
         ),
-        actions: isSelecting ? [
-          IconButton(
-            icon: const Icon(Icons.delete, color: Colors.redAccent),
-            tooltip: context.loc('delete'),
-            onPressed: isStationsTab ? _deleteSelectedStations : _deleteSelectedTracks,
-          ),
-          IconButton(
-            icon: const Icon(Icons.select_all),
-            onPressed: () {
-              setState(() {
-                if (isStationsTab) {
-                  final repo = context.read<StationRepository>();
-                  for (final s in repo.stations) {
-                    _selectedStationKeys.add(s.key as int);
-                  }
-                } else {
-                  final tRepo = context.read<TrackService>();
-                  for (final t in tRepo.storedTracks) {
-                    _selectedTrackKeys.add(t.key as int);
-                  }
-                }
-              });
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () => setState(() {
-              _isSelectionMode = false;
-              _isTrackSelectionMode = false;
-              _selectedStationKeys.clear();
-              _selectedTrackKeys.clear();
-            }),
-          ),
-        ] : [
-          IconButton(
-            icon: const Icon(Icons.filter_list),
-            tooltip: context.loc('filter'),
-            onPressed: _showFilterDialog,
-          )
-        ],
+        actions: isSelecting
+            ? [
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.redAccent),
+                  tooltip: context.loc('delete'),
+                  onPressed: isStationsTab
+                      ? _deleteSelectedStations
+                      : _deleteSelectedTracks,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.select_all),
+                  onPressed: () {
+                    setState(() {
+                      if (isStationsTab) {
+                        final repo = context.read<StationRepository>();
+                        for (final s in repo.stations) {
+                          _selectedStationKeys.add(s.key as int);
+                        }
+                      } else {
+                        final tRepo = context.read<TrackService>();
+                        for (final t in tRepo.storedTracks) {
+                          _selectedTrackKeys.add(t.key as int);
+                        }
+                      }
+                    });
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => setState(() {
+                    _isSelectionMode = false;
+                    _isTrackSelectionMode = false;
+                    _selectedStationKeys.clear();
+                    _selectedTrackKeys.clear();
+                  }),
+                ),
+              ]
+            : [
+                IconButton(
+                  icon: const Icon(Icons.filter_list),
+                  tooltip: context.loc('filter'),
+                  onPressed: _showFilterDialog,
+                )
+              ],
       ),
       body: Column(
         children: [
@@ -441,9 +485,11 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 12),
                     ),
-                    onChanged: (val) => setState(() => _searchQuery = val.toLowerCase()),
+                    onChanged: (val) =>
+                        setState(() => _searchQuery = val.toLowerCase()),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -451,10 +497,12 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
                   Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: ActionChip(
-                      label: Text(_selectedProject!, style: const TextStyle(fontSize: 11)),
+                      label: Text(_selectedProject!,
+                          style: const TextStyle(fontSize: 11)),
                       onPressed: () => setState(() => _selectedProject = null),
                       avatar: const Icon(Icons.close, size: 14),
-                      backgroundColor: const Color(0xFF1976D2).withValues(alpha: 0.1),
+                      backgroundColor:
+                          const Color(0xFF1976D2).withValues(alpha: 0.1),
                       side: BorderSide.none,
                     ),
                   ),
@@ -463,7 +511,8 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
           ),
           Expanded(
             child: Padding(
-              padding: EdgeInsets.only(bottom: AppBottomNavBar.overlayClearanceAboveNav(context)),
+              padding: EdgeInsets.only(
+                  bottom: AppBottomNavBar.overlayClearanceAboveNav(context)),
               child: TabBarView(
                 controller: _tabController,
                 children: [
@@ -472,12 +521,17 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
                     selectedProject: _selectedProject,
                     isSelectionMode: _isSelectionMode,
                     selectedStationKeys: _selectedStationKeys,
-                    onSelectionChanged: (key, val) => setState(() => val ? _selectedStationKeys.add(key) : _selectedStationKeys.remove(key)),
+                    onSelectionChanged: (key, val) => setState(() => val
+                        ? _selectedStationKeys.add(key)
+                        : _selectedStationKeys.remove(key)),
                     onStationTap: (key) {
                       if (_isSelectionMode) {
-                        setState(() => _selectedStationKeys.contains(key) ? _selectedStationKeys.remove(key) : _selectedStationKeys.add(key));
+                        setState(() => _selectedStationKeys.contains(key)
+                            ? _selectedStationKeys.remove(key)
+                            : _selectedStationKeys.add(key));
                       } else {
-                        Navigator.of(context, rootNavigator: true).pushNamed('/station', arguments: key);
+                        Navigator.of(context, rootNavigator: true)
+                            .pushNamed('/station', arguments: key);
                       }
                     },
                     onStationLongPress: (key) {
@@ -488,16 +542,21 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
                         });
                       }
                     },
-                    onDeleteStation: (s) => _deleteWithUndo(context, context.read<StationRepository>(), s),
+                    onDeleteStation: (s) => _deleteWithUndo(
+                        context, context.read<StationRepository>(), s),
                   ),
                   ArchiveTracksTab(
                     searchQuery: _searchQuery,
                     isSelectionMode: _isTrackSelectionMode,
                     selectedTrackKeys: _selectedTrackKeys,
-                    onSelectionChanged: (key, val) => setState(() => val ? _selectedTrackKeys.add(key) : _selectedTrackKeys.remove(key)),
+                    onSelectionChanged: (key, val) => setState(() => val
+                        ? _selectedTrackKeys.add(key)
+                        : _selectedTrackKeys.remove(key)),
                     onTrackTap: (key) {
                       if (_isTrackSelectionMode) {
-                        setState(() => _selectedTrackKeys.contains(key) ? _selectedTrackKeys.remove(key) : _selectedTrackKeys.add(key));
+                        setState(() => _selectedTrackKeys.contains(key)
+                            ? _selectedTrackKeys.remove(key)
+                            : _selectedTrackKeys.add(key));
                       } else {
                         MainTabNavigation.openMap(context);
                       }
@@ -510,7 +569,8 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
                         });
                       }
                     },
-                    onDeleteTrack: (key) => _deleteTrack(context, context.read<TrackService>(), key),
+                    onDeleteTrack: (key) => _deleteTrack(
+                        context, context.read<TrackService>(), key),
                   ),
                 ],
               ),
@@ -518,28 +578,36 @@ class _ArchiveScreenState extends State<ArchiveScreen> with SingleTickerProvider
           ),
         ],
       ),
-      bottomNavigationBar:
-          widget.embedded ? null : const AppBottomNavBar(activeRoute: '/archive'),
+      bottomNavigationBar: widget.embedded
+          ? null
+          : const AppBottomNavBar(activeRoute: '/archive'),
       floatingActionButton: (isSelecting && selCount > 0)
-        ? Padding(
-          padding: EdgeInsets.only(bottom: AppBottomNavBar.overlayClearanceAboveNav(context)),
-          child: FloatingActionButton.extended(
-            backgroundColor: const Color(0xFF1976D2),
-            onPressed: () {
-              if (isStationsTab) {
-                final repo = context.read<StationRepository>();
-                final selectedStations = repo.stations.where((s) => _selectedStationKeys.contains(s.key as int)).toList();
-                _showExportDialog(context, selectedStations);
-              } else {
-                final trackSvc = context.read<TrackService>();
-                final selectedTracks = trackSvc.storedTracks.where((t) => _selectedTrackKeys.contains(t.key as int)).toList();
-                _showTracksExportDialog(context, selectedTracks);
-              }
-            },
-            label: Text(context.loc('share')),
-            icon: const Icon(Icons.share),
-          ),
-        ) : null,
+          ? Padding(
+              padding: EdgeInsets.only(
+                  bottom: AppBottomNavBar.overlayClearanceAboveNav(context)),
+              child: FloatingActionButton.extended(
+                backgroundColor: const Color(0xFF1976D2),
+                onPressed: () {
+                  if (isStationsTab) {
+                    final repo = context.read<StationRepository>();
+                    final selectedStations = repo.stations
+                        .where(
+                            (s) => _selectedStationKeys.contains(s.key as int))
+                        .toList();
+                    _showExportDialog(context, selectedStations);
+                  } else {
+                    final trackSvc = context.read<TrackService>();
+                    final selectedTracks = trackSvc.storedTracks
+                        .where((t) => _selectedTrackKeys.contains(t.key as int))
+                        .toList();
+                    _showTracksExportDialog(context, selectedTracks);
+                  }
+                },
+                label: Text(context.loc('share')),
+                icon: const Icon(Icons.share),
+              ),
+            )
+          : null,
     );
   }
 }
