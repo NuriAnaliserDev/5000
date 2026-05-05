@@ -144,6 +144,14 @@ class CameraTopBar extends StatelessWidget {
                           Expanded(
                             child: _modeTab(
                               context,
+                              CameraMode.lithology,
+                              Icons.psychology_outlined,
+                              "Lito",
+                            ),
+                          ),
+                          Expanded(
+                            child: _modeTab(
+                              context,
                               CameraMode.document,
                               Icons.description,
                               context.loc('camera_mode_document'),
@@ -175,7 +183,9 @@ class CameraTopBar extends StatelessWidget {
                     Text(
                       cameraMode == CameraMode.geological
                           ? context.loc('camera_header_geology')
-                          : context.loc('camera_header_document'),
+                          : cameraMode == CameraMode.lithology
+                              ? "LITOLOGIYA TAHLILI"
+                              : context.loc('camera_header_document'),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(

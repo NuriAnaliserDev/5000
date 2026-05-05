@@ -41,7 +41,7 @@ import 'components/geological_ar_view.dart';
 
 part 'smart_camera_screen_state.dart';
 
-enum CameraMode { geological, document }
+enum CameraMode { geological, document, lithology }
 
 /// Kamera + sensor mantiqi [smart_camera_screen_state.dart] part faylida (qatorlar bo‘yicha bo‘lingan).
 class SmartCameraScreen extends StatefulWidget {

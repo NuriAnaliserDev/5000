@@ -1,6 +1,6 @@
 enum ValidationStatus { valid, suspicious, invalid }
 
-enum RockType { granite, basalt, limestone, sandstone, shale, unknown }
+enum RockType { granite, basalt, limestone, sandstone, shale, diorite, gabbro, marble, unknown }
 
 class Mineral {
   final String rawName;

@@ -40,8 +40,11 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
   bool _highSensitivityHorizon = false;
   double? _lastAccuracy;
   int _compassQuality = 100;
-  bool _wasLeveled = false;
   final bool _miniCalibrationDismissed = false;
+  
+  AIAnalysisResult? _currentLithology;
+  bool _isLithologyAnalyzing = false;
+  Timer? _lithologyTimer;
 
   final GlobalKey _sensorLockButtonKey = GlobalKey();
   final GlobalKey _modeToggleKey = GlobalKey();
@@ -945,8 +948,17 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
               cameraMode: _cameraMode,
               onModeChanged: (mode) {
                 final leavingArUi =
-                    _geologicalArActive && mode == CameraMode.document;
-                setState(() => _cameraMode = mode);
+                    (_geologicalArActive || _cameraMode == CameraMode.lithology) && 
+                    mode == CameraMode.document;
+                setState(() {
+                  _cameraMode = mode;
+                  if (mode != CameraMode.lithology) {
+                    _lithologyTimer?.cancel();
+                    _currentLithology = null;
+                  } else {
+                    _startLithologyLoop();
+                  }
+                });
                 if (leavingArUi) {
                   _pendingDelayedCameraInitAfterAr = true;
                 }
@@ -975,6 +987,22 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
               const CameraDocumentViewfinder(),
               _buildDocumentHint(),
             ],
+            if (_cameraMode == CameraMode.lithology)
+              LithologyArOverlay(
+                result: _currentLithology,
+                userContext: UserContext(
+                  role: _settings?.expertMode == true ? UserRole.expert : UserRole.junior,
+                  mode: AppMode.exploration,
+                ),
+                onReset: () => setState(() => _currentLithology = null),
+                onManualInput: () {
+                  // Fallback to manual entry screen
+                  if (_currentLithology != null) {
+                     _capture(); // Use current logic to save and then edit
+                  }
+                },
+                onAccept: _capture,
+              ),
             Positioned(
               right: 12,
               top: MediaQuery.paddingOf(context).top +
@@ -1069,5 +1097,48 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
         ),
       ),
     );
+  }
+  void _startLithologyLoop() {
+    _lithologyTimer?.cancel();
+    // Start periodic analysis every 2.5 seconds (slightly more than throttle to be safe)
+    _lithologyTimer = Timer.periodic(const Duration(milliseconds: 2500), (timer) {
+      if (!mounted || _cameraMode != CameraMode.lithology) {
+        timer.cancel();
+        return;
+      }
+      if (!_isLithologyAnalyzing) {
+        _runLithologyFrame();
+      }
+    });
+    // Initial run
+    _runLithologyFrame();
+  }
+
+  Future<void> _runLithologyFrame() async {
+    if (!mounted || _cameraController == null || !_cameraController!.value.isInitialized) return;
+    
+    setState(() => _isLithologyAnalyzing = true);
+    try {
+      final xFile = await _cameraController!.takePicture();
+      final file = File(xFile.path);
+      
+      final service = AiLithologyService();
+      final result = await service.analyzeRockSample(file);
+      
+      if (mounted && _cameraMode == CameraMode.lithology) {
+        setState(() => _currentLithology = result);
+      }
+      
+      // Clean up temp file
+      if (await file.exists()) {
+        await file.delete();
+      }
+    } catch (e) {
+      debugPrint('AI_LITHOLOGY_AR_ERROR: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isLithologyAnalyzing = false);
+      }
+    }
   }
 }

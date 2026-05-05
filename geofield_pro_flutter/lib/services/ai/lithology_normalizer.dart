@@ -73,7 +73,7 @@ class LithologyNormalizer {
     if (validation.status == ValidationStatus.invalid || finalScore < 0.3) {
       relLevel = 'reject';
       trustReasons.add("Geologik mantiqqa to'g'ri kelmaydi yoki ishonchlilik o'ta past.");
-    } else if (finalScore < 0.6) {
+    } else if (finalScore < 0.7) {
       relLevel = 'low';
       trustReasons.add("Tizim ishonchliligi past, mutaxassis tekshiruvi talab etiladi.");
     } else if (finalScore < 0.85 || validation.status == ValidationStatus.suspicious) {
@@ -88,6 +88,12 @@ class LithologyNormalizer {
     }
 
     final allWarnings = [...validation.warnings, ...normalizerWarnings];
+    
+    // Add validation warnings to trustReasons for UI explainability
+    for (var w in allWarnings) {
+      trustReasons.add("GEOLOGIK OGOHLANTIRISH: $w");
+    }
+    
     String status = _determineStatus(validation.status, finalScore, allWarnings);
 
     return AIAnalysisResult(
@@ -135,6 +141,9 @@ class LithologyNormalizer {
     if (lower.contains('ohak') || lower.contains('limestone')) candidates.add(RockType.limestone);
     if (lower.contains('qum') || lower.contains('sandstone')) candidates.add(RockType.sandstone);
     if (lower.contains('slanets') || lower.contains('shale')) candidates.add(RockType.shale);
+    if (lower.contains('diorit')) candidates.add(RockType.diorite);
+    if (lower.contains('gabbro')) candidates.add(RockType.gabbro);
+    if (lower.contains('mramor') || lower.contains('marble')) candidates.add(RockType.marble);
     
     if (candidates.isEmpty) candidates.add(RockType.unknown);
     return candidates;

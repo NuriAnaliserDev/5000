@@ -4,8 +4,9 @@ import 'package:firebase_ai/firebase_ai.dart';
 import '../../core/network/network_executor.dart';
 import '../../core/error/app_error.dart';
 import '../../utils/image_mime.dart';
+import 'ai_client_interface.dart';
 
-class AiClient {
+class GeminiAiClient implements AiClient {
   static const String _modelName = 'gemini-2.0-flash';
   static const String _prompt = '''
 You are a professional field geologist with 20+ years of experience.
@@ -29,7 +30,8 @@ Return exactly this JSON schema:
 If confidence < 0.6, explicitly explain why in the notes.
 ''';
 
-  Future<String> generateContent(File imageFile, List<int> imageBytes) async {
+  @override
+  Future<String> generateContent(File imageFile, Uint8List imageBytes) async {
     final model = FirebaseAI.vertexAI().generativeModel(
       model: _modelName,
       generationConfig: GenerationConfig(
@@ -39,12 +41,11 @@ If confidence < 0.6, explicitly explain why in the notes.
     );
 
     final mime = mimeTypeForImagePath(imageFile.path);
-    final Uint8List uint8Bytes = imageBytes is Uint8List ? imageBytes : Uint8List.fromList(imageBytes);
 
     final content = [
       Content.multi([
         TextPart(_prompt),
-        InlineDataPart(mime, uint8Bytes),
+        InlineDataPart(mime, imageBytes),
       ]),
     ];
 

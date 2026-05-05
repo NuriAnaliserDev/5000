@@ -9,7 +9,8 @@ import '../core/error/app_error.dart';
 import 'hive_db.dart';
 import 'ai/ai_rate_limiter.dart';
 import 'ai/image_quality_service.dart';
-import 'ai/ai_client.dart';
+import 'ai/ai_client_interface.dart';
+import 'ai/ai_client_factory.dart';
 import 'ai/ai_parser.dart';
 import 'ai/lithology_normalizer.dart';
 import 'ai/decision_engine.dart';
@@ -74,12 +75,12 @@ class AiLithologyService {
 
     // 4. Processing Loop (with Retry Strategy)
     int maxRetries = 1;
-    final client = AiClient();
+    final client = AiClientFactory.create();
 
     for (int attempt = 0; attempt <= maxRetries; attempt++) {
       try {
         final rawText = await client.generateContent(imageFile, imageBytes);
-        debugPrint('AI [RAW RESPONSE]: \$rawText');
+        debugPrint('AI [RAW RESPONSE]: $rawText');
         final parsedJson = AiParser.parseAndValidate(rawText);
         
         final result = LithologyNormalizer.normalize(
