@@ -12,6 +12,7 @@ import '../utils/image_mime.dart';
 import '../core/network/network_executor.dart';
 import '../core/error/app_error.dart';
 import 'hive_db.dart';
+import 'ai/image_quality_service.dart';
 
 class AiLithologyService {
   static final AiLithologyService _instance = AiLithologyService._internal();
@@ -37,7 +38,17 @@ class AiLithologyService {
       return cacheBox.get(hash)!;
     }
 
-    // 3. Rate Limiting (10s interval + Daily Quota)
+    // 3. Image Quality Check
+    final qualityService = ImageQualityService();
+    final qualityResult = await qualityService.analyzeQuality(imageFile);
+    if (!qualityResult.isValid) {
+      throw AppError(
+        "Rasm sifatsiz (xira yoki qorong‘i). Iltimos qayta oling.", 
+        category: ErrorCategory.validation
+      );
+    }
+
+    // 4. Rate Limiting (10s interval + Daily Quota)
     await AiRateLimiter.consume(uid);
 
     try {
@@ -92,11 +103,11 @@ If confidence < 0.6, explicitly explain why in the notes.
         throw AppError("Vertex AI returned an empty response.", category: ErrorCategory.network);
       }
 
-      // 4. Clean and Parse JSON
+      // 5. Clean and Parse JSON
       final cleanedJson = _cleanJson(respText);
       final decoded = jsonDecode(cleanedJson);
 
-      // 5. Strict Validation
+      // 6. Strict Validation
       _validateJson(decoded);
 
       final result = AIAnalysisResult.fromMap({
@@ -104,7 +115,7 @@ If confidence < 0.6, explicitly explain why in the notes.
         'analyzedAt': DateTime.now().toIso8601String(),
       });
 
-      // 6. Save to Cache
+      // 7. Save to Cache
       await cacheBox.put(hash, result);
       
       return result;
