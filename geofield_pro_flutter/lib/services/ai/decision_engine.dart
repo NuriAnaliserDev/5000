@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import '../../models/ai_analysis_result.dart';
 
 enum ReliabilityLevel {
@@ -14,6 +15,33 @@ enum AppDecision {
   block
 }
 
+enum UserRole { junior, senior, expert }
+enum AppMode { exploration, reporting }
+
+class UserContext {
+  final UserRole role;
+  final AppMode mode;
+
+  UserContext({
+    this.role = UserRole.junior,
+    this.mode = AppMode.exploration,
+  });
+}
+
+class UXDecision {
+  final AppDecision action;
+  final String userMessage;
+  final Color color;
+  final List<String> fallbackActions;
+
+  UXDecision({
+    required this.action,
+    required this.userMessage,
+    required this.color,
+    required this.fallbackActions,
+  });
+}
+
 class DecisionEngine {
   static ReliabilityLevel parseLevel(String level) {
     switch (level) {
@@ -26,21 +54,61 @@ class DecisionEngine {
     }
   }
 
-  static AppDecision decide(AIAnalysisResult result) {
+  static UXDecision decide(AIAnalysisResult result, UserContext context) {
     final level = parseLevel(result.reliabilityLevel);
     
-    if (level == ReliabilityLevel.high) {
-      return AppDecision.autoAccept;
+    // Context-Aware Overrides
+    ReliabilityLevel effectiveLevel = level;
+    
+    if (context.role == UserRole.senior || context.role == UserRole.expert) {
+      // Seniors can tolerate 'low' AI reliability by manually reviewing (medium warning)
+      if (level == ReliabilityLevel.low) {
+        effectiveLevel = ReliabilityLevel.medium;
+      }
     }
     
-    if (level == ReliabilityLevel.medium) {
-      return AppDecision.showWithWarning;
+    if (context.mode == AppMode.reporting) {
+      // Reporting mode is extremely strict; 'medium' becomes 'low' (requires confirmation)
+      if (level == ReliabilityLevel.medium) {
+        effectiveLevel = ReliabilityLevel.low;
+      }
     }
-    
-    if (level == ReliabilityLevel.low) {
-      return AppDecision.requireUserConfirmation;
+
+    // UX Mapping & Fallback Strategy
+    switch (effectiveLevel) {
+      case ReliabilityLevel.high:
+        return UXDecision(
+          action: AppDecision.autoAccept,
+          userMessage: "Ishonch bilan foydalanish mumkin. Geologik mantiq va sifat yuqori.",
+          color: Colors.green,
+          fallbackActions: ["Tasdiqlash", "Tahrirlash"],
+        );
+        
+      case ReliabilityLevel.medium:
+        return UXDecision(
+          action: AppDecision.showWithWarning,
+          userMessage: "Natijada ba'zi shubhali qismlar mavjud. Tekshirib ko'ring.",
+          color: Colors.orange,
+          fallbackActions: ["Qayta rasm olish", "Qo'lda to'g'rilash", "Shunday qabul qilish"],
+        );
+        
+      case ReliabilityLevel.low:
+        return UXDecision(
+          action: AppDecision.requireUserConfirmation,
+          userMessage: "Tizim ishonchliligi past. Ehtiyot bo'ling va qayta tekshiring.",
+          color: Colors.deepOrange,
+          fallbackActions: ["Yaxshiroq rasm olish", "O'lchovni bekor qilish", "Qo'lda kiritish"],
+        );
+        
+      case ReliabilityLevel.reject:
+      default:
+        // System blocks acceptance. User MUST use fallbacks.
+        return UXDecision(
+          action: AppDecision.block,
+          userMessage: "Natija ishonchsiz. Qabul qilinmaydi.",
+          color: Colors.red,
+          fallbackActions: ["Kamerani tozalab qayta olish", "Eski ma'lumotdan nusxa olish", "Manual kiritish"],
+        );
     }
-    
-    return AppDecision.block;
   }
 }

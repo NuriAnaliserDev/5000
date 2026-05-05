@@ -52,6 +52,9 @@ class AIAnalysisResult extends HiveObject {
   @HiveField(15, defaultValue: [])
   final List<String> rockCandidates;
 
+  @HiveField(16, defaultValue: {})
+  final Map<String, double> trustBreakdown;
+
   AIAnalysisResult({
     required this.rockType,
     required this.mineralogy,
@@ -69,6 +72,7 @@ class AIAnalysisResult extends HiveObject {
     this.trustReasons = const [],
     this.cacheVersion = '',
     this.rockCandidates = const [],
+    this.trustBreakdown = const {},
   });
 
   Map<String, dynamic> toMap() {
@@ -89,6 +93,7 @@ class AIAnalysisResult extends HiveObject {
       'trustReasons': trustReasons,
       'cacheVersion': cacheVersion,
       'rockCandidates': rockCandidates,
+      'trustBreakdown': trustBreakdown,
     };
   }
 
@@ -112,6 +117,7 @@ class AIAnalysisResult extends HiveObject {
       trustReasons: List<String>.from(map['trustReasons'] ?? []),
       cacheVersion: map['cacheVersion'] ?? '',
       rockCandidates: List<String>.from(map['rockCandidates'] ?? []),
+      trustBreakdown: Map<String, double>.from(map['trustBreakdown'] ?? {}),
     );
   }
 }

@@ -12,6 +12,8 @@ import 'ai/image_quality_service.dart';
 import 'ai/ai_client.dart';
 import 'ai/ai_parser.dart';
 import 'ai/lithology_normalizer.dart';
+import 'ai/decision_engine.dart';
+import 'ai/analysis_stabilizer.dart';
 
 class AiLithologyService {
   static final AiLithologyService _instance = AiLithologyService._internal();
@@ -19,6 +21,13 @@ class AiLithologyService {
   factory AiLithologyService() => _instance;
 
   AiLithologyService._internal();
+  
+  final _session = AnalysisSession();
+  
+  // Simple in-memory metrics (Production would use Analytics service)
+  int _totalRequests = 0;
+  int _rejects = 0;
+  int _ambiguities = 0;
 
   /// Orchestrates the entire AI processing pipeline
   Future<AIAnalysisResult> analyzeRockSample(File imageFile) async {
@@ -75,10 +84,24 @@ class AiLithologyService {
           debugPrint('AI [DOMAIN ERROR]: Result rejected by validator. Passing to UI without retry.');
         }
 
-        // 5. Cache & Return Result
-        await cacheBox.put(hash, result);
-        debugPrint('AI [SUCCESS]: Pipeline completed.');
-        return result;
+        // 5. UX Decision & Metrics
+        final uxDecision = DecisionEngine.decide(result, UserContext());
+        
+        _totalRequests++;
+        if (uxDecision.action == AppDecision.block) _rejects++;
+        if (result.rockCandidates.length > 1) _ambiguities++;
+
+        debugPrint('AI_METRIC [DECISION]: ${uxDecision.action.name} for hash $hash.');
+        debugPrint('AI_STATS [SESSION]: Total: $_totalRequests, Rejects: $_rejects, AmbiguityRate: ${(_ambiguities/(_totalRequests == 0 ? 1 : _totalRequests) * 100).toStringAsFixed(1)}%');
+
+        // 6. Temporal Stabilization
+        _session.add(result);
+        final stabilized = ResultStabilizer.stabilize(_session.history);
+
+        // 7. Cache & Return Result
+        await cacheBox.put(hash, stabilized);
+        debugPrint('AI [SUCCESS]: Pipeline completed with stabilization.');
+        return stabilized;
 
       } on QuotaExceededException {
         rethrow;

@@ -44,9 +44,17 @@ class LithologyNormalizer {
       imgWeight = 0.1;
     }
 
-    double finalScore = (aiConfidence * aiWeight) + 
-                        (validation.domainScore * domainWeight) + 
-                        (imageQualityScore * imgWeight);
+    double aiContrib = aiConfidence * aiWeight;
+    double domainContrib = validation.domainScore * domainWeight;
+    double imgContrib = imageQualityScore * imgWeight;
+    
+    double finalScore = aiContrib + domainContrib + imgContrib;
+    
+    Map<String, double> trustBreakdown = {
+      'ai': aiContrib,
+      'domain': domainContrib,
+      'image': imgContrib,
+    };
     
     List<String> trustReasons = [];
 
@@ -94,6 +102,7 @@ class LithologyNormalizer {
       trustScore: finalScore.clamp(0.0, 1.0),
       reliabilityLevel: relLevel,
       trustReasons: trustReasons,
+      trustBreakdown: trustBreakdown,
       cacheVersion: currentCacheVersion,
       notes: parsedJson['notes']?.toString() ?? '',
       analyzedAt: DateTime.now(),

@@ -35,13 +35,15 @@ class AIAnalysisResultAdapter extends TypeAdapter<AIAnalysisResult> {
       cacheVersion: fields[14] == null ? '' : fields[14] as String,
       rockCandidates:
           fields[15] == null ? [] : (fields[15] as List).cast<String>(),
+      trustBreakdown:
+          fields[16] == null ? {} : (fields[16] as Map).cast<String, double>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, AIAnalysisResult obj) {
     writer
-      ..writeByte(16)
+      ..writeByte(17)
       ..writeByte(0)
       ..write(obj.rockType)
       ..writeByte(1)
@@ -73,7 +75,9 @@ class AIAnalysisResultAdapter extends TypeAdapter<AIAnalysisResult> {
       ..writeByte(14)
       ..write(obj.cacheVersion)
       ..writeByte(15)
-      ..write(obj.rockCandidates);
+      ..write(obj.rockCandidates)
+      ..writeByte(16)
+      ..write(obj.trustBreakdown);
   }
 
   @override
