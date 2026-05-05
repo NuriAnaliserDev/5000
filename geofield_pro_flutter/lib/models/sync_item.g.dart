@@ -28,13 +28,14 @@ class SyncItemAdapter extends TypeAdapter<SyncItem> {
       status: fields[5] as SyncStatus,
       retryCount: fields[6] as int,
       createdAt: fields[7] as DateTime,
+      schemaVersion: fields[11] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, SyncItem obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -56,7 +57,9 @@ class SyncItemAdapter extends TypeAdapter<SyncItem> {
       ..writeByte(9)
       ..write(obj.requestId)
       ..writeByte(10)
-      ..write(obj.sequence);
+      ..write(obj.sequence)
+      ..writeByte(11)
+      ..write(obj.schemaVersion);
   }
 
   @override

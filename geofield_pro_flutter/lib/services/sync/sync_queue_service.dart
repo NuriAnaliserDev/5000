@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:synchronized/synchronized.dart';
@@ -30,8 +31,12 @@ class SyncQueueService extends ChangeNotifier {
           await _box.put(existingKey, merged);
         }
       } else {
+        // Deep copy payload to ensure immutability
+        final safeItem = newItem.copyWith(
+          payload: jsonDecode(jsonEncode(newItem.payload)),
+        );
         // Yangi navbat elementi
-        await _box.add(newItem);
+        await _box.add(safeItem);
       }
       notifyListeners();
     });
@@ -54,6 +59,7 @@ class SyncQueueService extends ChangeNotifier {
         payload: newItem.payload,
         version: newItem.version,
         createdAt: newItem.createdAt,
+        requestId: newItem.requestId, // requestId yangilanishi shart!
       );
     }
 

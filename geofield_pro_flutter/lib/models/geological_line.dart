@@ -1,63 +1,53 @@
-import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 part 'geological_line.g.dart';
 
-/// Represents a geological linework feature on the map.
-/// Supports: fault traces, geological contacts, bedding traces, fold axes, and closed polygons.
 @HiveType(typeId: 5)
 class GeologicalLine extends HiveObject {
   @HiveField(0)
-  String id; // UUID-style unique identifier
+  final String id;
 
   @HiveField(1)
-  String name; // e.g. "Fault-001", "Contact-A"
+  final String name;
 
-  /// Geological line type. One of:
-  /// 'fault' | 'contact' | 'bedding_trace' | 'fold_axis' | 'polygon' | 'other'
   @HiveField(2)
-  String lineType;
+  final String lineType;
 
   @HiveField(3)
-  List<double> lats; // latitude of each vertex
+  final List<double> lats;
 
   @HiveField(4)
-  List<double> lngs; // longitude of each vertex
+  final List<double> lngs;
 
   @HiveField(5)
-  String? colorHex; // e.g. '#FF0000'. Falls back to lineType default color.
+  final String? colorHex;
 
   @HiveField(6)
-  String? project;
+  final String? project;
 
   @HiveField(7)
-  DateTime date;
+  final DateTime date;
 
   @HiveField(8)
-  String? notes;
+  final String? notes;
 
-  /// If true, last point is connected back to first → closed polygon / area.
   @HiveField(9)
-  bool isClosed;
+  final bool isClosed;
 
-  /// Stroke width for rendering.
   @HiveField(10)
-  double strokeWidth;
+  final double strokeWidth;
 
-  /// Whether the line should be rendered as dashed (fault-style).
   @HiveField(11)
-  bool isDashed;
+  final bool isDashed;
 
-  /// Whether the line uses Bezier curves for smooth rendering.
   @HiveField(12)
-  bool isCurved;
+  final bool isCurved;
 
-  /// Optional control points for Bezier curves (latitudes).
   @HiveField(13)
-  List<double>? controlLats;
+  final List<double>? controlLats;
 
-  /// Optional control points for Bezier curves (longitudes).
   @HiveField(14)
-  List<double>? controlLngs;
+  final List<double>? controlLngs;
 
   @HiveField(15)
   DateTime? updatedAt;
@@ -85,7 +75,7 @@ class GeologicalLine extends HiveObject {
     this.project,
     this.notes,
     this.isClosed = false,
-    this.strokeWidth = 3.0,
+    this.strokeWidth = 2.0,
     this.isDashed = false,
     this.isCurved = false,
     this.controlLats,
@@ -96,42 +86,6 @@ class GeologicalLine extends HiveObject {
     this.updatedByDeviceId,
     this.isDeleted = false,
   });
-
-  /// Default color for each line type (hex string without #)
-  static String defaultColorHex(String lineType) {
-    switch (lineType) {
-      case 'fault':
-        return 'FF0000'; // Red
-      case 'contact':
-        return 'FF8C00'; // Dark Orange
-      case 'bedding_trace':
-        return '1976D2'; // Blue
-      case 'fold_axis':
-        return '9C27B0'; // Purple
-      case 'polygon':
-        return '4CAF50'; // Green
-      default:
-        return '607D8B'; // Blue-grey
-    }
-  }
-
-  /// Human-readable line type name (Uzbek)
-  static String localizedName(String lineType) {
-    switch (lineType) {
-      case 'fault':
-        return 'Yoriq (Fault)';
-      case 'contact':
-        return 'Kontakt (Contact)';
-      case 'bedding_trace':
-        return 'Qatlamlanish izi';
-      case 'fold_axis':
-        return "Bukilish o'qi";
-      case 'polygon':
-        return 'Litologik polygon';
-      default:
-        return 'Boshqa';
-    }
-  }
 
   Map<String, dynamic> toMap() {
     return {
@@ -162,28 +116,70 @@ class GeologicalLine extends HiveObject {
     return GeologicalLine(
       id: map['id'] ?? '',
       name: map['name'] ?? '',
-      lineType: map['lineType'] ?? 'other',
-      lats: List<double>.from(map['lats'] ?? []),
-      lngs: List<double>.from(map['lngs'] ?? []),
-      date: DateTime.parse(map['date'] ?? DateTime.now().toIso8601String()),
+      lineType: map['lineType'] ?? '',
+      lats: (map['lats'] as List?)?.cast<double>() ?? [],
+      lngs: (map['lngs'] as List?)?.cast<double>() ?? [],
+      date: DateTime.parse(map['date']),
       colorHex: map['colorHex'],
       project: map['project'],
       notes: map['notes'],
       isClosed: map['isClosed'] ?? false,
-      strokeWidth: (map['strokeWidth'] ?? 3.0).toDouble(),
+      strokeWidth: (map['strokeWidth'] as num?)?.toDouble() ?? 2.0,
       isDashed: map['isDashed'] ?? false,
       isCurved: map['isCurved'] ?? false,
-      controlLats: map['controlLats'] != null
-          ? List<double>.from(map['controlLats'])
-          : null,
-      controlLngs: map['controlLngs'] != null
-          ? List<double>.from(map['controlLngs'])
-          : null,
+      controlLats: (map['controlLats'] as List?)?.cast<double>(),
+      controlLngs: (map['controlLngs'] as List?)?.cast<double>(),
       updatedAt: map['updatedAt'] != null ? DateTime.parse(map['updatedAt']) : null,
       version: map['version'] ?? 1,
       updatedBy: map['updatedBy'],
       updatedByDeviceId: map['updatedByDeviceId'],
       isDeleted: map['isDeleted'] ?? false,
+    );
+  }
+
+  GeologicalLine copyWith({
+    String? id,
+    String? name,
+    String? lineType,
+    List<double>? lats,
+    List<double>? lngs,
+    String? colorHex,
+    String? project,
+    DateTime? date,
+    String? notes,
+    bool? isClosed,
+    double? strokeWidth,
+    bool? isDashed,
+    bool? isCurved,
+    List<double>? controlLats,
+    List<double>? controlLngs,
+    DateTime? updatedAt,
+    int? version,
+    String? updatedBy,
+    String? updatedByDeviceId,
+    bool? isDeleted,
+  }) {
+    return GeologicalLine(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      lineType: lineType ?? this.lineType,
+      lats: lats ?? this.lats,
+      lngs: lngs ?? this.lngs,
+      date: date ?? this.date,
+      colorHex: colorHex ?? this.colorHex,
+      project: project ?? this.project,
+      notes: notes ?? this.notes,
+      isClosed: isClosed ?? this.isClosed,
+      strokeWidth: strokeWidth ?? this.strokeWidth,
+      isDashed: isDashed ?? this.isDashed,
+      isCurved: isCurved ?? this.isCurved,
+      controlLats: controlLats ?? this.controlLats,
+      controlLngs: controlLngs ?? this.controlLngs,
+      updatedAt: updatedAt ?? this.updatedAt,
+      version: version ?? this.version,
+      updatedBy: updatedBy ?? this.updatedBy,
+      updatedByDeviceId: updatedByDeviceId ?? this.updatedByDeviceId,
+      isDeleted: isDeleted ?? this.isDeleted,
     );
   }
 }

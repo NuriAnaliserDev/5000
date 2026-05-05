@@ -104,7 +104,8 @@ class GeologicalLineRepository extends ChangeNotifier {
   }
 
   /// Update an existing line by its id.
-  Future<void> updateLine(GeologicalLine line, {UpdateSource source = UpdateSource.local}) async {
+  Future<void> updateLine(GeologicalLine line,
+      {UpdateSource source = UpdateSource.local, String? customRequestId}) async {
     await _lock.synchronized(() async {
       final stamped = await _stamp(line, increment: source == UpdateSource.local);
       await _box!.put(stamped.id, stamped);
@@ -117,7 +118,7 @@ class GeologicalLineRepository extends ChangeNotifier {
           payload: stamped.toMap(),
           version: stamped.version,
           operation: SyncOperation.update,
-          requestId: const Uuid().v4(),
+          requestId: customRequestId ?? const Uuid().v4(),
           sequence: _syncQueue.getNextSequence(),
           createdAt: DateTime.now(),
         ));

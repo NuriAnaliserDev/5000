@@ -1,36 +1,32 @@
-import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 part 'map_structure_annotation.g.dart';
 
-/// Xaritada qo‘lda qo‘yilgan strike/dip (Field Move uslubida struktur nuqtasi).
 @HiveType(typeId: 8)
 class MapStructureAnnotation extends HiveObject {
   @HiveField(0)
-  String id;
+  final String id;
 
   @HiveField(1)
-  double lat;
+  final double lat;
 
   @HiveField(2)
-  double lng;
+  final double lng;
 
-  /// Strike, shimoldan soat yo‘nalishida, 0–360
   @HiveField(3)
-  double strike;
+  final double strike;
 
-  /// Dip, 0–90
   @HiveField(4)
-  double dip;
+  final double dip;
 
-  /// Turi: 'bedding' | 'cleavage' | 'lineation' | 'joint' | 'contact' | 'fault' | 'other'
   @HiveField(5)
-  String structureType;
+  final String structureType;
 
   @HiveField(6)
-  String? note;
+  final String? note;
 
   @HiveField(7)
-  DateTime createdAt;
+  final DateTime createdAt;
 
   @HiveField(8)
   DateTime? updatedAt;
@@ -84,19 +80,50 @@ class MapStructureAnnotation extends HiveObject {
   factory MapStructureAnnotation.fromMap(Map<String, dynamic> m) {
     return MapStructureAnnotation(
       id: m['id'] as String? ?? '',
-      lat: (m['lat'] as num?)?.toDouble() ?? 0,
-      lng: (m['lng'] as num?)?.toDouble() ?? 0,
-      strike: (m['strike'] as num?)?.toDouble() ?? 0,
-      dip: (m['dip'] as num?)?.toDouble() ?? 0,
-      structureType: m['structureType'] as String? ?? 'bedding',
+      lat: (m['lat'] as num?)?.toDouble() ?? 0.0,
+      lng: (m['lng'] as num?)?.toDouble() ?? 0.0,
+      strike: (m['strike'] as num?)?.toDouble() ?? 0.0,
+      dip: (m['dip'] as num?)?.toDouble() ?? 0.0,
+      structureType: m['structureType'] as String? ?? '',
       note: m['note'] as String?,
-      createdAt:
-          DateTime.tryParse(m['createdAt'] as String? ?? '') ?? DateTime.now(),
-      updatedAt: m['updatedAt'] != null ? DateTime.tryParse(m['updatedAt']) : null,
-      version: m['version'] as int? ?? 1,
+      createdAt: DateTime.parse(m['createdAt']),
+      updatedAt: m['updatedAt'] != null ? DateTime.parse(m['updatedAt']) : null,
+      version: m['version'] ?? 1,
       updatedBy: m['updatedBy'] as String?,
       updatedByDeviceId: m['updatedByDeviceId'] as String?,
       isDeleted: m['isDeleted'] as bool? ?? false,
+    );
+  }
+
+  MapStructureAnnotation copyWith({
+    String? id,
+    double? lat,
+    double? lng,
+    double? strike,
+    double? dip,
+    String? structureType,
+    String? note,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    int? version,
+    String? updatedBy,
+    String? updatedByDeviceId,
+    bool? isDeleted,
+  }) {
+    return MapStructureAnnotation(
+      id: id ?? this.id,
+      lat: lat ?? this.lat,
+      lng: lng ?? this.lng,
+      strike: strike ?? this.strike,
+      dip: dip ?? this.dip,
+      structureType: structureType ?? this.structureType,
+      note: note ?? this.note,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      version: version ?? this.version,
+      updatedBy: updatedBy ?? this.updatedBy,
+      updatedByDeviceId: updatedByDeviceId ?? this.updatedByDeviceId,
+      isDeleted: isDeleted ?? this.isDeleted,
     );
   }
 }

@@ -90,7 +90,7 @@ class StationRepository extends ChangeNotifier {
   }
 
   Future<void> updateStation(dynamic key, Station updated,
-      {String? author, UpdateSource source = UpdateSource.local}) async {
+      {String? author, UpdateSource source = UpdateSource.local, String? customRequestId}) async {
     await _lock.synchronized(() async {
       final error = GeologyValidator.validateStation(updated);
       if (error != null) {
@@ -121,7 +121,7 @@ class StationRepository extends ChangeNotifier {
           payload: finalUpdated.toMap(),
           version: finalUpdated.version,
           operation: SyncOperation.update,
-          requestId: const Uuid().v4(),
+          requestId: customRequestId ?? const Uuid().v4(),
           sequence: _syncQueue.getNextSequence(),
           createdAt: DateTime.now(),
         ));

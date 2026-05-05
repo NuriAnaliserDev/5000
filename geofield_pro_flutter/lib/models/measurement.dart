@@ -74,4 +74,26 @@ class Measurement extends HiveObject {
       capturedAt: capturedAt ?? this.capturedAt,
     );
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'type': type,
+      'strike': strike,
+      'dip': dip,
+      'dipDirection': dipDirection,
+      'notes': notes,
+      'capturedAt': capturedAt.toIso8601String(),
+    };
+  }
+
+  factory Measurement.fromMap(Map<String, dynamic> map) {
+    return Measurement(
+      type: map['type'] ?? '',
+      strike: (map['strike'] as num?)?.toDouble() ?? 0.0,
+      dip: (map['dip'] as num?)?.toDouble() ?? 0.0,
+      dipDirection: (map['dipDirection'] as num?)?.toDouble() ?? 0.0,
+      notes: map['notes'],
+      capturedAt: DateTime.parse(map['capturedAt']),
+    );
+  }
 }

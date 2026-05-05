@@ -66,6 +66,9 @@ class SyncItem extends HiveObject {
   @HiveField(10)
   final int sequence; // Monotonic order
 
+  @HiveField(11)
+  final int schemaVersion;
+
   static const int maxRetries = 5;
 
   SyncItem({
@@ -80,6 +83,7 @@ class SyncItem extends HiveObject {
     this.status = SyncStatus.pending,
     this.retryCount = 0,
     required this.createdAt,
+    this.schemaVersion = 1,
   });
 
   SyncItem copyWith({
@@ -94,6 +98,7 @@ class SyncItem extends HiveObject {
     SyncOperation? operation,
     String? requestId,
     int? sequence,
+    int? schemaVersion,
   }) {
     return SyncItem(
       id: id ?? this.id,
@@ -107,6 +112,7 @@ class SyncItem extends HiveObject {
       operation: operation ?? this.operation,
       requestId: requestId ?? this.requestId,
       sequence: sequence ?? this.sequence,
+      schemaVersion: schemaVersion ?? this.schemaVersion,
     );
   }
 }

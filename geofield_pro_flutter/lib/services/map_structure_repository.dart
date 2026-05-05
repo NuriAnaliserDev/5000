@@ -131,7 +131,8 @@ class MapStructureRepository extends ChangeNotifier {
     });
   }
 
-  Future<void> updateAnnotation(MapStructureAnnotation a, {UpdateSource source = UpdateSource.local}) async {
+  Future<void> updateAnnotation(MapStructureAnnotation a,
+      {UpdateSource source = UpdateSource.local, String? customRequestId}) async {
     await _lock.synchronized(() async {
       final stamped = await _stamp(a, increment: source == UpdateSource.local);
       await _box!.put(stamped.id, stamped);
@@ -144,7 +145,7 @@ class MapStructureRepository extends ChangeNotifier {
           payload: stamped.toMap(),
           version: stamped.version,
           operation: SyncOperation.update,
-          requestId: const Uuid().v4(),
+          requestId: customRequestId ?? const Uuid().v4(),
           sequence: _syncQueue.getNextSequence(),
           createdAt: DateTime.now(),
         ));

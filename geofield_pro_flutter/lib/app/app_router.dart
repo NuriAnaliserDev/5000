@@ -24,6 +24,8 @@ import '../services/auth_service.dart';
 import '../l10n/app_strings.dart';
 import '../screens/web/web_dashboard_main.dart';
 import '../screens/web/web_login_screen.dart';
+import '../screens/sync/conflict_resolution_screen.dart';
+import '../screens/sync/sync_debug_screen.dart';
 
 class AppRouter {
   AppRouter._();
@@ -46,6 +48,8 @@ class AppRouter {
   static const String scaleAssistant = '/scale-assistant';
   static const String painter = '/painter';
   static const String station = '/station';
+  static const String conflicts = '/conflicts';
+  static const String syncDebug = '/sync-debug';
 
   // --- Type-Safe Navigation Helpers ---
 
@@ -257,6 +261,14 @@ class AppRouter {
           return StationSummaryScreen(
               stationId: sid != null ? int.tryParse(sid) : null);
         },
+      ),
+      GoRoute(
+        path: conflicts,
+        builder: (context, state) => const ConflictResolutionScreen(),
+      ),
+      GoRoute(
+        path: syncDebug,
+        builder: (context, state) => const SyncDebugScreen(),
       ),
     ],
     errorBuilder: (context, state) => const _NotFoundScreen(),

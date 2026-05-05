@@ -9,13 +9,21 @@ class AiRateLimiter {
 
   static const String boxName = 'ai_quota';
   static const int defaultDailyLimit = 20;
+  static const int minIntervalSeconds = 10;
 
   static Box<int>? _box;
+  static Box<String>? _timeBox;
 
   static Future<Box<int>> _openBox() async {
     if (_box != null && _box!.isOpen) return _box!;
     _box = await Hive.openBox<int>(boxName);
     return _box!;
+  }
+
+  static Future<Box<String>> _openTimeBox() async {
+    if (_timeBox != null && _timeBox!.isOpen) return _timeBox!;
+    _timeBox = await Hive.openBox<String>('ai_last_request');
+    return _timeBox!;
   }
 
   static String _todayKey(String uid) {
@@ -32,8 +40,22 @@ class AiRateLimiter {
     return box.get(_todayKey(uid), defaultValue: 0) ?? 0;
   }
 
-  /// Kvota oshib ketsa [QuotaExceededException] tashlaydi. Aks holda +1.
+  /// Kvota oshib ketsa [QuotaExceededException] tashlaydi. 
+  /// Interval buzilsa [RateLimitException] tashlaydi.
+  /// Aks holda +1 va timestamp yangilanadi.
   static Future<void> consume(String uid, {int? limit}) async {
+    // 1. Interval tekshiruvi
+    final timeBox = await _openTimeBox();
+    final lastTimeStr = timeBox.get(uid);
+    if (lastTimeStr != null) {
+      final lastTime = DateTime.parse(lastTimeStr);
+      final diff = DateTime.now().difference(lastTime).inSeconds;
+      if (diff < minIntervalSeconds) {
+        throw RateLimitException(remaining: minIntervalSeconds - diff);
+      }
+    }
+
+    // 2. Kunlik limit tekshiruvi
     final l = limit ?? defaultDailyLimit;
     final box = await _openBox();
     final key = _todayKey(uid);
@@ -41,7 +63,10 @@ class AiRateLimiter {
     if (cur >= l) {
       throw QuotaExceededException(current: cur, limit: l);
     }
+
+    // Saqlash
     await box.put(key, cur + 1);
+    await timeBox.put(uid, DateTime.now().toIso8601String());
   }
 
   /// Admin/debug: bugungi kvotani nollash.
@@ -63,4 +88,12 @@ class QuotaExceededException implements Exception {
   @override
   String toString() =>
       'AI kundalik chegarasi oshib ketdi ($current/$limit). Ertaga qayta urining yoki admin bilan bog‘laning.';
+}
+
+class RateLimitException implements Exception {
+  final int remaining;
+  RateLimitException({required this.remaining});
+
+  @override
+  String toString() => 'Iltimos, keyingi so\'rov uchun $remaining soniya kuting.';
 }

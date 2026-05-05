@@ -22,13 +22,16 @@ class AuditEntryAdapter extends TypeAdapter<AuditEntry> {
       fieldName: fields[2] as String,
       oldValue: fields[3] as String,
       newValue: fields[4] as String,
+      action: fields[5] as String?,
+      status: fields[6] as String?,
+      errorMessage: fields[7] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, AuditEntry obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.timestamp)
       ..writeByte(1)
@@ -38,7 +41,13 @@ class AuditEntryAdapter extends TypeAdapter<AuditEntry> {
       ..writeByte(3)
       ..write(obj.oldValue)
       ..writeByte(4)
-      ..write(obj.newValue);
+      ..write(obj.newValue)
+      ..writeByte(5)
+      ..write(obj.action)
+      ..writeByte(6)
+      ..write(obj.status)
+      ..writeByte(7)
+      ..write(obj.errorMessage);
   }
 
   @override

@@ -17,7 +17,9 @@ import '../../services/station_repository.dart';
 import '../../services/theme_controller.dart';
 import '../../services/track_service.dart';
 import '../../services/sync/sync_queue_service.dart';
+import '../../services/sync/conflict_queue_service.dart';
 import '../../services/sync/sync_processor.dart';
+import '../../services/ai_lithology_service.dart';
 
 final sl = GetIt.instance;
 
@@ -35,8 +37,14 @@ void setupDependencies() {
   });
 
   sl.registerLazySingleton<SyncQueueService>(() => SyncQueueService());
+  sl.registerLazySingleton<ConflictQueueService>(() => ConflictQueueService());
+  
   sl.registerLazySingleton<SyncProcessor>(() {
-    final processor = SyncProcessor(sl<SyncQueueService>(), sl<CloudSyncService>());
+    final processor = SyncProcessor(
+      sl<SyncQueueService>(), 
+      sl<CloudSyncService>(),
+      sl<ConflictQueueService>(),
+    );
     processor.init();
     return processor;
   });
@@ -72,4 +80,5 @@ void setupDependencies() {
   sl.registerLazySingleton<SecurityProvider>(() => SecurityProvider());
   sl.registerLazySingleton<PresenceService>(() => PresenceService());
   sl.registerLazySingleton<SosService>(() => SosService());
+  sl.registerLazySingleton<AiLithologyService>(() => AiLithologyService());
 }

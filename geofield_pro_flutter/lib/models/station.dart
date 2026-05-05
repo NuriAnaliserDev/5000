@@ -7,93 +7,88 @@ part 'station.g.dart';
 @HiveType(typeId: 1)
 class Station extends HiveObject {
   @HiveField(0)
-  String name;
+  final String name;
 
   @HiveField(1)
-  double lat;
+  final double lat;
 
   @HiveField(2)
-  double lng;
+  final double lng;
 
   @HiveField(3)
-  double altitude;
+  final double altitude;
 
   @HiveField(4)
-  double strike;
+  final double strike;
 
   @HiveField(5)
-  double dip;
+  final double dip;
 
   @HiveField(6)
-  double azimuth;
+  final double azimuth;
 
   @HiveField(7)
-  DateTime date;
+  final DateTime date;
 
   @HiveField(8)
-  String? rockType;
+  final String? rockType;
 
   @HiveField(9)
-  String? structure;
+  final String? structure;
 
   @HiveField(10)
-  String? color;
+  final String? color;
 
   @HiveField(11)
-  String? description;
+  final String? description;
 
-  @Deprecated(
-      'Use photoPaths instead. This is kept for backward compatibility.')
   @HiveField(12)
-  String? photoPath;
+  final String? photoPath;
 
   @HiveField(13)
-  String? audioPath;
+  final String? audioPath;
 
-  // Real GPS accuracy (meters) at capture time (may be null for old records)
   @HiveField(14)
-  double? accuracy;
+  final double? accuracy;
 
-  // Multiple photos per station (new). Keep photoPath for backward compat/UI thumb.
   @HiveField(15)
-  List<String>? photoPaths;
+  final List<String>? photoPaths;
 
-  // Project/expedition grouping
   @HiveField(16)
-  String? project;
+  final String? project;
 
   @HiveField(17)
-  String? measurementType;
+  final String? measurementType;
 
   @HiveField(18)
-  double? dipDirection;
+  final double? dipDirection;
 
   @HiveField(19)
-  String? subMeasurementType;
+  final String? subMeasurementType;
 
   @HiveField(20)
-  String? sampleId;
+  final String? sampleId;
 
   @HiveField(21)
-  String? sampleType;
+  final String? sampleType;
 
   @HiveField(22)
-  int? confidence;
+  final int? confidence;
 
   @HiveField(23)
-  String? munsellColor;
+  final String? munsellColor;
 
   @HiveField(24)
-  String? authorName;
+  final String? authorName;
 
   @HiveField(25)
-  String? authorRole;
+  final String? authorRole;
 
   @HiveField(26)
-  List<Measurement>? measurements;
+  final List<Measurement>? measurements;
 
   @HiveField(27)
-  List<AuditEntry>? history;
+  final List<AuditEntry>? history;
 
   @HiveField(28)
   DateTime? updatedAt;
@@ -130,6 +125,7 @@ class Station extends HiveObject {
     this.project,
     this.measurementType,
     this.dipDirection,
+    this.subMeasurementType,
     this.sampleId,
     this.sampleType,
     this.confidence,
@@ -138,7 +134,6 @@ class Station extends HiveObject {
     this.authorRole,
     this.measurements,
     this.history,
-    this.subMeasurementType,
     this.updatedAt,
     this.version = 1,
     this.updatedBy,
@@ -165,8 +160,8 @@ class Station extends HiveObject {
     List<String>? photoPaths,
     String? project,
     String? measurementType,
-    String? subMeasurementType,
     double? dipDirection,
+    String? subMeasurementType,
     String? sampleId,
     String? sampleType,
     int? confidence,
@@ -200,8 +195,8 @@ class Station extends HiveObject {
       photoPaths: photoPaths ?? this.photoPaths,
       project: project ?? this.project,
       measurementType: measurementType ?? this.measurementType,
-      subMeasurementType: subMeasurementType ?? this.subMeasurementType,
       dipDirection: dipDirection ?? this.dipDirection,
+      subMeasurementType: subMeasurementType ?? this.subMeasurementType,
       sampleId: sampleId ?? this.sampleId,
       sampleType: sampleType ?? this.sampleType,
       confidence: confidence ?? this.confidence,
@@ -215,6 +210,86 @@ class Station extends HiveObject {
       updatedBy: updatedBy ?? this.updatedBy,
       updatedByDeviceId: updatedByDeviceId ?? this.updatedByDeviceId,
       isDeleted: isDeleted ?? this.isDeleted,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'lat': lat,
+      'lng': lng,
+      'altitude': altitude,
+      'strike': strike,
+      'dip': dip,
+      'azimuth': azimuth,
+      'date': date.toIso8601String(),
+      'rockType': rockType,
+      'structure': structure,
+      'color': color,
+      'description': description,
+      'photoPath': photoPath,
+      'audioPath': audioPath,
+      'accuracy': accuracy,
+      'photoPaths': photoPaths,
+      'project': project,
+      'measurementType': measurementType,
+      'dipDirection': dipDirection,
+      'subMeasurementType': subMeasurementType,
+      'sampleId': sampleId,
+      'sampleType': sampleType,
+      'confidence': confidence,
+      'munsellColor': munsellColor,
+      'authorName': authorName,
+      'authorRole': authorRole,
+      'measurements': measurements?.map((e) => e.toMap()).toList(),
+      'history': history?.map((e) => e.toMap()).toList(),
+      'updatedAt': updatedAt?.toIso8601String(),
+      'version': version,
+      'updatedBy': updatedBy,
+      'updatedByDeviceId': updatedByDeviceId,
+      'isDeleted': isDeleted,
+    };
+  }
+
+  factory Station.fromMap(Map<String, dynamic> map) {
+    return Station(
+      name: map['name'] ?? '',
+      lat: (map['lat'] as num?)?.toDouble() ?? 0.0,
+      lng: (map['lng'] as num?)?.toDouble() ?? 0.0,
+      altitude: (map['altitude'] as num?)?.toDouble() ?? 0.0,
+      strike: (map['strike'] as num?)?.toDouble() ?? 0.0,
+      dip: (map['dip'] as num?)?.toDouble() ?? 0.0,
+      azimuth: (map['azimuth'] as num?)?.toDouble() ?? 0.0,
+      date: DateTime.parse(map['date']),
+      rockType: map['rockType'],
+      structure: map['structure'],
+      color: map['color'],
+      description: map['description'],
+      photoPath: map['photoPath'],
+      audioPath: map['audioPath'],
+      accuracy: (map['accuracy'] as num?)?.toDouble(),
+      photoPaths: (map['photoPaths'] as List?)?.cast<String>(),
+      project: map['project'],
+      measurementType: map['measurementType'],
+      dipDirection: (map['dipDirection'] as num?)?.toDouble(),
+      subMeasurementType: map['subMeasurementType'],
+      sampleId: map['sampleId'],
+      sampleType: map['sampleType'],
+      confidence: map['confidence'] as int?,
+      munsellColor: map['munsellColor'],
+      authorName: map['authorName'],
+      authorRole: map['authorRole'],
+      measurements: (map['measurements'] as List?)
+          ?.map((e) => Measurement.fromMap(e as Map<String, dynamic>))
+          .toList(),
+      history: (map['history'] as List?)
+          ?.map((e) => AuditEntry.fromMap(e as Map<String, dynamic>))
+          .toList(),
+      updatedAt: map['updatedAt'] != null ? DateTime.parse(map['updatedAt']) : null,
+      version: map['version'] ?? 1,
+      updatedBy: map['updatedBy'],
+      updatedByDeviceId: map['updatedByDeviceId'],
+      isDeleted: map['isDeleted'] ?? false,
     );
   }
 }

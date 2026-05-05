@@ -1,38 +1,17 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:crypto/crypto.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:hive/hive.dart';
+import 'package:flutter/foundation.dart';
 
 import 'ai/ai_rate_limiter.dart';
+import '../models/ai_analysis_result.dart';
 import '../utils/image_mime.dart';
 import '../core/network/network_executor.dart';
 import '../core/error/app_error.dart';
-
-class AiLithologyResponse {
-  final String rockType;
-  final List<String> minerals;
-  final String description;
-  final int confidence;
-  final String munsellColor;
-
-  AiLithologyResponse({
-    required this.rockType,
-    required this.minerals,
-    required this.description,
-    required this.confidence,
-    required this.munsellColor,
-  });
-
-  factory AiLithologyResponse.fromJson(Map<String, dynamic> json) {
-    return AiLithologyResponse(
-      rockType: json['rock_type'] ?? 'Noma\'lum',
-      minerals: List<String>.from(json['minerals'] ?? []),
-      description: json['description'] ?? '',
-      confidence: json['confidence'] ?? 3,
-      munsellColor: json['munsell_color'] ?? 'N 8',
-    );
-  }
-}
+import 'hive_db.dart';
 
 class AiLithologyService {
   static final AiLithologyService _instance = AiLithologyService._internal();
@@ -43,41 +22,55 @@ class AiLithologyService {
 
   AiLithologyService._internal();
 
-  /// Analyzes a rock sample from an image using Vertex AI.
-  ///
-  /// Har chaqiruvdan oldin [AiRateLimiter.consume] orqali kundalik kvota
-  /// tekshiriladi. Agar kvota oshib ketsa [QuotaExceededException] tashlanadi.
-  Future<AiLithologyResponse> analyzeRockSample(File imageFile) async {
+  /// Analyzes a rock sample from an image using Vertex AI with caching and rate limiting.
+  Future<AIAnalysisResult> analyzeRockSample(File imageFile) async {
     final uid = FirebaseAuth.instance.currentUser?.uid ?? 'anonymous';
+    
+    // 1. Image Hash (sha256)
+    final imageBytes = await imageFile.readAsBytes();
+    final hash = sha256.convert(imageBytes).toString();
+
+    // 2. Cache Check
+    final cacheBox = Hive.box<AIAnalysisResult>(HiveDb.aiCacheBox);
+    if (cacheBox.containsKey(hash)) {
+      debugPrint('AI: Cache hit for image $hash');
+      return cacheBox.get(hash)!;
+    }
+
+    // 3. Rate Limiting (10s interval + Daily Quota)
     await AiRateLimiter.consume(uid);
 
     try {
       final model = FirebaseAI.vertexAI().generativeModel(
-        model: 'gemini-2.5-flash',
+        model: 'gemini-2.0-flash', // Updated to latest stable flash model
         generationConfig: GenerationConfig(
           responseMimeType: 'application/json',
-          temperature:
-              0.1, // Low temperature for factual, deterministic analysis
+          temperature: 0.1, 
         ),
       );
 
-      final imageBytes = await imageFile.readAsBytes();
       final mime = mimeTypeForImagePath(imageFile.path);
 
       final prompt = '''
-Sen professional katta (Senior) geologsan. 
-Quyidagi rasmni vizual analiz qilib uning litologik tarkibini aniqla va ma'lumotlarni faqat berilgan JSON formatida qaytar.
-Hech qanday qo'shimcha matn (Markdown bloklarsiz) ishlatma.
-Agar rasmda tosh yoq bolsa yoki noaniq bolsa noma'lum dеb qaytar.
+You are a professional field geologist with 20+ years of experience.
+Return ONLY valid JSON. No explanations. No Markdown blocks.
 
-Javob berish formati (JSON):
+Analyze the visual characteristics of the rock in the image and provide a detailed lithological description.
+If the image is not a rock or is too blurry, set confidence to 0 and rockType to "Unknown".
+
+Return exactly this JSON schema:
 {
-  "rock_type": "Toshning asosiy turi (masalan: Granit, Ohaktosh, Slanets... o'zbek tilida)",
-  "minerals": ["Rasmda ko'zga ko'rinadigan asosiy jins hosil qiluvchi minerallar o'zbek tilida (kvars, shpat, biotit..)"],
-  "description": "Geologik vizual tekstura va struktura haqida qisqacha tasvirlash (o'zbek tilida)",
-  "confidence": 1 dan 5 gacha ishonch darajasi (integer, 5 eng ishonchli),
-  "munsell_color": "Munsell Color Code tizimi yordamida toshning asosiy rang kodini taxminiy berish (masalan: 5YR 6/4)"
+  "rockType": "The primary rock type in Uzbek (e.g., Granit, Ohaktosh)",
+  "mineralogy": ["Visible minerals in Uzbek (e.g., kvars, biotit)"],
+  "texture": "Texture description in Uzbek",
+  "structure": "Structure description in Uzbek",
+  "color": "Dominant color in Uzbek",
+  "munsellApprox": "Munsell Color Code (e.g., 5YR 6/4)",
+  "confidence": number between 0 and 1,
+  "notes": "Any uncertainty or additional geological context in Uzbek"
 }
+
+If confidence < 0.6, explicitly explain why in the notes.
 ''';
 
       final content = [
@@ -89,39 +82,68 @@ Javob berish formati (JSON):
 
       final response = await NetworkExecutor.execute(
         () => model.generateContent(content),
-        actionName: 'AI Analyze Rock',
+        actionName: 'AI Analyze Lithology',
         maxRetries: 1,
         timeout: const Duration(seconds: 45),
       );
 
       final respText = response.text;
       if (respText == null || respText.isEmpty) {
-        throw AppError("Vertex AIDan javob kelmadi.",
-            category: ErrorCategory.network);
+        throw AppError("Vertex AI returned an empty response.", category: ErrorCategory.network);
       }
 
-      // Ba'zan gemini jsonni markdown blok ichiga olib beradi
-      String cleanedJson = respText.trim();
-      if (cleanedJson.startsWith('```json')) {
-        cleanedJson = cleanedJson.substring(7);
-        if (cleanedJson.endsWith('```')) {
-          cleanedJson = cleanedJson.substring(0, cleanedJson.length - 3);
-        }
-      } else if (cleanedJson.startsWith('```')) {
-        cleanedJson = cleanedJson.substring(3);
-        if (cleanedJson.endsWith('```')) {
-          cleanedJson = cleanedJson.substring(0, cleanedJson.length - 3);
-        }
-      }
+      // 4. Clean and Parse JSON
+      final cleanedJson = _cleanJson(respText);
+      final decoded = jsonDecode(cleanedJson);
 
-      final decoded = jsonDecode(cleanedJson.trim());
-      return AiLithologyResponse.fromJson(decoded);
+      // 5. Strict Validation
+      _validateJson(decoded);
+
+      final result = AIAnalysisResult.fromMap({
+        ...decoded,
+        'analyzedAt': DateTime.now().toIso8601String(),
+      });
+
+      // 6. Save to Cache
+      await cacheBox.put(hash, result);
+      
+      return result;
     } on QuotaExceededException {
       rethrow;
-    } catch (e) {
-      // NetworkExecutor xatolikni AppError'ga map qilib, throw qiladi
-      // Shuning uchun bu yerda rethrow qilsak xato AppError ko'rinishida yuqoriga chiqadi
+    } on RateLimitException {
       rethrow;
+    } catch (e) {
+      debugPrint('AI Error: $e');
+      if (e is AppError) rethrow;
+      throw AppError("AI tahlili bajarilmadi: $e", category: ErrorCategory.unknown);
+    }
+  }
+
+  String _cleanJson(String text) {
+    String cleaned = text.trim();
+    if (cleaned.startsWith('```json')) {
+      cleaned = cleaned.substring(7);
+      if (cleaned.endsWith('```')) {
+        cleaned = cleaned.substring(0, cleaned.length - 3);
+      }
+    } else if (cleaned.startsWith('```')) {
+      cleaned = cleaned.substring(3);
+      if (cleaned.endsWith('```')) {
+        cleaned = cleaned.substring(0, cleaned.length - 3);
+      }
+    }
+    return cleaned.trim();
+  }
+
+  void _validateJson(Map<String, dynamic> json) {
+    final requiredKeys = [
+      'rockType', 'mineralogy', 'texture', 'structure', 
+      'color', 'munsellApprox', 'confidence', 'notes'
+    ];
+    for (final key in requiredKeys) {
+      if (!json.containsKey(key)) {
+        throw Exception("Invalid AI response: Missing key '$key'");
+      }
     }
   }
 }

@@ -11,6 +11,8 @@ import '../models/chat_message.dart';
 import '../models/chat_group.dart';
 import '../models/project.dart';
 import '../models/sync_item.dart';
+import '../models/sync_conflict.dart';
+import '../models/ai_analysis_result.dart';
 import 'security/encryption_manager.dart';
 
 class HiveDb {
@@ -24,6 +26,8 @@ class HiveDb {
   static const mapStructureBox = 'map_structure_annotations';
   static const projectsBox = 'projects';
   static const syncQueueBox = 'sync_queue';
+  static const syncConflictsBox = 'sync_conflicts';
+  static const aiCacheBox = 'ai_cache';
 
   static Future<void> init() async {
     await Hive.initFlutter();
@@ -40,6 +44,8 @@ class HiveDb {
     _registerAdapter(SyncItemAdapter());
     _registerAdapter(SyncStatusAdapter());
     _registerAdapter(SyncOperationAdapter());
+    _registerAdapter(SyncConflictAdapter());
+    _registerAdapter(AIAnalysisResultAdapter());
 
     final cipher = await EncryptionManager.cipher();
 
@@ -51,6 +57,8 @@ class HiveDb {
     await _openTypedMigrate<MapStructureAnnotation>(mapStructureBox, cipher);
     await _openTypedMigrate<Project>(projectsBox, cipher);
     await _openTypedMigrate<SyncItem>(syncQueueBox, cipher);
+    await _openTypedMigrate<SyncConflict>(syncConflictsBox, cipher);
+    await _openTypedMigrate<AIAnalysisResult>(aiCacheBox, cipher);
     await _openDynamicMigrate(settingsBox, cipher);
     await _openDynamicMigrate(syncStateBox, cipher);
   }
