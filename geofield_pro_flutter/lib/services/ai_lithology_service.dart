@@ -26,13 +26,13 @@ class AiLithologyService {
     final imageBytes = await imageFile.readAsBytes();
     final hash = sha256.convert(imageBytes).toString();
 
-    // 1. Cache Check with TTL (7 days)
+    // 1. Cache Check with TTL (7 days) and Versioning
     final cacheBox = Hive.box<AIAnalysisResult>(HiveDb.aiCacheBox);
     if (cacheBox.containsKey(hash)) {
       final cached = cacheBox.get(hash)!;
       final age = DateTime.now().difference(cached.analyzedAt);
-      if (age.inDays > 7) {
-        debugPrint('AI [CACHE MISS]: TTL expired for hash $hash. Age: ${age.inDays} days.');
+      if (age.inDays > 7 || cached.cacheVersion != LithologyNormalizer.currentCacheVersion) {
+        debugPrint('AI [CACHE MISS]: TTL expired or Model Version changed for hash $hash.');
         await cacheBox.delete(hash);
       } else {
         debugPrint('AI [CACHE HIT]: Reusing valid result for hash $hash.');

@@ -19,7 +19,7 @@ void main() {
       expect(result.status, isNot('valid')); // Should be suspicious or invalid
       expect(result.warningMessage, contains('Oltin'));
       // Real confidence drops drastically because of hallucination
-      expect(result.confidence, lessThan(0.95)); 
+      expect(result.trustScore, lessThan(0.95)); 
     });
 
     test('Rule B: Crystalline rock without minerals -> Suspicious', () {
@@ -68,8 +68,9 @@ void main() {
 
       expect(result.status, equals('valid'));
       expect(result.warningMessage, isEmpty);
-      // Real confidence = 0.9*0.5 + 0.9*0.3 + 1.0*0.2 = 0.45 + 0.27 + 0.2 = 0.92
-      expect(result.confidence, closeTo(0.92, 0.01));
+      // Real confidence (TrustScore) = 0.9*0.4 + 1.0*0.4 + 0.9*0.2 = 0.36 + 0.4 + 0.18 = 0.94
+      expect(result.trustScore, closeTo(0.94, 0.01));
+      expect(result.reliabilityLevel, equals('high'));
     });
 
     test('String cleanup ignores noise and formats names', () {
@@ -88,6 +89,7 @@ void main() {
       expect(result.mineralogy.length, equals(2));
       expect(result.mineralogy.contains('kvars'), isTrue);
       expect(result.mineralogy.contains('biotit'), isTrue);
+      expect(result.reliabilityLevel, equals('high')); 
     });
 
   });

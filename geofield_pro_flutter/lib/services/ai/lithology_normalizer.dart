@@ -1,14 +1,10 @@
 import '../../models/ai_analysis_result.dart';
 import 'lithology_validator.dart';
 
-class TrustScore {
-  final double finalScore;
-  final bool isReliable;
-  final List<String> reasons;
-  TrustScore(this.finalScore, this.isReliable, this.reasons);
-}
-
 class LithologyNormalizer {
+  // Hash combining versions to reliably invalidate cache
+  static const String currentCacheVersion = "ai_v1_norm_v2_val_v3";
+
   static AIAnalysisResult normalize({
     required Map<String, dynamic> parsedJson,
     required double imageQualityScore,
@@ -21,7 +17,6 @@ class LithologyNormalizer {
     List<String> normalizerWarnings = [];
 
     if (aiConfidence > 1.0 || aiConfidence < 0.0) {
-      normalizerWarnings.add("AI kutilmagan confidence qaytardi (\$aiConfidence). Qayta hisoblandi.");
       aiConfidence = aiConfidence.clamp(0.0, 1.0);
     }
 
@@ -34,30 +29,57 @@ class LithologyNormalizer {
     final context = ValidationContext(parsedRockCandidates, parsedMinerals);
     final validation = LithologyValidator.validate(context);
 
-    // 4. Trust Engine (System Decision Maker)
-    final allWarnings = [...validation.warnings, ...normalizerWarnings];
-    double finalScore = (aiConfidence * 0.4) + (validation.domainScore * 0.4) + (imageQualityScore * 0.2);
+    // 4. Trust Engine (Dynamic Weighting System)
+    double aiWeight = 0.4;
+    double domainWeight = 0.4;
+    double imgWeight = 0.2;
+
+    if (imageQualityScore < 0.4) {
+      aiWeight = 0.2;
+      domainWeight = 0.3;
+      imgWeight = 0.5; 
+    } else if (validation.status == ValidationStatus.invalid) {
+      domainWeight = 0.7;
+      aiWeight = 0.2;
+      imgWeight = 0.1;
+    }
+
+    double finalScore = (aiConfidence * aiWeight) + 
+                        (validation.domainScore * domainWeight) + 
+                        (imageQualityScore * imgWeight);
     
-    bool isReliable = true;
     List<String> trustReasons = [];
 
-    if (validation.status == ValidationStatus.invalid) {
-      isReliable = false;
-      trustReasons.add("SYSTEM: Geologik qoidalar buzilgani sababli natija rad etildi.");
-    }
-    if (finalScore < 0.5) {
-      isReliable = false;
-      trustReasons.add("SYSTEM: Umumiy ishonchlilik darajasi (\${(finalScore*100).toStringAsFixed(1)}%) yetarli emas.");
-    }
+    // Ambiguity Penalty
     if (parsedRockCandidates.length > 1) {
-      trustReasons.add("SYSTEM: AI bir nechta tosh turlarini taxmin qildi (Noaniqlik aniqlandi).");
-      finalScore *= 0.9; // Penalty for ambiguity
+      trustReasons.add("Natijada bir nechta tosh turlari ko'rsatilgan (noaniqlik).");
+      finalScore *= 1 - (parsedRockCandidates.length * 0.1); 
     }
 
-    if (isReliable) {
-      trustReasons.add("SYSTEM: Tahlil geologik mantiq va sifat tekshiruvlaridan muvaffaqiyatli o'tdi.");
+    if (imageQualityScore < 0.5) {
+      trustReasons.add("Rasm sifati pastligi tahlilga salbiy ta'sir ko'rsatdi.");
     }
 
+    // Reliability Mapping
+    String relLevel = 'high';
+    if (validation.status == ValidationStatus.invalid || finalScore < 0.3) {
+      relLevel = 'reject';
+      trustReasons.add("Geologik mantiqqa to'g'ri kelmaydi yoki ishonchlilik o'ta past.");
+    } else if (finalScore < 0.6) {
+      relLevel = 'low';
+      trustReasons.add("Tizim ishonchliligi past, mutaxassis tekshiruvi talab etiladi.");
+    } else if (finalScore < 0.85 || validation.status == ValidationStatus.suspicious) {
+      relLevel = 'medium';
+      if (validation.status == ValidationStatus.suspicious) {
+        trustReasons.add("Tahlilda ba'zi geologik shubhalar mavjud.");
+      }
+    }
+
+    if (relLevel == 'high') {
+      trustReasons.add("Tahlil geologik mantiq va sifat tekshiruvlaridan muvaffaqiyatli o'tdi.");
+    }
+
+    final allWarnings = [...validation.warnings, ...normalizerWarnings];
     String status = _determineStatus(validation.status, finalScore, allWarnings);
 
     return AIAnalysisResult(
@@ -68,11 +90,11 @@ class LithologyNormalizer {
       structure: parsedJson['structure']?.toString() ?? '',
       color: parsedJson['color']?.toString() ?? '',
       munsellApprox: parsedJson['munsellApprox']?.toString() ?? '',
-      confidence: aiConfidence, // Original AI confidence
+      confidence: aiConfidence,
       trustScore: finalScore.clamp(0.0, 1.0),
-      isReliable: isReliable,
+      reliabilityLevel: relLevel,
       trustReasons: trustReasons,
-      aiModelVersion: 1, // Represents Gemini 2.0 Flash initial integration
+      cacheVersion: currentCacheVersion,
       notes: parsedJson['notes']?.toString() ?? '',
       analyzedAt: DateTime.now(),
       status: status,
@@ -81,11 +103,8 @@ class LithologyNormalizer {
   }
 
   static String _determineStatus(ValidationStatus valStatus, double finalScore, List<String> warnings) {
-    if (valStatus == ValidationStatus.invalid || finalScore < 0.4) {
-      return 'invalid';
-    } else if (valStatus == ValidationStatus.suspicious || finalScore < 0.7 || warnings.isNotEmpty) {
-      return 'suspicious';
-    }
+    if (valStatus == ValidationStatus.invalid || finalScore < 0.3) return 'invalid';
+    if (valStatus == ValidationStatus.suspicious || finalScore < 0.7 || warnings.isNotEmpty) return 'suspicious';
     return 'valid';
   }
 

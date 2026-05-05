@@ -29,10 +29,10 @@ class AIAnalysisResultAdapter extends TypeAdapter<AIAnalysisResult> {
       status: fields[9] == null ? 'valid' : fields[9] as String,
       warningMessage: fields[10] == null ? '' : fields[10] as String,
       trustScore: fields[11] == null ? 0.0 : fields[11] as double,
-      isReliable: fields[12] == null ? false : fields[12] as bool,
+      reliabilityLevel: fields[12] == null ? 'low' : fields[12] as String,
       trustReasons:
           fields[13] == null ? [] : (fields[13] as List).cast<String>(),
-      aiModelVersion: fields[14] == null ? 1 : fields[14] as int,
+      cacheVersion: fields[14] == null ? '' : fields[14] as String,
       rockCandidates:
           fields[15] == null ? [] : (fields[15] as List).cast<String>(),
     );
@@ -67,11 +67,11 @@ class AIAnalysisResultAdapter extends TypeAdapter<AIAnalysisResult> {
       ..writeByte(11)
       ..write(obj.trustScore)
       ..writeByte(12)
-      ..write(obj.isReliable)
+      ..write(obj.reliabilityLevel)
       ..writeByte(13)
       ..write(obj.trustReasons)
       ..writeByte(14)
-      ..write(obj.aiModelVersion)
+      ..write(obj.cacheVersion)
       ..writeByte(15)
       ..write(obj.rockCandidates);
   }

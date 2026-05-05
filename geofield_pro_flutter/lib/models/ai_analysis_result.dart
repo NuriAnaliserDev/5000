@@ -40,14 +40,14 @@ class AIAnalysisResult extends HiveObject {
   @HiveField(11, defaultValue: 0.0)
   final double trustScore;
 
-  @HiveField(12, defaultValue: false)
-  final bool isReliable;
+  @HiveField(12, defaultValue: 'low')
+  final String reliabilityLevel;
 
   @HiveField(13, defaultValue: [])
   final List<String> trustReasons;
 
-  @HiveField(14, defaultValue: 1)
-  final int aiModelVersion;
+  @HiveField(14, defaultValue: '')
+  final String cacheVersion;
 
   @HiveField(15, defaultValue: [])
   final List<String> rockCandidates;
@@ -65,9 +65,9 @@ class AIAnalysisResult extends HiveObject {
     this.status = 'valid',
     this.warningMessage = '',
     this.trustScore = 0.0,
-    this.isReliable = false,
+    this.reliabilityLevel = 'low',
     this.trustReasons = const [],
-    this.aiModelVersion = 1,
+    this.cacheVersion = '',
     this.rockCandidates = const [],
   });
 
@@ -85,9 +85,9 @@ class AIAnalysisResult extends HiveObject {
       'status': status,
       'warningMessage': warningMessage,
       'trustScore': trustScore,
-      'isReliable': isReliable,
+      'reliabilityLevel': reliabilityLevel,
       'trustReasons': trustReasons,
-      'aiModelVersion': aiModelVersion,
+      'cacheVersion': cacheVersion,
       'rockCandidates': rockCandidates,
     };
   }
@@ -108,9 +108,9 @@ class AIAnalysisResult extends HiveObject {
       status: map['status'] ?? 'valid',
       warningMessage: map['warningMessage'] ?? '',
       trustScore: (map['trustScore'] ?? 0.0).toDouble(),
-      isReliable: map['isReliable'] ?? false,
+      reliabilityLevel: map['reliabilityLevel'] ?? 'low',
       trustReasons: List<String>.from(map['trustReasons'] ?? []),
-      aiModelVersion: map['aiModelVersion'] ?? 1,
+      cacheVersion: map['cacheVersion'] ?? '',
       rockCandidates: List<String>.from(map['rockCandidates'] ?? []),
     );
   }
