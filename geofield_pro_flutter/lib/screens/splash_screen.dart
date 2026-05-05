@@ -38,13 +38,9 @@ class _SplashScreenState extends State<SplashScreen> {
     });
   }
 
-  GeoFieldStrings get _loc {
-    final s = GeoFieldStrings.of(context);
-    if (s == null) {
-      throw StateError('GeoFieldStrings missing on SplashScreen');
-    }
-    return s;
-  }
+  GeoFieldStrings? get _loc => GeoFieldStrings.of(context);
+
+  String _s(String? val, String fallback) => val ?? fallback;
 
   Future<void> _bootstrap() async {
     setState(() {
@@ -54,26 +50,20 @@ class _SplashScreenState extends State<SplashScreen> {
     try {
       setState(() {
         _progress = 0.3;
-        _statusLabel = _loc.splash_status_firebase;
+        _statusLabel = _s(_loc?.splash_status_firebase, 'Firebase tekshirilmoqda...');
       });
       await Future<void>.delayed(const Duration(milliseconds: 80));
       if (Firebase.apps.isNotEmpty) {
         Firebase.app();
         setState(() {
-          _statusLabel = _loc.splash_status_session;
+          _statusLabel = _s(_loc?.splash_status_session, 'Sessiya tiklanmoqda...');
         });
-        // Saqlangan kirish: ba'zida [currentUser] keyinroq to'ldiriladi; authState
-        // birinchi hodisasini 8 sekundgacha kutamiz (internet sekin bo‘lishi mumkin).
         try {
           await FirebaseAuth.instance
               .authStateChanges()
               .first
               .timeout(const Duration(seconds: 8));
-        } catch (_) {
-          // tarmoq yoki vaqt — davom etamiz
-        }
-        // Ba'zi qurilmalarda birinchi hodisa null, keyin saqlangan foydalanuvchi paydo bo‘ladi.
-        // Jami ~3 sekund kutamiz: 100 * 30ms.
+        } catch (_) {}
         for (int i = 0; i < 100; i++) {
           if (FirebaseAuth.instance.currentUser != null) break;
           await Future<void>.delayed(const Duration(milliseconds: 30));
@@ -82,16 +72,16 @@ class _SplashScreenState extends State<SplashScreen> {
 
       setState(() {
         _progress = 0.5;
-        _statusLabel = _loc.splash_status_local_db;
+        _statusLabel = _s(_loc?.splash_status_local_db, 'Mahalliy ma\'lumotlar bazasi...');
       });
       await Future<void>.delayed(const Duration(milliseconds: 50));
       if (!Hive.isBoxOpen(HiveDb.stationsBox)) {
-        throw StateError(_loc.splash_error_local_db);
+        throw StateError(_s(_loc?.splash_error_local_db, 'Mahalliy ma\'lumotlar bazasi ochilmadi'));
       }
 
       setState(() {
         _progress = 0.7;
-        _statusLabel = _loc.splash_status_offline_tiles;
+        _statusLabel = _s(_loc?.splash_status_offline_tiles, 'Xarita keshi...');
       });
       if (!kIsWeb) {
         await Future<void>.delayed(const Duration(milliseconds: 120));
@@ -101,7 +91,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
       setState(() {
         _progress = 0.9;
-        _statusLabel = _loc.splash_status_wmm;
+        _statusLabel = _s(_loc?.splash_status_wmm, 'Magnit modeli...');
       });
       WmmModel.embedded().declination(
         lat: 41.0,
@@ -111,7 +101,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
       setState(() {
         _progress = 0.95;
-        _statusLabel = _loc.splash_status_profile;
+        _statusLabel = _s(_loc?.splash_status_profile, 'Profil yuklanmoqda...');
       });
       if (mounted) {
         await _syncOnboardingForLoggedInUser();
@@ -119,7 +109,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
       setState(() {
         _progress = 1.0;
-        _statusLabel = _loc.splash_status_ready;
+        _statusLabel = _s(_loc?.splash_status_ready, 'Tayyor!');
       });
       await Future<void>.delayed(const Duration(milliseconds: 200));
 
