@@ -31,6 +31,12 @@ class AIAnalysisResult extends HiveObject {
   @HiveField(8)
   final DateTime analyzedAt;
 
+  @HiveField(9, defaultValue: 'valid')
+  final String status;
+
+  @HiveField(10, defaultValue: '')
+  final String warningMessage;
+
   AIAnalysisResult({
     required this.rockType,
     required this.mineralogy,
@@ -41,6 +47,8 @@ class AIAnalysisResult extends HiveObject {
     required this.confidence,
     required this.notes,
     required this.analyzedAt,
+    this.status = 'valid',
+    this.warningMessage = '',
   });
 
   Map<String, dynamic> toMap() {
@@ -54,6 +62,8 @@ class AIAnalysisResult extends HiveObject {
       'confidence': confidence,
       'notes': notes,
       'analyzedAt': analyzedAt.toIso8601String(),
+      'status': status,
+      'warningMessage': warningMessage,
     };
   }
 
@@ -70,6 +80,8 @@ class AIAnalysisResult extends HiveObject {
       analyzedAt: map['analyzedAt'] != null 
           ? DateTime.parse(map['analyzedAt']) 
           : DateTime.now(),
+      status: map['status'] ?? 'valid',
+      warningMessage: map['warningMessage'] ?? '',
     );
   }
 }

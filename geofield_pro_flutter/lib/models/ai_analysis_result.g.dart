@@ -26,13 +26,15 @@ class AIAnalysisResultAdapter extends TypeAdapter<AIAnalysisResult> {
       confidence: fields[6] as double,
       notes: fields[7] as String,
       analyzedAt: fields[8] as DateTime,
+      status: fields[9] == null ? 'valid' : fields[9] as String,
+      warningMessage: fields[10] == null ? '' : fields[10] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, AIAnalysisResult obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.rockType)
       ..writeByte(1)
@@ -50,7 +52,11 @@ class AIAnalysisResultAdapter extends TypeAdapter<AIAnalysisResult> {
       ..writeByte(7)
       ..write(obj.notes)
       ..writeByte(8)
-      ..write(obj.analyzedAt);
+      ..write(obj.analyzedAt)
+      ..writeByte(9)
+      ..write(obj.status)
+      ..writeByte(10)
+      ..write(obj.warningMessage);
   }
 
   @override

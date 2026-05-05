@@ -43,15 +43,16 @@ class ImageQualityService {
       return _invalidResult("Rasmni o'qib bo'lmadi.");
     }
 
-    // Resize for faster processing (downsample to 256px width)
-    final image = img.copyResize(originalImage, width: 256);
+    // Resize for faster processing with linear interpolation to preserve edges
+    final image = img.copyResize(originalImage, width: 256, interpolation: img.Interpolation.linear);
 
     double brightnessScore = _calculateBrightness(image);
     double blurVariance = _calculateLaplacianVariance(image);
     
-    bool isBlurry = blurVariance < blurThreshold;
-    bool isTooDark = brightnessScore < minBrightness;
-    bool isTooBright = brightnessScore > maxBrightness;
+    // Hard rules for immediate rejection
+    bool isBlurry = blurVariance < 20.0; // Critical blur
+    bool isTooDark = brightnessScore < 0.10; // Critical dark
+    bool isTooBright = brightnessScore > 0.95; // Critical bright
 
     String errorMessage = "";
     if (isTooDark) {
