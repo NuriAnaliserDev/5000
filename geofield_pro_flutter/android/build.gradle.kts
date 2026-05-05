@@ -27,4 +27,13 @@ subprojects {
     tasks.withType<JavaCompile>().configureEach {
         options.compilerArgs.add("-Xlint:-options")
     }
+    
+    // Force Java 26 toolchain for all subprojects (to bypass Java 17 strict requirements)
+    plugins.withType<JavaPlugin> {
+        extensions.configure<JavaPluginExtension> {
+            toolchain {
+                languageVersion.set(JavaLanguageVersion.of(26))
+            }
+        }
+    }
 }
