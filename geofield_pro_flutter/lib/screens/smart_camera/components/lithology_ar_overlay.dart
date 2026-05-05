@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../models/ai_analysis_result.dart';
 import '../../../services/ai/decision_engine.dart';
+import '../../../models/user_context.dart';
 
 class LithologyArOverlay extends StatelessWidget {
   final AIAnalysisResult? result;
@@ -218,7 +219,7 @@ class LithologyArOverlay extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.7),
         borderRadius: BorderRadius.circular(12),
-        border: Border.left(color: ux.color, width: 4),
+        border: Border(left: BorderSide(color: ux.color, width: 4)),
       ),
       child: Text(
         ux.userMessage,
@@ -278,7 +279,7 @@ class LithologyArOverlay extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
         padding: const EdgeInsets.symmetric(vertical: 12),
-        shape: RoundedRectangleInBorder(borderRadius: BorderRadius.circular(8)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }

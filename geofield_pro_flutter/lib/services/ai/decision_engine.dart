@@ -1,32 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/ai_analysis_result.dart';
-
-enum ReliabilityLevel {
-  high,
-  medium,
-  low,
-  reject
-}
-
-enum AppDecision {
-  autoAccept,
-  showWithWarning,
-  requireUserConfirmation,
-  block
-}
-
-enum UserRole { junior, senior, expert }
-enum AppMode { exploration, reporting }
-
-class UserContext {
-  final UserRole role;
-  final AppMode mode;
-
-  UserContext({
-    this.role = UserRole.junior,
-    this.mode = AppMode.exploration,
-  });
-}
+import '../../models/user_context.dart';
 
 class UXDecision {
   final AppDecision action;

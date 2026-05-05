@@ -15,6 +15,7 @@ import 'ai/ai_parser.dart';
 import 'ai/lithology_normalizer.dart';
 import 'ai/decision_engine.dart';
 import 'ai/analysis_stabilizer.dart';
+import '../models/user_context.dart';
 
 class AiLithologyService {
   static final AiLithologyService _instance = AiLithologyService._internal();

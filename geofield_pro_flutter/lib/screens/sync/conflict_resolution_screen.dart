@@ -343,15 +343,15 @@ class _ConflictResolutionScreenState extends State<ConflictResolutionScreen> {
     switch (conflict.entityType) {
       case 'station':
         final s = Station.fromMap(conflict.remoteData);
-        await sl<StationRepository>().updateStation(int.tryParse(conflict.entityId) ?? conflict.entityId, s, source: UpdateSource.cloud);
+        await sl<StationRepository>().updateStation(int.tryParse(conflict.entityId) ?? conflict.entityId, s, source: UpdateSource.remote);
         break;
       case 'geological_line':
         final l = GeologicalLine.fromMap(conflict.remoteData);
-        await sl<GeologicalLineRepository>().updateLine(l, source: UpdateSource.cloud);
+        await sl<GeologicalLineRepository>().updateLine(l, source: UpdateSource.remote);
         break;
       case 'map_annotation':
         final a = MapStructureAnnotation.fromMap(conflict.remoteData);
-        await sl<MapStructureRepository>().updateAnnotation(a, source: UpdateSource.cloud);
+        await sl<MapStructureRepository>().updateAnnotation(a, source: UpdateSource.remote);
         break;
     }
   }
