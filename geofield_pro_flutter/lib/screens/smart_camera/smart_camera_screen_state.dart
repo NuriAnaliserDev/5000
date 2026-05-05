@@ -117,12 +117,36 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
   // ——— Kamera + sensor ———
   Future<void> _initCamera() async {
     try {
+      // Android 6+ (API 23+): runtime permission kerak
+      final status = await Permission.camera.status;
+      if (!status.isGranted) {
+        final result = await Permission.camera.request();
+        if (!result.isGranted) {
+          if (mounted) {
+            setState(() {}); // loading spinner o'chadi
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text(
+                  'Kamera ruxsati berilmadi. Sozlamalarda yoqing.',
+                ),
+                duration: const Duration(seconds: 5),
+                action: SnackBarAction(
+                  label: 'Sozlamalar',
+                  onPressed: openAppSettings,
+                ),
+              ),
+            );
+          }
+          return;
+        }
+      }
+
       final cameras = await availableCameras();
       if (!mounted || !_cameraSurfaceActive) {
         return;
       }
       if (cameras.isEmpty) {
-        throw StateError('availableCameras empty');
+        throw StateError('Kamera topilmadi');
       }
       final backCamera = cameras.firstWhere(
         (c) => c.lensDirection == CameraLensDirection.back,
@@ -145,6 +169,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
     } catch (e) {
       _disposeCameraOnly();
       if (mounted) {
+        setState(() {}); // UI ni yangilab error ko'rsatadi
         ErrorHandler.show(context, ErrorMapper.map(e));
       }
     }
@@ -789,8 +814,40 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
       );
     }
     if (_cameraController == null || _cameraInitFuture == null) {
-      return const Center(
-          child: CircularProgressIndicator(color: Color(0xFF1976D2)));
+      // Permission rad etilgan yoki kamera topilmadi — foydalanuvchiga ko'rsatamiz
+      return FutureBuilder<PermissionStatus>(
+        future: Permission.camera.status,
+        builder: (context, snap) {
+          final denied = snap.hasData &&
+              (snap.data == PermissionStatus.denied ||
+                  snap.data == PermissionStatus.permanentlyDenied);
+          if (denied) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.camera_alt, color: Colors.white38, size: 64),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Kamera ruxsati berilmagan',
+                    style: TextStyle(color: Colors.white70, fontSize: 16),
+                  ),
+                  const SizedBox(height: 12),
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      await openAppSettings();
+                    },
+                    icon: const Icon(Icons.settings),
+                    label: const Text('Sozlamalarni och'),
+                  ),
+                ],
+              ),
+            );
+          }
+          return const Center(
+              child: CircularProgressIndicator(color: Color(0xFF1976D2)));
+        },
+      );
     }
     return FutureBuilder<void>(
       future: _cameraInitFuture,

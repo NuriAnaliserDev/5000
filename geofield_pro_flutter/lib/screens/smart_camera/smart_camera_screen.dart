@@ -16,6 +16,7 @@ import 'package:sensors_plus/sensors_plus.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:torch_light/torch_light.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../models/station.dart';
 import '../../services/location_service.dart';
