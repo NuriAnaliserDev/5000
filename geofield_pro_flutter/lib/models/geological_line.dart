@@ -197,4 +197,16 @@ class GeologicalLine extends HiveObject {
       default: return '0xFF000000';
     }
   }
+
+  static String localizedName(String type) {
+    // Shunchaki katta harf bilan qaytaramiz yoki lug'atdan olamiz
+    switch (type.toLowerCase()) {
+      case 'fault': return 'Yoriq';
+      case 'thrust': return 'Surilma';
+      case 'anticline': return 'Antiklinal';
+      case 'syncline': return 'Sinklinal';
+      case 'bedding': return 'Qatlamlanish';
+      default: return type.toUpperCase();
+    }
+  }
 }

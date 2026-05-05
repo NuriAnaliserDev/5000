@@ -38,6 +38,10 @@ import 'components/camera_side_controls.dart';
 import 'components/camera_top_bar.dart';
 import 'components/focus_mode_geology_overlay.dart';
 import 'components/geological_ar_view.dart';
+import 'components/lithology_ar_overlay.dart';
+import '../../models/ai_analysis_result.dart';
+import '../../services/ai_lithology_service.dart';
+import '../../models/user_context.dart';
 
 part 'smart_camera_screen_state.dart';
 

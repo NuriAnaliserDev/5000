@@ -9,6 +9,8 @@ import '../../core/di/dependency_injection.dart';
 import '../../models/station.dart';
 import '../../models/geological_line.dart';
 import '../../models/map_structure_annotation.dart';
+import '../../services/sync/sync_processor.dart';
+import '../../models/sync_item.dart';
 
 class ConflictResolutionScreen extends StatefulWidget {
   const ConflictResolutionScreen({super.key});
@@ -54,7 +56,7 @@ class _ConflictResolutionScreenState extends State<ConflictResolutionScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.verified_user_rounded, size: 80, color: Colors.emerald.withOpacity(0.5)),
+          Icon(Icons.verified_user_rounded, size: 80, color: const Color(0xFF10B981).withOpacity(0.5)),
           const SizedBox(height: 16),
           const Text(
             'Barcha ma\'lumotlar xavfsiz',
@@ -129,7 +131,7 @@ class _ConflictResolutionScreenState extends State<ConflictResolutionScreen> {
           const SizedBox(width: 16),
           const Icon(Icons.compare_arrows_rounded, color: Colors.white24),
           const SizedBox(width: 16),
-          Expanded(child: _buildDataColumn('BULUT', conflict.remoteData, Colors.emerald)),
+          Expanded(child: _buildDataColumn('BULUT', conflict.remoteData, const Color(0xFF10B981))),
         ],
       ),
     );
@@ -224,7 +226,7 @@ class _ConflictResolutionScreenState extends State<ConflictResolutionScreen> {
               icon: Icons.cloud_done_rounded,
               title: 'Bulutdagi variantni saqlash',
               subtitle: 'Lokal ma\'lumot yangilanadi',
-              color: Colors.emerald,
+              color: const Color(0xFF10B981),
               onTap: () => _resolve(conflict, 'remote'),
             ),
             const SizedBox(height: 12),
@@ -298,7 +300,7 @@ class _ConflictResolutionScreenState extends State<ConflictResolutionScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('To\'qnashuv hal qilindi: ${decision.toUpperCase()}'),
-        backgroundColor: Colors.emerald,
+        backgroundColor: const Color(0xFF10B981),
       ),
     );
   }
@@ -312,7 +314,7 @@ class _ConflictResolutionScreenState extends State<ConflictResolutionScreen> {
       case 'station':
         final s = Station.fromMap(conflict.localData).copyWith(version: newLocalVersion);
         await sl<StationRepository>().updateStation(
-          conflict.entityId, 
+          int.tryParse(conflict.entityId) ?? conflict.entityId, 
           s, 
           source: UpdateSource.local,
           customRequestId: requestId,
@@ -341,15 +343,15 @@ class _ConflictResolutionScreenState extends State<ConflictResolutionScreen> {
     switch (conflict.entityType) {
       case 'station':
         final s = Station.fromMap(conflict.remoteData);
-        await sl<StationRepository>().updateStation(conflict.entityId, s, source: UpdateSource.cloud);
+        await sl<StationRepository>().updateStation(int.tryParse(conflict.entityId) ?? conflict.entityId, s, source: UpdateSource.cloud);
         break;
       case 'geological_line':
         final l = GeologicalLine.fromMap(conflict.remoteData);
-        await sl<GeologicalLineRepository>().updateLine(conflict.entityId, l, source: UpdateSource.cloud);
+        await sl<GeologicalLineRepository>().updateLine(l, source: UpdateSource.cloud);
         break;
       case 'map_annotation':
         final a = MapStructureAnnotation.fromMap(conflict.remoteData);
-        await sl<MapStructureRepository>().updateAnnotation(conflict.entityId, a, source: UpdateSource.cloud);
+        await sl<MapStructureRepository>().updateAnnotation(a, source: UpdateSource.cloud);
         break;
     }
   }

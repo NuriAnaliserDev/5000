@@ -45,6 +45,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
   AIAnalysisResult? _currentLithology;
   bool _isLithologyAnalyzing = false;
   Timer? _lithologyTimer;
+  bool _wasLeveled = false;
 
   final GlobalKey _sensorLockButtonKey = GlobalKey();
   final GlobalKey _modeToggleKey = GlobalKey();
