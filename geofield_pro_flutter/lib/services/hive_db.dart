@@ -28,6 +28,7 @@ class HiveDb {
   static const syncQueueBox = 'sync_queue';
   static const syncConflictsBox = 'sync_conflicts';
   static const aiCacheBox = 'ai_cache';
+  static const aiTelemetryBox = 'ai_telemetry';
 
   static Future<void> init() async {
     await Hive.initFlutter();
@@ -59,6 +60,7 @@ class HiveDb {
     await _openTypedMigrate<SyncItem>(syncQueueBox, cipher);
     await _openTypedMigrate<SyncConflict>(syncConflictsBox, cipher);
     await _openTypedMigrate<AIAnalysisResult>(aiCacheBox, cipher);
+    await _openDynamicMigrate(aiTelemetryBox, cipher);
     await _openDynamicMigrate(settingsBox, cipher);
     await _openDynamicMigrate(syncStateBox, cipher);
   }

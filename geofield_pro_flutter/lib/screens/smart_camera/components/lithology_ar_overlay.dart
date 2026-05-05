@@ -119,6 +119,19 @@ class LithologyArOverlay extends StatelessWidget {
   }
 
   Widget _buildReliabilityBadge(UXDecision ux, bool stable) {
+    // Professional Balance: Minimal feedback while stabilizing
+    if (!stable && ux.action != AppDecision.block) {
+       return Text(
+         "ANIQLANMOQDA...", 
+         style: TextStyle(
+           color: Colors.white.withOpacity(0.4), 
+           fontSize: 10, 
+           letterSpacing: 2,
+           fontWeight: FontWeight.bold,
+         ),
+       );
+    }
+
     String label = "ANIQLANMOQDA...";
     if (stable) {
       if (ux.action == AppDecision.autoAccept) label = "ISHONCHLI";
@@ -140,7 +153,7 @@ class LithologyArOverlay extends StatelessWidget {
             width: 12,
             height: 12,
             child: CircularProgressIndicator(
-              value: stable ? 1.0 : null,
+              value: (stable || ux.action == AppDecision.block) ? 1.0 : null,
               strokeWidth: 2,
               color: ux.color,
             ),

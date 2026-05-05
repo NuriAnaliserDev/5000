@@ -114,6 +114,11 @@ class AiLithologyService {
 
         // 7. Cache & Return Result
         await cacheBox.put(hash, stabilized);
+    
+        // 8. Data Capture (Telemetry for Model Refinement)
+        _captureTelemetry(hash, stabilized);
+        _pruneTelemetry();
+    
         debugPrint('AI [SUCCESS]: Pipeline completed with stabilization.');
         return stabilized;
 
@@ -124,21 +129,46 @@ class AiLithologyService {
       } on FormatException catch (e) {
         // Parsing Error -> Retry
         if (attempt < maxRetries) {
-          debugPrint('AI [PARSING ERROR]: Invalid JSON structure. Retrying... (\${attempt + 1})');
+          debugPrint('AI [PARSING ERROR]: Invalid JSON structure. Retrying... (${attempt + 1})');
           continue;
         }
         debugPrint('AI [FATAL PARSING ERROR]: Max retries reached.');
         throw AppError("AI javobi noto'g'ri formatda keldi.", category: ErrorCategory.unknown);
       } catch (e) {
         if (attempt == maxRetries) {
-          debugPrint('AI [NETWORK/SYSTEM ERROR]: \$e');
+          debugPrint('AI [NETWORK/SYSTEM ERROR]: $e');
           if (e is AppError) rethrow;
-          throw AppError("AI tahlili bajarilmadi: \$e", category: ErrorCategory.unknown);
         }
         debugPrint('AI [UNKNOWN ERROR]: Retrying... (\${attempt + 1})');
       }
     }
     
     throw AppError("AI tahlili amalga oshmadi.", category: ErrorCategory.unknown);
+  }
+  void _captureTelemetry(String hash, AIAnalysisResult result) {
+    try {
+      final box = Hive.box(HiveDb.aiTelemetryBox);
+      box.put(hash, {
+        'rockType': result.rockType,
+        'trustScore': result.trustScore,
+        'reliability': result.reliabilityLevel,
+        'timestamp': DateTime.now().toIso8601String(),
+        'logicStatus': result.status,
+        'userRole': result.authorRole ?? 'unknown', 
+      });
+    } catch (e) {
+       debugPrint('AI [TELEMETRY ERROR]: $e');
+    }
+  }
+
+  Future<void> _pruneTelemetry() async {
+    try {
+      final box = Hive.box(HiveDb.aiTelemetryBox);
+      if (box.length > 500) {
+        final keys = box.keys.take(100).toList();
+        await box.deleteAll(keys);
+        debugPrint('AI [STORAGE]: Pruned 100 telemetry entries.');
+      }
+    } catch (_) {}
   }
 }
