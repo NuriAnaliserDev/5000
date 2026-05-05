@@ -28,13 +28,20 @@ class AIAnalysisResultAdapter extends TypeAdapter<AIAnalysisResult> {
       analyzedAt: fields[8] as DateTime,
       status: fields[9] == null ? 'valid' : fields[9] as String,
       warningMessage: fields[10] == null ? '' : fields[10] as String,
+      trustScore: fields[11] == null ? 0.0 : fields[11] as double,
+      isReliable: fields[12] == null ? false : fields[12] as bool,
+      trustReasons:
+          fields[13] == null ? [] : (fields[13] as List).cast<String>(),
+      aiModelVersion: fields[14] == null ? 1 : fields[14] as int,
+      rockCandidates:
+          fields[15] == null ? [] : (fields[15] as List).cast<String>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, AIAnalysisResult obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(16)
       ..writeByte(0)
       ..write(obj.rockType)
       ..writeByte(1)
@@ -56,7 +63,17 @@ class AIAnalysisResultAdapter extends TypeAdapter<AIAnalysisResult> {
       ..writeByte(9)
       ..write(obj.status)
       ..writeByte(10)
-      ..write(obj.warningMessage);
+      ..write(obj.warningMessage)
+      ..writeByte(11)
+      ..write(obj.trustScore)
+      ..writeByte(12)
+      ..write(obj.isReliable)
+      ..writeByte(13)
+      ..write(obj.trustReasons)
+      ..writeByte(14)
+      ..write(obj.aiModelVersion)
+      ..writeByte(15)
+      ..write(obj.rockCandidates);
   }
 
   @override

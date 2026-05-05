@@ -51,7 +51,7 @@ void main() {
       );
 
       expect(result.status, isNot('valid'));
-      expect(result.warningMessage, contains('100% dan yuqori'));
+      expect(result.warningMessage, contains('100% dan oshmasligi kerak'));
     });
 
     test('Normal case -> Valid', () {

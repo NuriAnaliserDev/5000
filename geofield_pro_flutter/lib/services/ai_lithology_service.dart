@@ -26,11 +26,18 @@ class AiLithologyService {
     final imageBytes = await imageFile.readAsBytes();
     final hash = sha256.convert(imageBytes).toString();
 
-    // 1. Cache Check
+    // 1. Cache Check with TTL (7 days)
     final cacheBox = Hive.box<AIAnalysisResult>(HiveDb.aiCacheBox);
     if (cacheBox.containsKey(hash)) {
-      debugPrint('AI: Cache hit for image $hash');
-      return cacheBox.get(hash)!;
+      final cached = cacheBox.get(hash)!;
+      final age = DateTime.now().difference(cached.analyzedAt);
+      if (age.inDays > 7) {
+        debugPrint('AI [CACHE MISS]: TTL expired for hash $hash. Age: ${age.inDays} days.');
+        await cacheBox.delete(hash);
+      } else {
+        debugPrint('AI [CACHE HIT]: Reusing valid result for hash $hash.');
+        return cached;
+      }
     }
 
     // 2. Image Quality Gate
@@ -50,6 +57,7 @@ class AiLithologyService {
     for (int attempt = 0; attempt <= maxRetries; attempt++) {
       try {
         final rawText = await client.generateContent(imageFile, imageBytes);
+        debugPrint('AI [RAW RESPONSE]: \$rawText');
         final parsedJson = AiParser.parseAndValidate(rawText);
         
         final result = LithologyNormalizer.normalize(
@@ -57,26 +65,40 @@ class AiLithologyService {
           imageQualityScore: qualityResult.overallQualityScore,
         );
 
-        if (result.status == 'invalid' && attempt < maxRetries) {
-          debugPrint('AI result invalid or hallucinatory, retrying... (\${attempt + 1})');
-          continue;
+        debugPrint('AI [NORMALIZATION]: Status: \${result.status}, Confidence: \${result.confidence}');
+        if (result.warningMessage.isNotEmpty) {
+          debugPrint('AI [WARNINGS]: \${result.warningMessage}');
+        }
+
+        // Domain failure -> DO NOT retry, return immediately so UI handles the hallucination
+        if (result.status == 'invalid') {
+          debugPrint('AI [DOMAIN ERROR]: Result rejected by validator. Passing to UI without retry.');
         }
 
         // 5. Cache & Return Result
         await cacheBox.put(hash, result);
+        debugPrint('AI [SUCCESS]: Pipeline completed.');
         return result;
 
       } on QuotaExceededException {
         rethrow;
       } on RateLimitException {
         rethrow;
+      } on FormatException catch (e) {
+        // Parsing Error -> Retry
+        if (attempt < maxRetries) {
+          debugPrint('AI [PARSING ERROR]: Invalid JSON structure. Retrying... (\${attempt + 1})');
+          continue;
+        }
+        debugPrint('AI [FATAL PARSING ERROR]: Max retries reached.');
+        throw AppError("AI javobi noto'g'ri formatda keldi.", category: ErrorCategory.unknown);
       } catch (e) {
         if (attempt == maxRetries) {
-          debugPrint('AI Error: \$e');
+          debugPrint('AI [NETWORK/SYSTEM ERROR]: \$e');
           if (e is AppError) rethrow;
           throw AppError("AI tahlili bajarilmadi: \$e", category: ErrorCategory.unknown);
         }
-        debugPrint('AI parsing or network failed, retrying... (\${attempt + 1})');
+        debugPrint('AI [UNKNOWN ERROR]: Retrying... (\${attempt + 1})');
       }
     }
     

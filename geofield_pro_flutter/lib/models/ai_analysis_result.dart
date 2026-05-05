@@ -37,6 +37,21 @@ class AIAnalysisResult extends HiveObject {
   @HiveField(10, defaultValue: '')
   final String warningMessage;
 
+  @HiveField(11, defaultValue: 0.0)
+  final double trustScore;
+
+  @HiveField(12, defaultValue: false)
+  final bool isReliable;
+
+  @HiveField(13, defaultValue: [])
+  final List<String> trustReasons;
+
+  @HiveField(14, defaultValue: 1)
+  final int aiModelVersion;
+
+  @HiveField(15, defaultValue: [])
+  final List<String> rockCandidates;
+
   AIAnalysisResult({
     required this.rockType,
     required this.mineralogy,
@@ -49,6 +64,11 @@ class AIAnalysisResult extends HiveObject {
     required this.analyzedAt,
     this.status = 'valid',
     this.warningMessage = '',
+    this.trustScore = 0.0,
+    this.isReliable = false,
+    this.trustReasons = const [],
+    this.aiModelVersion = 1,
+    this.rockCandidates = const [],
   });
 
   Map<String, dynamic> toMap() {
@@ -64,6 +84,11 @@ class AIAnalysisResult extends HiveObject {
       'analyzedAt': analyzedAt.toIso8601String(),
       'status': status,
       'warningMessage': warningMessage,
+      'trustScore': trustScore,
+      'isReliable': isReliable,
+      'trustReasons': trustReasons,
+      'aiModelVersion': aiModelVersion,
+      'rockCandidates': rockCandidates,
     };
   }
 
@@ -82,6 +107,11 @@ class AIAnalysisResult extends HiveObject {
           : DateTime.now(),
       status: map['status'] ?? 'valid',
       warningMessage: map['warningMessage'] ?? '',
+      trustScore: (map['trustScore'] ?? 0.0).toDouble(),
+      isReliable: map['isReliable'] ?? false,
+      trustReasons: List<String>.from(map['trustReasons'] ?? []),
+      aiModelVersion: map['aiModelVersion'] ?? 1,
+      rockCandidates: List<String>.from(map['rockCandidates'] ?? []),
     );
   }
 }
