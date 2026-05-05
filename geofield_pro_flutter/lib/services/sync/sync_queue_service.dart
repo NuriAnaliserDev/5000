@@ -90,6 +90,10 @@ class SyncQueueService extends ChangeNotifier {
       .where((item) => item.status == SyncStatus.pending)
       .toList()
     ..sort((a, b) => a.sequence.compareTo(b.sequence));
+    
+  List<SyncItem> get failedItems => _box.values
+      .where((item) => item.status == SyncStatus.failed || item.status == SyncStatus.permanentlyFailed)
+      .toList();
 
   /// Monotonik ketma-ketlik uchun keyingi raqamni olish
   int getNextSequence() {

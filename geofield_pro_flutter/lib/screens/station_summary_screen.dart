@@ -351,9 +351,9 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
       if (!mounted) return;
 
       final matched = matchRockTreeFromAiLabel(result.rockType);
-      final mineralsLine = result.minerals.isEmpty
+      final mineralsLine = result.mineralogy.isEmpty
           ? ''
-          : '${context.locRead('ai_lithology_minerals_prefix')} ${result.minerals.join(', ')}';
+          : '${context.locRead('ai_lithology_minerals_prefix')} ${result.mineralogy.join(', ')}';
 
       setState(() {
         if (matched != null) {
@@ -363,7 +363,7 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
         }
 
         final prev = _descriptionController.text.trim();
-        final desc = result.description.trim();
+        final desc = result.notes.trim();
         final tail = mineralsLine.trim();
         final unmatchedType = matched == null &&
                 result.rockType.trim().isNotEmpty
@@ -376,8 +376,8 @@ class _StationSummaryScreenState extends State<StationSummaryScreen> {
         if (tail.isNotEmpty) parts.add(tail);
         _descriptionController.text = parts.join('\n\n');
 
-        _confidence = result.confidence.clamp(1, 5);
-        _munsellColor = result.munsellColor;
+        _confidence = result.confidence.clamp(1, 5).toInt();
+        _munsellColor = result.munsellApprox;
       });
 
       if (!mounted) return;

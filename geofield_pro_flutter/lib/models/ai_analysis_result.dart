@@ -58,6 +58,9 @@ class AIAnalysisResult extends HiveObject {
   @HiveField(17, defaultValue: false)
   final bool isStabilized;
 
+  @HiveField(18, defaultValue: 'unknown')
+  final String? authorRole;
+
   AIAnalysisResult({
     required this.rockType,
     required this.mineralogy,
@@ -77,6 +80,7 @@ class AIAnalysisResult extends HiveObject {
     this.rockCandidates = const [],
     this.trustBreakdown = const {},
     this.isStabilized = false,
+    this.authorRole = 'unknown',
   });
 
   Map<String, dynamic> toMap() {
@@ -99,6 +103,7 @@ class AIAnalysisResult extends HiveObject {
       'rockCandidates': rockCandidates,
       'trustBreakdown': trustBreakdown,
       'isStabilized': isStabilized,
+      'authorRole': authorRole,
     };
   }
 
@@ -124,6 +129,7 @@ class AIAnalysisResult extends HiveObject {
       rockCandidates: List<String>.from(map['rockCandidates'] ?? []),
       trustBreakdown: Map<String, double>.from(map['trustBreakdown'] ?? {}),
       isStabilized: map['isStabilized'] ?? false,
+      authorRole: map['authorRole'] ?? 'unknown',
     );
   }
 }

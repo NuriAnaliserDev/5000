@@ -182,4 +182,19 @@ class GeologicalLine extends HiveObject {
       isDeleted: isDeleted ?? this.isDeleted,
     );
   }
+  static String defaultColorHex(String type) {
+    switch (type.toLowerCase()) {
+      case 'fault': return '0xFFFF0000'; // Red
+      case 'thrust': return '0xFF800080'; // Purple
+      case 'normal_fault': return '0xFFFF0000'; 
+      case 'anticline': return '0xFF0000FF'; // Blue
+      case 'syncline': return '0xFF0000FF'; // Blue
+      case 'bedding': return '0xFF000000'; // Black
+      case 'contact': return '0xFF000000'; // Black
+      case 'joint': return '0xFF808080'; // Gray
+      case 'vein': return '0xFF00FFFF'; // Cyan
+      case 'dike': return '0xFFFFD700'; // Gold
+      default: return '0xFF000000';
+    }
+  }
 }

@@ -67,7 +67,7 @@ class SyncDebugScreen extends StatelessWidget {
 
     switch (processor.status) {
       case SyncEngineStatus.idle:
-        statusColor = Colors.emerald;
+        statusColor = const Color(0xFF10B981); // Emerald Green
         statusText = 'Kutilmoqda';
         icon = Icons.check_circle_outline_rounded;
         break;
