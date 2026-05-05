@@ -37,13 +37,14 @@ class AIAnalysisResultAdapter extends TypeAdapter<AIAnalysisResult> {
           fields[15] == null ? [] : (fields[15] as List).cast<String>(),
       trustBreakdown:
           fields[16] == null ? {} : (fields[16] as Map).cast<String, double>(),
+      isStabilized: fields[17] == null ? false : fields[17] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, AIAnalysisResult obj) {
     writer
-      ..writeByte(17)
+      ..writeByte(18)
       ..writeByte(0)
       ..write(obj.rockType)
       ..writeByte(1)
@@ -77,7 +78,9 @@ class AIAnalysisResultAdapter extends TypeAdapter<AIAnalysisResult> {
       ..writeByte(15)
       ..write(obj.rockCandidates)
       ..writeByte(16)
-      ..write(obj.trustBreakdown);
+      ..write(obj.trustBreakdown)
+      ..writeByte(17)
+      ..write(obj.isStabilized);
   }
 
   @override

@@ -4,7 +4,8 @@ class AnalysisSession {
   final List<AIAnalysisResult> history = [];
   
   void add(AIAnalysisResult result) {
-    if (history.length >= 5) history.removeAt(0); // Keep window small for responsiveness
+    // Strict sliding window to prevent memory leaks in AR mode
+    if (history.length >= 10) history.removeAt(0); 
     history.add(result);
   }
 
@@ -16,17 +17,26 @@ class ResultStabilizer {
     if (recent.isEmpty) throw Exception("Stabilizer needs at least one result");
     if (recent.length == 1) return recent.last;
 
-    // 1. RockType Voting (Dominant Type)
-    final rockCounts = <String, int>{};
-    for (var r in recent) {
-      rockCounts[r.rockType] = (rockCounts[r.rockType] ?? 0) + 1;
+    // 1. Confidence-Weighted Voting with Time Decay
+    // This prevents "Wrong but Stable" scenarios by giving more weight 
+    // to high-trust results and more recent frames.
+    final rockScores = <String, double>{};
+    for (int i = 0; i < recent.length; i++) {
+      final r = recent[i];
+      // Time Decay factor (recent = 1.0, oldest = 0.5)
+      final timeWeight = 0.5 + (0.5 * (i + 1) / recent.length);
+      // Final vote strength = Trust Score * Time Weight
+      final voteStrength = r.trustScore * timeWeight;
+      
+      rockCounts(r.rockType, voteStrength, rockScores);
     }
-    final dominantRock = rockCounts.entries.reduce((a, b) => a.value >= b.value ? a : b).key;
+    
+    final dominantRock = rockScores.entries.reduce((a, b) => a.value >= b.value ? a : b).key;
 
     // 2. Average Trust Score Smoothing
     final avgTrust = recent.map((r) => r.trustScore).reduce((a, b) => a + b) / recent.length;
 
-    // 3. Merge Diagnostics (Unique Warnings & Reasons)
+    // 3. Merge Diagnostics
     final allWarnings = recent
         .expand((r) => r.warningMessage.split(' | '))
         .where((w) => w.trim().isNotEmpty)
@@ -35,7 +45,7 @@ class ResultStabilizer {
     
     final allReasons = recent.expand((r) => r.trustReasons).toSet().toList();
 
-    // 4. Final Result (Preserve latest attributes but use stabilized metrics)
+    // 4. Final Result Construction
     final latest = recent.last;
     
     String relLevel = 'high';
@@ -46,6 +56,9 @@ class ResultStabilizer {
     String status = 'valid';
     if (avgTrust < 0.3) status = 'invalid';
     else if (avgTrust < 0.7 || allWarnings.isNotEmpty) status = 'suspicious';
+
+    // UI Indicator: Stabilized if we have enough consistent data
+    final bool isStabilized = recent.length >= 3 && rockScores[dominantRock]! > 1.0;
 
     return AIAnalysisResult(
       rockType: dominantRock,
@@ -65,6 +78,11 @@ class ResultStabilizer {
       analyzedAt: latest.analyzedAt,
       status: status,
       warningMessage: allWarnings.join(' | '),
+      isStabilized: isStabilized,
     );
+  }
+
+  static void rockCounts(String rock, double strength, Map<String, double> scores) {
+    scores[rock] = (scores[rock] ?? 0.0) + strength;
   }
 }

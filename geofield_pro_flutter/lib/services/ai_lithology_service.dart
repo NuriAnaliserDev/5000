@@ -28,12 +28,25 @@ class AiLithologyService {
   int _totalRequests = 0;
   int _rejects = 0;
   int _ambiguities = 0;
+  
+  DateTime? _lastAnalysisTime;
 
   /// Orchestrates the entire AI processing pipeline
   Future<AIAnalysisResult> analyzeRockSample(File imageFile) async {
     final uid = FirebaseAuth.instance.currentUser?.uid ?? 'anonymous';
     final imageBytes = await imageFile.readAsBytes();
     final hash = sha256.convert(imageBytes).toString();
+
+    // 0. Throttling Gate (AR Readiness)
+    final now = DateTime.now();
+    if (_lastAnalysisTime != null) {
+      final diff = now.difference(_lastAnalysisTime!);
+      if (diff.inSeconds < 2 && _session.history.isNotEmpty) {
+        debugPrint('AI [THROTTLED]: Returning stabilized session result.');
+        return ResultStabilizer.stabilize(_session.history);
+      }
+    }
+    _lastAnalysisTime = now;
 
     // 1. Cache Check with TTL (7 days) and Versioning
     final cacheBox = Hive.box<AIAnalysisResult>(HiveDb.aiCacheBox);
