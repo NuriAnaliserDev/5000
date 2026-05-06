@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io' as io;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -21,6 +20,7 @@ import '../utils/parsers/shp_shapefile_parser.dart';
 import '../core/network/network_executor.dart';
 import '../core/error/error_logger.dart';
 import '../core/error/app_error.dart';
+import 'boundary/boundary_import_helpers.dart';
 
 class BoundaryImportResult {
   final String extension;
@@ -120,20 +120,6 @@ class BoundaryService extends ChangeNotifier {
     }, onError: (error) {
       debugPrint("Boundary Cloud Sync Error: $error");
     });
-  }
-
-  static String _decodeImportText(Uint8List bytes) {
-    if (bytes.length >= 3 &&
-        bytes[0] == 0xEF &&
-        bytes[1] == 0xBB &&
-        bytes[2] == 0xBF) {
-      return utf8.decode(bytes.sublist(3));
-    }
-    try {
-      return utf8.decode(bytes, allowMalformed: false);
-    } catch (_) {
-      return latin1.decode(bytes, allowInvalid: true);
-    }
   }
 
   BoundaryPolygon? getActiveBoundary(LatLng point) {
@@ -369,7 +355,7 @@ class BoundaryService extends ChangeNotifier {
 
       List<BoundaryPolygon> newPolys = [];
       if (ext == 'kml' || ext == 'dxf' || ext == 'geojson' || ext == 'json') {
-        final content = _decodeImportText(Uint8List.fromList(file.bytes!));
+        final content = decodeBoundaryImportText(Uint8List.fromList(file.bytes!));
         if (ext == 'kml') {
           newPolys = KmlParser.parse(content, filename);
         } else if (ext == 'dxf') {
@@ -418,7 +404,7 @@ class BoundaryService extends ChangeNotifier {
       final fs = _firestore;
 
       for (final p in newPolys) {
-        final normalizedPolygon = _normalizePolygonIfNeeded(p);
+        final normalizedPolygon = normalizeBoundaryPolygonIfNeeded(p);
         if (normalizedPolygon == null) {
           skippedInvalid++;
           skipped++;
@@ -475,39 +461,5 @@ class BoundaryService extends ChangeNotifier {
       debugPrint("Web Upload Error: $e");
       rethrow;
     }
-  }
-
-  BoundaryPolygon? _normalizePolygonIfNeeded(BoundaryPolygon polygon) {
-    final pts = polygon.points;
-    if (pts.isEmpty) return polygon;
-
-    bool hasInvalidLat = false;
-    bool hasInvalidLng = false;
-    for (final p in pts) {
-      if (p.latitude.abs() > 90) hasInvalidLat = true;
-      if (p.longitude.abs() > 180) hasInvalidLng = true;
-    }
-
-    if (!hasInvalidLat && !hasInvalidLng) return polygon;
-
-    final swapped = pts.map((p) => LatLng(p.longitude, p.latitude)).toList();
-    bool swappedValid = true;
-    for (final p in swapped) {
-      if (p.latitude.abs() > 90 || p.longitude.abs() > 180) {
-        swappedValid = false;
-        break;
-      }
-    }
-    if (!swappedValid) return null;
-
-    return BoundaryPolygon(
-      name: polygon.name,
-      points: swapped,
-      sourceFile: polygon.sourceFile,
-      description: polygon.description,
-      zoneType: polygon.zoneType,
-      firestoreId: polygon.firestoreId,
-      localId: polygon.localId,
-    );
   }
 }

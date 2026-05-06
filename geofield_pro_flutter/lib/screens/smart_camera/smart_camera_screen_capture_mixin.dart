@@ -250,4 +250,50 @@ mixin SmartCameraCaptureMixin on SmartCameraStateFields {
     final s = (seconds % 60).toString().padLeft(2, '0');
     return '$m:$s';
   }
+
+  void _startLithologyLoop() {
+    _lithologyTimer?.cancel();
+    _lithologyTimer =
+        Timer.periodic(const Duration(milliseconds: 2500), (timer) {
+      if (!mounted || _cameraMode != CameraMode.lithology) {
+        timer.cancel();
+        return;
+      }
+      if (!_isLithologyAnalyzing) {
+        _runLithologyFrame();
+      }
+    });
+    _runLithologyFrame();
+  }
+
+  Future<void> _runLithologyFrame() async {
+    if (!mounted ||
+        _cameraController == null ||
+        !_cameraController!.value.isInitialized) {
+      return;
+    }
+
+    setState(() => _isLithologyAnalyzing = true);
+    try {
+      final xFile = await _cameraController!.takePicture();
+      final file = File(xFile.path);
+
+      final service = AiLithologyService();
+      final result = await service.analyzeRockSample(file);
+
+      if (mounted && _cameraMode == CameraMode.lithology) {
+        setState(() => _currentLithology = result);
+      }
+
+      if (await file.exists()) {
+        await file.delete();
+      }
+    } catch (e) {
+      debugPrint('AI_LITHOLOGY_AR_ERROR: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isLithologyAnalyzing = false);
+      }
+    }
+  }
 }

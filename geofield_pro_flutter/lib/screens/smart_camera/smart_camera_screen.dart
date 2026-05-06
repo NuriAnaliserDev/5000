@@ -47,11 +47,13 @@ import '../../models/user_context.dart';
 part 'smart_camera_screen_fields_mixin.dart';
 part 'smart_camera_screen_sensor_mixin.dart';
 part 'smart_camera_screen_capture_mixin.dart';
+part 'smart_camera_screen_camera_mixin.dart';
+part 'smart_camera_screen_presentation_mixin.dart';
 part 'smart_camera_screen_state.dart';
 
 enum CameraMode { geological, document, lithology }
 
-/// Kamera + sensor mantiqi [smart_camera_screen_state.dart] part faylida (qatorlar bo‘yicha bo‘lingan).
+/// Kamera holati: maydonlar + sensor/capture/camera/presentation mixinlari va [smart_camera_screen_state.dart] ichidagi scaffold/build.
 class SmartCameraScreen extends StatefulWidget {
   final int? stationId;
   final bool embedded;
