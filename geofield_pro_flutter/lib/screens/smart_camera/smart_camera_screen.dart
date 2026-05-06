@@ -44,6 +44,9 @@ import '../../models/ai_analysis_result.dart';
 import '../../services/ai_lithology_service.dart';
 import '../../models/user_context.dart';
 
+part 'smart_camera_screen_fields_mixin.dart';
+part 'smart_camera_screen_sensor_mixin.dart';
+part 'smart_camera_screen_capture_mixin.dart';
 part 'smart_camera_screen_state.dart';
 
 enum CameraMode { geological, document, lithology }

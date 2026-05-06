@@ -49,21 +49,33 @@ Future<AppBootstrapResult> runAppBootstrap() async {
 
   var firebaseOk = false;
   try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    // ignore: deprecated_member_use
-    await FirebaseAppCheck.instance.activate(
+    final options = DefaultFirebaseOptions.currentPlatform;
+    final firebaseConfigured = options.projectId.isNotEmpty &&
+        options.appId.isNotEmpty &&
+        options.apiKey.isNotEmpty;
+
+    if (!firebaseConfigured) {
+      if (kDebugMode) {
+        debugPrint(
+          'Firebase o‘tkazib yuborildi: konfiguratsiya bo‘sh '
+          '(flutterfire configure yoki --dart-define). Mahalliy rejim.',
+        );
+      }
+    } else {
+      await Firebase.initializeApp(options: options);
       // ignore: deprecated_member_use
-      androidProvider: AndroidProvider.playIntegrity,
-      // ignore: deprecated_member_use
-      appleProvider: AppleProvider.deviceCheck,
-      // ignore: deprecated_member_use
-      webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
-    );
-    firebaseOk = true;
-    if (kDebugMode) {
-      debugPrint('Firebase initialized successfully.');
+      await FirebaseAppCheck.instance.activate(
+        // ignore: deprecated_member_use
+        androidProvider: AndroidProvider.playIntegrity,
+        // ignore: deprecated_member_use
+        appleProvider: AppleProvider.deviceCheck,
+        // ignore: deprecated_member_use
+        webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
+      );
+      firebaseOk = true;
+      if (kDebugMode) {
+        debugPrint('Firebase initialized successfully.');
+      }
     }
   } catch (e, st) {
     ErrorLogger.record(e, st, customMessage: 'Firebase initialization failed');

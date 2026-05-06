@@ -1,4 +1,8 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../screens/archive_screen.dart';
 import '../screens/dashboard_screen.dart';
@@ -41,6 +45,12 @@ class MainTabShellState extends State<MainTabShell> {
     _index = widget.initialTabIndex.clamp(0, 3);
     _cameraStationId = widget.initialCameraStationId;
     _mapLocation = widget.initialMapLocation;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!kIsWeb) {
+        unawaited(Permission.locationWhenInUse.request());
+      }
+    });
   }
 
   /// `cameraStationId` — faqat `index == 2` bo‘lganda qo‘llanadi; boshqa tabda `null` bo‘ladi.

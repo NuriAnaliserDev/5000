@@ -1,5 +1,3 @@
-import 'device_id_helper.dart';
-
 /// Sinxronizatsiya paytida konfliktlarni deterministik hal qilish uchun yordamchi util
 class SyncUtils {
   /// Qaysi record yutishini aniqlaydi (Deterministic tie-breaker)

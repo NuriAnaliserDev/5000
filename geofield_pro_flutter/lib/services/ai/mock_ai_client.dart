@@ -16,7 +16,7 @@ enum MockScenario {
 
 class MockAiClient implements AiClient {
   final _random = Random();
-  
+
   /// If not empty, will play these scenarios in order
   static List<MockScenario> script = [];
   static int _scriptIndex = 0;
@@ -30,13 +30,20 @@ class MockAiClient implements AiClient {
       _scriptIndex++;
     } else {
       final r = _random.nextInt(100);
-      if (r < 10) scenario = MockScenario.networkTimeout;
-      else if (r < 15) scenario = MockScenario.invalidJson;
-      else if (r < 60) scenario = MockScenario.validGranite;
-      else if (r < 75) scenario = MockScenario.hallucinationGold;
-      else if (r < 85) scenario = MockScenario.ambiguous;
-      else if (r < 95) scenario = MockScenario.lowConfidence;
-      else scenario = MockScenario.unknown;
+      if (r < 10) {
+        scenario = MockScenario.networkTimeout;
+      } else if (r < 15)
+        scenario = MockScenario.invalidJson;
+      else if (r < 60)
+        scenario = MockScenario.validGranite;
+      else if (r < 75)
+        scenario = MockScenario.hallucinationGold;
+      else if (r < 85)
+        scenario = MockScenario.ambiguous;
+      else if (r < 95)
+        scenario = MockScenario.lowConfidence;
+      else
+        scenario = MockScenario.unknown;
     }
 
     // 2. Simulate Delay
@@ -47,7 +54,7 @@ class MockAiClient implements AiClient {
     switch (scenario) {
       case MockScenario.networkTimeout:
         throw Exception("Connection timeout (Mock)");
-        
+
       case MockScenario.invalidJson:
         return "Internal Server Error: {invalid_json_here}";
 

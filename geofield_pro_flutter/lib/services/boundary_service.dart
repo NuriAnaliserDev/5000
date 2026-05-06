@@ -359,9 +359,10 @@ class BoundaryService extends ChangeNotifier {
       if (result == null || result.files.isEmpty) return null;
 
       final file = result.files.first;
-      if (file.bytes == null)
+      if (file.bytes == null) {
         throw AppError("Fayl datasi o'qilmadi.",
             category: ErrorCategory.validation);
+      }
 
       final ext = file.extension?.toLowerCase() ?? '';
       final filename = file.name;

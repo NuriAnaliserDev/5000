@@ -23,7 +23,7 @@ class CloudSyncService extends ChangeNotifier {
   FirebaseFirestore? get _firestore => firestoreOrNull;
   StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
   Timer? _syncTimer;
-  bool _isSyncing = false;
+  final bool _isSyncing = false;
   bool get isSyncing => _isSyncing;
 
   String? get _currentUserId {
@@ -102,7 +102,7 @@ class CloudSyncService extends ChangeNotifier {
   // Legacy individual sync methods (will be removed as other repos migrate)
   // For now, they can stay or be redirected to queue if needed.
   // But since we are enforcing Write Enforcement, they should ideally throw.
-  
+
   Future<bool> syncStation(dynamic key, Station station) async {
     // Redirection to run the processor (which will find the item in the queue)
     // Actually, StationRepository already adds it to the queue.

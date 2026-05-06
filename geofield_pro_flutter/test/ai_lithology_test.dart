@@ -6,10 +6,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 
-import '../lib/models/ai_analysis_result.dart';
-import '../lib/services/ai_lithology_service.dart';
-import '../lib/services/ai/ai_rate_limiter.dart';
-import '../lib/services/hive_db.dart';
+import 'package:geofield_pro_flutter/models/ai_analysis_result.dart';
+import 'package:geofield_pro_flutter/services/ai_lithology_service.dart';
+import 'package:geofield_pro_flutter/services/ai/ai_rate_limiter.dart';
+import 'package:geofield_pro_flutter/services/hive_db.dart';
 
 void main() {
   group('AI Lithology Subsystem Tests', () {
@@ -20,11 +20,11 @@ void main() {
       tempDir = Directory.systemTemp.createTempSync();
       Hive.init(tempDir.path);
       SharedPreferences.setMockInitialValues({});
-      
+
       if (!Hive.isAdapterRegistered(13)) {
         Hive.registerAdapter(AIAnalysisResultAdapter());
       }
-      
+
       await Hive.openBox<AIAnalysisResult>(HiveDb.aiCacheBox);
       await Hive.openBox<int>(AiRateLimiter.boxName);
       await Hive.openBox<String>('ai_last_request');
@@ -41,11 +41,11 @@ void main() {
 
     test('Caching: Same image should return cached result', () async {
       final cacheBox = Hive.box<AIAnalysisResult>(HiveDb.aiCacheBox);
-      
+
       // Fake image data
       final bytes = utf8.encode('test_image_1');
       final hash = sha256.convert(bytes).toString();
-      
+
       final result = AIAnalysisResult(
         rockType: 'Granit',
         mineralogy: ['kvars'],
@@ -65,7 +65,7 @@ void main() {
       // Note: We don't have a real file, so we'd need to mock File.readAsBytes
       // For this test, we are verifying that if hash matches, it returns cache.
       // Since AiLithologyService is a singleton and has internal logic, we'll verify the box.
-      
+
       expect(cacheBox.containsKey(hash), isTrue);
       final cached = cacheBox.get(hash);
       expect(cached?.rockType, 'Granit');
@@ -73,10 +73,10 @@ void main() {
 
     test('Rate Limiting: 10 second interval', () async {
       final uid = 'test_user';
-      
+
       // 1. First consume
       await AiRateLimiter.consume(uid);
-      
+
       // 2. Immediate second consume should fail
       expect(
         () => AiRateLimiter.consume(uid),
@@ -86,17 +86,18 @@ void main() {
 
     test('Quota: 20 daily requests limit', () async {
       final uid = 'test_user_quota';
-      
+
       // 1. Reset today for safety
       await AiRateLimiter.resetToday(uid);
 
       // 2. Consume 20 times (simulating interval bypass for test)
       final box = Hive.box<int>(AiRateLimiter.boxName);
       final timeBox = Hive.box<String>('ai_last_request');
-      
+
       // We manually set the count to 20
       final n = DateTime.now();
-      final key = '${n.year.toString().padLeft(4, '0')}-${n.month.toString().padLeft(2, '0')}-${n.day.toString().padLeft(2, '0')}:$uid';
+      final key =
+          '${n.year.toString().padLeft(4, '0')}-${n.month.toString().padLeft(2, '0')}-${n.day.toString().padLeft(2, '0')}:$uid';
       await box.put(key, 20);
 
       // 3. 21st attempt should fail
@@ -121,7 +122,8 @@ void main() {
       // Internal method test (via a mock or just calling it if it were public)
       // Since it's private, we verify the logic exists in the service.
       expect(() {
-        if (!invalidJson.containsKey('mineralogy')) throw Exception("Missing key");
+        if (!invalidJson.containsKey('mineralogy'))
+          throw Exception("Missing key");
       }, throwsException);
     });
   });

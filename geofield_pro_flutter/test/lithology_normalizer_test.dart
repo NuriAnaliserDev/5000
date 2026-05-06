@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import '../lib/services/ai/lithology_normalizer.dart';
+import 'package:geofield_pro_flutter/services/ai/lithology_normalizer.dart';
 
 void main() {
   group('LithologyNormalizer Tests (Domain Validation & Trust System)', () {
-    
-    test('Rule A: Invalid Geology (Granite + 80% Gold) -> Suspicious/Invalid', () {
+    test('Rule A: Invalid Geology (Granite + 80% Gold) -> Suspicious/Invalid',
+        () {
       final rawJson = {
         'rockType': 'Granit',
         'mineralogy': ['Kvars 20%', 'Oltin 80%'],
@@ -12,14 +12,12 @@ void main() {
       };
 
       final result = LithologyNormalizer.normalize(
-        parsedJson: rawJson, 
-        imageQualityScore: 0.9
-      );
+          parsedJson: rawJson, imageQualityScore: 0.9);
 
       expect(result.status, isNot('valid')); // Should be suspicious or invalid
       expect(result.warningMessage, contains('Oltin'));
       // Real confidence drops drastically because of hallucination
-      expect(result.trustScore, lessThan(0.95)); 
+      expect(result.trustScore, lessThan(0.95));
     });
 
     test('Rule B: Crystalline rock without minerals -> Suspicious', () {
@@ -30,9 +28,7 @@ void main() {
       };
 
       final result = LithologyNormalizer.normalize(
-        parsedJson: rawJson, 
-        imageQualityScore: 0.9
-      );
+          parsedJson: rawJson, imageQualityScore: 0.9);
 
       expect(result.status, isNot('valid'));
       expect(result.warningMessage, contains('Kristallik jins'));
@@ -46,9 +42,7 @@ void main() {
       };
 
       final result = LithologyNormalizer.normalize(
-        parsedJson: rawJson, 
-        imageQualityScore: 0.9
-      );
+          parsedJson: rawJson, imageQualityScore: 0.9);
 
       expect(result.status, isNot('valid'));
       expect(result.warningMessage, contains('100% dan oshmasligi kerak'));
@@ -62,9 +56,8 @@ void main() {
       };
 
       final result = LithologyNormalizer.normalize(
-        parsedJson: rawJson, 
-        imageQualityScore: 0.9 // High quality image
-      );
+          parsedJson: rawJson, imageQualityScore: 0.9 // High quality image
+          );
 
       expect(result.status, equals('valid'));
       expect(result.warningMessage, isEmpty);
@@ -76,21 +69,23 @@ void main() {
     test('String cleanup ignores noise and formats names', () {
       final rawJson = {
         'rockType': 'granit toshi', // Should become 'Granit'
-        'mineralogy': [' kvars ', 'noma\'lum', 'Unknown', 'biotit'], // Should drop unknowns and trim
+        'mineralogy': [
+          ' kvars ',
+          'noma\'lum',
+          'Unknown',
+          'biotit'
+        ], // Should drop unknowns and trim
         'confidence': 0.8,
       };
 
       final result = LithologyNormalizer.normalize(
-        parsedJson: rawJson, 
-        imageQualityScore: 0.8
-      );
+          parsedJson: rawJson, imageQualityScore: 0.8);
 
       expect(result.rockType, equals('Granit'));
       expect(result.mineralogy.length, equals(2));
       expect(result.mineralogy.contains('kvars'), isTrue);
       expect(result.mineralogy.contains('biotit'), isTrue);
-      expect(result.reliabilityLevel, equals('high')); 
+      expect(result.reliabilityLevel, equals('high'));
     });
-
   });
 }

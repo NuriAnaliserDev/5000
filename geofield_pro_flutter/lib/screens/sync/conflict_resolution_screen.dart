@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../models/sync_conflict.dart';
 import '../../services/sync/conflict_queue_service.dart';
 import '../../services/station_repository.dart';
@@ -16,7 +15,8 @@ class ConflictResolutionScreen extends StatefulWidget {
   const ConflictResolutionScreen({super.key});
 
   @override
-  State<ConflictResolutionScreen> createState() => _ConflictResolutionScreenState();
+  State<ConflictResolutionScreen> createState() =>
+      _ConflictResolutionScreenState();
 }
 
 class _ConflictResolutionScreenState extends State<ConflictResolutionScreen> {
@@ -27,7 +27,8 @@ class _ConflictResolutionScreenState extends State<ConflictResolutionScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A), // Deep Slate
       appBar: AppBar(
-        title: const Text('Ma\'lumotlar To\'qnashuvi', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: const Text('Ma\'lumotlar To\'qnashuvi',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
@@ -44,7 +45,8 @@ class _ConflictResolutionScreenState extends State<ConflictResolutionScreen> {
           return ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: conflicts.length,
-            itemBuilder: (context, index) => _buildConflictCard(conflicts[index]),
+            itemBuilder: (context, index) =>
+                _buildConflictCard(conflicts[index]),
           );
         },
       ),
@@ -56,11 +58,13 @@ class _ConflictResolutionScreenState extends State<ConflictResolutionScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.verified_user_rounded, size: 80, color: const Color(0xFF10B981).withOpacity(0.5)),
+          Icon(Icons.verified_user_rounded,
+              size: 80, color: const Color(0xFF10B981).withOpacity(0.5)),
           const SizedBox(height: 16),
           const Text(
             'Barcha ma\'lumotlar xavfsiz',
-            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w500),
+            style: TextStyle(
+                color: Colors.white, fontSize: 18, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 8),
           Text(
@@ -93,7 +97,8 @@ class _ConflictResolutionScreenState extends State<ConflictResolutionScreen> {
                     color: Colors.orange.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.warning_amber_rounded, color: Colors.orange),
+                  child: const Icon(Icons.warning_amber_rounded,
+                      color: Colors.orange),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -102,11 +107,18 @@ class _ConflictResolutionScreenState extends State<ConflictResolutionScreen> {
                     children: [
                       Text(
                         conflict.entityType.toUpperCase(),
-                        style: const TextStyle(color: Colors.orange, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+                        style: const TextStyle(
+                            color: Colors.orange,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2),
                       ),
                       Text(
                         'ID: ${conflict.entityId}',
-                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -127,21 +139,28 @@ class _ConflictResolutionScreenState extends State<ConflictResolutionScreen> {
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          Expanded(child: _buildDataColumn('LOKAL', conflict.localData, Colors.blue)),
+          Expanded(
+              child:
+                  _buildDataColumn('LOKAL', conflict.localData, Colors.blue)),
           const SizedBox(width: 16),
           const Icon(Icons.compare_arrows_rounded, color: Colors.white24),
           const SizedBox(width: 16),
-          Expanded(child: _buildDataColumn('BULUT', conflict.remoteData, const Color(0xFF10B981))),
+          Expanded(
+              child: _buildDataColumn(
+                  'BULUT', conflict.remoteData, const Color(0xFF10B981))),
         ],
       ),
     );
   }
 
-  Widget _buildDataColumn(String label, Map<String, dynamic> data, Color color) {
+  Widget _buildDataColumn(
+      String label, Map<String, dynamic> data, Color color) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold)),
+        Text(label,
+            style: TextStyle(
+                color: color, fontSize: 10, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.all(12),
@@ -171,8 +190,14 @@ class _ConflictResolutionScreenState extends State<ConflictResolutionScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 11)),
-          Text(value, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w500)),
+          Text(label,
+              style: TextStyle(
+                  color: Colors.white.withOpacity(0.4), fontSize: 11)),
+          Text(value,
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -195,7 +220,8 @@ class _ConflictResolutionScreenState extends State<ConflictResolutionScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF0F172A),
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (context) => Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -204,7 +230,10 @@ class _ConflictResolutionScreenState extends State<ConflictResolutionScreen> {
           children: [
             const Text(
               'Qaror qabul qiling',
-              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
@@ -269,8 +298,12 @@ class _ConflictResolutionScreenState extends State<ConflictResolutionScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  Text(subtitle, style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 12)),
+                  Text(title,
+                      style: const TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold)),
+                  Text(subtitle,
+                      style: TextStyle(
+                          color: Colors.white.withOpacity(0.4), fontSize: 12)),
                 ],
               ),
             ),
@@ -282,8 +315,9 @@ class _ConflictResolutionScreenState extends State<ConflictResolutionScreen> {
 
   Future<void> _resolve(SyncConflict conflict, String decision) async {
     Navigator.pop(context);
-    
-    final resolutionRequestId = 'conflict_${conflict.id}_${DateTime.now().millisecondsSinceEpoch}';
+
+    final resolutionRequestId =
+        'conflict_${conflict.id}_${DateTime.now().millisecondsSinceEpoch}';
 
     // Resolution mantiqi
     if (decision == 'local') {
@@ -293,7 +327,7 @@ class _ConflictResolutionScreenState extends State<ConflictResolutionScreen> {
     }
 
     await sl<ConflictQueueService>().resolveConflict(conflict.id);
-    
+
     // 3. SyncEngine'ni darrov trigger qilamiz
     sl<SyncProcessor>().run();
 
@@ -312,26 +346,29 @@ class _ConflictResolutionScreenState extends State<ConflictResolutionScreen> {
 
     switch (conflict.entityType) {
       case 'station':
-        final s = Station.fromMap(conflict.localData).copyWith(version: newLocalVersion);
+        final s = Station.fromMap(conflict.localData)
+            .copyWith(version: newLocalVersion);
         await sl<StationRepository>().updateStation(
-          int.tryParse(conflict.entityId) ?? conflict.entityId, 
-          s, 
+          int.tryParse(conflict.entityId) ?? conflict.entityId,
+          s,
           source: UpdateSource.local,
           customRequestId: requestId,
         );
         break;
       case 'geological_line':
-        final l = GeologicalLine.fromMap(conflict.localData).copyWith(version: newLocalVersion);
+        final l = GeologicalLine.fromMap(conflict.localData)
+            .copyWith(version: newLocalVersion);
         await sl<GeologicalLineRepository>().updateLine(
-          l, 
+          l,
           source: UpdateSource.local,
           customRequestId: requestId,
         );
         break;
       case 'map_annotation':
-        final a = MapStructureAnnotation.fromMap(conflict.localData).copyWith(version: newLocalVersion);
+        final a = MapStructureAnnotation.fromMap(conflict.localData)
+            .copyWith(version: newLocalVersion);
         await sl<MapStructureRepository>().updateAnnotation(
-          a, 
+          a,
           source: UpdateSource.local,
           customRequestId: requestId,
         );
@@ -343,15 +380,19 @@ class _ConflictResolutionScreenState extends State<ConflictResolutionScreen> {
     switch (conflict.entityType) {
       case 'station':
         final s = Station.fromMap(conflict.remoteData);
-        await sl<StationRepository>().updateStation(int.tryParse(conflict.entityId) ?? conflict.entityId, s, source: UpdateSource.remote);
+        await sl<StationRepository>().updateStation(
+            int.tryParse(conflict.entityId) ?? conflict.entityId, s,
+            source: UpdateSource.remote);
         break;
       case 'geological_line':
         final l = GeologicalLine.fromMap(conflict.remoteData);
-        await sl<GeologicalLineRepository>().updateLine(l, source: UpdateSource.remote);
+        await sl<GeologicalLineRepository>()
+            .updateLine(l, source: UpdateSource.remote);
         break;
       case 'map_annotation':
         final a = MapStructureAnnotation.fromMap(conflict.remoteData);
-        await sl<MapStructureRepository>().updateAnnotation(a, source: UpdateSource.remote);
+        await sl<MapStructureRepository>()
+            .updateAnnotation(a, source: UpdateSource.remote);
         break;
     }
   }

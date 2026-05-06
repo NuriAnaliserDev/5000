@@ -44,7 +44,7 @@ class LithologyArOverlay extends StatelessWidget {
 
     final ux = DecisionEngine.decide(result!, userContext);
     final isExpert = userContext.role == UserRole.expert;
-    
+
     return Stack(
       children: [
         // ROI Frame (Center Area)
@@ -72,12 +72,16 @@ class LithologyArOverlay extends StatelessWidget {
                 duration: const Duration(milliseconds: 400),
                 curve: Curves.easeInOut,
                 margin: const EdgeInsets.only(top: 290),
-                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
                 decoration: BoxDecoration(
                   color: ux.color.withOpacity(0.9),
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
-                    BoxShadow(color: ux.color.withOpacity(0.3), blurRadius: 20, spreadRadius: 5),
+                    BoxShadow(
+                        color: ux.color.withOpacity(0.3),
+                        blurRadius: 20,
+                        spreadRadius: 5),
                   ],
                 ),
                 child: AnimatedDefaultTextStyle(
@@ -99,7 +103,7 @@ class LithologyArOverlay extends StatelessWidget {
             ],
           ),
         ),
-        
+
         // Bottom Panel (Details & Expert Layers)
         Positioned(
           bottom: 40,
@@ -107,11 +111,11 @@ class LithologyArOverlay extends StatelessWidget {
           right: 20,
           child: Column(
             children: [
-               if (isExpert) _buildBreakdownPanel(result!),
-               const SizedBox(height: 12),
-               _buildMessageCard(ux),
-               const SizedBox(height: 16),
-               _buildActionButtons(ux),
+              if (isExpert) _buildBreakdownPanel(result!),
+              const SizedBox(height: 12),
+              _buildMessageCard(ux),
+              const SizedBox(height: 16),
+              _buildActionButtons(ux),
             ],
           ),
         ),
@@ -122,22 +126,25 @@ class LithologyArOverlay extends StatelessWidget {
   Widget _buildReliabilityBadge(UXDecision ux, bool stable) {
     // Professional Balance: Minimal feedback while stabilizing
     if (!stable && ux.action != AppDecision.block) {
-       return Text(
-         "ANIQLANMOQDA...", 
-         style: TextStyle(
-           color: Colors.white.withOpacity(0.4), 
-           fontSize: 10, 
-           letterSpacing: 2,
-           fontWeight: FontWeight.bold,
-         ),
-       );
+      return Text(
+        "ANIQLANMOQDA...",
+        style: TextStyle(
+          color: Colors.white.withOpacity(0.4),
+          fontSize: 10,
+          letterSpacing: 2,
+          fontWeight: FontWeight.bold,
+        ),
+      );
     }
 
     String label = "ANIQLANMOQDA...";
     if (stable) {
-      if (ux.action == AppDecision.autoAccept) label = "ISHONCHLI";
-      else if (ux.action == AppDecision.showWithWarning) label = "TEKSHIRIB KO'RING";
-      else label = "DIQQAT: NOANIQ";
+      if (ux.action == AppDecision.autoAccept) {
+        label = "ISHONCHLI";
+      } else if (ux.action == AppDecision.showWithWarning)
+        label = "TEKSHIRIB KO'RING";
+      else
+        label = "DIQQAT: NOANIQ";
     }
 
     return Container(
@@ -163,8 +170,8 @@ class LithologyArOverlay extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              color: Colors.white.withOpacity(0.9), 
-              fontSize: 10, 
+              color: Colors.white.withOpacity(0.9),
+              fontSize: 10,
               fontWeight: FontWeight.w800,
               letterSpacing: 1.1,
             ),
@@ -177,27 +184,28 @@ class LithologyArOverlay extends StatelessWidget {
   Widget _buildBreakdownPanel(AIAnalysisResult res) {
     final bd = res.trustBreakdown;
     return Container(
-       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-       decoration: BoxDecoration(
-         color: Colors.black.withOpacity(0.6),
-         borderRadius: BorderRadius.circular(24),
-         border: Border.all(color: Colors.white10),
-       ),
-       child: Row(
-         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-         children: [
-           _bdItem("AI", bd['ai'] ?? 0),
-           _divider(),
-           _bdItem("DOM", bd['domain'] ?? 0),
-           _divider(),
-           _bdItem("IMG", bd['image'] ?? 0),
-           _divider(),
-           Text(
-             "JAMI: ${(res.trustScore * 100).toInt()}%",
-             style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
-           ),
-         ],
-       ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.6),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _bdItem("AI", bd['ai'] ?? 0),
+          _divider(),
+          _bdItem("DOM", bd['domain'] ?? 0),
+          _divider(),
+          _bdItem("IMG", bd['image'] ?? 0),
+          _divider(),
+          Text(
+            "JAMI: ${(res.trustScore * 100).toInt()}%",
+            style: const TextStyle(
+                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+          ),
+        ],
+      ),
     );
   }
 
@@ -205,7 +213,11 @@ class LithologyArOverlay extends StatelessWidget {
     return Column(
       children: [
         Text(label, style: const TextStyle(color: Colors.white54, fontSize: 8)),
-        Text("${(val * 100).toInt()}", style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
+        Text("${(val * 100).toInt()}",
+            style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w600)),
       ],
     );
   }
@@ -275,7 +287,8 @@ class LithologyArOverlay extends StatelessWidget {
     return ElevatedButton.icon(
       onPressed: onPressed,
       icon: Icon(icon, size: 18, color: Colors.white),
-      label: Text(label, style: const TextStyle(color: Colors.white, fontSize: 12)),
+      label: Text(label,
+          style: const TextStyle(color: Colors.white, fontSize: 12)),
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -291,9 +304,11 @@ class RoundedRectangleInBorder extends OutlinedBorder {
   @override
   OutlinedBorder copyWith({BorderSide? side}) => this;
   @override
-  Path getInnerPath(Rect rect, {TextDirection? textDirection}) => Path()..addRRect(borderRadius.resolve(textDirection).toRRect(rect));
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) =>
+      Path()..addRRect(borderRadius.resolve(textDirection).toRRect(rect));
   @override
-  Path getOuterPath(Rect rect, {TextDirection? textDirection}) => Path()..addRRect(borderRadius.resolve(textDirection).toRRect(rect));
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) =>
+      Path()..addRRect(borderRadius.resolve(textDirection).toRRect(rect));
   @override
   void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {}
   @override

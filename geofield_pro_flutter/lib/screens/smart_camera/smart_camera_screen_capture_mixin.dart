@@ -1,0 +1,253 @@
+part of 'smart_camera_screen.dart';
+
+/// Audio yozuv, suratga olish va stansiya saqlash — [SmartCameraScreenState] dan ajratilgan.
+mixin SmartCameraCaptureMixin on SmartCameraStateFields {
+  Future<void> _toggleRecording() async {
+    try {
+      if (_isRecording) {
+        final path = await _recorder.stop();
+        if (mounted) {
+          setState(() {
+            _isRecording = false;
+            _audioPath = path;
+            _recordTimer?.cancel();
+            _recordTimer = null;
+            _recordSeconds = 0;
+          });
+        }
+        if (mounted && path != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(context.locRead('note_saved')),
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.only(bottom: 140, left: 16, right: 16),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+        return;
+      }
+      final hasPerm = await _recorder.hasPermission();
+      if (!hasPerm) {
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: Text(context.locRead('mic_error')),
+              actions: [
+                TextButton(
+                  onPressed: () => ctx.pop(),
+                  child: Text(context.locRead('confirm')),
+                ),
+              ],
+            ),
+          );
+        }
+        return;
+      }
+      final dir = await getApplicationDocumentsDirectory();
+      final exportDir =
+          Directory('${dir.path}${Platform.pathSeparator}recordings');
+      if (!await exportDir.exists()) {
+        await exportDir.create(recursive: true);
+      }
+      final outPath =
+          '${exportDir.path}${Platform.pathSeparator}geofield_note_${DateTime.now().millisecondsSinceEpoch}.m4a';
+      await _recorder.start(const RecordConfig(), path: outPath);
+      if (mounted) {
+        setState(() {
+          _isRecording = true;
+          _audioPath = null;
+          _recordSeconds = 0;
+        });
+      }
+      _recordTimer?.cancel();
+      _recordTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (!mounted) {
+          return;
+        }
+        setState(() => _recordSeconds++);
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.locRead('recording_started')),
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.only(bottom: 140, left: 16, right: 16),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ErrorHandler.show(context, ErrorMapper.map(e));
+      }
+    }
+  }
+
+  Future<void> _capture() async {
+    if (_isBusy) {
+      return;
+    }
+    try {
+      setState(() => _isBusy = true);
+      final settings = context.read<SettingsController>();
+      late XFile file;
+      if (_geologicalArActive) {
+        final path = await _arSessionController?.captureToTempFile();
+        if (path == null) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(context.locRead('camera_ar_snapshot_failed')),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+          return;
+        }
+        file = XFile(path);
+      } else {
+        final fut = _cameraInitFuture;
+        if (fut != null) {
+          await fut;
+        }
+        final cam = _cameraController;
+        if (cam == null || !cam.value.isInitialized) {
+          if (!mounted) return;
+          throw StateError(context.locRead('camera_error'));
+        }
+        file = await cam.takePicture();
+      }
+
+      if (_cameraMode == CameraMode.document && widget.stationId == null) {
+        if (!mounted) return;
+        AppRouter.pushAutoTableReview(context, file.path);
+        return;
+      }
+
+      if (_showScale) {
+        file = await ImageUtils.burnScaleBar(
+          path: file.path,
+          pixelsPerMm: settings.pixelsPerMm,
+        );
+      }
+      if (_isRecording) {
+        final path = await _recorder.stop();
+        _audioPath = path;
+        _isRecording = false;
+      }
+
+      if (!mounted) {
+        return;
+      }
+      final repo = context.read<StationRepository>();
+
+      if (widget.stationId != null) {
+        final st = repo.getById(widget.stationId!);
+        if (st == null) {
+          throw StateError('Stansiya topilmadi');
+        }
+        final existing =
+            st.photoPaths ?? (st.photoPath != null ? [st.photoPath!] : []);
+        final updatedPhotos = [...existing, file.path];
+        final updated = st.copyWith(photoPaths: updatedPhotos);
+        await repo.updateStation(
+          widget.stationId!,
+          updated,
+          author: settings.currentUserName,
+        );
+        if (!mounted) {
+          return;
+        }
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(context.locRead('photo_added')),
+            behavior: SnackBarBehavior.floating));
+        context.pop();
+        return;
+      }
+
+      final locService = context.read<LocationService>();
+      await locService.refreshLocation();
+      Position? pos = locService.currentPosition;
+      pos ??= await Geolocator.getLastKnownPosition();
+      if (pos == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(context.locRead('photo_saved_limited_gps')),
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
+        pos = Position(
+          latitude: 0,
+          longitude: 0,
+          timestamp: DateTime.now(),
+          accuracy: 99999,
+          altitude: 0,
+          heading: 0,
+          speed: 0,
+          speedAccuracy: 0,
+          altitudeAccuracy: 0,
+          headingAccuracy: 0,
+        );
+      }
+
+      final now = DateTime.now();
+      final datePart =
+          '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
+      final seqPart =
+          (now.millisecondsSinceEpoch % 1000).toString().padLeft(3, '0');
+      final projectCode = (settings.currentProject.length >= 3
+          ? settings.currentProject.substring(0, 3).toUpperCase()
+          : settings.currentProject.toUpperCase());
+      final stationName = '$projectCode-$datePart-$seqPart';
+
+      final station = Station(
+        name: stationName,
+        lat: pos.latitude,
+        lng: pos.longitude,
+        altitude: pos.altitude,
+        strike: _strike,
+        dip: _dip,
+        azimuth: _azimuth,
+        date: DateTime.now(),
+        photoPath: file.path,
+        audioPath: _audioPath,
+        accuracy: pos.accuracy,
+        photoPaths: [file.path],
+        project: settings.currentProject,
+        dipDirection: GeologyUtils.calculateDipDirection(_strike),
+        confidence: 5,
+        authorName: settings.currentUserName,
+        authorRole: settings.expertMode ? 'Professional' : null,
+      );
+      final id = await repo.addStation(station);
+
+      if (!mounted) {
+        return;
+      }
+      context.read<TrackService>().recordStationSaved();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(context.locRead('station_saved')),
+          behavior: SnackBarBehavior.floating));
+      AppRouter.goStation(context, stationId: id);
+    } catch (e) {
+      if (mounted) {
+        ErrorHandler.show(context, ErrorMapper.map(e));
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isBusy = false);
+      }
+    }
+  }
+
+  String _formatRecordDuration(int seconds) {
+    final m = (seconds ~/ 60).toString().padLeft(2, '0');
+    final s = (seconds % 60).toString().padLeft(2, '0');
+    return '$m:$s';
+  }
+}

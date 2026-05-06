@@ -23,14 +23,14 @@ class AiLithologyService {
   factory AiLithologyService() => _instance;
 
   AiLithologyService._internal();
-  
+
   final _session = AnalysisSession();
-  
+
   // Simple in-memory metrics (Production would use Analytics service)
   int _totalRequests = 0;
   int _rejects = 0;
   int _ambiguities = 0;
-  
+
   DateTime? _lastAnalysisTime;
 
   /// Orchestrates the entire AI processing pipeline
@@ -55,8 +55,10 @@ class AiLithologyService {
     if (cacheBox.containsKey(hash)) {
       final cached = cacheBox.get(hash)!;
       final age = DateTime.now().difference(cached.analyzedAt);
-      if (age.inDays > 7 || cached.cacheVersion != LithologyNormalizer.currentCacheVersion) {
-        debugPrint('AI [CACHE MISS]: TTL expired or Model Version changed for hash $hash.');
+      if (age.inDays > 7 ||
+          cached.cacheVersion != LithologyNormalizer.currentCacheVersion) {
+        debugPrint(
+            'AI [CACHE MISS]: TTL expired or Model Version changed for hash $hash.');
         await cacheBox.delete(hash);
       } else {
         debugPrint('AI [CACHE HIT]: Reusing valid result for hash $hash.');
@@ -68,7 +70,8 @@ class AiLithologyService {
     final qualityService = ImageQualityService();
     final qualityResult = await qualityService.analyzeQuality(imageFile);
     if (!qualityResult.isValid) {
-      throw AppError(qualityResult.errorMessage, category: ErrorCategory.validation);
+      throw AppError(qualityResult.errorMessage,
+          category: ErrorCategory.validation);
     }
 
     // 3. Rate Limiting Check
@@ -83,31 +86,35 @@ class AiLithologyService {
         final rawText = await client.generateContent(imageFile, imageBytes);
         debugPrint('AI [RAW RESPONSE]: $rawText');
         final parsedJson = AiParser.parseAndValidate(rawText);
-        
+
         final result = LithologyNormalizer.normalize(
           parsedJson: parsedJson,
           imageQualityScore: qualityResult.overallQualityScore,
         );
 
-        debugPrint('AI [NORMALIZATION]: Status: \${result.status}, Confidence: \${result.confidence}');
+        debugPrint(
+            'AI [NORMALIZATION]: Status: \${result.status}, Confidence: \${result.confidence}');
         if (result.warningMessage.isNotEmpty) {
           debugPrint('AI [WARNINGS]: \${result.warningMessage}');
         }
 
         // Domain failure -> DO NOT retry, return immediately so UI handles the hallucination
         if (result.status == 'invalid') {
-          debugPrint('AI [DOMAIN ERROR]: Result rejected by validator. Passing to UI without retry.');
+          debugPrint(
+              'AI [DOMAIN ERROR]: Result rejected by validator. Passing to UI without retry.');
         }
 
         // 5. UX Decision & Metrics
         final uxDecision = DecisionEngine.decide(result, UserContext());
-        
+
         _totalRequests++;
         if (uxDecision.action == AppDecision.block) _rejects++;
         if (result.rockCandidates.length > 1) _ambiguities++;
 
-        debugPrint('AI_METRIC [DECISION]: ${uxDecision.action.name} for hash $hash.');
-        debugPrint('AI_STATS [SESSION]: Total: $_totalRequests, Rejects: $_rejects, AmbiguityRate: ${(_ambiguities/(_totalRequests == 0 ? 1 : _totalRequests) * 100).toStringAsFixed(1)}%');
+        debugPrint(
+            'AI_METRIC [DECISION]: ${uxDecision.action.name} for hash $hash.');
+        debugPrint(
+            'AI_STATS [SESSION]: Total: $_totalRequests, Rejects: $_rejects, AmbiguityRate: ${(_ambiguities / (_totalRequests == 0 ? 1 : _totalRequests) * 100).toStringAsFixed(1)}%');
 
         // 6. Temporal Stabilization
         _session.add(result);
@@ -115,26 +122,27 @@ class AiLithologyService {
 
         // 7. Cache & Return Result
         await cacheBox.put(hash, stabilized);
-    
+
         // 8. Data Capture (Telemetry for Model Refinement)
         _captureTelemetry(hash, stabilized);
         _pruneTelemetry();
-    
+
         debugPrint('AI [SUCCESS]: Pipeline completed with stabilization.');
         return stabilized;
-
       } on QuotaExceededException {
         rethrow;
       } on RateLimitException {
         rethrow;
-      } on FormatException catch (e) {
+      } on FormatException {
         // Parsing Error -> Retry
         if (attempt < maxRetries) {
-          debugPrint('AI [PARSING ERROR]: Invalid JSON structure. Retrying... (${attempt + 1})');
+          debugPrint(
+              'AI [PARSING ERROR]: Invalid JSON structure. Retrying... (${attempt + 1})');
           continue;
         }
         debugPrint('AI [FATAL PARSING ERROR]: Max retries reached.');
-        throw AppError("AI javobi noto'g'ri formatda keldi.", category: ErrorCategory.unknown);
+        throw AppError("AI javobi noto'g'ri formatda keldi.",
+            category: ErrorCategory.unknown);
       } catch (e) {
         if (attempt == maxRetries) {
           debugPrint('AI [NETWORK/SYSTEM ERROR]: $e');
@@ -143,9 +151,11 @@ class AiLithologyService {
         debugPrint('AI [UNKNOWN ERROR]: Retrying... (\${attempt + 1})');
       }
     }
-    
-    throw AppError("AI tahlili amalga oshmadi.", category: ErrorCategory.unknown);
+
+    throw AppError("AI tahlili amalga oshmadi.",
+        category: ErrorCategory.unknown);
   }
+
   void _captureTelemetry(String hash, AIAnalysisResult result) {
     try {
       final box = Hive.box(HiveDb.aiTelemetryBox);
@@ -155,10 +165,10 @@ class AiLithologyService {
         'reliability': result.reliabilityLevel,
         'timestamp': DateTime.now().toIso8601String(),
         'logicStatus': result.status,
-        'userRole': result.authorRole ?? 'unknown', 
+        'userRole': result.authorRole ?? 'unknown',
       });
     } catch (e) {
-       debugPrint('AI [TELEMETRY ERROR]: $e');
+      debugPrint('AI [TELEMETRY ERROR]: $e');
     }
   }
 

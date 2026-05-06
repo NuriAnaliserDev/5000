@@ -70,6 +70,11 @@ import 'three_d_viewer_screen.dart';
 import '../app/app_router.dart';
 import '../app/main_tab_navigation.dart';
 
+part 'global_map_screen_state_fields_mixin.dart';
+part 'global_map_screen_linework_mixin.dart';
+part 'global_map_screen_presence_compass_mixin.dart';
+part 'global_map_screen_tools_mixin.dart';
+part 'global_map_screen_ui_mixin.dart';
 part 'global_map_screen_state.dart';
 
 class GlobalMapScreen extends StatefulWidget {

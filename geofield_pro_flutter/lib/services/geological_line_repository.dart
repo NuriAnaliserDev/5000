@@ -8,7 +8,6 @@ import 'package:synchronized/synchronized.dart';
 
 import '../models/geological_line.dart';
 import '../utils/firebase_ready.dart';
-import '../core/security/access_control_service.dart';
 import '../core/di/dependency_injection.dart';
 import '../core/network/network_executor.dart';
 import '../core/error/error_logger.dart';
@@ -79,11 +78,12 @@ class GeologicalLineRepository extends ChangeNotifier {
   }
 
   /// Add a new geological line and persist it.
-  Future<void> addLine(GeologicalLine line, {UpdateSource source = UpdateSource.local}) async {
+  Future<void> addLine(GeologicalLine line,
+      {UpdateSource source = UpdateSource.local}) async {
     await _lock.synchronized(() async {
       final stamped = await _stamp(line);
       await _box!.put(stamped.id, stamped);
-      
+
       if (source == UpdateSource.local) {
         await _syncQueue.addItem(SyncItem(
           id: const Uuid().v4(),
@@ -97,7 +97,7 @@ class GeologicalLineRepository extends ChangeNotifier {
           createdAt: DateTime.now(),
         ));
       }
-      
+
       _lines = _box!.values.toList();
       notifyListeners();
     });
@@ -105,9 +105,11 @@ class GeologicalLineRepository extends ChangeNotifier {
 
   /// Update an existing line by its id.
   Future<void> updateLine(GeologicalLine line,
-      {UpdateSource source = UpdateSource.local, String? customRequestId}) async {
+      {UpdateSource source = UpdateSource.local,
+      String? customRequestId}) async {
     await _lock.synchronized(() async {
-      final stamped = await _stamp(line, increment: source == UpdateSource.local);
+      final stamped =
+          await _stamp(line, increment: source == UpdateSource.local);
       await _box!.put(stamped.id, stamped);
 
       if (source == UpdateSource.local) {
@@ -158,7 +160,8 @@ class GeologicalLineRepository extends ChangeNotifier {
   }
 
   /// Delete a line by its id.
-  Future<void> deleteLine(String id, {UpdateSource source = UpdateSource.local}) async {
+  Future<void> deleteLine(String id,
+      {UpdateSource source = UpdateSource.local}) async {
     await _lock.synchronized(() async {
       final line = _box!.get(id);
       if (line == null || line.isDeleted) return;
@@ -203,8 +206,6 @@ class GeologicalLineRepository extends ChangeNotifier {
     _lines = [];
     notifyListeners();
   }
-
-
 
   @override
   void dispose() {

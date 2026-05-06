@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../services/sync/sync_queue_service.dart';
 import '../../services/sync/sync_processor.dart';
 import '../../services/sync/conflict_queue_service.dart';
@@ -18,7 +17,8 @@ class SyncDebugScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
       appBar: AppBar(
-        title: const Text('Sync Diagnostics', style: TextStyle(color: Colors.white)),
+        title: const Text('Sync Diagnostics',
+            style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
@@ -39,11 +39,17 @@ class SyncDebugScreen extends StatelessWidget {
             const SizedBox(height: 12),
             Row(
               children: [
-                Expanded(child: _buildStatTile('NAVBT', '${queue.pendingItems.length}', Colors.blue)),
+                Expanded(
+                    child: _buildStatTile(
+                        'NAVBT', '${queue.pendingItems.length}', Colors.blue)),
                 const SizedBox(width: 12),
-                Expanded(child: _buildStatTile('KONFLIKT', '${conflicts.conflictCount}', Colors.orange)),
+                Expanded(
+                    child: _buildStatTile('KONFLIKT',
+                        '${conflicts.conflictCount}', Colors.orange)),
                 const SizedBox(width: 12),
-                Expanded(child: _buildStatTile('XATO', '${queue.failedItems.length}', Colors.red)),
+                Expanded(
+                    child: _buildStatTile(
+                        'XATO', '${queue.failedItems.length}', Colors.red)),
               ],
             ),
             const SizedBox(height: 32),
@@ -103,15 +109,24 @@ class SyncDebugScreen extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: statusColor.withOpacity(0.1), shape: BoxShape.circle),
+            decoration: BoxDecoration(
+                color: statusColor.withOpacity(0.1), shape: BoxShape.circle),
             child: Icon(icon, color: statusColor, size: 28),
           ),
           const SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('ENGINE STATUS', style: TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold)),
-              Text(statusText, style: TextStyle(color: statusColor, fontSize: 20, fontWeight: FontWeight.bold)),
+              const Text('ENGINE STATUS',
+                  style: TextStyle(
+                      color: Colors.white54,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold)),
+              Text(statusText,
+                  style: TextStyle(
+                      color: statusColor,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold)),
             ],
           ),
         ],
@@ -122,7 +137,11 @@ class SyncDebugScreen extends StatelessWidget {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: const TextStyle(color: Colors.white24, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5),
+      style: const TextStyle(
+          color: Colors.white24,
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.5),
     );
   }
 
@@ -136,9 +155,12 @@ class SyncDebugScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text(value, style: TextStyle(color: color, fontSize: 24, fontWeight: FontWeight.bold)),
+          Text(value,
+              style: TextStyle(
+                  color: color, fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          Text(label, style: const TextStyle(color: Colors.white38, fontSize: 10)),
+          Text(label,
+              style: const TextStyle(color: Colors.white38, fontSize: 10)),
         ],
       ),
     );
@@ -149,24 +171,34 @@ class SyncDebugScreen extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: error != null ? Colors.red.withOpacity(0.05) : const Color(0xFF1E293B),
+        color: error != null
+            ? Colors.red.withOpacity(0.05)
+            : const Color(0xFF1E293B),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: error != null ? Colors.red.withOpacity(0.2) : Colors.white.withOpacity(0.05)),
+        border: Border.all(
+            color: error != null
+                ? Colors.red.withOpacity(0.2)
+                : Colors.white.withOpacity(0.05)),
       ),
       child: Text(
         error ?? 'Hech qanday xatolik qayd etilmadi',
-        style: TextStyle(color: error != null ? Colors.red[200] : Colors.white38, fontSize: 13, fontFamily: 'monospace'),
+        style: TextStyle(
+            color: error != null ? Colors.red[200] : Colors.white38,
+            fontSize: 13,
+            fontFamily: 'monospace'),
       ),
     );
   }
 
   Widget _buildQueueList(SyncQueueService queue) {
     final items = queue.pendingItems.take(10).toList();
-    
+
     if (items.isEmpty) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 20),
-        child: Center(child: Text('Navbat bo\'sh', style: TextStyle(color: Colors.white24))),
+        child: Center(
+            child:
+                Text('Navbat bo\'sh', style: TextStyle(color: Colors.white24))),
       );
     }
 
@@ -186,8 +218,11 @@ class SyncDebugScreen extends StatelessWidget {
       child: Row(
         children: [
           Icon(
-            item.operation == SyncOperation.create ? Icons.add_box_rounded : 
-            item.operation == SyncOperation.update ? Icons.edit_note_rounded : Icons.delete_sweep_rounded,
+            item.operation == SyncOperation.create
+                ? Icons.add_box_rounded
+                : item.operation == SyncOperation.update
+                    ? Icons.edit_note_rounded
+                    : Icons.delete_sweep_rounded,
             color: Colors.white24,
             size: 20,
           ),
@@ -196,15 +231,27 @@ class SyncDebugScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(item.entityType, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-                Text('Seq: ${item.sequence} | Retries: ${item.retryCount}', style: const TextStyle(color: Colors.white38, fontSize: 11)),
+                Text(item.entityType,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold)),
+                Text('Seq: ${item.sequence} | Retries: ${item.retryCount}',
+                    style:
+                        const TextStyle(color: Colors.white38, fontSize: 11)),
               ],
             ),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
-            child: Text(item.status.name.toUpperCase(), style: const TextStyle(color: Colors.blue, fontSize: 9, fontWeight: FontWeight.bold)),
+            decoration: BoxDecoration(
+                color: Colors.blue.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(6)),
+            child: Text(item.status.name.toUpperCase(),
+                style: const TextStyle(
+                    color: Colors.blue,
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold)),
           ),
         ],
       ),
