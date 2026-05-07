@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import '../core/error/app_error.dart';
 import '../core/error/error_logger.dart';
 import '../core/error/error_mapper.dart';
+import '../core/diagnostics/production_diagnostics.dart';
 
 import '../utils/firebase_ready.dart';
 import '../core/network/network_executor.dart';
@@ -34,6 +35,16 @@ class AuthService extends ChangeNotifier {
     }
     _currentUser = auth.currentUser;
     auth.authStateChanges().listen((user) {
+      unawaited(
+        ProductionDiagnostics.firebase(
+          'auth_state',
+          data: {
+            'signed_in': user != null,
+            if (user != null) 'uid_len': user.uid.length,
+            if (user?.email != null) 'has_email': true,
+          },
+        ),
+      );
       _currentUser = user;
       notifyListeners();
       if (user != null) {

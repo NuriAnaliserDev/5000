@@ -296,10 +296,12 @@ void main() {
 void _registerAdapters() {
   if (!Hive.isAdapterRegistered(9)) Hive.registerAdapter(SyncItemAdapter());
   if (!Hive.isAdapterRegistered(10)) Hive.registerAdapter(SyncStatusAdapter());
-  if (!Hive.isAdapterRegistered(11))
+  if (!Hive.isAdapterRegistered(11)) {
     Hive.registerAdapter(SyncOperationAdapter());
-  if (!Hive.isAdapterRegistered(12))
+  }
+  if (!Hive.isAdapterRegistered(12)) {
     Hive.registerAdapter(SyncConflictAdapter());
+  }
   if (!Hive.isAdapterRegistered(1)) Hive.registerAdapter(StationAdapter());
 }
 

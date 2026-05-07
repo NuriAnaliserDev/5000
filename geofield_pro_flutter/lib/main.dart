@@ -2,15 +2,19 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'app/app_bootstrap_shell.dart';
+import 'app/global_navigator.dart';
 import 'core/error/error_mapper.dart';
 import 'core/error/error_logger.dart';
 import 'core/error/error_handler.dart';
-
-final GlobalKey<NavigatorState> globalNavigatorKey = GlobalKey<NavigatorState>();
+import 'core/error/global_error_handling.dart';
+import 'core/diagnostics/startup_telemetry.dart';
+import 'core/diagnostics/production_diagnostics.dart';
 
 void main() {
   runZonedGuarded(() {
     WidgetsFlutterBinding.ensureInitialized();
+    StartupTelemetry.onProcessStart();
+    configureGlobalErrorHandling();
 
     FlutterError.onError = (FlutterErrorDetails details) {
       FlutterError.presentError(details);
@@ -34,5 +38,14 @@ void main() {
   }, (error, stack) {
     final mappedError = ErrorMapper.map(error, stack);
     ErrorLogger.log(mappedError);
+    unawaited(
+      ProductionDiagnostics.failure(
+        'zone_uncaught',
+        data: {
+          'type': error.runtimeType.toString(),
+          'message': error.toString(),
+        },
+      ),
+    );
   });
 }

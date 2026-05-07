@@ -28,6 +28,8 @@ import '../../utils/app_localizations.dart';
 import '../../utils/app_nav_bar.dart';
 import '../../core/error/error_handler.dart';
 import '../../core/error/error_mapper.dart';
+import '../../core/diagnostics/production_diagnostics.dart';
+import '../../core/diagnostics/app_timeouts.dart';
 import '../../utils/geo_orientation.dart';
 import '../../utils/geology_utils.dart';
 import '../../utils/image_utils.dart';

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../main.dart';
+import 'global_navigator.dart';
 import 'platform_gate.dart';
 import '../screens/archive_screen.dart';
 import '../screens/analysis_screen.dart';

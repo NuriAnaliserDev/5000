@@ -73,10 +73,12 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.inactive ||
         state == AppLifecycleState.paused) {
+      unawaited(ProductionDiagnostics.camera('lifecycle_pause'));
       unawaited(_disableHardwareTorch());
       _disposeCameraOnly();
       _stopSensors();
     } else if (state == AppLifecycleState.resumed) {
+      unawaited(ProductionDiagnostics.camera('lifecycle_resume'));
       _startSensors();
       _ensureCameraMatchesMode();
     }

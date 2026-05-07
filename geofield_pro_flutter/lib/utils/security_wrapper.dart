@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -8,6 +9,7 @@ import '../services/auth_service.dart';
 import '../services/security_provider.dart';
 import '../services/sos_service.dart';
 import '../screens/lock_screen.dart';
+import '../core/diagnostics/production_diagnostics.dart';
 
 /// A wrapper widget that manages application lifecycle security.
 /// It observes app state changes and handles auto-locking and privacy blurring.
@@ -37,7 +39,20 @@ class _SecurityWrapperState extends State<SecurityWrapper>
         }
       };
       sos.startAutoFlush();
-      unawaited(sos.syncActiveSosFromServer());
+      unawaited(
+        sos.syncActiveSosFromServer().catchError((Object e, StackTrace st) {
+          if (kDebugMode) {
+            debugPrint('SosService.syncActiveSosFromServer: $e');
+          }
+          unawaited(
+            ProductionDiagnostics.syncFailure(
+              'SosService.syncActiveSosFromServer',
+              e,
+              st,
+            ),
+          );
+        }),
+      );
       _auth = context.read<AuthService>();
       _auth!.addListener(_onAuthChanged);
     });
@@ -46,7 +61,22 @@ class _SecurityWrapperState extends State<SecurityWrapper>
   void _onAuthChanged() {
     if (!mounted) return;
     if (context.read<AuthService>().isAuthenticated) {
-      unawaited(context.read<SosService>().syncActiveSosFromServer());
+      unawaited(
+        context.read<SosService>().syncActiveSosFromServer().catchError(
+          (Object e, StackTrace st) {
+            if (kDebugMode) {
+              debugPrint('SosService.syncActiveSosFromServer: $e');
+            }
+            unawaited(
+              ProductionDiagnostics.syncFailure(
+                'SosService.syncActiveSosFromServer',
+                e,
+                st,
+              ),
+            );
+          },
+        ),
+      );
     }
   }
 

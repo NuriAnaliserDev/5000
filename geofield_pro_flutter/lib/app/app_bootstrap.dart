@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter/foundation.dart';
@@ -14,6 +16,8 @@ import '../core/error/error_logger.dart';
 import '../core/network/network_executor.dart';
 import '../core/di/dependency_injection.dart';
 import '../core/diagnostics/diagnostic_service.dart';
+import '../core/diagnostics/startup_telemetry.dart';
+import '../core/diagnostics/production_diagnostics.dart';
 
 /// Successful bootstrap: root widget (usually [MultiProvider] + [GeoFieldProApp]).
 sealed class AppBootstrapResult {}
@@ -33,10 +37,12 @@ class AppBootstrapFailure extends AppBootstrapResult {
 /// Ilova o‘rnatilishi: Firebase (ixtiyoriy, xato qilganda mahalliy rejim) → majburiy Hive
 /// → (mobil) oflayn xarita keshi (xato bo‘lsa ogohlantirish).
 Future<AppBootstrapResult> runAppBootstrap() async {
+  StartupTelemetry.milestone('bootstrap_enter');
   try {
     WidgetsFlutterBinding.ensureInitialized();
     await DiagnosticService.instance.init();
     setupDependencies();
+    StartupTelemetry.milestone('bootstrap_deps_ready');
   } catch (e, st) {
     ErrorLogger.record(e, st,
         customMessage: 'WidgetsFlutterBinding ishga tushmadi');
@@ -48,13 +54,15 @@ Future<AppBootstrapResult> runAppBootstrap() async {
   }
 
   var firebaseOk = false;
+  var appCheckOk = false;
+  var firebaseWasConfigured = false;
   try {
     final options = DefaultFirebaseOptions.currentPlatform;
-    final firebaseConfigured = options.projectId.isNotEmpty &&
+    firebaseWasConfigured = options.projectId.isNotEmpty &&
         options.appId.isNotEmpty &&
         options.apiKey.isNotEmpty;
 
-    if (!firebaseConfigured) {
+    if (!firebaseWasConfigured) {
       if (kDebugMode) {
         debugPrint(
           'Firebase o‘tkazib yuborildi: konfiguratsiya bo‘sh '
@@ -63,27 +71,55 @@ Future<AppBootstrapResult> runAppBootstrap() async {
       }
     } else {
       await Firebase.initializeApp(options: options);
-      // ignore: deprecated_member_use
-      await FirebaseAppCheck.instance.activate(
-        // ignore: deprecated_member_use
-        androidProvider: AndroidProvider.playIntegrity,
-        // ignore: deprecated_member_use
-        appleProvider: AppleProvider.deviceCheck,
-        // ignore: deprecated_member_use
-        webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
-      );
       firebaseOk = true;
       if (kDebugMode) {
-        debugPrint('Firebase initialized successfully.');
+        debugPrint('Firebase Core initialized.');
+      }
+      try {
+        // ignore: deprecated_member_use
+        await FirebaseAppCheck.instance.activate(
+          // ignore: deprecated_member_use
+          androidProvider: AndroidProvider.playIntegrity,
+          // ignore: deprecated_member_use
+          appleProvider: AppleProvider.deviceCheck,
+          // ignore: deprecated_member_use
+          webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
+        );
+        appCheckOk = true;
+        if (kDebugMode) {
+          debugPrint('Firebase App Check activated.');
+        }
+      } catch (e, st) {
+        ErrorLogger.record(
+          e,
+          st,
+          customMessage:
+              'Firebase App Check ishga tushmadi (emulator / kalit / tarmoq); Core barqaror.',
+        );
+        if (kDebugMode) {
+          debugPrint('App Check o‘tkazib yuborildi: $e');
+        }
       }
     }
   } catch (e, st) {
+    firebaseOk = false;
+    appCheckOk = false;
     ErrorLogger.record(e, st, customMessage: 'Firebase initialization failed');
     if (!kIsWeb) {
       debugPrint(
           'Mobil: Firebase yo‘q — mahalliy rejim (bulut/sinxron cheklangan).');
     }
   }
+
+  unawaited(ProductionDiagnostics.firebase(
+    'bootstrap_firebase_summary',
+    data: {
+      'configured': firebaseWasConfigured,
+      'core_ok': firebaseOk,
+      'app_check_ok': appCheckOk,
+    },
+  ));
+  StartupTelemetry.milestone('bootstrap_firebase_done');
 
   try {
     await HiveDb.init();
@@ -96,6 +132,8 @@ Future<AppBootstrapResult> runAppBootstrap() async {
       st,
     );
   }
+
+  StartupTelemetry.milestone('bootstrap_hive_ready');
 
   if (!kIsWeb) {
     Object? fmtcErr;
@@ -121,7 +159,14 @@ Future<AppBootstrapResult> runAppBootstrap() async {
     if (fmtcErr != null) {
       debugPrint('WARN: Oflayn xarita keshi xatosi yuz berdi: $fmtcErr');
     }
+    StartupTelemetry.milestone(
+      'bootstrap_fmtc_done',
+      extra: {'fmtc_ok': fmtcErr == null},
+    );
   }
+
+  StartupTelemetry.milestone('bootstrap_complete', extra: {'cloud': firebaseOk});
+  unawaited(ProductionDiagnostics.memoryCheckpoint('after_bootstrap'));
 
   return AppBootstrapSuccess(
     MultiProvider(

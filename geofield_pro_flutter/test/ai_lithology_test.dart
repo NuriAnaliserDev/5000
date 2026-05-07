@@ -122,8 +122,9 @@ void main() {
       // Internal method test (via a mock or just calling it if it were public)
       // Since it's private, we verify the logic exists in the service.
       expect(() {
-        if (!invalidJson.containsKey('mineralogy'))
+        if (!invalidJson.containsKey('mineralogy')) {
           throw Exception("Missing key");
+        }
       }, throwsException);
     });
   });

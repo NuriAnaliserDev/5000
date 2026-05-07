@@ -1,7 +1,10 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:io' show Platform;
+
+import '../core/diagnostics/production_diagnostics.dart';
 
 import 'gps/gps_broadcaster.dart';
 
@@ -16,6 +19,7 @@ class LocationService extends ChangeNotifier {
   Timer? _staleCheckTimer;
   DateTime _lastUpdateTime = DateTime.now();
   bool _gpsAcquired = false;
+  bool _loggedFirstGpsFix = false;
 
   Position? get currentPosition => _currentPosition;
   GpsStatus get status => _status;
@@ -50,10 +54,20 @@ class LocationService extends ChangeNotifier {
   }
 
   Future<void> _init() async {
+    unawaited(
+      ProductionDiagnostics.gps('init_begin'),
+    );
     _isServiceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!_isServiceEnabled) {
       _status = GpsStatus.off;
       notifyListeners();
+      unawaited(
+        ProductionDiagnostics.gps(
+          'init_complete',
+          phase: 'service_off',
+          data: {'status': _status.name},
+        ),
+      );
       return;
     }
 
@@ -66,6 +80,13 @@ class LocationService extends ChangeNotifier {
         permission == LocationPermission.deniedForever) {
       _status = GpsStatus.denied;
       notifyListeners();
+      unawaited(
+        ProductionDiagnostics.gps(
+          'init_complete',
+          phase: 'permission_denied',
+          data: {'status': _status.name, 'permission': permission.name},
+        ),
+      );
       return;
     }
 
@@ -77,6 +98,7 @@ class LocationService extends ChangeNotifier {
 
     _serviceStatusSub ??=
         Geolocator.getServiceStatusStream().listen((ServiceStatus status) {
+      final wasEnabled = _isServiceEnabled;
       _isServiceEnabled = (status == ServiceStatus.enabled);
       if (!_isServiceEnabled) {
         _status = GpsStatus.off;
@@ -86,15 +108,44 @@ class LocationService extends ChangeNotifier {
         refreshLocation();
       }
       notifyListeners();
+      unawaited(
+        ProductionDiagnostics.gps(
+          'service_status',
+          data: {
+            'enabled': _isServiceEnabled,
+            'was_enabled': wasEnabled,
+          },
+        ),
+      );
     });
 
     _attachGpsStream();
+    unawaited(
+      ProductionDiagnostics.gps(
+        'init_complete',
+        phase: 'stream_attached',
+        data: {'status': _status.name, 'permission': permission.name},
+      ),
+    );
   }
 
   void _onGpsPosition(Position position) {
     _currentPosition = position;
     _lastUpdateTime = DateTime.now();
     _updateStatus(position.accuracy);
+    if (!_loggedFirstGpsFix) {
+      _loggedFirstGpsFix = true;
+      unawaited(
+        ProductionDiagnostics.gps(
+          'first_position',
+          data: {
+            'accuracy_m': position.accuracy,
+            'lat_round': (position.latitude * 1000).round() / 1000,
+            'lng_round': (position.longitude * 1000).round() / 1000,
+          },
+        ),
+      );
+    }
     notifyListeners();
   }
 
@@ -106,9 +157,15 @@ class LocationService extends ChangeNotifier {
     }
     _positionSubscription = GpsBroadcaster.instance.positionStream.listen(
       _onGpsPosition,
-      onError: (_) {
+      onError: (Object e, StackTrace st) {
         _status = GpsStatus.off;
         notifyListeners();
+        unawaited(
+          ProductionDiagnostics.gps(
+            'stream_error',
+            data: {'error': e.toString()},
+          ),
+        );
       },
     );
   }
@@ -168,6 +225,12 @@ class LocationService extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       debugPrint("Refresh failed: $e");
+      unawaited(
+        ProductionDiagnostics.gps(
+          'refresh_failed',
+          data: {'error': e.toString()},
+        ),
+      );
     }
   }
 

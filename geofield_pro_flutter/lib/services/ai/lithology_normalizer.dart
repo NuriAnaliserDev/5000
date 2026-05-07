@@ -129,11 +129,14 @@ class LithologyNormalizer {
 
   static String _determineStatus(
       ValidationStatus valStatus, double finalScore, List<String> warnings) {
-    if (valStatus == ValidationStatus.invalid || finalScore < 0.3)
+    if (valStatus == ValidationStatus.invalid || finalScore < 0.3) {
       return 'invalid';
+    }
     if (valStatus == ValidationStatus.suspicious ||
         finalScore < 0.7 ||
-        warnings.isNotEmpty) return 'suspicious';
+        warnings.isNotEmpty) {
+      return 'suspicious';
+    }
     return 'valid';
   }
 
@@ -152,18 +155,23 @@ class LithologyNormalizer {
     List<RockType> candidates = [];
 
     if (lower.contains('granit')) candidates.add(RockType.granite);
-    if (lower.contains('bazalt') || lower.contains('basalt'))
+    if (lower.contains('bazalt') || lower.contains('basalt')) {
       candidates.add(RockType.basalt);
-    if (lower.contains('ohak') || lower.contains('limestone'))
+    }
+    if (lower.contains('ohak') || lower.contains('limestone')) {
       candidates.add(RockType.limestone);
-    if (lower.contains('qum') || lower.contains('sandstone'))
+    }
+    if (lower.contains('qum') || lower.contains('sandstone')) {
       candidates.add(RockType.sandstone);
-    if (lower.contains('slanets') || lower.contains('shale'))
+    }
+    if (lower.contains('slanets') || lower.contains('shale')) {
       candidates.add(RockType.shale);
+    }
     if (lower.contains('diorit')) candidates.add(RockType.diorite);
     if (lower.contains('gabbro')) candidates.add(RockType.gabbro);
-    if (lower.contains('mramor') || lower.contains('marble'))
+    if (lower.contains('mramor') || lower.contains('marble')) {
       candidates.add(RockType.marble);
+    }
 
     if (candidates.isEmpty) candidates.add(RockType.unknown);
     return candidates;

@@ -34,11 +34,21 @@ mixin SmartCameraCameraMixin on SmartCameraStateFields {
   }
 
   Future<void> _initCamera() async {
+    unawaited(
+      ProductionDiagnostics.camera(
+        'init_begin',
+        data: {
+          'embedded': widget.embedded,
+          'surface_active': _cameraSurfaceActive,
+        },
+      ),
+    );
     try {
       final status = await Permission.camera.status;
       if (!status.isGranted) {
         final result = await Permission.camera.request();
         if (!result.isGranted) {
+          unawaited(ProductionDiagnostics.camera('permission_denied'));
           if (mounted) {
             setState(() {});
             ScaffoldMessenger.of(context).showSnackBar(
@@ -63,27 +73,81 @@ mixin SmartCameraCameraMixin on SmartCameraStateFields {
         return;
       }
       if (cameras.isEmpty) {
+        unawaited(ProductionDiagnostics.camera('no_cameras_listed'));
         throw StateError('Kamera topilmadi');
       }
       final backCamera = cameras.firstWhere(
         (c) => c.lensDirection == CameraLensDirection.back,
         orElse: () => cameras.first,
       );
-      _cameraController = CameraController(
-        backCamera,
+
+      const presets = <ResolutionPreset>[
         ResolutionPreset.high,
-        enableAudio: false,
-      );
-      _cameraInitFuture = _cameraController!.initialize();
-      await _cameraInitFuture;
-      if (!mounted || !_cameraSurfaceActive) {
-        _disposeCameraOnly();
-        return;
+        ResolutionPreset.medium,
+        ResolutionPreset.low,
+      ];
+      Object? lastError;
+      for (final preset in presets) {
+        if (!mounted || !_cameraSurfaceActive) {
+          return;
+        }
+        _cameraController?.dispose();
+        _cameraController = null;
+        _cameraInitFuture = null;
+        try {
+          unawaited(
+            ProductionDiagnostics.camera(
+              'preset_attempt',
+              phase: preset.name,
+            ),
+          );
+          final controller = CameraController(
+            backCamera,
+            preset,
+            enableAudio: false,
+          );
+          _cameraController = controller;
+          _cameraInitFuture = controller
+              .initialize()
+              .timeout(AppTimeouts.cameraInitPerPresetAttempt);
+          await _cameraInitFuture;
+          if (!mounted || !_cameraSurfaceActive) {
+            unawaited(ProductionDiagnostics.camera('init_aborted_after_init'));
+            _disposeCameraOnly();
+            return;
+          }
+          if (controller.value.isInitialized) {
+            unawaited(
+              ProductionDiagnostics.camera(
+                'init_success',
+                phase: preset.name,
+              ),
+            );
+            if (mounted) {
+              setState(() {});
+            }
+            return;
+          }
+        } catch (e) {
+          unawaited(
+            ProductionDiagnostics.camera(
+              'preset_failed',
+              phase: preset.name,
+              data: {'error': e.toString()},
+            ),
+          );
+          lastError = e;
+          _disposeCameraOnly();
+        }
       }
-      if (mounted) {
-        setState(() {});
-      }
+      throw lastError ?? StateError('Kamera ishga tushmadi');
     } catch (e) {
+      unawaited(
+        ProductionDiagnostics.camera(
+          'init_failed',
+          data: {'error': e.toString()},
+        ),
+      );
       _disposeCameraOnly();
       if (mounted) {
         setState(() {});
@@ -212,9 +276,32 @@ mixin SmartCameraCameraMixin on SmartCameraStateFields {
     _beginCameraInitIfNeeded();
   }
 
+  Widget _cameraInactivePlaceholder() {
+    return ColoredBox(
+      color: const Color(0xFF1A1A1A),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.videocam_off_outlined,
+                color: Colors.white.withValues(alpha: 0.45), size: 56),
+            const SizedBox(height: 12),
+            Text(
+              'Kamera hozir faol emas',
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.55),
+                fontSize: 15,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildCameraPreview() {
     if (!_cameraSurfaceActive) {
-      return const ColoredBox(color: Colors.black);
+      return _cameraInactivePlaceholder();
     }
     if (_geologicalArActive) {
       return GeologicalArView(

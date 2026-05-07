@@ -1,5 +1,6 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -14,6 +15,9 @@ import '../services/user_flags_service.dart';
 import '../l10n/app_strings.dart';
 import '../utils/wmm/wmm_model.dart';
 import '../utils/firebase_ready.dart';
+import '../core/diagnostics/app_timeouts.dart';
+import '../core/diagnostics/startup_telemetry.dart';
+import '../core/diagnostics/production_diagnostics.dart';
 import 'error_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -43,6 +47,7 @@ class _SplashScreenState extends State<SplashScreen> {
   String _s(String? val, String fallback) => val ?? fallback;
 
   Future<void> _bootstrap() async {
+    StartupTelemetry.milestone('splash_bootstrap_begin');
     setState(() {
       _error = null;
       _progress = 0;
@@ -53,28 +58,36 @@ class _SplashScreenState extends State<SplashScreen> {
         _statusLabel = _s(_loc?.splash_status_firebase, 'Firebase tekshirilmoqda...');
       });
       await Future<void>.delayed(const Duration(milliseconds: 80));
-      if (Firebase.apps.isNotEmpty) {
-        Firebase.app();
-        setState(() {
-          _statusLabel = _s(_loc?.splash_status_session, 'Sessiya tiklanmoqda...');
-        });
+      if (!mounted) return;
+
+      if (isFirebaseCoreReady) {
         try {
+          setState(() {
+            _statusLabel = _s(_loc?.splash_status_session, 'Sessiya tiklanmoqda...');
+          });
           await FirebaseAuth.instance
               .authStateChanges()
               .first
-              .timeout(const Duration(seconds: 8));
-        } catch (_) {}
-        for (int i = 0; i < 100; i++) {
-          if (FirebaseAuth.instance.currentUser != null) break;
-          await Future<void>.delayed(const Duration(milliseconds: 30));
+              .timeout(AppTimeouts.splashAuthStateFirstEvent);
+        } catch (_) {
+          // Token / tarmoq sekin — mahalliy rejimga o‘tamiz
         }
+        if (!mounted) return;
+        try {
+          for (var i = 0; i < 100; i++) {
+            if (FirebaseAuth.instance.currentUser != null) break;
+            await Future<void>.delayed(const Duration(milliseconds: 30));
+          }
+        } catch (_) {}
       }
 
+      if (!mounted) return;
       setState(() {
         _progress = 0.5;
         _statusLabel = _s(_loc?.splash_status_local_db, 'Mahalliy ma\'lumotlar bazasi...');
       });
       await Future<void>.delayed(const Duration(milliseconds: 50));
+      if (!mounted) return;
       if (!Hive.isBoxOpen(HiveDb.stationsBox)) {
         throw StateError(_s(_loc?.splash_error_local_db, 'Mahalliy ma\'lumotlar bazasi ochilmadi'));
       }
@@ -89,24 +102,39 @@ class _SplashScreenState extends State<SplashScreen> {
         await Future<void>.delayed(const Duration(milliseconds: 40));
       }
 
+      if (!mounted) return;
       setState(() {
         _progress = 0.9;
         _statusLabel = _s(_loc?.splash_status_wmm, 'Magnit modeli...');
       });
-      WmmModel.embedded().declination(
-        lat: 41.0,
-        lng: 69.0,
-        date: DateTime.now(),
-      );
+      try {
+        WmmModel.embedded().declination(
+          lat: 41.0,
+          lng: 69.0,
+          date: DateTime.now(),
+        );
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint('WMM declination: $e');
+        }
+      }
 
       setState(() {
         _progress = 0.95;
         _statusLabel = _s(_loc?.splash_status_profile, 'Profil yuklanmoqda...');
       });
       if (mounted) {
-        await _syncOnboardingForLoggedInUser();
+        try {
+          await _syncOnboardingForLoggedInUser()
+              .timeout(AppTimeouts.splashFirestoreOnboardingSync);
+        } catch (e) {
+          if (kDebugMode) {
+            debugPrint('Onboarding sync atlandi: $e');
+          }
+        }
       }
 
+      if (!mounted) return;
       setState(() {
         _progress = 1.0;
         _statusLabel = _s(_loc?.splash_status_ready, 'Tayyor!');
@@ -114,11 +142,19 @@ class _SplashScreenState extends State<SplashScreen> {
       await Future<void>.delayed(const Duration(milliseconds: 200));
 
       if (!mounted) return;
+      StartupTelemetry.milestone('splash_complete');
+      unawaited(ProductionDiagnostics.memoryCheckpoint('splash_before_nav'));
       _goNext();
     } catch (e, st) {
       if (kDebugMode) {
         debugPrint('Splash bootstrap: $e\n$st');
       }
+      unawaited(
+        ProductionDiagnostics.failure(
+          'splash_bootstrap',
+          data: {'error': e.toString()},
+        ),
+      );
       if (mounted) {
         setState(() {
           _error = e is Error ? e.toString() : '$e';

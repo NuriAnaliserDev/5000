@@ -451,6 +451,15 @@ class AdminScreenBody extends StatelessWidget {
                 subtitle: Text(context.loc('admin_diagnostics_view_logs_desc')),
                 onTap: () async {
                   final logs = await DiagnosticService.instance.getLogs();
+                  final jsonl =
+                      await DiagnosticService.instance.getStructuredLogs();
+                  final combined = StringBuffer()
+                    ..writeln('=== diagnostics.log ===')
+                    ..writeln(logs)
+                    ..writeln()
+                    ..writeln('=== diagnostics_structured.jsonl ===')
+                    ..writeln(jsonl.isEmpty ? '(bo\'sh)' : jsonl);
+                  final text = combined.toString();
                   if (context.mounted) {
                     showDialog(
                       context: context,
@@ -458,7 +467,7 @@ class AdminScreenBody extends StatelessWidget {
                         title: const Text('Diagnostics Log'),
                         content: SingleChildScrollView(
                           child: Text(
-                            logs,
+                            text,
                             style: const TextStyle(
                                 fontSize: 10, fontFamily: 'monospace'),
                           ),
@@ -480,9 +489,18 @@ class AdminScreenBody extends StatelessWidget {
                 title: Text(context.loc('admin_diagnostics_share_logs')),
                 onTap: () async {
                   final file = await DiagnosticService.instance.getLogFile();
+                  final structFile =
+                      await DiagnosticService.instance.getStructuredLogFile();
+                  final paths = <XFile>[];
                   if (file != null && await file.exists()) {
-                    await Share.shareXFiles([XFile(file.path)],
-                        text: 'GeoField Pro Diagnostics Log');
+                    paths.add(XFile(file.path));
+                  }
+                  if (structFile != null && await structFile.exists()) {
+                    paths.add(XFile(structFile.path));
+                  }
+                  if (paths.isNotEmpty) {
+                    await Share.shareXFiles(paths,
+                        text: 'GeoField Pro Diagnostics');
                   } else {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
