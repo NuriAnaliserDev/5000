@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'diagnostic_domain.dart';
+import 'log_channels.dart';
 import 'memory_snapshot.dart';
 
 class DiagnosticService {
@@ -20,6 +21,15 @@ class DiagnosticService {
   static const int _maxPending = 400;
 
   bool get isReady => _ready;
+
+  /// Matnli log — har doim [BOOT] kabi prefix bilan (FREEZE: log strategy).
+  Future<void> logPrefixed(
+    DiagLogChannel channel,
+    String message, {
+    String? tag,
+  }) {
+    return log('${channel.prefix} $message', tag: tag ?? channel.name);
+  }
 
   Future<void> init() async {
     try {
@@ -47,7 +57,7 @@ class DiagnosticService {
         }
       }
 
-      await log('=== SESSION STARTED ===', tag: 'SYSTEM');
+      await logPrefixed(DiagLogChannel.boot, '=== SESSION STARTED ===');
 
       for (final line in _pendingStructuredLines) {
         await _appendStructuredLine(line);

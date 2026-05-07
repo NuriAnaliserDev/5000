@@ -5,13 +5,18 @@ import 'app_error.dart';
 import 'error_mapper.dart';
 import '../diagnostics/diagnostic_service.dart';
 import '../diagnostics/diagnostic_domain.dart';
+import '../diagnostics/log_channels.dart';
 
 class ErrorLogger {
   static void log(AppError error) {
-    // 1. Lokal log faylga yozish (Offline diagnostika uchun)
-    DiagnosticService.instance.log(
-      '${error.userMessage}${error.devMessage != null ? " | DevMsg: ${error.devMessage}" : ""}${error.originalError != null ? " | Cause: ${error.originalError}" : ""}',
-      tag: 'ERROR:${error.category.name}:${error.severity.name}',
+    final details =
+        '${error.userMessage}${error.devMessage != null ? " | DevMsg: ${error.devMessage}" : ""}${error.originalError != null ? " | Cause: ${error.originalError}" : ""}';
+    unawaited(
+      DiagnosticService.instance.logPrefixed(
+        DiagLogChannel.error,
+        details,
+        tag: '${error.category.name}:${error.severity.name}',
+      ),
     );
 
     unawaited(
@@ -33,7 +38,7 @@ class ErrorLogger {
 
     if (kDebugMode) {
       debugPrint(
-          '🔴 ERROR [${error.category.name}|${error.severity.name}]: ${error.userMessage}');
+          '${DiagLogChannel.error.prefix} [${error.category.name}|${error.severity.name}]: ${error.userMessage}');
       if (error.devMessage != null) {
         debugPrint('DevMsg: ${error.devMessage}');
       }

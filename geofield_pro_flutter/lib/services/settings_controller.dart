@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 
+import '../core/config/app_features.dart';
 import 'hive_db.dart';
 
 class SettingsController extends ChangeNotifier {
@@ -112,8 +113,10 @@ class SettingsController extends ChangeNotifier {
   }
 
   /// Android/iOS: geologik kamera — ARCore/ARKit qatlam (oddiy kamera o‘rniga).
+  /// [AppFeatures.enableAR] `false` bo‘lsa doim o‘chiq (FREEZE).
   bool get geologicalArEnabled =>
-      _box.get(_geologicalArKey, defaultValue: false) as bool;
+      AppFeatures.enableAR &&
+      (_box.get(_geologicalArKey, defaultValue: false) as bool);
 
   void _runGeologicalArDefaultOffMigration() {
     if (_box.get(_geologicalArMigratedDefaultOffKey, defaultValue: false)
@@ -125,6 +128,11 @@ class SettingsController extends ChangeNotifier {
   }
 
   set geologicalArEnabled(bool value) {
+    if (!AppFeatures.enableAR) {
+      _box.put(_geologicalArKey, false);
+      notifyListeners();
+      return;
+    }
     _box.put(_geologicalArKey, value);
     notifyListeners();
   }

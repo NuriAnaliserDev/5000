@@ -141,7 +141,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
               const CameraDocumentViewfinder(),
               _buildDocumentHint(),
             ],
-            if (_cameraMode == CameraMode.lithology)
+            if (_cameraMode == CameraMode.lithology && AppFeatures.enableAR)
               LithologyArOverlay(
                 result: _currentLithology,
                 userContext: UserContext(
@@ -172,7 +172,8 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
                   expertMode: expertMode,
                   showHud: _showHud,
                   geologicalArEnabled: settings.geologicalArEnabled,
-                  showGeologicalArOption: geologicalArSupportedPlatform(),
+                  showGeologicalArOption:
+                      geologicalArSupportedPlatform() && AppFeatures.enableAR,
                   flashMode: _flashMode,
                   zoom: _zoom,
                   isDark: isDark,

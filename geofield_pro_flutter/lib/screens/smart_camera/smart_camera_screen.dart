@@ -30,6 +30,7 @@ import '../../core/error/error_handler.dart';
 import '../../core/error/error_mapper.dart';
 import '../../core/diagnostics/production_diagnostics.dart';
 import '../../core/diagnostics/app_timeouts.dart';
+import '../../core/config/app_features.dart';
 import '../../utils/geo_orientation.dart';
 import '../../utils/geology_utils.dart';
 import '../../utils/image_utils.dart';

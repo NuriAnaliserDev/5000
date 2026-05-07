@@ -65,6 +65,7 @@ mixin SmartCameraStateFields on State<SmartCameraScreen> {
   CameraMode _cameraMode = CameraMode.geological;
 
   bool get _geologicalArActive =>
+      AppFeatures.enableAR &&
       _cameraMode == CameraMode.geological &&
       (_settings?.geologicalArEnabled ?? false) &&
       geologicalArSupportedPlatform();

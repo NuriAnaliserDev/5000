@@ -2,6 +2,13 @@ name: geofield_pro_flutter
 description: Professional geological field mapping and data collection tool (GeoField Pro).
 # 1.10.0: Firebase Auth (Web client / reCAPTCHA), ikon (alpha fon) yangilandi
 version: 1.10.0+13
+#
+# -----------------------------------------------------------------------------
+# DEPENDENCY FREEZE (docs/FREEZE_PROTOCOL.md):
+# - "latest" / tasodifiy major update qilmang.
+# - Yangi paket: WHY, SIZE, MAINTAINED, ANDROID/IOS/WEB ta'siri — ayniqsa
+#   AR, camera, map, firebase, permission.
+# -----------------------------------------------------------------------------
 
 environment:
   sdk: ">=3.4.0 <4.0.0"

@@ -7,6 +7,8 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import '../models/station.dart';
 import '../utils/firebase_ready.dart';
 import '../core/di/dependency_injection.dart';
+import '../core/config/app_features.dart';
+import '../core/diagnostics/log_channels.dart';
 import 'sync/sync_processor.dart';
 
 class CloudSyncService extends ChangeNotifier {
@@ -26,8 +28,16 @@ class CloudSyncService extends ChangeNotifier {
   }
 
   void init() {
+    if (!AppFeatures.enableCloudSync) {
+      debugPrint(
+        '${DiagLogChannel.sync.prefix} CloudSyncService muzlatilgan (AppFeatures.enableCloudSync=false).',
+      );
+      return;
+    }
     if (_firestore == null) {
-      debugPrint('CloudSyncService: Firebase yo‘q — sinxron o‘chiq.');
+      debugPrint(
+        '${DiagLogChannel.sync.prefix} Firebase yo‘q — sinxron o‘chiq.',
+      );
       return;
     }
     _connectivitySubscription = Connectivity()
@@ -36,7 +46,9 @@ class CloudSyncService extends ChangeNotifier {
       if (results.contains(ConnectivityResult.mobile) ||
           results.contains(ConnectivityResult.wifi)) {
         if (await hasRealInternet()) {
-          debugPrint('Haqiqiy internet aniqlandi: SyncProcessor run...');
+          debugPrint(
+            '${DiagLogChannel.sync.prefix} Internet bor — SyncProcessor.run',
+          );
           sl<SyncProcessor>().run();
         }
       }
@@ -77,6 +89,7 @@ class CloudSyncService extends ChangeNotifier {
 
   /// Legacy trigger support
   Future<void> triggerSync() async {
+    if (!AppFeatures.enableCloudSync) return;
     if (await hasRealInternet()) {
       sl<SyncProcessor>().run();
     }
@@ -94,13 +107,13 @@ class CloudSyncService extends ChangeNotifier {
   // But since we are enforcing Write Enforcement, they should ideally throw.
 
   Future<bool> syncStation(dynamic key, Station station) async {
-    // Redirection to run the processor (which will find the item in the queue)
-    // Actually, StationRepository already adds it to the queue.
+    if (!AppFeatures.enableCloudSync) return true;
     sl<SyncProcessor>().run();
     return true;
   }
 
   Future<bool> deleteStation(dynamic key) async {
+    if (!AppFeatures.enableCloudSync) return true;
     sl<SyncProcessor>().run();
     return true;
   }

@@ -6,6 +6,8 @@ import 'package:hive/hive.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'dart:math';
+import '../../core/config/app_features.dart';
+import '../../core/diagnostics/log_channels.dart';
 import '../../models/sync_item.dart';
 import '../cloud_sync_service.dart';
 import 'sync_queue_service.dart';
@@ -54,7 +56,16 @@ class SyncProcessor extends ChangeNotifier {
   /// Stuck bo'lib qolgan (processing) itemlarni pendingga qaytarish
   Future<void> init() async {
     await _queueService.resetProcessingItems();
-    
+
+    if (!AppFeatures.enableCloudSync) {
+      if (kDebugMode) {
+        debugPrint(
+          '${DiagLogChannel.sync.prefix} SyncProcessor: fon sinxron muzlatilgan.',
+        );
+      }
+      return;
+    }
+
     // Internet o'zgarganda avtomatik ishga tushirish
     _connectivitySub = Connectivity().onConnectivityChanged.listen((results) {
       if (results.any((r) => r != ConnectivityResult.none)) {
@@ -75,6 +86,7 @@ class SyncProcessor extends ChangeNotifier {
 
   /// Engine'ni yurgizish
   Future<void> run() async {
+    if (!AppFeatures.enableCloudSync) return;
     if (_isRunning) return;
     
     // Internet tekshiruvi
