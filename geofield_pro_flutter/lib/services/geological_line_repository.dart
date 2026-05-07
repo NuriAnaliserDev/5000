@@ -11,6 +11,7 @@ import '../utils/firebase_ready.dart';
 import '../core/di/dependency_injection.dart';
 import '../core/network/network_executor.dart';
 import '../core/error/error_logger.dart';
+import 'hive_db.dart';
 import '../utils/device_id_helper.dart';
 import '../models/sync_item.dart';
 import 'sync/sync_queue_service.dart';
@@ -19,7 +20,9 @@ import 'package:uuid/uuid.dart';
 /// Repository for geological linework features (faults, contacts, etc.)
 /// Backed by a Hive box for offline-first storage.
 class GeologicalLineRepository extends ChangeNotifier {
-  static const _boxName = 'geologicalLines';
+  /// Eski noto‘g‘ri nom; faqat bir marta ko‘chirish uchun.
+  static const _legacyBoxName = 'geologicalLines';
+
   Box<GeologicalLine>? _box;
 
   List<GeologicalLine> _lines = [];
@@ -32,11 +35,52 @@ class GeologicalLineRepository extends ChangeNotifier {
   final _lock = Lock();
 
   Future<void> init() async {
-    _box = await Hive.openBox<GeologicalLine>(_boxName);
+    if (!Hive.isBoxOpen(HiveDb.linesBox)) {
+      ErrorLogger.record(
+        StateError('Hive ${HiveDb.linesBox} ochilmagan'),
+        StackTrace.current,
+        customMessage: 'GeologicalLineRepository.init',
+      );
+      return;
+    }
+    _box = Hive.box<GeologicalLine>(HiveDb.linesBox);
     _lines = _box!.values.toList();
     notifyListeners();
 
+    unawaited(_migrateLegacyGeologicalLinesBoxIfNeeded());
+
     _initRemoteSync();
+  }
+
+  /// Eski `geologicalLines` faylidagi yozuvlarni `HiveDb.linesBox` ga ko‘chiradi.
+  Future<void> _migrateLegacyGeologicalLinesBoxIfNeeded() async {
+    final box = _box;
+    if (box == null) return;
+    if (box.isNotEmpty) return;
+    try {
+      if (!await Hive.boxExists(_legacyBoxName)) return;
+      final legacy = await Hive.openBox<GeologicalLine>(_legacyBoxName);
+      try {
+        if (legacy.isEmpty) return;
+        for (final key in legacy.keys.toList()) {
+          final v = legacy.get(key);
+          if (v != null) await box.put(key, v);
+        }
+      } finally {
+        await legacy.close();
+        try {
+          await Hive.deleteBoxFromDisk(_legacyBoxName);
+        } catch (_) {}
+      }
+      _lines = box.values.toList();
+      notifyListeners();
+    } catch (e, st) {
+      ErrorLogger.record(
+        e,
+        st,
+        customMessage: 'GeologicalLineRepository legacy box migrate',
+      );
+    }
   }
 
   void _initRemoteSync() {

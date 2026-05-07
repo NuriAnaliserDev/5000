@@ -7,9 +7,12 @@ import 'package:synchronized/synchronized.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'dart:math';
 import '../../core/config/app_features.dart';
+import '../../core/diagnostics/app_timeouts.dart';
 import '../../core/diagnostics/log_channels.dart';
+import '../../core/diagnostics/production_diagnostics.dart';
 import '../../models/sync_item.dart';
 import '../cloud_sync_service.dart';
+import '../hive_db.dart';
 import 'sync_queue_service.dart';
 import 'conflict_queue_service.dart';
 import '../../models/sync_conflict.dart';
@@ -104,8 +107,21 @@ class SyncProcessor extends ChangeNotifier {
       try {
         await _processQueue();
         _updateStatus(SyncEngineStatus.idle);
-        // Memory Safety: Har sync tsiklidan keyin boxni siqish
-        await Hive.box<SyncItem>('sync_queue').compact();
+        try {
+          await Hive.box<SyncItem>(HiveDb.syncQueueBox)
+              .compact()
+              .timeout(AppTimeouts.hiveCompactAfterSync);
+        } catch (e) {
+          unawaited(
+            ProductionDiagnostics.storage(
+              'sync_queue_compact_failed',
+              data: {'error': e.toString()},
+            ),
+          );
+          if (kDebugMode) {
+            debugPrint('${DiagLogChannel.sync.prefix} compact: $e');
+          }
+        }
       } catch (e) {
         _lastError = e.toString();
         _updateStatus(SyncEngineStatus.error);

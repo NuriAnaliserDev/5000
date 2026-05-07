@@ -2,17 +2,49 @@ part of 'global_map_screen.dart';
 
 mixin GlobalMapPresenceCompassMixin on GlobalMapScreenStateFields {
   void _onGpsForFollow() {
-    if (!mounted || !_followGps) {
+    if (!mounted) {
       return;
     }
     final p = _locationForFollow?.currentPosition;
+    if (p != null && !_didAutoCenterFromGps && widget.initLocation == null) {
+      _didAutoCenterFromGps = true;
+      final lat = p.latitude;
+      final lng = p.longitude;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) {
+          return;
+        }
+        try {
+          _mapController.move(LatLng(lat, lng), 14);
+        } catch (e) {
+          unawaited(
+            ProductionDiagnostics.gps(
+              'map_initial_center_move_failed',
+              data: {'error': e.toString()},
+            ),
+          );
+        }
+      });
+    }
+    if (!_followGps) {
+      return;
+    }
     if (p == null) {
       return;
     }
-    _mapController.move(
-      LatLng(p.latitude, p.longitude),
-      _mapController.camera.zoom,
-    );
+    try {
+      _mapController.move(
+        LatLng(p.latitude, p.longitude),
+        _mapController.camera.zoom,
+      );
+    } catch (e) {
+      unawaited(
+        ProductionDiagnostics.gps(
+          'map_follow_move_failed',
+          data: {'error': e.toString()},
+        ),
+      );
+    }
   }
 
   void _startPresenceBroadcast() {
@@ -59,18 +91,12 @@ mixin GlobalMapPresenceCompassMixin on GlobalMapScreenStateFields {
     );
   }
 
-  @override
-  void dispose() {
-    _locationForFollow?.removeListener(_onGpsForFollow);
-    _compassSub?.cancel();
-    _headingNotifier.dispose();
-    _mapController.dispose();
-    super.dispose();
-  }
-
   void _startCompass() {
     _compassSub?.cancel();
     _compassSub = FlutterCompass.events?.listen((event) {
+      if (!mounted) {
+        return;
+      }
       final h = event.heading;
       if (h == null || h.isNaN || !mounted) return;
       final target = h % 360;

@@ -7,4 +7,5 @@ enum DiagnosticDomain {
   firebase,
   failure,
   sync,
+  storage,
 }

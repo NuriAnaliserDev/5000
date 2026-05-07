@@ -89,6 +89,9 @@ mixin SmartCameraCaptureMixin on SmartCameraStateFields {
     if (_isBusy) {
       return;
     }
+    if (!mounted) {
+      return;
+    }
     try {
       setState(() => _isBusy = true);
       final settings = context.read<SettingsController>();
@@ -279,7 +282,9 @@ mixin SmartCameraCaptureMixin on SmartCameraStateFields {
       final file = File(xFile.path);
 
       final service = AiLithologyService();
-      final result = await service.analyzeRockSample(file);
+      final result = await service
+          .analyzeRockSample(file)
+          .timeout(const Duration(seconds: 40));
 
       if (mounted && _cameraMode == CameraMode.lithology) {
         setState(() => _currentLithology = result);

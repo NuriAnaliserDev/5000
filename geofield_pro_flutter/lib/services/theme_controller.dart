@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
+import 'hive_db.dart';
+
 class ThemeController extends ChangeNotifier {
   ThemeController() {
     _load();
@@ -19,7 +21,7 @@ class ThemeController extends ChangeNotifier {
 
   void _load() {
     try {
-      final box = Hive.box('settings');
+      final box = Hive.box(HiveDb.settingsBox);
       final v = box.get(_key) as int?;
       if (v != null && v >= 0 && v <= 2) {
         _mode = ThemeMode.values[v];
@@ -31,7 +33,7 @@ class ThemeController extends ChangeNotifier {
 
   void _save() {
     try {
-      Hive.box('settings').put(_key, _mode.index);
+      Hive.box(HiveDb.settingsBox).put(_key, _mode.index);
     } catch (e) {
       debugPrint('Theme save failed: $e');
     }

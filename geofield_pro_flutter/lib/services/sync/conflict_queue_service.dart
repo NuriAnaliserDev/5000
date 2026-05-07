@@ -6,11 +6,10 @@ import '../hive_db.dart';
 /// Sinxronizatsiya paytida yuzaga kelgan konfliktlarni boshqarish xizmati.
 /// Ma'lumotlarni alohida xavfsiz navbatda saqlaydi va UI uchun stream beradi.
 class ConflictQueueService extends ChangeNotifier {
-  late Box<SyncConflict> _conflictBox;
+  ConflictQueueService()
+      : _conflictBox = Hive.box<SyncConflict>(HiveDb.syncConflictsBox);
 
-  Future<void> init() async {
-    _conflictBox = await Hive.openBox<SyncConflict>(HiveDb.syncConflictsBox);
-  }
+  final Box<SyncConflict> _conflictBox;
 
   List<SyncConflict> get conflicts => _conflictBox.values.toList();
 

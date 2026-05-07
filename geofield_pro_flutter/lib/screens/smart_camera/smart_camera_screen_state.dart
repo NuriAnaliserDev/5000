@@ -61,6 +61,8 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _lithologyTimer?.cancel();
+    _lithologyTimer = null;
     _recordTimer?.cancel();
     _stopSensors();
     unawaited(_disableHardwareTorch());
@@ -74,13 +76,19 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
     if (state == AppLifecycleState.inactive ||
         state == AppLifecycleState.paused) {
       unawaited(ProductionDiagnostics.camera('lifecycle_pause'));
+      _lithologyTimer?.cancel();
+      _lithologyTimer = null;
       unawaited(_disableHardwareTorch());
       _disposeCameraOnly();
       _stopSensors();
     } else if (state == AppLifecycleState.resumed) {
+      _cachedCameraPermissionFuture = null;
       unawaited(ProductionDiagnostics.camera('lifecycle_resume'));
       _startSensors();
       _ensureCameraMatchesMode();
+      if (_cameraMode == CameraMode.lithology) {
+        _startLithologyLoop();
+      }
     }
   }
 

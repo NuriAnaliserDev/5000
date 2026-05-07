@@ -6,6 +6,9 @@ mixin SmartCameraSensorMixin on SmartCameraStateFields {
   void _startSensors() {
     _stopSensors();
     _compassSub = FlutterCompass.events?.listen((event) {
+      if (!mounted) {
+        return;
+      }
       final h = event.heading;
       final acc = event.accuracy;
       if (acc != null) {
@@ -41,10 +44,16 @@ mixin SmartCameraSensorMixin on SmartCameraStateFields {
       }
     });
     _accelSub = accelerometerEventStream().listen((event) {
+      if (!mounted) {
+        return;
+      }
       _gravity = Vec3(event.x, event.y, event.z);
       _recomputeOrientation();
     });
     _magSub = magnetometerEventStream().listen((event) {
+      if (!mounted) {
+        return;
+      }
       _mag = event;
       _recomputeOrientation();
     });

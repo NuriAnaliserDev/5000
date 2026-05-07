@@ -15,6 +15,7 @@ import '../utils/firebase_ready.dart';
 import '../core/error/error_logger.dart';
 import '../core/network/network_executor.dart';
 import '../core/di/dependency_injection.dart';
+import '../core/diagnostics/app_timeouts.dart';
 import '../core/diagnostics/diagnostic_service.dart';
 import '../core/diagnostics/startup_telemetry.dart';
 import '../core/diagnostics/production_diagnostics.dart';
@@ -122,7 +123,12 @@ Future<AppBootstrapResult> runAppBootstrap() async {
   StartupTelemetry.milestone('bootstrap_firebase_done');
 
   try {
-    await HiveDb.init();
+    await HiveDb.init().timeout(
+      AppTimeouts.hiveBootstrapInit,
+      onTimeout: () => throw TimeoutException(
+        'HiveDb.init kutish chegarasidan oshdi (${AppTimeouts.hiveBootstrapInit.inSeconds}s)',
+      ),
+    );
   } catch (e, st) {
     ErrorLogger.record(e, st,
         customMessage: 'Mahalliy ma\'lumotlar bazasi (Hive) ochilmadi');

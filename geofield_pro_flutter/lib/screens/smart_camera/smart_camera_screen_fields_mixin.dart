@@ -57,6 +57,10 @@ mixin SmartCameraStateFields on State<SmartCameraScreen> {
   bool _pendingDelayedCameraInitAfterAr = false;
   Timer? _delayedCameraInitTimer;
   Future<void>? _cameraInitInFlight;
+  /// FutureBuilder har rebuildda yangi future yaratmasligi uchun (CPU / permission spam).
+  Future<PermissionStatus>? _cachedCameraPermissionFuture;
+  /// Kamera sessiyasi: dispose qayta init — eski FutureBuilder ni ajratish.
+  int _cameraPreviewSession = 0;
 
   SettingsController? _settings;
   LocationService? _locationService;

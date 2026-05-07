@@ -10,6 +10,7 @@ import '../models/map_structure_annotation.dart';
 import '../utils/firebase_ready.dart';
 import '../core/network/network_executor.dart';
 import '../core/error/error_logger.dart';
+import 'hive_db.dart';
 import '../utils/device_id_helper.dart';
 import '../models/sync_item.dart';
 import 'sync/sync_queue_service.dart';
@@ -18,7 +19,6 @@ import 'package:uuid/uuid.dart';
 
 /// Xaritadagi qo‘lda qo‘yilgan strike/dip belgilar (offline + Firestore).
 class MapStructureRepository extends ChangeNotifier {
-  static const _boxName = 'map_structure_annotations';
   Box<MapStructureAnnotation>? _box;
 
   List<MapStructureAnnotation> _items = [];
@@ -31,7 +31,15 @@ class MapStructureRepository extends ChangeNotifier {
   final _lock = Lock();
 
   Future<void> init() async {
-    _box = await Hive.openBox<MapStructureAnnotation>(_boxName);
+    if (!Hive.isBoxOpen(HiveDb.mapStructureBox)) {
+      ErrorLogger.record(
+        StateError('Hive ${HiveDb.mapStructureBox} ochilmagan'),
+        StackTrace.current,
+        customMessage: 'MapStructureRepository.init',
+      );
+      return;
+    }
+    _box = Hive.box<MapStructureAnnotation>(HiveDb.mapStructureBox);
     _items = _box!.values.toList();
     notifyListeners();
     _attachRemote();

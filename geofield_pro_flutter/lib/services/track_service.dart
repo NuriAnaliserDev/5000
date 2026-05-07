@@ -24,7 +24,7 @@ class TrackService extends ChangeNotifier {
   bool get isTracking => currentTrack != null && _positionStream != null;
 
   List<TrackData> get storedTracks =>
-      Hive.box<TrackData>('tracks').values.toList().reversed.toList();
+      Hive.box<TrackData>(HiveDb.tracksBox).values.toList().reversed.toList();
 
   TrackService(this._cloudSyncService) {
     _initNotifications();
@@ -48,7 +48,7 @@ class TrackService extends ChangeNotifier {
   }
 
   void checkAndPurgeOldTracks() {
-    final box = Hive.box<TrackData>('tracks');
+    final box = Hive.box<TrackData>(HiveDb.tracksBox);
     final settingsBox = Hive.box(HiveDb.settingsBox);
     final purgeDays = settingsBox.get('autoPurgeDays', defaultValue: 30) as int;
 
@@ -125,7 +125,7 @@ class TrackService extends ChangeNotifier {
     );
     currentTrack = newTrack;
 
-    await Hive.box<TrackData>('tracks').add(newTrack);
+    await Hive.box<TrackData>(HiveDb.tracksBox).add(newTrack);
 
     notifyListeners();
 
@@ -240,13 +240,13 @@ class TrackService extends ChangeNotifier {
   }
 
   Future<void> deleteTrack(int key) async {
-    final box = Hive.box<TrackData>('tracks');
+    final box = Hive.box<TrackData>(HiveDb.tracksBox);
     await box.delete(key);
     notifyListeners();
   }
 
   Future<void> renameTrack(int key, String newName) async {
-    final box = Hive.box<TrackData>('tracks');
+    final box = Hive.box<TrackData>(HiveDb.tracksBox);
     final track = box.get(key);
     if (track != null) {
       track.name = newName;

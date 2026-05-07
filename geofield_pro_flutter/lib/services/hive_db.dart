@@ -1,5 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+
+import '../core/diagnostics/production_diagnostics.dart';
+import '../core/error/error_logger.dart';
 
 import '../models/geological_line.dart';
 import '../models/map_structure_annotation.dart';
@@ -87,7 +92,24 @@ class HiveDb {
         debugPrint('HiveDb: migrated "$name" → encrypted (${map.length} keys)');
       }
       return enc;
-    } catch (_) {
+    } catch (e, st) {
+      ErrorLogger.record(
+        e,
+        st,
+        customMessage: 'HiveDb _openTypedMigrate failed: $name',
+      );
+      unawaited(
+        ProductionDiagnostics.storage(
+          'hive_typed_recover',
+          phase: name,
+          data: {'error': e.toString()},
+        ),
+      );
+      try {
+        if (await Hive.boxExists(name)) {
+          await Hive.deleteBoxFromDisk(name);
+        }
+      } catch (_) {}
       return Hive.openBox<T>(name, encryptionCipher: cipher);
     }
   }
@@ -113,7 +135,24 @@ class HiveDb {
         debugPrint('HiveDb: migrated "$name" → encrypted (${map.length} keys)');
       }
       return enc;
-    } catch (_) {
+    } catch (e, st) {
+      ErrorLogger.record(
+        e,
+        st,
+        customMessage: 'HiveDb _openDynamicMigrate failed: $name',
+      );
+      unawaited(
+        ProductionDiagnostics.storage(
+          'hive_dynamic_recover',
+          phase: name,
+          data: {'error': e.toString()},
+        ),
+      );
+      try {
+        if (await Hive.boxExists(name)) {
+          await Hive.deleteBoxFromDisk(name);
+        }
+      } catch (_) {}
       return Hive.openBox(name, encryptionCipher: cipher);
     }
   }

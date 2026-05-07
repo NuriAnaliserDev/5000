@@ -14,6 +14,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:uuid/uuid.dart';
 
+import '../core/diagnostics/production_diagnostics.dart';
 import '../services/station_repository.dart';
 import '../services/track_service.dart';
 import '../services/elevation_service.dart';

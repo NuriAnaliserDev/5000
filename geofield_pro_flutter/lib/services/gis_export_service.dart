@@ -1,9 +1,13 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:archive/archive.dart';
+
+import '../core/diagnostics/app_timeouts.dart';
+import '../core/diagnostics/production_diagnostics.dart';
 
 import '../models/station.dart';
 import '../models/geological_line.dart';
@@ -165,9 +169,28 @@ class GisExportService {
     return buffer.toString();
   }
 
+  /// Eksport ZIP larini cheklab saqlash — disk to‘lib ketmasin.
+  Future<void> _pruneOldExportZips(Directory dir, {int keepMostRecent = 4}) async {
+    try {
+      final entries = dir.listSync().whereType<File>().where((f) {
+        final n = f.uri.pathSegments.isNotEmpty ? f.uri.pathSegments.last : '';
+        return n.startsWith('GeoField_GIS_Export_') && n.endsWith('.zip');
+      }).toList();
+      if (entries.length <= keepMostRecent) return;
+      entries.sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
+      for (final f in entries.skip(keepMostRecent)) {
+        try {
+          await f.delete();
+        } catch (_) {}
+      }
+    } catch (_) {}
+  }
+
   /// 3. Hammasini ZIP qilib Share qilish (Zip exports together)
   Future<void> exportGisBundle() async {
     try {
+      await _pruneOldExportZips(await getApplicationDocumentsDirectory());
+
       final geoJsonStr = generateGeoJSON();
       final dxfStr = generateDXF();
 
@@ -178,7 +201,10 @@ class GisExportService {
       archive.addFile(
           ArchiveFile('geofield_export.dxf', dxfBytes.length, dxfBytes));
 
-      final zipData = ZipEncoder().encode(archive)!;
+      final zipData = ZipEncoder().encode(archive);
+      if (zipData == null) {
+        throw StateError('ZIP encoder null natija qaytardi');
+      }
 
       final dir = await getApplicationDocumentsDirectory();
       final date = DateTime.now()
@@ -188,15 +214,43 @@ class GisExportService {
           .first;
       final file = File('${dir.path}/GeoField_GIS_Export_$date.zip');
 
-      await file.writeAsBytes(zipData);
+      await file
+          .writeAsBytes(zipData, flush: true)
+          .timeout(AppTimeouts.gisExportPipeline);
+
+      if (!await file.exists() || await file.length() == 0) {
+        throw FileSystemException('Eksport fayli yozilmadi yoki bo‘sh', file.path);
+      }
 
       await Share.shareXFiles(
         [XFile(file.path)],
         text:
             'GeoField Pro N - Barcha geologik nuqta, chiziq va marshrutlar (DXF va GeoJSON formadida)',
+      ).timeout(AppTimeouts.gisExportPipeline);
+
+      unawaited(
+        ProductionDiagnostics.storage(
+          'gis_export_ok',
+          data: {'bytes': zipData.length},
+        ),
       );
+    } on FileSystemException catch (e) {
+      debugPrint('GIS Export disk: $e');
+      unawaited(
+        ProductionDiagnostics.storage(
+          'gis_export_disk_error',
+          data: {'error': e.message ?? e.toString(), 'path': e.path},
+        ),
+      );
+      rethrow;
     } catch (e) {
       debugPrint('GIS Export error: $e');
+      unawaited(
+        ProductionDiagnostics.storage(
+          'gis_export_failed',
+          data: {'error': e.toString()},
+        ),
+      );
       rethrow;
     }
   }

@@ -30,7 +30,21 @@ class SosQueue {
       _box = await Hive.openBox<Map>(boxName, encryptionCipher: cipher);
     } catch (e) {
       debugPrint('SosQueue: encrypted open failed, falling back: $e');
-      _box = await Hive.openBox<Map>(boxName);
+      try {
+        _box = await Hive.openBox<Map>(boxName);
+      } catch (e2, st) {
+        ErrorLogger.record(
+          e2,
+          st,
+          customMessage: 'SosQueue: plain open failed, disk wipe retry',
+        );
+        try {
+          if (await Hive.boxExists(boxName)) {
+            await Hive.deleteBoxFromDisk(boxName);
+          }
+        } catch (_) {}
+        _box = await Hive.openBox<Map>(boxName);
+      }
     }
     return _box!;
   }

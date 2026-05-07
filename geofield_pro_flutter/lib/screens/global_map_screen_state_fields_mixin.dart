@@ -46,6 +46,8 @@ mixin GlobalMapScreenStateFields on State<GlobalMapScreen> {
 
   bool _followGps = false;
   LocationService? _locationForFollow;
+  /// Birinchi real GPS fix dan keyin xaritani Toshkent fallbackdan chiqarish.
+  bool _didAutoCenterFromGps = false;
 
   bool _workshopInfoBanner = true;
 }

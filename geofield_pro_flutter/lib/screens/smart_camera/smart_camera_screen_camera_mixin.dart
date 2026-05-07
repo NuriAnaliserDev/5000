@@ -68,7 +68,11 @@ mixin SmartCameraCameraMixin on SmartCameraStateFields {
         }
       }
 
-      final cameras = await availableCameras();
+      final cameras = await availableCameras()
+          .timeout(
+        AppTimeouts.availableCamerasLookup,
+        onTimeout: () => <CameraDescription>[],
+      );
       if (!mounted || !_cameraSurfaceActive) {
         return;
       }
@@ -223,6 +227,8 @@ mixin SmartCameraCameraMixin on SmartCameraStateFields {
   void _disposeCameraOnly() {
     _delayedCameraInitTimer?.cancel();
     _delayedCameraInitTimer = null;
+    _cachedCameraPermissionFuture = null;
+    _cameraPreviewSession++;
     _cameraController?.dispose();
     _cameraController = null;
     _cameraInitFuture = null;
@@ -340,43 +346,50 @@ mixin SmartCameraCameraMixin on SmartCameraStateFields {
       );
     }
     if (_cameraController == null || _cameraInitFuture == null) {
-      return FutureBuilder<PermissionStatus>(
-        future: Permission.camera.status,
-        builder: (context, snap) {
-          final denied = snap.hasData &&
-              (snap.data == PermissionStatus.denied ||
-                  snap.data == PermissionStatus.permanentlyDenied);
-          if (denied) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.camera_alt, color: Colors.white38, size: 64),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Kamera ruxsati berilmagan',
-                    style: TextStyle(color: Colors.white70, fontSize: 16),
-                  ),
-                  const SizedBox(height: 12),
-                  ElevatedButton.icon(
-                    onPressed: () async {
-                      await openAppSettings();
-                    },
-                    icon: const Icon(Icons.settings),
-                    label: const Text('Sozlamalarni och'),
-                  ),
-                ],
-              ),
-            );
-          }
-          return const Center(
-              child: CircularProgressIndicator(color: Color(0xFF1976D2)));
-        },
+      _cachedCameraPermissionFuture ??= Permission.camera.status;
+      return KeyedSubtree(
+        key: ValueKey<String>('cam_perm_$_cameraPreviewSession'),
+        child: FutureBuilder<PermissionStatus>(
+          future: _cachedCameraPermissionFuture,
+          builder: (context, snap) {
+            final denied = snap.hasData &&
+                (snap.data == PermissionStatus.denied ||
+                    snap.data == PermissionStatus.permanentlyDenied);
+            if (denied) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.camera_alt,
+                        color: Colors.white38, size: 64),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Kamera ruxsati berilmagan',
+                      style: TextStyle(color: Colors.white70, fontSize: 16),
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton.icon(
+                      onPressed: () async {
+                        await openAppSettings();
+                      },
+                      icon: const Icon(Icons.settings),
+                      label: const Text('Sozlamalarni och'),
+                    ),
+                  ],
+                ),
+              );
+            }
+            return const Center(
+                child: CircularProgressIndicator(color: Color(0xFF1976D2)));
+          },
+        ),
       );
     }
-    return FutureBuilder<void>(
-      future: _cameraInitFuture,
-      builder: (context, snapshot) {
+    return KeyedSubtree(
+      key: ValueKey<int>(_cameraPreviewSession),
+      child: FutureBuilder<void>(
+        future: _cameraInitFuture,
+        builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return const Center(
               child: CircularProgressIndicator(color: Color(0xFF1976D2)));
@@ -394,12 +407,28 @@ mixin SmartCameraCameraMixin on SmartCameraStateFields {
           );
         }
         final cam = _cameraController;
-        if (cam == null || !cam.value.isInitialized) {
+        if (cam == null) {
           return const Center(
               child: CircularProgressIndicator(color: Color(0xFF1976D2)));
         }
-        return CameraPreview(cam);
+        try {
+          if (!cam.value.isInitialized) {
+            return const Center(
+                child: CircularProgressIndicator(color: Color(0xFF1976D2)));
+          }
+          return CameraPreview(cam);
+        } catch (e, _) {
+          unawaited(
+            ProductionDiagnostics.camera(
+              'preview_stale_controller',
+              data: {'error': e.toString()},
+            ),
+          );
+          return const Center(
+              child: CircularProgressIndicator(color: Color(0xFF1976D2)));
+        }
       },
+    ),
     );
   }
 }

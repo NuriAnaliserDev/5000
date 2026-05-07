@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:io' show Platform;
 
+import '../core/diagnostics/app_timeouts.dart';
 import '../core/diagnostics/production_diagnostics.dart';
 
 import 'gps/gps_broadcaster.dart';
@@ -20,6 +21,7 @@ class LocationService extends ChangeNotifier {
   DateTime _lastUpdateTime = DateTime.now();
   bool _gpsAcquired = false;
   bool _loggedFirstGpsFix = false;
+  bool _refreshInFlight = false;
 
   Position? get currentPosition => _currentPosition;
   GpsStatus get status => _status;
@@ -46,8 +48,7 @@ class LocationService extends ChangeNotifier {
       if (_status == GpsStatus.searching || _status == GpsStatus.poor) {
         final now = DateTime.now();
         if (now.difference(_lastUpdateTime).inSeconds > 25) {
-          // GPS seems stuck, force a refresh
-          refreshLocation();
+          unawaited(refreshLocation());
         }
       }
     });
@@ -57,7 +58,18 @@ class LocationService extends ChangeNotifier {
     unawaited(
       ProductionDiagnostics.gps('init_begin'),
     );
-    _isServiceEnabled = await Geolocator.isLocationServiceEnabled();
+    try {
+      _isServiceEnabled = await Geolocator.isLocationServiceEnabled()
+          .timeout(AppTimeouts.locationServiceProbe);
+    } catch (e) {
+      _isServiceEnabled = false;
+      unawaited(
+        ProductionDiagnostics.gps(
+          'service_enabled_probe_timeout',
+          data: {'error': e.toString()},
+        ),
+      );
+    }
     if (!_isServiceEnabled) {
       _status = GpsStatus.off;
       notifyListeners();
@@ -71,9 +83,32 @@ class LocationService extends ChangeNotifier {
       return;
     }
 
-    LocationPermission permission = await Geolocator.checkPermission();
+    LocationPermission permission;
+    try {
+      permission = await Geolocator.checkPermission()
+          .timeout(AppTimeouts.gpsPermissionProbe);
+    } catch (e) {
+      permission = LocationPermission.denied;
+      unawaited(
+        ProductionDiagnostics.gps(
+          'check_permission_timeout',
+          data: {'error': e.toString()},
+        ),
+      );
+    }
     if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
+      try {
+        permission = await Geolocator.requestPermission()
+            .timeout(AppTimeouts.gpsPermissionProbe);
+      } catch (e) {
+        permission = LocationPermission.denied;
+        unawaited(
+          ProductionDiagnostics.gps(
+            'request_permission_timeout',
+            data: {'error': e.toString()},
+          ),
+        );
+      }
     }
 
     if (permission == LocationPermission.denied ||
@@ -185,6 +220,10 @@ class LocationService extends ChangeNotifier {
     _positionSubscription = null;
     _staleCheckTimer?.cancel();
     _staleCheckTimer = null;
+    if (_gpsAcquired) {
+      GpsBroadcaster.instance.release();
+      _gpsAcquired = false;
+    }
     _status = GpsStatus.searching;
     notifyListeners();
     await _init();
@@ -193,6 +232,10 @@ class LocationService extends ChangeNotifier {
   }
 
   Future<void> refreshLocation() async {
+    if (_refreshInFlight) {
+      return;
+    }
+    _refreshInFlight = true;
     try {
       LocationSettings refreshSettings;
       if (!kIsWeb && Platform.isAndroid) {
@@ -218,7 +261,7 @@ class LocationService extends ChangeNotifier {
       // Force a fresh request bypassing the stream if it's stuck
       final position = await Geolocator.getCurrentPosition(
         locationSettings: refreshSettings,
-      );
+      ).timeout(AppTimeouts.getCurrentPositionOuter);
       _currentPosition = position;
       _lastUpdateTime = DateTime.now();
       _updateStatus(position.accuracy);
@@ -231,6 +274,8 @@ class LocationService extends ChangeNotifier {
           data: {'error': e.toString()},
         ),
       );
+    } finally {
+      _refreshInFlight = false;
     }
   }
 

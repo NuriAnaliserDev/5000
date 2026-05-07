@@ -35,6 +35,7 @@ void main() {
 
       syncBox = await Hive.openBox<SyncItem>(HiveDb.syncQueueBox);
       stationBox = await Hive.openBox<Station>(HiveDb.stationsBox);
+      await Hive.openBox<SyncConflict>(HiveDb.syncConflictsBox);
 
       queueService = SyncQueueService();
       stationRepository =
@@ -179,7 +180,6 @@ void main() {
 
     test('Resolution Pipeline: Local Win flow', () async {
       final conflictQueue = ConflictQueueService();
-      await conflictQueue.init();
 
       // 1. Local data yaratamiz (v1)
       final s = Station(

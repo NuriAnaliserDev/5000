@@ -58,6 +58,21 @@ abstract final class ProductionDiagnostics {
     );
   }
 
+  /// Mahalliy Hive/fayl keshi, eksport va disk bosimi hodisalari.
+  static Future<void> storage(
+    String event, {
+    String? phase,
+    Map<String, Object?>? data,
+  }) {
+    return DiagnosticService.instance.logStructured(
+      domain: DiagnosticDomain.storage,
+      event: event,
+      phase: phase,
+      data: data,
+      includeMemory: false,
+    );
+  }
+
   static Future<void> syncFailure(
     String component,
     Object error,

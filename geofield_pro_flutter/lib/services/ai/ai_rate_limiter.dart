@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 
+import '../../core/error/error_logger.dart';
+
 /// AI chaqiriqlarni kunlik kvota bilan cheklaydi.
 ///
 /// Hive box: `ai_quota`, key: `YYYY-MM-DD:<uid>` → int (bugungi soni).
@@ -16,13 +18,30 @@ class AiRateLimiter {
 
   static Future<Box<int>> _openBox() async {
     if (_box != null && _box!.isOpen) return _box!;
-    _box = await Hive.openBox<int>(boxName);
+    try {
+      _box = await Hive.openBox<int>(boxName);
+    } catch (e, st) {
+      ErrorLogger.record(e, st, customMessage: 'AiRateLimiter.open ai_quota');
+      try {
+        await Hive.deleteBoxFromDisk(boxName);
+      } catch (_) {}
+      _box = await Hive.openBox<int>(boxName);
+    }
     return _box!;
   }
 
   static Future<Box<String>> _openTimeBox() async {
     if (_timeBox != null && _timeBox!.isOpen) return _timeBox!;
-    _timeBox = await Hive.openBox<String>('ai_last_request');
+    const timeName = 'ai_last_request';
+    try {
+      _timeBox = await Hive.openBox<String>(timeName);
+    } catch (e, st) {
+      ErrorLogger.record(e, st, customMessage: 'AiRateLimiter.open ai_last_request');
+      try {
+        await Hive.deleteBoxFromDisk(timeName);
+      } catch (_) {}
+      _timeBox = await Hive.openBox<String>(timeName);
+    }
     return _timeBox!;
   }
 

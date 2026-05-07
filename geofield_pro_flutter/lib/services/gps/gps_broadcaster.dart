@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 
+import '../../core/diagnostics/production_diagnostics.dart';
+
 /// Bitta `Geolocator.getPositionStream` — barcha iste'molchilar
 /// ([LocationService], [TrackService] va h.k.) shu oqimdan foydalanadi.
 ///
@@ -98,7 +100,13 @@ class GpsBroadcaster {
           _controller.add(p);
         }
       },
-      onError: (e) {
+      onError: (e, st) {
+        unawaited(
+          ProductionDiagnostics.gps(
+            'broadcaster_stream_error',
+            data: {'error': e.toString()},
+          ),
+        );
         if (kDebugMode) {
           debugPrint('GpsBroadcaster: $e');
         }
