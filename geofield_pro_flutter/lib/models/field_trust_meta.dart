@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:geolocator/geolocator.dart';
 
 import '../core/diagnostics/app_timeouts.dart';
+import '../services/observation_pipeline_gate.dart';
 import '../domain/observation_state_derivation.dart';
 import 'observation_pipeline_types.dart';
 import 'observation_warn_codes.dart';
@@ -75,6 +76,7 @@ class FieldTrustMeta {
   final ObservationDuplicateInfo? observationDuplicate;
   final ObservationProvenance? lastMutationProvenance;
   final ObservationIntegrityInfo? observationIntegrity;
+  final int? storedDerivationVersion;
 
   FieldTrustMeta({
     this.schemaVersion = '3',
@@ -99,6 +101,7 @@ class FieldTrustMeta {
     this.observationDuplicate,
     this.lastMutationProvenance,
     this.observationIntegrity,
+    this.storedDerivationVersion,
   });
 
   static FieldTrustCategory computeCategory({
@@ -134,6 +137,7 @@ class FieldTrustMeta {
     String? lastSuccessImageSha256,
     int? lastSuccessCaptureWallMs,
   }) {
+    ObservationPipelineGate.logLegacyPathIfUnsealed('FieldTrustMeta.forCapture');
     final wallIso = DateTime.fromMillisecondsSinceEpoch(
       captureWallClockMs,
       isUtc: false,
@@ -185,6 +189,7 @@ class FieldTrustMeta {
         observationDuplicate: dup,
         lastMutationProvenance: derived.provenance,
         observationIntegrity: derived.integrityInfo,
+        storedDerivationVersion: ObservationDerivationResult.derivationLogicVersion,
       );
     }
 
@@ -221,11 +226,14 @@ class FieldTrustMeta {
       observationDuplicate: dup,
       lastMutationProvenance: derived.provenance,
       observationIntegrity: derived.integrityInfo,
+      storedDerivationVersion: ObservationDerivationResult.derivationLogicVersion,
     );
   }
 
   /// Qo‘lda tahrir — provenance [ObservationMutationSource.manual_edit].
   static FieldTrustMeta degradedAfterManualEdit(FieldTrustMeta m) {
+    ObservationPipelineGate.logLegacyPathIfUnsealed(
+        'FieldTrustMeta.degradedAfterManualEdit');
     final derived = ObservationStateDerivation.deriveManualPostEditCore(
       coordinateTrusted: m.coordinateTrusted,
       locationSource: m.locationSource,
@@ -236,6 +244,9 @@ class FieldTrustMeta {
       provenance: const ObservationProvenance(
         source: ObservationMutationSource.manual_edit,
       ),
+      derivedAtUtc: m.captureEpochMs != null
+          ? DateTime.fromMillisecondsSinceEpoch(m.captureEpochMs!, isUtc: true)
+          : null,
     );
     return FieldTrustMeta(
       schemaVersion: '3',
@@ -260,7 +271,14 @@ class FieldTrustMeta {
       observationDuplicate: m.observationDuplicate,
       lastMutationProvenance: derived.provenance,
       observationIntegrity: m.observationIntegrity,
+      storedDerivationVersion:
+          m.storedDerivationVersion ?? ObservationDerivationResult.derivationLogicVersion,
     );
+  }
+
+  static double? _roundAcc(double? m) {
+    if (m == null || !m.isFinite) return null;
+    return double.parse(m.toStringAsFixed(6));
   }
 
   Map<String, dynamic> toJson() => {
@@ -270,7 +288,7 @@ class FieldTrustMeta {
         'stale': gpsFixStale,
         'mock': gpsMockSuspected,
         if (gpsFixUtcIso != null) 'fix_utc': gpsFixUtcIso,
-        if (horizontalAccuracyM != null) 'acc_m': horizontalAccuracyM,
+        if (horizontalAccuracyM != null) 'acc_m': _roundAcc(horizontalAccuracyM),
         if (captureEpochMs != null) 'cap_ms': captureEpochMs,
         if (captureWallClockUtcIso != null) 'wall_utc': captureWallClockUtcIso,
         'sess': fieldSessionId,
@@ -287,7 +305,7 @@ class FieldTrustMeta {
           ...observationDuplicate!.toJson(),
         if (lastMutationProvenance != null) ...lastMutationProvenance!.toJson(),
         if (observationIntegrity != null) ...observationIntegrity!.toJson(),
-        'deriv_v': ObservationDerivationResult.derivationLogicVersion,
+        'deriv_v': storedDerivationVersion ?? ObservationDerivationResult.derivationLogicVersion,
       };
 
   String encode() => jsonEncode(toJson());
@@ -321,7 +339,7 @@ class FieldTrustMeta {
         gpsFixStale: stale,
         gpsMockSuspected: mock,
         gpsFixUtcIso: m['fix_utc'] as String?,
-        horizontalAccuracyM: (m['acc_m'] as num?)?.toDouble(),
+        horizontalAccuracyM: _roundAcc((m['acc_m'] as num?)?.toDouble()),
         captureEpochMs: m['cap_ms'] as int?,
         captureWallClockUtcIso: m['wall_utc'] as String?,
         fieldSessionId: m['sess'] as String? ?? '',
@@ -340,6 +358,7 @@ class FieldTrustMeta {
             (oi.storedContentSha256 == null && oi.storedByteLength == null)
                 ? null
                 : oi,
+        storedDerivationVersion: m['deriv_v'] as int?,
       );
     } catch (_) {
       return null;

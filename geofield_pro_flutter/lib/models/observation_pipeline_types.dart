@@ -17,12 +17,19 @@ enum ObservationMutationSource {
   export_repair,
 }
 
-/// Mantiqiy takror guruhlash (fizik yozuv saqlanadi).
+/// Mantiqiy takror — **bir xil geologiya yoki “haqiqiy takror” degani emas**.
+/// Faqat texnik signal (bayt mosligi / vaqt / tezlik).
 enum ObservationDuplicateType {
   none,
-  sessionImageHash,
-  rapidSameHashSignal,
-  wallClockClose,
+
+  /// Sessiyada kontent hash to‘liq mos — **byte-identical file**, geologik xulosaga yol qo‘ymaydi.
+  byte_identical,
+
+  /// Qisqa vaqt ichida xuddi shu hash — surat qayta ishlatish / tez qayta bosish shubhasi.
+  rapid_capture_similarity,
+
+  /// Devor vaqti juda yaqin — **mantiqiy takror sababi noma’lum**.
+  logical_duplicate_unknown,
 }
 
 /// Takror bog‘lanish — “silently discard” o‘rniga annotatsiya.
@@ -54,10 +61,21 @@ class ObservationDuplicateInfo {
     final t = m['dup_type'] as String?;
     ObservationDuplicateType ty = ObservationDuplicateType.none;
     if (t != null) {
-      for (final v in ObservationDuplicateType.values) {
-        if (v.name == t) {
-          ty = v;
-          break;
+      const legacy = {
+        'sessionImageHash': ObservationDuplicateType.byte_identical,
+        'rapidSameHashSignal':
+            ObservationDuplicateType.rapid_capture_similarity,
+        'wallClockClose': ObservationDuplicateType.logical_duplicate_unknown,
+      };
+      final fromLegacy = legacy[t];
+      if (fromLegacy != null) {
+        ty = fromLegacy;
+      } else {
+        for (final v in ObservationDuplicateType.values) {
+          if (v.name == t) {
+            ty = v;
+            break;
+          }
         }
       }
     }

@@ -95,7 +95,7 @@ abstract final class ObservationStateDerivation {
       final grp = 'h_${sessionId.hashCode.abs()}_${imageSha256.hashCode.abs()}';
       return ObservationDuplicateInfo(
         duplicateGroupId: grp,
-        duplicateType: ObservationDuplicateType.sessionImageHash,
+        duplicateType: ObservationDuplicateType.byte_identical,
         canonicalObservationId: duplicateSessionHashMatchCaptureId,
         hashMatchedObservationIds: sortedIds,
       );
@@ -104,7 +104,7 @@ abstract final class ObservationStateDerivation {
       final grp = 'r_${sessionId.hashCode.abs()}_${imageSha256.hashCode.abs()}';
       return ObservationDuplicateInfo(
         duplicateGroupId: grp,
-        duplicateType: ObservationDuplicateType.rapidSameHashSignal,
+        duplicateType: ObservationDuplicateType.rapid_capture_similarity,
         canonicalObservationId: null,
         hashMatchedObservationIds: sortedIds.toList(),
       );
@@ -112,7 +112,7 @@ abstract final class ObservationStateDerivation {
     if (dupClock) {
       return ObservationDuplicateInfo(
         duplicateGroupId: 'c_${captureId.hashCode.abs()}',
-        duplicateType: ObservationDuplicateType.wallClockClose,
+        duplicateType: ObservationDuplicateType.logical_duplicate_unknown,
         canonicalObservationId: null,
         hashMatchedObservationIds: [captureId],
       );
@@ -129,9 +129,14 @@ abstract final class ObservationStateDerivation {
 
   /// Asosiy deterministik derivation: bir xil kirish → bir xil chiqish.
   static ObservationDerivationResult deriveObservationState(
-    ObservationRawFacts facts,
-  ) {
-    final derivedAt = DateTime.now().toUtc();
+    ObservationRawFacts facts, {
+    DateTime? derivedAtUtc,
+  }) {
+    final derivedAt = derivedAtUtc ??
+        DateTime.fromMillisecondsSinceEpoch(
+          facts.captureWallClockMs,
+          isUtc: true,
+        );
     final provenance = facts.provenance;
 
     void notePhoto(List<String> w) {
@@ -333,8 +338,9 @@ abstract final class ObservationStateDerivation {
     required int priorTrustScore,
     required List<String> priorWarnings,
     ObservationProvenance? provenance,
+    DateTime? derivedAtUtc,
   }) {
-    final derivedAt = DateTime.now().toUtc();
+    final derivedAt = derivedAtUtc ?? DateTime.now().toUtc();
     if (priorWarnings.contains(ObservationWarnCodes.recoveryManualPostEdit)) {
       final w = ObservationWarnCodes.normalizeWarnList(priorWarnings);
       return ObservationDerivationResult(

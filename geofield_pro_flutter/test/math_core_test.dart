@@ -10,6 +10,7 @@ import 'package:geofield_pro_flutter/utils/wmm/wmm_model.dart';
 import 'package:geofield_pro_flutter/models/measurement.dart';
 import 'package:geofield_pro_flutter/models/station.dart';
 import 'package:geofield_pro_flutter/models/field_trust_meta.dart';
+import 'package:geofield_pro_flutter/services/observation_pipeline_service.dart';
 
 void main() {
   group('GeoConstants', () {
@@ -267,7 +268,7 @@ void main() {
     });
 
     test('(0,0) absent GPS metadata bilan ruxsat', () {
-      final meta = FieldTrustMeta.forCapture(
+      final meta = ObservationPipelineService.buildCaptureTrustMeta(
         pos: null,
         captureWallClockMs: DateTime.now().millisecondsSinceEpoch,
         fieldSessionId: 'test-sess',

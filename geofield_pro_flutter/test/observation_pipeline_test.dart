@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geofield_pro_flutter/domain/observation_state_derivation.dart';
 import 'package:geofield_pro_flutter/models/field_trust_category.dart';
 import 'package:geofield_pro_flutter/models/field_trust_meta.dart';
+import 'package:geofield_pro_flutter/models/observation_mutation_event.dart';
 import 'package:geofield_pro_flutter/models/observation_pipeline_types.dart';
 import 'package:geofield_pro_flutter/models/observation_warn_codes.dart';
 import 'package:geofield_pro_flutter/models/station.dart';
@@ -33,8 +34,16 @@ void main() {
         provenance: const ObservationProvenance(
             source: ObservationMutationSource.capture),
       );
-      final a = ObservationStateDerivation.deriveObservationState(facts);
-      final b = ObservationStateDerivation.deriveObservationState(facts);
+      final a = ObservationStateDerivation.deriveObservationState(
+        facts,
+        derivedAtUtc:
+            DateTime.fromMillisecondsSinceEpoch(wall, isUtc: true),
+      );
+      final b = ObservationStateDerivation.deriveObservationState(
+        facts,
+        derivedAtUtc:
+            DateTime.fromMillisecondsSinceEpoch(wall, isUtc: true),
+      );
       expect(a.normalizedWarnings, b.normalizedWarnings);
       expect(a.category, b.category);
       expect(a.trustScore, b.trustScore);
@@ -62,7 +71,7 @@ void main() {
 
     test('3) duplicate linkage JSON — forCapture', () {
       final wall = DateTime(2024, 6, 1, 12, 0, 0).millisecondsSinceEpoch;
-      final meta = FieldTrustMeta.forCapture(
+      final meta = ObservationPipelineService.buildCaptureTrustMeta(
         pos: null,
         captureWallClockMs: wall,
         fieldSessionId: 'sess-dup',
@@ -78,12 +87,12 @@ void main() {
           contains('cap-new'));
       final json = meta.encode();
       expect(json, contains('dup_grp'));
-      expect(json, contains('dup_canon'));
+      expect(json, contains('byte_identical'));
     });
 
     test('4) eksport — canonicalFieldTrustMeta == decode', () {
       final wall = DateTime.now().millisecondsSinceEpoch;
-      final meta = FieldTrustMeta.forCapture(
+      final meta = ObservationPipelineService.buildCaptureTrustMeta(
         pos: null,
         captureWallClockMs: wall,
         fieldSessionId: 's',
@@ -161,9 +170,70 @@ void main() {
       expect(m?.category, isNot(FieldTrustCategory.verified));
     });
 
+    test('legacy dup_type sessionImageHash → byte_identical', () {
+      final d = ObservationDuplicateInfo.fromJson({
+        'dup_type': 'sessionImageHash',
+      });
+      expect(d.duplicateType, ObservationDuplicateType.byte_identical);
+    });
+
+    test('mutation journal event roundtrip', () {
+      final e = ObservationMutationEvent(
+        observationId: 'x',
+        timestampMsUtc: 100,
+        mutationSource: ObservationMutationSource.manual_edit,
+        previousCategory: FieldTrustCategory.verified,
+        newCategory: FieldTrustCategory.suspect,
+        previousWarnings: const ['a'],
+        newWarnings: const ['a', ObservationWarnCodes.recoveryManualPostEdit],
+      );
+      final round = ObservationMutationEvent.tryDecodeLine(e.encodeLine());
+      expect(round?.observationId, 'x');
+      expect(round?.newCategory, FieldTrustCategory.suspect);
+    });
+
+    test('rederive — ikki marta bir xil', () {
+      final wall = DateTime(2024, 1, 1).millisecondsSinceEpoch;
+      final meta = ObservationPipelineService.buildCaptureTrustMeta(
+        pos: null,
+        captureWallClockMs: wall,
+        fieldSessionId: 's',
+        captureId: 'c',
+        networkConnected: false,
+      );
+      final st = Station(
+        name: 'R',
+        lat: 0,
+        lng: 0,
+        altitude: 0,
+        strike: 0,
+        dip: 45,
+        azimuth: 0,
+        date: DateTime(2024, 1, 1),
+        fieldTrustMetaJson: meta.encode(),
+      );
+      final r1 = ObservationPipelineService.rederiveObservation(st);
+      final r2 = ObservationPipelineService.rederiveObservation(st);
+      expect(r1!.category, r2!.category);
+      expect(r1.warnings, r2.warnings);
+      expect(r1.trustScore, r2.trustScore);
+    });
+
+    test('structured export report tuzilmasi', () {
+      final r = ExportService.buildStructuredExportReport(
+        format: 'csv',
+        rowCount: 2,
+        issues: const ['export_test:x'],
+        mode: ExportIntegrityMode.strict,
+      );
+      expect(r['format'], 'csv');
+      expect(r['validation_failed'], true);
+      expect(r.containsKey('derivation_logic_version'), true);
+    });
+
     test('export validatsiya — asosiy export_ kodlari', () {
       final wall = DateTime.now().millisecondsSinceEpoch;
-      final meta = FieldTrustMeta.forCapture(
+      final meta = ObservationPipelineService.buildCaptureTrustMeta(
         pos: null,
         captureWallClockMs: wall,
         fieldSessionId: 's',

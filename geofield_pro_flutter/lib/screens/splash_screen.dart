@@ -183,14 +183,29 @@ class _SplashScreenState extends State<SplashScreen> {
     Map<String, dynamic>? map;
     try {
       map = jsonDecode(raw) as Map<String, dynamic>;
+      settings.resetInflightCorruptAttempts();
     } catch (_) {
-      settings.setInflightFieldCaptureJson(null);
-      unawaited(
-        ProductionDiagnostics.session(
-          'recovery_inflight_json_corrupt',
-          data: {'raw_len': raw.length},
-        ),
-      );
+      settings.incrementInflightCorruptAttempts();
+      final n = settings.inflightCorruptAttempts;
+      if (n >= 5) {
+        settings.appendInflightQuarantineRecord(raw);
+        settings.setInflightFieldCaptureJson(null);
+        settings.resetInflightCorruptAttempts();
+        unawaited(
+          ProductionDiagnostics.session(
+            'recovery_inflight_quarantined',
+            data: {'raw_len': raw.length, 'corrupt_attempts': n},
+          ),
+        );
+      } else {
+        settings.setInflightFieldCaptureJson(null);
+        unawaited(
+          ProductionDiagnostics.session(
+            'recovery_inflight_json_corrupt',
+            data: {'raw_len': raw.length, 'corrupt_attempts': n},
+          ),
+        );
+      }
       return;
     }
 
@@ -211,6 +226,8 @@ class _SplashScreenState extends State<SplashScreen> {
       }
     }
 
+    final recoveryAttempts = (map['recovery_attempts'] as int?) ?? 0;
+
     settings.setInflightFieldCaptureJson(null);
 
     if (ageMin >= 45 || ageMin < 0) {
@@ -220,6 +237,8 @@ class _SplashScreenState extends State<SplashScreen> {
           data: {
             'age_minutes': ageMin,
             'photo_exists': photoExists,
+            'recovery_terminal': 'abandoned',
+            'recovery_attempts': recoveryAttempts,
           },
         ),
       );
@@ -232,6 +251,8 @@ class _SplashScreenState extends State<SplashScreen> {
         data: {
           'age_minutes': ageMin,
           'photo_exists': photoExists,
+          'recovery_terminal': 'abandoned',
+          'recovery_attempts': recoveryAttempts,
         },
       ),
     );

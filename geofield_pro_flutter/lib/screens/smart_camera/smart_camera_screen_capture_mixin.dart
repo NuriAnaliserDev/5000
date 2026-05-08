@@ -237,7 +237,7 @@ mixin SmartCameraCaptureMixin on SmartCameraStateFields {
         imageSha256: shaHex,
       );
 
-      final trustMeta = FieldTrustMeta.forCapture(
+      final trustMeta = ObservationPipelineService.buildCaptureTrustMeta(
         pos: pos,
         locationSource: pos == null ? null : locationSource,
         captureWallClockMs: captureWallMs,
@@ -262,25 +262,28 @@ mixin SmartCameraCaptureMixin on SmartCameraStateFields {
           : settings.currentProject.toUpperCase());
       final stationName = '$projectCode-$datePart-$seqPart';
 
-      final station = Station(
-        name: stationName,
-        lat: capLat,
-        lng: capLng,
-        altitude: capAlt,
-        strike: _strike,
-        dip: _dip,
-        azimuth: _azimuth,
-        date: DateTime.now(),
-        photoPath: file.path,
-        audioPath: _audioPath,
-        accuracy: capAccuracy,
-        photoPaths: [file.path],
-        project: settings.currentProject,
-        dipDirection: GeologyUtils.calculateDipDirection(_strike),
-        confidence: 5,
-        authorName: settings.currentUserName,
-        authorRole: settings.expertMode ? 'Professional' : null,
-        fieldTrustMetaJson: trustMeta.encode(),
+      final station = ObservationPipelineService.createObservation(
+        Station(
+          name: stationName,
+          lat: capLat,
+          lng: capLng,
+          altitude: capAlt,
+          strike: _strike,
+          dip: _dip,
+          azimuth: _azimuth,
+          date: DateTime.now(),
+          photoPath: file.path,
+          audioPath: _audioPath,
+          accuracy: capAccuracy,
+          photoPaths: [file.path],
+          project: settings.currentProject,
+          dipDirection: GeologyUtils.calculateDipDirection(_strike),
+          confidence: 5,
+          authorName: settings.currentUserName,
+          authorRole: settings.expertMode ? 'Professional' : null,
+          fieldTrustMetaJson: null,
+        ),
+        meta: trustMeta,
       );
 
       FieldCaptureAtomic.markInflight(

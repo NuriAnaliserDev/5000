@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -19,11 +20,22 @@ abstract final class FieldCaptureAtomic {
       'started_ms': startedMs,
       'session': sessionId,
       'photo_path': photoPath,
+      'recovery_state': 'inflight',
+      'recovery_attempts': 0,
     }));
   }
 
   static void clearInflight(SettingsController settings) {
+    final had = settings.inflightFieldCaptureJson;
     settings.setInflightFieldCaptureJson(null);
+    if (had != null && had.isNotEmpty) {
+      unawaited(
+        ProductionDiagnostics.session(
+          'recovery_inflight_recovered',
+          data: {'recovery_terminal': 'recovered'},
+        ),
+      );
+    }
   }
 
   static Future<void> logFailedCapture(String? photoPath, Object error) async {

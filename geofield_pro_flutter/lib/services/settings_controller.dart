@@ -372,4 +372,33 @@ class SettingsController extends ChangeNotifier {
     _box.put(_lastCapSuccessWallMsKey, wallMs);
     _box.put(_lastCapSuccessShaKey, imageSha256);
   }
+
+  // --- Inflight recovery / quarantine (avtomatik o‘chirish yo‘q) ---
+
+  static const _inflightCorruptAttemptsKey = 'inflightCorruptAttemptsV1';
+  static const _inflightQuarantineKey = 'inflightQuarantineV1';
+
+  int get inflightCorruptAttempts =>
+      _box.get(_inflightCorruptAttemptsKey, defaultValue: 0) as int;
+
+  void incrementInflightCorruptAttempts() {
+    final n = inflightCorruptAttempts + 1;
+    _box.put(_inflightCorruptAttemptsKey, n);
+  }
+
+  void resetInflightCorruptAttempts() {
+    _box.delete(_inflightCorruptAttemptsKey);
+  }
+
+  void appendInflightQuarantineRecord(String rawPayload) {
+    final list = List<String>.from(
+      (_box.get(_inflightQuarantineKey) as List?)?.map((e) => e.toString()) ??
+          const [],
+    );
+    list.add(rawPayload);
+    while (list.length > 40) {
+      list.removeAt(0);
+    }
+    _box.put(_inflightQuarantineKey, list);
+  }
 }

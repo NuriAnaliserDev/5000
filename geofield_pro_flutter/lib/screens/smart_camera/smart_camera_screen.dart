@@ -25,6 +25,7 @@ import '../../models/field_trust_meta.dart';
 import '../../models/station.dart';
 import '../../services/field_capture_atomic.dart';
 import '../../services/location_service.dart';
+import '../../services/observation_pipeline_service.dart';
 import '../../services/settings_controller.dart';
 import '../../services/station_repository.dart';
 import '../../services/track_service.dart';

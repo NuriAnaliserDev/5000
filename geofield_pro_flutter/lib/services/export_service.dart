@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import '../core/diagnostics/production_diagnostics.dart';
 import '../models/field_trust_category.dart';
 import '../models/field_trust_meta.dart';
+import '../models/observation_pipeline_types.dart';
 import '../services/observation_pipeline_service.dart';
 import '../models/station.dart';
 import '../models/track_data.dart';
@@ -26,6 +27,35 @@ enum ExportIntegrityMode {
 /// CSV — UTF-8 BOM (Excel).
 /// GPX — metadata (name/time/bounds) + waypoint'lar.
 class ExportService {
+  static String integrityStatusLabel(FieldTrustMeta? m) {
+    if (m?.observationIntegrity == null) return '';
+    final i = m!.observationIntegrity!;
+    if (i.hashMismatch) return 'hash_mismatch';
+    if (i.fileMissing) return 'file_missing';
+    if (i.storedContentSha256 != null || i.storedByteLength != null) {
+      return 'recorded';
+    }
+    return '';
+  }
+
+  static Map<String, dynamic> buildStructuredExportReport({
+    required String format,
+    required int rowCount,
+    required List<String> issues,
+    required ExportIntegrityMode mode,
+  }) {
+    return {
+      'format': format,
+      'row_count': rowCount,
+      'issues': issues,
+      'derivation_logic_version':
+          ObservationDerivationResult.derivationLogicVersion,
+      'generated_utc': DateTime.now().toUtc().toIso8601String(),
+      'integrity_mode': mode.name,
+      'validation_failed': issues.isNotEmpty,
+    };
+  }
+
   /// Tartib: avval `date` kamayish, keyin `name`.
   static List<Station> orderedForExport(List<Station> stations) {
     final out = List<Station>.from(stations);
@@ -157,12 +187,30 @@ class ExportService {
     final issues = validateStationsForExport(ordered);
     logExportValidation('csv', ordered, issues);
     logExportSummary('csv', ordered, issues, integrityMode);
+
+    final directory = await getTemporaryDirectory();
+    final path =
+        '${directory.path}/geofield_export_${DateTime.now().millisecondsSinceEpoch}.csv';
+    final reportPath =
+        '${path.substring(0, path.length - 4)}_export_report.json';
+
+    if (integrityMode == ExportIntegrityMode.strict) {
+      await File(reportPath).writeAsString(
+        jsonEncode(buildStructuredExportReport(
+          format: 'csv',
+          rowCount: ordered.length,
+          issues: issues,
+          mode: integrityMode,
+        )),
+      );
+    }
+
     if (integrityMode == ExportIntegrityMode.strict && issues.isNotEmpty) {
       throw StateError('export_validation_failed:${issues.take(8).join(',')}');
     }
     final buffer = StringBuffer();
     buffer.writeln(
-        'Name,Date,Latitude,Longitude,Altitude,Accuracy,Strike,Dip,Azimuth,RockType,MeasurementType,Structure,Color,Description,TrustCategory,TrustScore,ImageSha256,TrustMetaJson');
+        'Name,Date,Latitude,Longitude,Altitude,Accuracy,Strike,Dip,Azimuth,RockType,MeasurementType,Structure,Color,Description,TrustCategory,TrustScore,ImageSha256,ProvenanceSource,DuplicateType,IntegrityStatus,DerivationVersion,TrustMetaJson');
 
     for (final s in ordered) {
       final dateStr = s.date.toIso8601String();
@@ -185,14 +233,17 @@ class ExportService {
         '${meta?.category.name.toUpperCase() ?? ""},'
         '${meta?.trustScore ?? ""},'
         '${meta?.imageSha256 ?? ""},'
+        '${meta?.lastMutationProvenance?.source.name ?? ""},'
+        '${meta?.observationDuplicate?.duplicateType.name ?? ""},'
+        '${integrityStatusLabel(meta)},'
+        '${meta?.storedDerivationVersion ?? ""},'
         '${_escape(s.fieldTrustMetaJson ?? "")}',
       );
     }
 
-    final directory = await getTemporaryDirectory();
-    final path =
-        '${directory.path}/geofield_export_${DateTime.now().millisecondsSinceEpoch}.csv';
-    return _atomicWriteUtf8Text(path, '\uFEFF${buffer.toString()}');
+    final csvFile =
+        await _atomicWriteUtf8Text(path, '\uFEFF${buffer.toString()}');
+    return csvFile;
   }
 
   static Future<File> exportToGeoJson(
