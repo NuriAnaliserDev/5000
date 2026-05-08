@@ -6,10 +6,24 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../models/station.dart';
+import 'export_service.dart';
 import 'pdf/pdf_fonts.dart';
 
 class PdfExportService {
+  static Future<File> _atomicWriteBytes(String path, List<int> bytes) async {
+    final target = File(path);
+    final tmp = File('$path.tmp.${DateTime.now().microsecondsSinceEpoch}');
+    await tmp.writeAsBytes(bytes, flush: true);
+    if (await target.exists()) {
+      await target.delete();
+    }
+    await tmp.rename(target.path);
+    return target;
+  }
+
   static Future<File> generateStationReport(Station station) async {
+    final issues = ExportService.validateStationsForExport([station]);
+    ExportService.logExportValidation('pdf_station', [station], issues);
     await PdfFonts.ensureLoaded();
     final theme = PdfFonts.theme();
     final pdf = pw.Document(theme: theme);
@@ -50,14 +64,16 @@ class PdfExportService {
     );
 
     final dir = await getApplicationDocumentsDirectory();
-    final file = File(
-        '${dir.path}/report_${station.name}_${DateTime.now().millisecondsSinceEpoch}.pdf');
-    await file.writeAsBytes(await pdf.save());
-    return file;
+    final path =
+        '${dir.path}/report_${station.name}_${DateTime.now().millisecondsSinceEpoch}.pdf';
+    final bytes = await pdf.save();
+    return _atomicWriteBytes(path, bytes);
   }
 
   static Future<File> generateProjectReport(
       List<Station> stations, String projectName) async {
+    final issues = ExportService.validateStationsForExport(stations);
+    ExportService.logExportValidation('pdf_project', stations, issues);
     await PdfFonts.ensureLoaded();
     final theme = PdfFonts.theme();
     final pdf = pw.Document(theme: theme);
@@ -135,10 +151,10 @@ class PdfExportService {
 
     final dir = await getApplicationDocumentsDirectory();
     final fileName = projectName.replaceAll(RegExp(r'[^\w\s\-]'), '_');
-    final file = File(
-        '${dir.path}/project_${fileName}_${DateTime.now().millisecondsSinceEpoch}.pdf');
-    await file.writeAsBytes(await pdf.save());
-    return file;
+    final path =
+        '${dir.path}/project_${fileName}_${DateTime.now().millisecondsSinceEpoch}.pdf';
+    final bytes = await pdf.save();
+    return _atomicWriteBytes(path, bytes);
   }
 
   static pw.Widget _buildPhotos(Station station) {

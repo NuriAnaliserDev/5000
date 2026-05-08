@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -92,6 +93,16 @@ class _SplashScreenState extends State<SplashScreen> {
         throw StateError(_s(_loc?.splash_error_local_db, 'Mahalliy ma\'lumotlar bazasi ochilmadi'));
       }
 
+      if (mounted) {
+        try {
+          await _drainInflightFieldCapture(context.read<SettingsController>());
+        } catch (e) {
+          if (kDebugMode) {
+            debugPrint('inflight capture drain: $e');
+          }
+        }
+      }
+
       setState(() {
         _progress = 0.7;
         _statusLabel = _s(_loc?.splash_status_offline_tiles, 'Xarita keshi...');
@@ -160,6 +171,35 @@ class _SplashScreenState extends State<SplashScreen> {
           _error = e is Error ? e.toString() : '$e';
         });
       }
+    }
+  }
+
+  /// Oldingi ish seansida `addStation` dan oldin ilova o‘chgan bo‘lsa — iz qoldiramiz, navbatni buzmaysiz.
+  Future<void> _drainInflightFieldCapture(SettingsController settings) async {
+    final raw = settings.inflightFieldCaptureJson;
+    if (raw == null || raw.isEmpty) return;
+    settings.setInflightFieldCaptureJson(null);
+    try {
+      final map = jsonDecode(raw) as Map<String, dynamic>;
+      final started = map['started_ms'] as int?;
+      final ageMin = started == null
+          ? -1
+          : DateTime.now()
+              .difference(DateTime.fromMillisecondsSinceEpoch(started))
+              .inMinutes;
+      unawaited(
+        ProductionDiagnostics.session(
+          'inflight_capture_aborted',
+          data: {'age_minutes': ageMin},
+        ),
+      );
+    } catch (_) {
+      unawaited(
+        ProductionDiagnostics.session(
+          'inflight_capture_corrupt',
+          data: {'raw_len': raw.length},
+        ),
+      );
     }
   }
 

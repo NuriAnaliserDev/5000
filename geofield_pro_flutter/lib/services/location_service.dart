@@ -238,7 +238,9 @@ class LocationService extends ChangeNotifier {
     } catch (_) {}
     final age = DateTime.now().difference(position.timestamp);
     final stale = age > AppTimeouts.gpsFixMaxAge;
-    if (!mock && !stale) {
+    final acc = position.accuracy;
+    final badAcc = !acc.isFinite || acc < 0 || acc > 50000;
+    if (!mock && !stale && !badAcc) {
       return;
     }
     unawaited(
@@ -248,6 +250,7 @@ class LocationService extends ChangeNotifier {
         data: {
           'mock': mock,
           'stale': stale,
+          'bad_acc': badAcc,
           'age_sec': age.inSeconds,
           'accuracy_m': position.accuracy,
         },

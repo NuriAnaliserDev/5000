@@ -1,8 +1,11 @@
 import 'dart:io';
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:path_provider/path_provider.dart';
 
+import '../core/diagnostics/production_diagnostics.dart';
+import '../models/field_trust_meta.dart';
 import '../models/station.dart';
 import '../models/track_data.dart';
 import 'export/dxf_writer.dart';
@@ -15,6 +18,54 @@ import 'export/shapefile_writer.dart';
 /// CSV — UTF-8 BOM (Excel).
 /// GPX — metadata (name/time/bounds) + waypoint'lar.
 class ExportService {
+  /// Eksportdan oldin: takrorlar, vaqt, ishonchsiz nuqtalar — faqat log, fayl baribir yoziladi.
+  static List<String> validateStationsForExport(List<Station> stations) {
+    final issues = <String>[];
+    final keys = <String>{};
+    for (var i = 0; i < stations.length; i++) {
+      final s = stations[i];
+      final d = s.date;
+      if (d.year < 1980 || d.year > 2100) {
+        issues.add('date_range:$i:${s.name}');
+      }
+      final key = '${s.name}|${d.toIso8601String()}';
+      if (keys.contains(key)) {
+        issues.add('dup_name_date:${s.name}');
+      }
+      keys.add(key);
+      final meta = FieldTrustMeta.decode(s.fieldTrustMetaJson);
+      if (meta != null && meta.trustScore < 35) {
+        issues.add('low_trust:${s.name}:${meta.trustScore}');
+      }
+      if (s.lat == 0 && s.lng == 0) {
+        final t = FieldTrustMeta.decode(s.fieldTrustMetaJson);
+        if (t?.allowsNullIslandCoordinates != true) {
+          issues.add('null_coords_untagged:${s.name}');
+        }
+      }
+    }
+    return issues;
+  }
+
+  static void logExportValidation(
+    String format,
+    List<Station> stations,
+    List<String> issues,
+  ) {
+    if (issues.isEmpty) return;
+    unawaited(
+      ProductionDiagnostics.storage(
+        'export_validation_issues',
+        phase: format,
+        data: {
+          'station_count': stations.length,
+          'issue_count': issues.length,
+          'sample': issues.take(12).join('|'),
+        },
+      ),
+    );
+  }
+
   /// Yozish vaqtida ilova o‘chsa ham bo‘sh/buzuq fayl qolmasligi uchun vaqtinchalik fayl orqali almashtirish.
   static Future<File> _atomicWriteUtf8Text(String path, String contents) async {
     final target = File(path);
@@ -28,12 +79,15 @@ class ExportService {
   }
 
   static Future<File> exportToCsv(List<Station> stations) async {
+    final issues = validateStationsForExport(stations);
+    logExportValidation('csv', stations, issues);
     final buffer = StringBuffer();
     buffer.writeln(
-        'Name,Date,Latitude,Longitude,Altitude,Accuracy,Strike,Dip,Azimuth,RockType,MeasurementType,Structure,Color,Description,TrustMetaJson');
+        'Name,Date,Latitude,Longitude,Altitude,Accuracy,Strike,Dip,Azimuth,RockType,MeasurementType,Structure,Color,Description,TrustScore,TrustMetaJson');
 
     for (final s in stations) {
       final dateStr = s.date.toIso8601String();
+      final meta = FieldTrustMeta.decode(s.fieldTrustMetaJson);
       buffer.writeln(
         '${_escape(s.name)},'
         '$dateStr,'
@@ -49,6 +103,7 @@ class ExportService {
         '${_escape(s.structure ?? "")},'
         '${_escape(s.color ?? "")},'
         '${_escape(s.description ?? "")},'
+        '${meta?.trustScore ?? ""},'
         '${_escape(s.fieldTrustMetaJson ?? "")}',
       );
     }
@@ -60,6 +115,8 @@ class ExportService {
   }
 
   static Future<File> exportToGeoJson(List<Station> stations) async {
+    final issues = validateStationsForExport(stations);
+    logExportValidation('geojson', stations, issues);
     final List<Map<String, dynamic>> features = stations
         .map((s) => {
               'type': 'Feature',
@@ -80,6 +137,8 @@ class ExportService {
                 'color': s.color,
                 'description': s.description,
                 'project': s.project,
+                'trustScore':
+                    FieldTrustMeta.decode(s.fieldTrustMetaJson)?.trustScore,
                 'trustMetaJson': s.fieldTrustMetaJson,
               }
             })
@@ -97,6 +156,8 @@ class ExportService {
   }
 
   static Future<File> exportToKml(List<Station> stations) async {
+    final issues = validateStationsForExport(stations);
+    logExportValidation('kml', stations, issues);
     final buffer = StringBuffer();
     buffer.writeln('<?xml version="1.0" encoding="UTF-8"?>');
     buffer.writeln('<kml xmlns="http://www.opengis.net/kml/2.2">');
@@ -162,6 +223,10 @@ class ExportService {
     List<Station> waypoints = const [],
     String name = 'GeoField Pro Tracks',
   }) async {
+    final wIssues = validateStationsForExport(waypoints);
+    if (wIssues.isNotEmpty) {
+      logExportValidation('gpx_waypoints', waypoints, wIssues);
+    }
     final buffer = StringBuffer();
     buffer.writeln('<?xml version="1.0" encoding="UTF-8"?>');
     buffer.writeln(
@@ -242,6 +307,8 @@ class ExportService {
     List<Station> stations,
     List<TrackData> tracks,
   ) {
+    final issues = validateStationsForExport(stations);
+    logExportValidation('shapefile_zip', stations, issues);
     return ShapefileWriter.writeZip(stations: stations, tracks: tracks);
   }
 
@@ -251,6 +318,8 @@ class ExportService {
     List<TrackData> tracks, {
     bool useUtm = true,
   }) {
+    final issues = validateStationsForExport(stations);
+    logExportValidation('dxf', stations, issues);
     return DxfWriter.write(
       stations: stations,
       tracks: tracks,

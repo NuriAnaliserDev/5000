@@ -267,10 +267,17 @@ void main() {
     });
 
     test('(0,0) absent GPS metadata bilan ruxsat', () {
+      final meta = FieldTrustMeta.forCapture(
+        pos: null,
+        captureWallClockMs: DateTime.now().millisecondsSinceEpoch,
+        fieldSessionId: 'test-sess',
+        captureId: 'test-cap',
+        networkConnected: false,
+      );
       final s = baseStation().copyWith(
         lat: 0,
         lng: 0,
-        fieldTrustMetaJson: FieldTrustMeta.absent().encode(),
+        fieldTrustMetaJson: meta.encode(),
       );
       expect(GeologyValidator.validateStation(s), isNull);
     });

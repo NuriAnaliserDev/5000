@@ -5,6 +5,7 @@ import 'package:synchronized/synchronized.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
+import '../core/diagnostics/production_diagnostics.dart';
 import '../models/station.dart';
 import '../models/audit_entry.dart';
 import '../models/sync_item.dart';
@@ -67,25 +68,38 @@ class StationRepository extends ChangeNotifier {
         throw AppError(error, category: ErrorCategory.validation);
       }
 
-      final finalStation = await _stamp(station);
-      final id = await _box.add(finalStation);
-      
-      if (source == UpdateSource.local) {
-        await _syncQueue.addItem(SyncItem(
-          id: const Uuid().v4(),
-          entityType: 'station',
-          entityId: id.toString(),
-          payload: finalStation.toMap(),
-          version: finalStation.version,
-          operation: SyncOperation.create,
-          requestId: const Uuid().v4(),
-          sequence: _syncQueue.getNextSequence(),
-          createdAt: DateTime.now(),
-        ));
+      try {
+        final finalStation = await _stamp(station);
+        final id = await _box.add(finalStation);
+
+        if (source == UpdateSource.local) {
+          await _syncQueue.addItem(SyncItem(
+            id: const Uuid().v4(),
+            entityType: 'station',
+            entityId: id.toString(),
+            payload: finalStation.toMap(),
+            version: finalStation.version,
+            operation: SyncOperation.create,
+            requestId: const Uuid().v4(),
+            sequence: _syncQueue.getNextSequence(),
+            createdAt: DateTime.now(),
+          ));
+        }
+
+        notifyListeners();
+        return id;
+      } catch (e, st) {
+        unawaited(
+          ProductionDiagnostics.storage(
+            'station_persist_failed',
+            data: {'error': e.toString()},
+          ),
+        );
+        if (kDebugMode) {
+          debugPrintStack(stackTrace: st);
+        }
+        rethrow;
       }
-      
-      notifyListeners();
-      return id;
     });
   }
 

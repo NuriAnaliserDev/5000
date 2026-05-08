@@ -179,12 +179,20 @@ mixin SmartCameraCaptureMixin on SmartCameraStateFields {
         locationSource = FieldTrustMeta.sourceLastKnown;
       }
 
-      final captureEpochMs = DateTime.now().millisecondsSinceEpoch;
+      var online = false;
+      try {
+        final cc = await Connectivity().checkConnectivity();
+        online = cc.any((e) => e != ConnectivityResult.none);
+      } catch (_) {}
+
+      final captureWallMs = DateTime.now().millisecondsSinceEpoch;
+      final captureId = const Uuid().v4();
+      final sessionId = settings.fieldSessionId;
+
       late final double capLat;
       late final double capLng;
       late final double capAlt;
       late final double? capAccuracy;
-      late final FieldTrustMeta trustMeta;
 
       if (pos == null) {
         if (mounted) {
@@ -200,18 +208,22 @@ mixin SmartCameraCaptureMixin on SmartCameraStateFields {
         capLng = 0;
         capAlt = 0;
         capAccuracy = null;
-        trustMeta = FieldTrustMeta.absent(captureEpochMs: captureEpochMs);
       } else {
         capLat = pos.latitude;
         capLng = pos.longitude;
         capAlt = pos.altitude;
         capAccuracy = pos.accuracy;
-        trustMeta = FieldTrustMeta.fromPosition(
-          pos,
-          locationSource: locationSource,
-          captureEpochMs: captureEpochMs,
-        );
       }
+
+      final trustMeta = FieldTrustMeta.forCapture(
+        pos: pos,
+        locationSource: pos == null ? null : locationSource,
+        captureWallClockMs: captureWallMs,
+        fieldSessionId: sessionId,
+        captureId: captureId,
+        networkConnected: online,
+        batteryPct: null,
+      );
 
       final now = DateTime.now();
       final datePart =
@@ -242,7 +254,18 @@ mixin SmartCameraCaptureMixin on SmartCameraStateFields {
         authorRole: settings.expertMode ? 'Professional' : null,
         fieldTrustMetaJson: trustMeta.encode(),
       );
-      final id = await repo.addStation(station);
+
+      settings.setInflightFieldCaptureJson(jsonEncode({
+        'capture_id': captureId,
+        'started_ms': captureWallMs,
+        'session': sessionId,
+      }));
+      late final int id;
+      try {
+        id = await repo.addStation(station);
+      } finally {
+        settings.setInflightFieldCaptureJson(null);
+      }
 
       if (!mounted) {
         return;

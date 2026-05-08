@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
+import 'package:uuid/uuid.dart';
 
 import '../core/config/app_features.dart';
 import 'hive_db.dart';
@@ -318,5 +319,31 @@ class SettingsController extends ChangeNotifier {
     _box.delete(_lastAuthEmailKey);
     _box.delete(_lastAuthNameKey);
     notifyListeners();
+  }
+
+  // --- Maydon sessiyasi / crash paytida yozilayotgan capture ---
+
+  static const _fieldSessionIdKey = 'fieldSessionId_v1';
+  static const _inflightCaptureKey = 'inflightFieldCaptureV1';
+
+  /// O‘rnatish bo‘yicha barqaror sessiya ID (stansiya trust metasiga yoziladi).
+  String get fieldSessionId {
+    var id = _box.get(_fieldSessionIdKey) as String?;
+    if (id == null || id.isEmpty) {
+      id = const Uuid().v4();
+      _box.put(_fieldSessionIdKey, id);
+    }
+    return id;
+  }
+
+  String? get inflightFieldCaptureJson =>
+      _box.get(_inflightCaptureKey) as String?;
+
+  void setInflightFieldCaptureJson(String? raw) {
+    if (raw == null || raw.isEmpty) {
+      _box.delete(_inflightCaptureKey);
+    } else {
+      _box.put(_inflightCaptureKey, raw);
+    }
   }
 }
