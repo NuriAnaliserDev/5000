@@ -4,9 +4,10 @@ import 'dart:math' as math;
 import 'package:geolocator/geolocator.dart';
 
 import '../core/diagnostics/app_timeouts.dart';
+import 'field_trust_category.dart';
 
 /// Dalada yozilgan yozuv atrofidagi ishonch metadatasi (Hive / sinxron JSON).
-/// Bu serverni aldashning oldini olmaydi — faqat iz va keyingi filtrlash uchun.
+/// `category` — bitta normalizatsiyalangan holat; `warnings` — batafsil (cheklangan ro‘yxat).
 class FieldTrustMeta {
   static const String sourceLiveRefresh = 'live_refresh';
   static const String sourceLastKnown = 'last_known';
@@ -21,6 +22,9 @@ class FieldTrustMeta {
   static const String warnSuspectTimestamp = 'suspect_fix_timestamp';
   static const String warnNullIsland = 'null_island';
   static const String warnWeakAccuracy = 'weak_accuracy_m';
+  static const String warnDuplicateImageContent = 'duplicate_image_content';
+  static const String warnRapidReshoot = 'rapid_reshoot_same_hash';
+  static const String warnTinyImage = 'tiny_image_file';
 
   final String schemaVersion;
   final String locationSource;
@@ -38,6 +42,9 @@ class FieldTrustMeta {
   final bool altitudeAvailable;
   final int trustScore;
   final List<String> warnings;
+  final FieldTrustCategory category;
+  final String? imageSha256;
+  final int? imageSizeBytes;
 
   const FieldTrustMeta({
     this.schemaVersion = '2',
@@ -56,10 +63,40 @@ class FieldTrustMeta {
     required this.altitudeAvailable,
     required this.trustScore,
     required this.warnings,
+    required this.category,
+    this.imageSha256,
+    this.imageSizeBytes,
   });
 
-  /// Bitta “suratdan stansiya” yoki maydon yozuvi uchun to‘liq metadata + skor.
-  /// Rad etmaydi — faqat ogohlantirish va ball beradi (0–100).
+  /// Deterministik kategoriya — bir xil kiritmada har doim bir xil chiqadi.
+  static FieldTrustCategory computeCategory({
+    required bool coordinateTrusted,
+    required String locationSource,
+    required bool gpsMockSuspected,
+    required bool gpsFixStale,
+    required int trustScore,
+    required List<String> warnings,
+  }) {
+    if (warnings.contains(warnImpossibleAccuracy) ||
+        warnings.contains(warnSuspectTimestamp) ||
+        warnings.contains(warnNullIsland)) {
+      return FieldTrustCategory.invalid;
+    }
+    if (gpsMockSuspected) {
+      return FieldTrustCategory.mocked;
+    }
+    if (!coordinateTrusted || locationSource == sourceAbsent) {
+      return FieldTrustCategory.partial;
+    }
+    if (gpsFixStale) {
+      return FieldTrustCategory.stale;
+    }
+    if (trustScore >= 85 && warnings.isEmpty) {
+      return FieldTrustCategory.verified;
+    }
+    return FieldTrustCategory.suspect;
+  }
+
   static FieldTrustMeta forCapture({
     Position? pos,
     String? locationSource,
@@ -69,13 +106,48 @@ class FieldTrustMeta {
     required bool networkConnected,
     int? batteryPct,
     int? lastCaptureEpochMs,
+    String? imageSha256,
+    int? imageSizeBytes,
+    String? duplicateSessionImageHashMatchCaptureId,
+    String? lastSuccessImageSha256,
+    int? lastSuccessCaptureWallMs,
   }) {
     final wallIso = DateTime.fromMillisecondsSinceEpoch(
       captureWallClockMs,
       isUtc: false,
     ).toUtc().toIso8601String();
 
+    void noteImageIntegrity(List<String> warnings) {
+      if (imageSizeBytes != null && imageSizeBytes >= 0 && imageSizeBytes < 256) {
+        warnings.add(warnTinyImage);
+      }
+    }
+
     if (pos == null) {
+      final w = <String>[warnNoGps];
+      noteImageIntegrity(w);
+      if (duplicateSessionImageHashMatchCaptureId != null) {
+        w.add(warnDuplicateImageContent);
+      }
+      final rapid = lastSuccessImageSha256 != null &&
+          imageSha256 != null &&
+          lastSuccessImageSha256 == imageSha256 &&
+          lastSuccessCaptureWallMs != null &&
+          (captureWallClockMs - lastSuccessCaptureWallMs).abs() < 2000;
+      if (rapid) {
+        w.add(warnRapidReshoot);
+      }
+
+      final wd = _dedupeWarnings(w);
+      final sc = math.max(0, 22 - (duplicateSessionImageHashMatchCaptureId != null ? 18 : 0) - (rapid ? 15 : 0) - (wd.contains(warnTinyImage) ? 10 : 0));
+      final cat = computeCategory(
+        coordinateTrusted: false,
+        locationSource: sourceAbsent,
+        gpsMockSuspected: false,
+        gpsFixStale: true,
+        trustScore: sc,
+        warnings: wd,
+      );
       return FieldTrustMeta(
         schemaVersion: '2',
         locationSource: sourceAbsent,
@@ -91,8 +163,11 @@ class FieldTrustMeta {
         networkConnected: networkConnected,
         batteryPct: batteryPct,
         altitudeAvailable: false,
-        trustScore: 22,
-        warnings: [warnNoGps],
+        trustScore: sc,
+        warnings: wd,
+        category: cat,
+        imageSha256: imageSha256,
+        imageSizeBytes: imageSizeBytes,
       );
     }
 
@@ -160,8 +235,36 @@ class FieldTrustMeta {
       warnings.add(warnDuplicateTimestamp);
       score -= 12;
     }
+    if (duplicateSessionImageHashMatchCaptureId != null) {
+      warnings.add(warnDuplicateImageContent);
+      score -= 20;
+    }
+    final rapidOk = lastSuccessImageSha256 != null &&
+        imageSha256 != null &&
+        lastSuccessImageSha256 == imageSha256 &&
+        lastSuccessCaptureWallMs != null &&
+        (captureWallClockMs - lastSuccessCaptureWallMs).abs() < 2000;
+    if (rapidOk) {
+      warnings.add(warnRapidReshoot);
+      score -= 15;
+    }
+
+    noteImageIntegrity(warnings);
+    if (warnings.contains(warnTinyImage)) {
+      score -= 10;
+    }
 
     score = math.max(0, math.min(100, score));
+
+    final wd = _dedupeWarnings(warnings);
+    final cat = computeCategory(
+      coordinateTrusted: true,
+      locationSource: src,
+      gpsMockSuspected: mock,
+      gpsFixStale: stale,
+      trustScore: score,
+      warnings: wd,
+    );
 
     return FieldTrustMeta(
       schemaVersion: '2',
@@ -179,8 +282,23 @@ class FieldTrustMeta {
       batteryPct: batteryPct,
       altitudeAvailable: altAvail,
       trustScore: score,
-      warnings: warnings,
+      warnings: wd,
+      category: cat,
+      imageSha256: imageSha256,
+      imageSizeBytes: imageSizeBytes,
     );
+  }
+
+  static List<String> _dedupeWarnings(List<String> w) {
+    final seen = <String>{};
+    final out = <String>[];
+    for (final e in w) {
+      if (seen.add(e)) {
+        out.add(e);
+      }
+    }
+    out.sort();
+    return out;
   }
 
   Map<String, dynamic> toJson() => {
@@ -200,18 +318,36 @@ class FieldTrustMeta {
         'alt_ok': altitudeAvailable,
         'trust': trustScore,
         'warn': warnings,
+        'cat': category.name.toUpperCase(),
+        if (imageSha256 != null) 'img_sha': imageSha256,
+        if (imageSizeBytes != null) 'img_bytes': imageSizeBytes,
       };
 
   static FieldTrustMeta? decode(String? jsonStr) {
     if (jsonStr == null || jsonStr.isEmpty) return null;
     try {
       final m = jsonDecode(jsonStr) as Map<String, dynamic>;
+      final warnings = (m['warn'] as List?)?.cast<String>() ?? const [];
+      final coordOk = m['coord_ok'] as bool? ?? true;
+      final src = m['src'] as String? ?? 'unknown';
+      final mock = m['mock'] as bool? ?? false;
+      final stale = m['stale'] as bool? ?? false;
+      final ts = m['trust'] as int? ?? 50;
+      var cat = _parseStoredCategory(m['cat'] as String?);
+      cat ??= computeCategory(
+        coordinateTrusted: coordOk,
+        locationSource: src,
+        gpsMockSuspected: mock,
+        gpsFixStale: stale,
+        trustScore: ts,
+        warnings: warnings,
+      );
       return FieldTrustMeta(
         schemaVersion: m['v'] as String? ?? '1',
-        locationSource: m['src'] as String? ?? 'unknown',
-        coordinateTrusted: m['coord_ok'] as bool? ?? true,
-        gpsFixStale: m['stale'] as bool? ?? false,
-        gpsMockSuspected: m['mock'] as bool? ?? false,
+        locationSource: src,
+        coordinateTrusted: coordOk,
+        gpsFixStale: stale,
+        gpsMockSuspected: mock,
         gpsFixUtcIso: m['fix_utc'] as String?,
         horizontalAccuracyM: (m['acc_m'] as num?)?.toDouble(),
         captureEpochMs: m['cap_ms'] as int?,
@@ -221,17 +357,28 @@ class FieldTrustMeta {
         networkConnected: m['online'] as bool? ?? true,
         batteryPct: m['bat'] as int?,
         altitudeAvailable: m['alt_ok'] as bool? ?? false,
-        trustScore: m['trust'] as int? ?? 50,
-        warnings: (m['warn'] as List?)?.cast<String>() ?? const [],
+        trustScore: ts,
+        warnings: warnings,
+        category: cat,
+        imageSha256: m['img_sha'] as String?,
+        imageSizeBytes: m['img_bytes'] as int?,
       );
     } catch (_) {
       return null;
     }
   }
 
+  static FieldTrustCategory? _parseStoredCategory(String? raw) {
+    if (raw == null || raw.isEmpty) return null;
+    final u = raw.toUpperCase();
+    for (final c in FieldTrustCategory.values) {
+      if (c.name.toUpperCase() == u) return c;
+    }
+    return null;
+  }
+
   String encode() => jsonEncode(toJson());
 
-  /// Validator: GPS yo‘qligi aniq belgilangan bo‘lsa 0°, 0° placeholder ruxsat.
   bool get allowsNullIslandCoordinates =>
       !coordinateTrusted && locationSource == sourceAbsent;
 }

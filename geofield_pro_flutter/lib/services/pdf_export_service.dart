@@ -22,8 +22,15 @@ class PdfExportService {
   }
 
   static Future<File> generateStationReport(Station station) async {
-    final issues = ExportService.validateStationsForExport([station]);
-    ExportService.logExportValidation('pdf_station', [station], issues);
+    final ordered = ExportService.orderedForExport([station]);
+    final issues = ExportService.validateStationsForExport(ordered);
+    ExportService.logExportValidation('pdf_station', ordered, issues);
+    ExportService.logExportSummary(
+      'pdf_station',
+      ordered,
+      issues,
+      ExportIntegrityMode.soft,
+    );
     await PdfFonts.ensureLoaded();
     final theme = PdfFonts.theme();
     final pdf = pw.Document(theme: theme);
@@ -72,8 +79,15 @@ class PdfExportService {
 
   static Future<File> generateProjectReport(
       List<Station> stations, String projectName) async {
-    final issues = ExportService.validateStationsForExport(stations);
-    ExportService.logExportValidation('pdf_project', stations, issues);
+    final ordered = ExportService.orderedForExport(stations);
+    final issues = ExportService.validateStationsForExport(ordered);
+    ExportService.logExportValidation('pdf_project', ordered, issues);
+    ExportService.logExportSummary(
+      'pdf_project',
+      ordered,
+      issues,
+      ExportIntegrityMode.soft,
+    );
     await PdfFonts.ensureLoaded();
     final theme = PdfFonts.theme();
     final pdf = pw.Document(theme: theme);
@@ -95,7 +109,7 @@ class PdfExportService {
             pw.Text('Loyiha: $projectName',
                 style:
                     const pw.TextStyle(fontSize: 18, color: PdfColors.grey700)),
-            pw.Text('Stansiyalar soni: ${stations.length}',
+            pw.Text('Stansiyalar soni: ${ordered.length}',
                 style: const pw.TextStyle(fontSize: 14)),
             pw.SizedBox(height: 20),
             pw.TableHelper.fromTextArray(
@@ -105,12 +119,12 @@ class PdfExportService {
               data: [
                 ['#', 'Stansiya', 'Koordinatalar', 'Tosh turi'],
                 ...List.generate(
-                    stations.length,
+                    ordered.length,
                     (i) => [
                           '${i + 1}',
-                          stations[i].name,
-                          '${stations[i].lat.toStringAsFixed(4)}, ${stations[i].lng.toStringAsFixed(4)}',
-                          stations[i].rockType ?? '-'
+                          ordered[i].name,
+                          '${ordered[i].lat.toStringAsFixed(4)}, ${ordered[i].lng.toStringAsFixed(4)}',
+                          ordered[i].rockType ?? '-'
                         ]),
               ],
             ),
@@ -120,7 +134,7 @@ class PdfExportService {
     );
 
     // Individual Station Pages
-    for (final s in stations) {
+    for (final s in ordered) {
       pdf.addPage(
         pw.MultiPage(
           theme: theme,

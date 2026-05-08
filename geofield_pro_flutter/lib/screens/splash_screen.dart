@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -174,33 +175,66 @@ class _SplashScreenState extends State<SplashScreen> {
     }
   }
 
-  /// Oldingi ish seansida `addStation` dan oldin ilova o‘chgan bo‘lsa — iz qoldiramiz, navbatni buzmaysiz.
+  /// Oldingi ish seansida `addStation` dan oldin ilova o‘chgan bo‘lsa — aniq vaqt bilan ajratamiz.
   Future<void> _drainInflightFieldCapture(SettingsController settings) async {
     final raw = settings.inflightFieldCaptureJson;
     if (raw == null || raw.isEmpty) return;
-    settings.setInflightFieldCaptureJson(null);
+
+    Map<String, dynamic>? map;
     try {
-      final map = jsonDecode(raw) as Map<String, dynamic>;
-      final started = map['started_ms'] as int?;
-      final ageMin = started == null
-          ? -1
-          : DateTime.now()
-              .difference(DateTime.fromMillisecondsSinceEpoch(started))
-              .inMinutes;
-      unawaited(
-        ProductionDiagnostics.session(
-          'inflight_capture_aborted',
-          data: {'age_minutes': ageMin},
-        ),
-      );
+      map = jsonDecode(raw) as Map<String, dynamic>;
     } catch (_) {
+      settings.setInflightFieldCaptureJson(null);
       unawaited(
         ProductionDiagnostics.session(
           'inflight_capture_corrupt',
           data: {'raw_len': raw.length},
         ),
       );
+      return;
     }
+
+    final started = map['started_ms'] as int?;
+    final ageMin = started == null
+        ? -1
+        : DateTime.now()
+            .difference(DateTime.fromMillisecondsSinceEpoch(started))
+            .inMinutes;
+
+    var photoExists = false;
+    if (!kIsWeb) {
+      final path = map['photo_path'] as String?;
+      if (path != null && path.isNotEmpty) {
+        try {
+          photoExists = File(path).existsSync();
+        } catch (_) {}
+      }
+    }
+
+    settings.setInflightFieldCaptureJson(null);
+
+    if (ageMin >= 45 || ageMin < 0) {
+      unawaited(
+        ProductionDiagnostics.session(
+          'inflight_stale_discarded',
+          data: {
+            'age_minutes': ageMin,
+            'photo_exists': photoExists,
+          },
+        ),
+      );
+      return;
+    }
+
+    unawaited(
+      ProductionDiagnostics.session(
+        'inflight_capture_aborted',
+        data: {
+          'age_minutes': ageMin,
+          'photo_exists': photoExists,
+        },
+      ),
+    );
   }
 
   /// Tizimda allaqachon sessiya bo‘lsa — Firestore’dan «onboarding o‘tgan» sozlamasini olish.

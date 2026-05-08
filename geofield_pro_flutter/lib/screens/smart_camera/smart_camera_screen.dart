@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:crypto/crypto.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:uuid/uuid.dart';
 import 'package:provider/provider.dart';
@@ -23,6 +24,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../../models/field_trust_meta.dart';
 import '../../models/station.dart';
+import '../../services/field_capture_atomic.dart';
 import '../../services/location_service.dart';
 import '../../services/settings_controller.dart';
 import '../../services/station_repository.dart';

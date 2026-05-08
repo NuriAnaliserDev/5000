@@ -6,6 +6,7 @@ import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
 import '../core/diagnostics/production_diagnostics.dart';
+import '../models/field_trust_meta.dart';
 import '../models/station.dart';
 import '../models/audit_entry.dart';
 import '../models/sync_item.dart';
@@ -60,6 +61,24 @@ class StationRepository extends ChangeNotifier {
     ..sort((a, b) => b.date.compareTo(a.date));
 
   Station? getById(dynamic id) => _box.get(id);
+
+  /// Sessiya ichidagi bir xil surat tarkibi (SHA-256) — mazmun bo‘yicha takror.
+  String? findDuplicateImageHashInSession({
+    required String sessionId,
+    required String imageSha256,
+  }) {
+    if (imageSha256.isEmpty) return null;
+    for (final s in _box.values) {
+      if (s.isDeleted) continue;
+      final meta = FieldTrustMeta.decode(s.fieldTrustMetaJson);
+      if (meta == null) continue;
+      if (meta.fieldSessionId != sessionId) continue;
+      if (meta.imageSha256 == imageSha256) {
+        return meta.captureId;
+      }
+    }
+    return null;
+  }
 
   Future<int> addStation(Station station, {UpdateSource source = UpdateSource.local}) async {
     return await _lock.synchronized(() async {

@@ -11,6 +11,12 @@ import '../models/track_data.dart';
 import 'export/dxf_writer.dart';
 import 'export/shapefile_writer.dart';
 
+/// `strict`: validatsiya xatosi bo‘lsa eksport qilmaydi. `soft`: fayl + log.
+enum ExportIntegrityMode {
+  soft,
+  strict,
+}
+
 /// Yagona eksport fasadi: CSV/GeoJSON/KML/GPX/DXF/Shapefile.
 ///
 /// DXF — [DxfWriter] (HEADER + LAYER + UTM).
@@ -18,7 +24,39 @@ import 'export/shapefile_writer.dart';
 /// CSV — UTF-8 BOM (Excel).
 /// GPX — metadata (name/time/bounds) + waypoint'lar.
 class ExportService {
-  /// Eksportdan oldin: takrorlar, vaqt, ishonchsiz nuqtalar — faqat log, fayl baribir yoziladi.
+  /// Tartib: avval `date` kamayish, keyin `name`.
+  static List<Station> orderedForExport(List<Station> stations) {
+    final out = List<Station>.from(stations);
+    out.sort((a, b) {
+      final c = b.date.compareTo(a.date);
+      if (c != 0) return c;
+      return a.name.compareTo(b.name);
+    });
+    return out;
+  }
+
+  static void logExportSummary(
+    String format,
+    List<Station> ordered,
+    List<String> issues,
+    ExportIntegrityMode mode,
+  ) {
+    unawaited(
+      ProductionDiagnostics.storage(
+        'export_completed_summary',
+        phase: format,
+        data: {
+          'mode': mode.name,
+          'rows': ordered.length,
+          'issues': issues.length,
+          'strict_blocked':
+              mode == ExportIntegrityMode.strict && issues.isNotEmpty,
+        },
+      ),
+    );
+  }
+
+  /// Eksportdan oldin: takrorlar, vaqt, fayl yo‘qligi — soft rejimda fayl baribir yoziladi.
   static List<String> validateStationsForExport(List<Station> stations) {
     final issues = <String>[];
     final keys = <String>{};
@@ -43,6 +81,25 @@ class ExportService {
           issues.add('null_coords_untagged:${s.name}');
         }
       }
+      try {
+        final paths = <String>{};
+        if (s.photoPath != null && s.photoPath!.isNotEmpty) {
+          paths.add(s.photoPath!);
+        }
+        if (s.photoPaths != null) {
+          for (final p in s.photoPaths!) {
+            if (p.isNotEmpty) paths.add(p);
+          }
+        }
+        for (final p in paths) {
+          final f = File(p);
+          if (!f.existsSync()) {
+            issues.add('missing_photo:$i:${s.name}');
+          } else if (f.lengthSync() < 32) {
+            issues.add('tiny_photo:$i:${s.name}');
+          }
+        }
+      } catch (_) {}
     }
     return issues;
   }
@@ -78,14 +135,22 @@ class ExportService {
     return target;
   }
 
-  static Future<File> exportToCsv(List<Station> stations) async {
-    final issues = validateStationsForExport(stations);
-    logExportValidation('csv', stations, issues);
+  static Future<File> exportToCsv(
+    List<Station> stations, {
+    ExportIntegrityMode integrityMode = ExportIntegrityMode.soft,
+  }) async {
+    final ordered = orderedForExport(stations);
+    final issues = validateStationsForExport(ordered);
+    logExportValidation('csv', ordered, issues);
+    logExportSummary('csv', ordered, issues, integrityMode);
+    if (integrityMode == ExportIntegrityMode.strict && issues.isNotEmpty) {
+      throw StateError('export_validation_failed:${issues.take(8).join(',')}');
+    }
     final buffer = StringBuffer();
     buffer.writeln(
-        'Name,Date,Latitude,Longitude,Altitude,Accuracy,Strike,Dip,Azimuth,RockType,MeasurementType,Structure,Color,Description,TrustScore,TrustMetaJson');
+        'Name,Date,Latitude,Longitude,Altitude,Accuracy,Strike,Dip,Azimuth,RockType,MeasurementType,Structure,Color,Description,TrustCategory,TrustScore,ImageSha256,TrustMetaJson');
 
-    for (final s in stations) {
+    for (final s in ordered) {
       final dateStr = s.date.toIso8601String();
       final meta = FieldTrustMeta.decode(s.fieldTrustMetaJson);
       buffer.writeln(
@@ -103,7 +168,9 @@ class ExportService {
         '${_escape(s.structure ?? "")},'
         '${_escape(s.color ?? "")},'
         '${_escape(s.description ?? "")},'
+        '${meta?.category.name.toUpperCase() ?? ""},'
         '${meta?.trustScore ?? ""},'
+        '${meta?.imageSha256 ?? ""},'
         '${_escape(s.fieldTrustMetaJson ?? "")}',
       );
     }
@@ -114,35 +181,45 @@ class ExportService {
     return _atomicWriteUtf8Text(path, '\uFEFF${buffer.toString()}');
   }
 
-  static Future<File> exportToGeoJson(List<Station> stations) async {
-    final issues = validateStationsForExport(stations);
-    logExportValidation('geojson', stations, issues);
-    final List<Map<String, dynamic>> features = stations
-        .map((s) => {
-              'type': 'Feature',
-              'geometry': {
-                'type': 'Point',
-                'coordinates': [s.lng, s.lat, s.altitude],
-              },
-              'properties': {
-                'name': s.name,
-                'date': s.date.toIso8601String(),
-                'strike': s.strike,
-                'dip': s.dip,
-                'azimuth': s.azimuth,
-                'accuracy': s.accuracy,
-                'rockType': s.rockType,
-                'measurementType': s.measurementType,
-                'structure': s.structure,
-                'color': s.color,
-                'description': s.description,
-                'project': s.project,
-                'trustScore':
-                    FieldTrustMeta.decode(s.fieldTrustMetaJson)?.trustScore,
-                'trustMetaJson': s.fieldTrustMetaJson,
-              }
-            })
-        .toList();
+  static Future<File> exportToGeoJson(
+    List<Station> stations, {
+    ExportIntegrityMode integrityMode = ExportIntegrityMode.soft,
+  }) async {
+    final ordered = orderedForExport(stations);
+    final issues = validateStationsForExport(ordered);
+    logExportValidation('geojson', ordered, issues);
+    logExportSummary('geojson', ordered, issues, integrityMode);
+    if (integrityMode == ExportIntegrityMode.strict && issues.isNotEmpty) {
+      throw StateError('export_validation_failed:${issues.take(8).join(',')}');
+    }
+    final List<Map<String, dynamic>> features = ordered.map((s) {
+      final m = FieldTrustMeta.decode(s.fieldTrustMetaJson);
+      return {
+        'type': 'Feature',
+        'geometry': {
+          'type': 'Point',
+          'coordinates': [s.lng, s.lat, s.altitude],
+        },
+        'properties': {
+          'name': s.name,
+          'date': s.date.toIso8601String(),
+          'strike': s.strike,
+          'dip': s.dip,
+          'azimuth': s.azimuth,
+          'accuracy': s.accuracy,
+          'rockType': s.rockType,
+          'measurementType': s.measurementType,
+          'structure': s.structure,
+          'color': s.color,
+          'description': s.description,
+          'project': s.project,
+          'trustCategory': m?.category.name.toUpperCase(),
+          'trustScore': m?.trustScore,
+          'imageSha256': m?.imageSha256,
+          'trustMetaJson': s.fieldTrustMetaJson,
+        },
+      };
+    }).toList();
 
     final geojson = {
       'type': 'FeatureCollection',
@@ -155,16 +232,24 @@ class ExportService {
     return _atomicWriteUtf8Text(path, jsonEncode(geojson));
   }
 
-  static Future<File> exportToKml(List<Station> stations) async {
-    final issues = validateStationsForExport(stations);
-    logExportValidation('kml', stations, issues);
+  static Future<File> exportToKml(
+    List<Station> stations, {
+    ExportIntegrityMode integrityMode = ExportIntegrityMode.soft,
+  }) async {
+    final ordered = orderedForExport(stations);
+    final issues = validateStationsForExport(ordered);
+    logExportValidation('kml', ordered, issues);
+    logExportSummary('kml', ordered, issues, integrityMode);
+    if (integrityMode == ExportIntegrityMode.strict && issues.isNotEmpty) {
+      throw StateError('export_validation_failed:${issues.take(8).join(',')}');
+    }
     final buffer = StringBuffer();
     buffer.writeln('<?xml version="1.0" encoding="UTF-8"?>');
     buffer.writeln('<kml xmlns="http://www.opengis.net/kml/2.2">');
     buffer.writeln('  <Document>');
     buffer.writeln('    <name>GeoField Pro Export</name>');
 
-    for (final s in stations) {
+    for (final s in ordered) {
       buffer.writeln('    <Placemark>');
       buffer.writeln('      <name>${_escapeXml(s.name)}</name>');
       buffer.writeln(
@@ -222,19 +307,24 @@ class ExportService {
     List<TrackData> tracks, {
     List<Station> waypoints = const [],
     String name = 'GeoField Pro Tracks',
+    ExportIntegrityMode waypointIntegrityMode = ExportIntegrityMode.soft,
   }) async {
-    final wIssues = validateStationsForExport(waypoints);
-    if (wIssues.isNotEmpty) {
-      logExportValidation('gpx_waypoints', waypoints, wIssues);
+    final orderedWp = orderedForExport(waypoints);
+    final wIssues = validateStationsForExport(orderedWp);
+    logExportValidation('gpx_waypoints', orderedWp, wIssues);
+    logExportSummary('gpx', orderedWp, wIssues, waypointIntegrityMode);
+    if (waypointIntegrityMode == ExportIntegrityMode.strict &&
+        wIssues.isNotEmpty) {
+      throw StateError('export_validation_failed:${wIssues.take(8).join(',')}');
     }
     final buffer = StringBuffer();
     buffer.writeln('<?xml version="1.0" encoding="UTF-8"?>');
     buffer.writeln(
         '<gpx version="1.1" creator="GeoField Pro" xmlns="http://www.topografix.com/GPX/1/1">');
 
-    _writeGpxMetadata(buffer, tracks, waypoints, name);
+    _writeGpxMetadata(buffer, tracks, orderedWp, name);
 
-    for (final s in waypoints) {
+    for (final s in orderedWp) {
       buffer.writeln('  <wpt lat="${s.lat}" lon="${s.lng}">');
       buffer.writeln('    <ele>${s.altitude}</ele>');
       buffer.writeln('    <time>${s.date.toUtc().toIso8601String()}</time>');
@@ -305,11 +395,17 @@ class ExportService {
   /// Shapefile ZIP — `stations.*` + har track uchun `track_N_*.shp`.
   static Future<File> exportToShapefileZip(
     List<Station> stations,
-    List<TrackData> tracks,
-  ) {
-    final issues = validateStationsForExport(stations);
-    logExportValidation('shapefile_zip', stations, issues);
-    return ShapefileWriter.writeZip(stations: stations, tracks: tracks);
+    List<TrackData> tracks, {
+    ExportIntegrityMode integrityMode = ExportIntegrityMode.soft,
+  }) {
+    final ordered = orderedForExport(stations);
+    final issues = validateStationsForExport(ordered);
+    logExportValidation('shapefile_zip', ordered, issues);
+    logExportSummary('shapefile_zip', ordered, issues, integrityMode);
+    if (integrityMode == ExportIntegrityMode.strict && issues.isNotEmpty) {
+      throw StateError('export_validation_failed:${issues.take(8).join(',')}');
+    }
+    return ShapefileWriter.writeZip(stations: ordered, tracks: tracks);
   }
 
   /// DXF — HEADER+TABLES+ENTITIES, UTM metrlarida.
@@ -317,11 +413,17 @@ class ExportService {
     List<Station> stations,
     List<TrackData> tracks, {
     bool useUtm = true,
+    ExportIntegrityMode integrityMode = ExportIntegrityMode.soft,
   }) {
-    final issues = validateStationsForExport(stations);
-    logExportValidation('dxf', stations, issues);
+    final ordered = orderedForExport(stations);
+    final issues = validateStationsForExport(ordered);
+    logExportValidation('dxf', ordered, issues);
+    logExportSummary('dxf', ordered, issues, integrityMode);
+    if (integrityMode == ExportIntegrityMode.strict && issues.isNotEmpty) {
+      throw StateError('export_validation_failed:${issues.take(8).join(',')}');
+    }
     return DxfWriter.write(
-      stations: stations,
+      stations: ordered,
       tracks: tracks,
       useUtm: useUtm,
     );

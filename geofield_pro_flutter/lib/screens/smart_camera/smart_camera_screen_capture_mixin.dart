@@ -92,6 +92,7 @@ mixin SmartCameraCaptureMixin on SmartCameraStateFields {
     if (!mounted) {
       return;
     }
+    String? orphanPhotoPath;
     try {
       setState(() => _isBusy = true);
       final settings = context.read<SettingsController>();
@@ -170,6 +171,35 @@ mixin SmartCameraCaptureMixin on SmartCameraStateFields {
         return;
       }
 
+      orphanPhotoPath = file.path;
+
+      final imageFile = File(file.path);
+      if (!await imageFile.exists()) {
+        throw StateError('capture_photo_missing');
+      }
+      final fileBytes = await imageFile.readAsBytes();
+      final shaHex = sha256.convert(fileBytes).toString();
+
+      final captureWallMs = DateTime.now().millisecondsSinceEpoch;
+      if (settings.shouldSuppressRapidDuplicate(shaHex, captureWallMs)) {
+        unawaited(
+          ProductionDiagnostics.camera(
+            'capture_suppressed_rapid_duplicate',
+            phase: 'smart_camera',
+            data: {
+              'sha8': shaHex.length >= 8 ? shaHex.substring(0, 8) : shaHex,
+            },
+          ),
+        );
+        return;
+      }
+
+      final prevWall = settings.lastCaptureWallMsForDedup;
+      settings.setLastCaptureWallMsForDedup(captureWallMs);
+
+      if (!mounted) {
+        return;
+      }
       final locService = context.read<LocationService>();
       await locService.refreshLocation();
       Position? pos = locService.currentPosition;
@@ -185,7 +215,6 @@ mixin SmartCameraCaptureMixin on SmartCameraStateFields {
         online = cc.any((e) => e != ConnectivityResult.none);
       } catch (_) {}
 
-      final captureWallMs = DateTime.now().millisecondsSinceEpoch;
       final captureId = const Uuid().v4();
       final sessionId = settings.fieldSessionId;
 
@@ -215,6 +244,11 @@ mixin SmartCameraCaptureMixin on SmartCameraStateFields {
         capAccuracy = pos.accuracy;
       }
 
+      final dupId = repo.findDuplicateImageHashInSession(
+        sessionId: sessionId,
+        imageSha256: shaHex,
+      );
+
       final trustMeta = FieldTrustMeta.forCapture(
         pos: pos,
         locationSource: pos == null ? null : locationSource,
@@ -223,6 +257,12 @@ mixin SmartCameraCaptureMixin on SmartCameraStateFields {
         captureId: captureId,
         networkConnected: online,
         batteryPct: null,
+        lastCaptureEpochMs: prevWall,
+        imageSha256: shaHex,
+        imageSizeBytes: fileBytes.length,
+        duplicateSessionImageHashMatchCaptureId: dupId,
+        lastSuccessImageSha256: settings.lastSuccessfulImageSha256,
+        lastSuccessCaptureWallMs: settings.lastSuccessfulCaptureWallMs,
       );
 
       final now = DateTime.now();
@@ -255,17 +295,24 @@ mixin SmartCameraCaptureMixin on SmartCameraStateFields {
         fieldTrustMetaJson: trustMeta.encode(),
       );
 
-      settings.setInflightFieldCaptureJson(jsonEncode({
-        'capture_id': captureId,
-        'started_ms': captureWallMs,
-        'session': sessionId,
-      }));
+      FieldCaptureAtomic.markInflight(
+        settings,
+        captureId: captureId,
+        startedMs: captureWallMs,
+        sessionId: sessionId,
+        photoPath: file.path,
+      );
       late final int id;
       try {
         id = await repo.addStation(station);
       } finally {
-        settings.setInflightFieldCaptureJson(null);
+        FieldCaptureAtomic.clearInflight(settings);
       }
+
+      settings.recordSuccessfulCaptureStamp(
+        wallMs: captureWallMs,
+        imageSha256: shaHex,
+      );
 
       if (!mounted) {
         return;
@@ -276,6 +323,10 @@ mixin SmartCameraCaptureMixin on SmartCameraStateFields {
           behavior: SnackBarBehavior.floating));
       AppRouter.goStation(context, stationId: id);
     } catch (e) {
+      await FieldCaptureAtomic.logFailedCapture(
+        orphanPhotoPath,
+        e,
+      );
       if (mounted) {
         ErrorHandler.show(context, ErrorMapper.map(e));
       }
