@@ -351,7 +351,7 @@ class SettingsController extends ChangeNotifier {
   static const _lastCapSuccessWallMsKey = 'lastSuccessfulCaptureWallMs';
   static const _lastCapSuccessShaKey = 'lastSuccessfulCaptureImgSha';
 
-  /// Ketma-ket capture’lar orasida vaqt oralig‘i — duplicate_wall_clock uchun.
+  /// Ketma-ket capture’lar orasida vaqt — `dup_clock_close` uchun.
   int? get lastCaptureWallMsForDedup =>
       _box.get(_lastCapWallDedupKey) as int?;
 
@@ -371,14 +371,5 @@ class SettingsController extends ChangeNotifier {
   }) {
     _box.put(_lastCapSuccessWallMsKey, wallMs);
     _box.put(_lastCapSuccessShaKey, imageSha256);
-  }
-
-  /// Ikki marta tez bosish: xuddi shu surat hash + 2 s ichida — ikkinchi yozuvni bosmaymiz.
-  bool shouldSuppressRapidDuplicate(String sha256, int nowMs) {
-    final lastMs = lastSuccessfulCaptureWallMs;
-    final lastSha = lastSuccessfulImageSha256;
-    if (lastMs == null || lastSha == null) return false;
-    if (lastSha != sha256) return false;
-    return (nowMs - lastMs).abs() < 2000;
   }
 }

@@ -15,7 +15,7 @@ import 'cloud_sync_service.dart';
 import 'sync/sync_queue_service.dart';
 import '../utils/geology_validator.dart';
 import '../utils/device_id_helper.dart';
-import '../core/error/app_error.dart';
+import '../services/observation_pipeline_service.dart';
 
 class StationRepository extends ChangeNotifier {
   late final Box<Station> _box;
@@ -142,7 +142,15 @@ class StationRepository extends ChangeNotifier {
         }
       }
 
-      final finalUpdated = await _stamp(tempUpdated, increment: source == UpdateSource.local);
+      var finalUpdated =
+          await _stamp(tempUpdated, increment: source == UpdateSource.local);
+      if (oldStation != null && source == UpdateSource.local) {
+        if (_trustSensitiveFieldsChanged(oldStation, finalUpdated)) {
+          finalUpdated =
+              ObservationPipelineService.updateObservationTrustForManualEdit(
+                  finalUpdated);
+        }
+      }
 
       await _box.put(key, finalUpdated);
 
@@ -192,6 +200,27 @@ class StationRepository extends ChangeNotifier {
 
       notifyListeners();
     });
+  }
+
+  bool _trustSensitiveFieldsChanged(Station a, Station b) {
+    if (a.lat != b.lat || a.lng != b.lng || a.altitude != b.altitude) {
+      return true;
+    }
+    if (a.date != b.date) return true;
+    final aa = a.accuracy;
+    final ba = b.accuracy;
+    if (aa != ba) {
+      if (aa == null || ba == null) return true;
+      if ((aa - ba).abs() > 1e-9) return true;
+    }
+    if (a.photoPath != b.photoPath) return true;
+    final ap = a.photoPaths ?? const <String>[];
+    final bp = b.photoPaths ?? const <String>[];
+    if (ap.length != bp.length) return true;
+    for (var i = 0; i < ap.length; i++) {
+      if (ap[i] != bp[i]) return true;
+    }
+    return false;
   }
 
   List<AuditEntry> _generateAuditEntries(

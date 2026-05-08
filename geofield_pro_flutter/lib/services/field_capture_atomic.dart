@@ -35,7 +35,7 @@ abstract final class FieldCaptureAtomic {
       final exists = await f.exists();
       final len = exists ? await f.length() : 0;
       await ProductionDiagnostics.storage(
-        'capture_aborted_orphan_risk',
+        'recovery_orphan_photo_candidate',
         data: {
           'tail': photoPath.contains(Platform.pathSeparator)
               ? photoPath.split(Platform.pathSeparator).last

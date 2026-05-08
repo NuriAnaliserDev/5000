@@ -187,7 +187,7 @@ class _SplashScreenState extends State<SplashScreen> {
       settings.setInflightFieldCaptureJson(null);
       unawaited(
         ProductionDiagnostics.session(
-          'inflight_capture_corrupt',
+          'recovery_inflight_json_corrupt',
           data: {'raw_len': raw.length},
         ),
       );
@@ -216,7 +216,7 @@ class _SplashScreenState extends State<SplashScreen> {
     if (ageMin >= 45 || ageMin < 0) {
       unawaited(
         ProductionDiagnostics.session(
-          'inflight_stale_discarded',
+          'recovery_inflight_stale',
           data: {
             'age_minutes': ageMin,
             'photo_exists': photoExists,
@@ -228,7 +228,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
     unawaited(
       ProductionDiagnostics.session(
-        'inflight_capture_aborted',
+        'recovery_inflight_aborted',
         data: {
           'age_minutes': ageMin,
           'photo_exists': photoExists,

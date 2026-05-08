@@ -1,30 +1,56 @@
 import 'dart:convert';
-import 'dart:math' as math;
 
 import 'package:geolocator/geolocator.dart';
 
 import '../core/diagnostics/app_timeouts.dart';
+import '../domain/observation_state_derivation.dart';
+import 'observation_pipeline_types.dart';
+import 'observation_warn_codes.dart';
 import 'field_trust_category.dart';
 
-/// Dalada yozilgan yozuv atrofidagi ishonch metadatasi (Hive / sinxron JSON).
-/// `category` — bitta normalizatsiyalangan holat; `warnings` — batafsil (cheklangan ro‘yxat).
+/// Dalada yozilgan yozuv uchun ishonch metadatasi.
+///
+/// **[FieldTrustCategory] — kategoriya = yagona ommaviy semantik holat.**
+/// **[trustScore] — faqat ichki evristik; category bilan tenglashtirilmasin.**
+///
+/// Barcha capture/update derivation: [ObservationStateDerivation] / [ObservationPipelineService].
 class FieldTrustMeta {
-  static const String sourceLiveRefresh = 'live_refresh';
-  static const String sourceLastKnown = 'last_known';
-  static const String sourceAbsent = 'absent';
+  static const String sourceLiveRefresh = ObservationLocationSources.liveRefresh;
+  static const String sourceLastKnown = ObservationLocationSources.lastKnown;
+  static const String sourceAbsent = ObservationLocationSources.absent;
 
-  static const String warnDuplicateTimestamp = 'duplicate_wall_clock';
-  static const String warnNoGps = 'no_gps_fix';
-  static const String warnStaleFix = 'stale_fix';
-  static const String warnMock = 'mock_location';
-  static const String warnLastKnown = 'last_known_source';
-  static const String warnImpossibleAccuracy = 'impossible_accuracy';
-  static const String warnSuspectTimestamp = 'suspect_fix_timestamp';
-  static const String warnNullIsland = 'null_island';
-  static const String warnWeakAccuracy = 'weak_accuracy_m';
-  static const String warnDuplicateImageContent = 'duplicate_image_content';
-  static const String warnRapidReshoot = 'rapid_reshoot_same_hash';
-  static const String warnTinyImage = 'tiny_image_file';
+  static const String warnGpsNoFix = ObservationWarnCodes.gpsNoFix;
+  static const String warnGpsStaleFix = ObservationWarnCodes.gpsStaleFix;
+  static const String warnGpsMock = ObservationWarnCodes.gpsMock;
+  static const String warnGpsLastKnown = ObservationWarnCodes.gpsLastKnown;
+  static const String warnGpsImpossibleAccuracy =
+      ObservationWarnCodes.gpsImpossibleAccuracy;
+  static const String warnGpsSuspectFixTimestamp =
+      ObservationWarnCodes.gpsSuspectFixTimestamp;
+  static const String warnGpsNullIsland = ObservationWarnCodes.gpsNullIsland;
+  static const String warnGpsWeakAccuracyM = ObservationWarnCodes.gpsWeakAccuracyM;
+
+  static const String warnPhotoTinyFile = ObservationWarnCodes.photoTinyFile;
+
+  static const String warnTimeWallFuture = ObservationWarnCodes.timeWallFuture;
+  static const String warnTimeWallAncient = ObservationWarnCodes.timeWallAncient;
+  static const String warnTimeGpsWallSkew = ObservationWarnCodes.timeGpsWallSkew;
+
+  static const String warnDupClockClose = ObservationWarnCodes.dupClockClose;
+  static const String warnDupPhotoSessionHash =
+      ObservationWarnCodes.dupPhotoSessionHash;
+  static const String warnDupRapidSameHashSignal =
+      ObservationWarnCodes.dupRapidSameHashSignal;
+
+  static const String warnRecoveryManualPostEdit =
+      ObservationWarnCodes.recoveryManualPostEdit;
+
+  static String warnAxis(String code) => ObservationWarnCodes.warnAxis(code);
+
+  static String warnKind(String code) => ObservationWarnCodes.warnKind(code);
+
+  static List<String> _normalizeWarnings(List<String> raw) =>
+      ObservationWarnCodes.normalizeWarnList(raw);
 
   final String schemaVersion;
   final String locationSource;
@@ -46,8 +72,12 @@ class FieldTrustMeta {
   final String? imageSha256;
   final int? imageSizeBytes;
 
-  const FieldTrustMeta({
-    this.schemaVersion = '2',
+  final ObservationDuplicateInfo? observationDuplicate;
+  final ObservationProvenance? lastMutationProvenance;
+  final ObservationIntegrityInfo? observationIntegrity;
+
+  FieldTrustMeta({
+    this.schemaVersion = '3',
     required this.locationSource,
     required this.coordinateTrusted,
     required this.gpsFixStale,
@@ -66,9 +96,11 @@ class FieldTrustMeta {
     required this.category,
     this.imageSha256,
     this.imageSizeBytes,
+    this.observationDuplicate,
+    this.lastMutationProvenance,
+    this.observationIntegrity,
   });
 
-  /// Deterministik kategoriya — bir xil kiritmada har doim bir xil chiqadi.
   static FieldTrustCategory computeCategory({
     required bool coordinateTrusted,
     required String locationSource,
@@ -77,24 +109,14 @@ class FieldTrustMeta {
     required int trustScore,
     required List<String> warnings,
   }) {
-    if (warnings.contains(warnImpossibleAccuracy) ||
-        warnings.contains(warnSuspectTimestamp) ||
-        warnings.contains(warnNullIsland)) {
-      return FieldTrustCategory.invalid;
-    }
-    if (gpsMockSuspected) {
-      return FieldTrustCategory.mocked;
-    }
-    if (!coordinateTrusted || locationSource == sourceAbsent) {
-      return FieldTrustCategory.partial;
-    }
-    if (gpsFixStale) {
-      return FieldTrustCategory.stale;
-    }
-    if (trustScore >= 85 && warnings.isEmpty) {
-      return FieldTrustCategory.verified;
-    }
-    return FieldTrustCategory.suspect;
+    return ObservationStateDerivation.computeCategory(
+      coordinateTrusted: coordinateTrusted,
+      locationSource: locationSource,
+      gpsMockSuspected: gpsMockSuspected,
+      gpsFixStale: gpsFixStale,
+      trustScore: trustScore,
+      warnings: warnings,
+    );
   }
 
   static FieldTrustMeta forCapture({
@@ -117,39 +139,31 @@ class FieldTrustMeta {
       isUtc: false,
     ).toUtc().toIso8601String();
 
-    void noteImageIntegrity(List<String> warnings) {
-      if (imageSizeBytes != null && imageSizeBytes >= 0 && imageSizeBytes < 256) {
-        warnings.add(warnTinyImage);
-      }
-    }
+    final facts = ObservationRawFacts(
+      position: pos == null ? null : PositionLike.fromPosition(pos),
+      locationSourceOverride: pos == null ? null : locationSource,
+      captureWallClockMs: captureWallClockMs,
+      fieldSessionId: fieldSessionId,
+      captureId: captureId,
+      networkConnected: networkConnected,
+      batteryPct: batteryPct,
+      lastCaptureEpochMsForDupClock: lastCaptureEpochMs,
+      imageSha256: imageSha256,
+      imageSizeBytes: imageSizeBytes,
+      duplicateSessionHashMatchCaptureId:
+          duplicateSessionImageHashMatchCaptureId,
+      lastSuccessImageSha256: lastSuccessImageSha256,
+      lastSuccessCaptureWallMs: lastSuccessCaptureWallMs,
+      provenance:
+          const ObservationProvenance(source: ObservationMutationSource.capture),
+    );
+
+    final derived = ObservationStateDerivation.deriveObservationState(facts);
+    final dup = derived.duplicateInfo.isEmpty ? null : derived.duplicateInfo;
 
     if (pos == null) {
-      final w = <String>[warnNoGps];
-      noteImageIntegrity(w);
-      if (duplicateSessionImageHashMatchCaptureId != null) {
-        w.add(warnDuplicateImageContent);
-      }
-      final rapid = lastSuccessImageSha256 != null &&
-          imageSha256 != null &&
-          lastSuccessImageSha256 == imageSha256 &&
-          lastSuccessCaptureWallMs != null &&
-          (captureWallClockMs - lastSuccessCaptureWallMs).abs() < 2000;
-      if (rapid) {
-        w.add(warnRapidReshoot);
-      }
-
-      final wd = _dedupeWarnings(w);
-      final sc = math.max(0, 22 - (duplicateSessionImageHashMatchCaptureId != null ? 18 : 0) - (rapid ? 15 : 0) - (wd.contains(warnTinyImage) ? 10 : 0));
-      final cat = computeCategory(
-        coordinateTrusted: false,
-        locationSource: sourceAbsent,
-        gpsMockSuspected: false,
-        gpsFixStale: true,
-        trustScore: sc,
-        warnings: wd,
-      );
       return FieldTrustMeta(
-        schemaVersion: '2',
+        schemaVersion: '3',
         locationSource: sourceAbsent,
         coordinateTrusted: false,
         gpsFixStale: true,
@@ -163,142 +177,90 @@ class FieldTrustMeta {
         networkConnected: networkConnected,
         batteryPct: batteryPct,
         altitudeAvailable: false,
-        trustScore: sc,
-        warnings: wd,
-        category: cat,
+        trustScore: derived.trustScore,
+        warnings: derived.normalizedWarnings,
+        category: derived.category,
         imageSha256: imageSha256,
         imageSizeBytes: imageSizeBytes,
+        observationDuplicate: dup,
+        lastMutationProvenance: derived.provenance,
+        observationIntegrity: derived.integrityInfo,
       );
     }
 
     final src = locationSource ?? sourceLiveRefresh;
-
     var mock = false;
     try {
       mock = pos.isMocked;
     } catch (_) {}
 
-    final fixAge = DateTime.now().difference(pos.timestamp);
-    final stale = fixAge > AppTimeouts.gpsFixMaxAge;
-    final acc = pos.accuracy;
-    final accBad = !acc.isFinite || acc < 0 || acc > 50000;
-    final accWeak = acc.isFinite && acc > 50;
-    final accVeryWeak = acc.isFinite && acc > 100;
-
-    final tsY = pos.timestamp.toUtc().year;
-    final suspectTs = tsY < 1999 || tsY > 2100;
-
-    final nullIsland =
-        pos.latitude == 0 && pos.longitude == 0 && src != sourceAbsent;
-
-    final altAvail = pos.altitudeAccuracy > 0 && pos.altitudeAccuracy.isFinite;
-
-    final dupClock = lastCaptureEpochMs != null &&
-        (captureWallClockMs - lastCaptureEpochMs).abs() < 800;
-
-    final warnings = <String>[];
-    var score = 100;
-
-    if (mock) {
-      warnings.add(warnMock);
-      score -= 35;
-    }
-    if (stale) {
-      warnings.add(warnStaleFix);
-      score -= 22;
-    }
-    if (src == sourceLastKnown) {
-      warnings.add(warnLastKnown);
-      score -= 10;
-    }
-    if (accBad) {
-      warnings.add(warnImpossibleAccuracy);
-      score -= 28;
-    } else {
-      if (accVeryWeak) {
-        warnings.add(warnWeakAccuracy);
-        score -= 14;
-      } else if (accWeak) {
-        warnings.add(warnWeakAccuracy);
-        score -= 7;
-      }
-    }
-    if (suspectTs) {
-      warnings.add(warnSuspectTimestamp);
-      score -= 25;
-    }
-    if (nullIsland) {
-      warnings.add(warnNullIsland);
-      score -= 40;
-    }
-    if (dupClock) {
-      warnings.add(warnDuplicateTimestamp);
-      score -= 12;
-    }
-    if (duplicateSessionImageHashMatchCaptureId != null) {
-      warnings.add(warnDuplicateImageContent);
-      score -= 20;
-    }
-    final rapidOk = lastSuccessImageSha256 != null &&
-        imageSha256 != null &&
-        lastSuccessImageSha256 == imageSha256 &&
-        lastSuccessCaptureWallMs != null &&
-        (captureWallClockMs - lastSuccessCaptureWallMs).abs() < 2000;
-    if (rapidOk) {
-      warnings.add(warnRapidReshoot);
-      score -= 15;
-    }
-
-    noteImageIntegrity(warnings);
-    if (warnings.contains(warnTinyImage)) {
-      score -= 10;
-    }
-
-    score = math.max(0, math.min(100, score));
-
-    final wd = _dedupeWarnings(warnings);
-    final cat = computeCategory(
-      coordinateTrusted: true,
-      locationSource: src,
-      gpsMockSuspected: mock,
-      gpsFixStale: stale,
-      trustScore: score,
-      warnings: wd,
-    );
+    final stale =
+        DateTime.now().difference(pos.timestamp) > AppTimeouts.gpsFixMaxAge;
 
     return FieldTrustMeta(
-      schemaVersion: '2',
+      schemaVersion: '3',
       locationSource: src,
       coordinateTrusted: true,
       gpsFixStale: stale,
       gpsMockSuspected: mock,
       gpsFixUtcIso: pos.timestamp.toUtc().toIso8601String(),
-      horizontalAccuracyM: acc,
+      horizontalAccuracyM: pos.accuracy,
       captureEpochMs: captureWallClockMs,
       captureWallClockUtcIso: wallIso,
       fieldSessionId: fieldSessionId,
       captureId: captureId,
       networkConnected: networkConnected,
       batteryPct: batteryPct,
-      altitudeAvailable: altAvail,
-      trustScore: score,
-      warnings: wd,
-      category: cat,
+      altitudeAvailable:
+          pos.altitudeAccuracy > 0 && pos.altitudeAccuracy.isFinite,
+      trustScore: derived.trustScore,
+      warnings: derived.normalizedWarnings,
+      category: derived.category,
       imageSha256: imageSha256,
       imageSizeBytes: imageSizeBytes,
+      observationDuplicate: dup,
+      lastMutationProvenance: derived.provenance,
+      observationIntegrity: derived.integrityInfo,
     );
   }
 
-  static List<String> _dedupeWarnings(List<String> w) {
-    final seen = <String>{};
-    final out = <String>[];
-    for (final e in w) {
-      if (seen.add(e)) {
-        out.add(e);
-      }
-    }
-    out.sort();
-    return out;
+  /// Qo‘lda tahrir — provenance [ObservationMutationSource.manual_edit].
+  static FieldTrustMeta degradedAfterManualEdit(FieldTrustMeta m) {
+    final derived = ObservationStateDerivation.deriveManualPostEditCore(
+      coordinateTrusted: m.coordinateTrusted,
+      locationSource: m.locationSource,
+      gpsMockSuspected: m.gpsMockSuspected,
+      gpsFixStale: m.gpsFixStale,
+      priorTrustScore: m.trustScore,
+      priorWarnings: m.warnings,
+      provenance: const ObservationProvenance(
+        source: ObservationMutationSource.manual_edit,
+      ),
+    );
+    return FieldTrustMeta(
+      schemaVersion: '3',
+      locationSource: m.locationSource,
+      coordinateTrusted: m.coordinateTrusted,
+      gpsFixStale: m.gpsFixStale,
+      gpsMockSuspected: m.gpsMockSuspected,
+      gpsFixUtcIso: m.gpsFixUtcIso,
+      horizontalAccuracyM: m.horizontalAccuracyM,
+      captureEpochMs: m.captureEpochMs,
+      captureWallClockUtcIso: m.captureWallClockUtcIso,
+      fieldSessionId: m.fieldSessionId,
+      captureId: m.captureId,
+      networkConnected: m.networkConnected,
+      batteryPct: m.batteryPct,
+      altitudeAvailable: m.altitudeAvailable,
+      trustScore: derived.trustScore,
+      warnings: derived.normalizedWarnings,
+      category: derived.category,
+      imageSha256: m.imageSha256,
+      imageSizeBytes: m.imageSizeBytes,
+      observationDuplicate: m.observationDuplicate,
+      lastMutationProvenance: derived.provenance,
+      observationIntegrity: m.observationIntegrity,
+    );
   }
 
   Map<String, dynamic> toJson() => {
@@ -321,27 +283,37 @@ class FieldTrustMeta {
         'cat': category.name.toUpperCase(),
         if (imageSha256 != null) 'img_sha': imageSha256,
         if (imageSizeBytes != null) 'img_bytes': imageSizeBytes,
+        if (observationDuplicate != null && !observationDuplicate!.isEmpty)
+          ...observationDuplicate!.toJson(),
+        if (lastMutationProvenance != null) ...lastMutationProvenance!.toJson(),
+        if (observationIntegrity != null) ...observationIntegrity!.toJson(),
+        'deriv_v': ObservationDerivationResult.derivationLogicVersion,
       };
+
+  String encode() => jsonEncode(toJson());
 
   static FieldTrustMeta? decode(String? jsonStr) {
     if (jsonStr == null || jsonStr.isEmpty) return null;
     try {
       final m = jsonDecode(jsonStr) as Map<String, dynamic>;
-      final warnings = (m['warn'] as List?)?.cast<String>() ?? const [];
+      final rawWarn = (m['warn'] as List?)?.cast<String>() ?? const [];
+      final normalizedWarnings = _normalizeWarnings(rawWarn);
       final coordOk = m['coord_ok'] as bool? ?? true;
       final src = m['src'] as String? ?? 'unknown';
       final mock = m['mock'] as bool? ?? false;
       final stale = m['stale'] as bool? ?? false;
       final ts = m['trust'] as int? ?? 50;
-      var cat = _parseStoredCategory(m['cat'] as String?);
-      cat ??= computeCategory(
+      final cat = ObservationStateDerivation.computeCategory(
         coordinateTrusted: coordOk,
         locationSource: src,
         gpsMockSuspected: mock,
         gpsFixStale: stale,
         trustScore: ts,
-        warnings: warnings,
+        warnings: normalizedWarnings,
       );
+      final od = ObservationDuplicateInfo.fromJson(m);
+      final op = ObservationProvenance.tryParse(m);
+      final oi = ObservationIntegrityInfo.fromJson(m);
       return FieldTrustMeta(
         schemaVersion: m['v'] as String? ?? '1',
         locationSource: src,
@@ -358,26 +330,21 @@ class FieldTrustMeta {
         batteryPct: m['bat'] as int?,
         altitudeAvailable: m['alt_ok'] as bool? ?? false,
         trustScore: ts,
-        warnings: warnings,
+        warnings: normalizedWarnings,
         category: cat,
         imageSha256: m['img_sha'] as String?,
         imageSizeBytes: m['img_bytes'] as int?,
+        observationDuplicate: od.isEmpty ? null : od,
+        lastMutationProvenance: op,
+        observationIntegrity:
+            (oi.storedContentSha256 == null && oi.storedByteLength == null)
+                ? null
+                : oi,
       );
     } catch (_) {
       return null;
     }
   }
-
-  static FieldTrustCategory? _parseStoredCategory(String? raw) {
-    if (raw == null || raw.isEmpty) return null;
-    final u = raw.toUpperCase();
-    for (final c in FieldTrustCategory.values) {
-      if (c.name.toUpperCase() == u) return c;
-    }
-    return null;
-  }
-
-  String encode() => jsonEncode(toJson());
 
   bool get allowsNullIslandCoordinates =>
       !coordinateTrusted && locationSource == sourceAbsent;

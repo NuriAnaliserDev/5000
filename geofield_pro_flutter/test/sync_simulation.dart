@@ -5,8 +5,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:geofield_pro_flutter/models/station.dart';
-import 'package:geofield_pro_flutter/models/geological_line.dart';
-import 'package:geofield_pro_flutter/models/map_structure_annotation.dart';
 import 'package:geofield_pro_flutter/models/sync_item.dart';
 import 'package:geofield_pro_flutter/utils/sync_utils.dart';
 import 'package:geofield_pro_flutter/services/sync/sync_queue_service.dart';

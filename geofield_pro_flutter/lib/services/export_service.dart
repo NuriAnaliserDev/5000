@@ -5,7 +5,9 @@ import 'dart:async';
 import 'package:path_provider/path_provider.dart';
 
 import '../core/diagnostics/production_diagnostics.dart';
+import '../models/field_trust_category.dart';
 import '../models/field_trust_meta.dart';
+import '../services/observation_pipeline_service.dart';
 import '../models/station.dart';
 import '../models/track_data.dart';
 import 'export/dxf_writer.dart';
@@ -41,6 +43,7 @@ class ExportService {
     List<String> issues,
     ExportIntegrityMode mode,
   ) {
+    if (issues.isEmpty) return;
     unawaited(
       ProductionDiagnostics.storage(
         'export_completed_summary',
@@ -64,21 +67,32 @@ class ExportService {
       final s = stations[i];
       final d = s.date;
       if (d.year < 1980 || d.year > 2100) {
-        issues.add('date_range:$i:${s.name}');
+        issues.add('export_date_range:$i:${s.name}');
+      }
+      if (d.isAfter(DateTime.now().add(const Duration(days: 1)))) {
+        issues.add('export_time_future:$i:${s.name}');
       }
       final key = '${s.name}|${d.toIso8601String()}';
       if (keys.contains(key)) {
-        issues.add('dup_name_date:${s.name}');
+        issues.add('export_dup_name_date:${s.name}');
       }
       keys.add(key);
-      final meta = FieldTrustMeta.decode(s.fieldTrustMetaJson);
+      final meta = ObservationPipelineService.canonicalFieldTrustMeta(s);
+      if (meta != null) {
+        if (meta.category == FieldTrustCategory.invalid) {
+          issues.add('export_category_invalid:${s.name}');
+        }
+        if (meta.category == FieldTrustCategory.mocked) {
+          issues.add('export_category_mocked:${s.name}');
+        }
+      }
       if (meta != null && meta.trustScore < 35) {
-        issues.add('low_trust:${s.name}:${meta.trustScore}');
+        issues.add('export_diagnostic_low_score:${s.name}:${meta.trustScore}');
       }
       if (s.lat == 0 && s.lng == 0) {
-        final t = FieldTrustMeta.decode(s.fieldTrustMetaJson);
+        final t = ObservationPipelineService.canonicalFieldTrustMeta(s);
         if (t?.allowsNullIslandCoordinates != true) {
-          issues.add('null_coords_untagged:${s.name}');
+          issues.add('export_null_coords_untagged:${s.name}');
         }
       }
       try {
@@ -94,9 +108,9 @@ class ExportService {
         for (final p in paths) {
           final f = File(p);
           if (!f.existsSync()) {
-            issues.add('missing_photo:$i:${s.name}');
+            issues.add('export_missing_photo:$i:${s.name}');
           } else if (f.lengthSync() < 32) {
-            issues.add('tiny_photo:$i:${s.name}');
+            issues.add('export_tiny_photo:$i:${s.name}');
           }
         }
       } catch (_) {}

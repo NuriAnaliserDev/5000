@@ -181,18 +181,6 @@ mixin SmartCameraCaptureMixin on SmartCameraStateFields {
       final shaHex = sha256.convert(fileBytes).toString();
 
       final captureWallMs = DateTime.now().millisecondsSinceEpoch;
-      if (settings.shouldSuppressRapidDuplicate(shaHex, captureWallMs)) {
-        unawaited(
-          ProductionDiagnostics.camera(
-            'capture_suppressed_rapid_duplicate',
-            phase: 'smart_camera',
-            data: {
-              'sha8': shaHex.length >= 8 ? shaHex.substring(0, 8) : shaHex,
-            },
-          ),
-        );
-        return;
-      }
 
       final prevWall = settings.lastCaptureWallMsForDedup;
       settings.setLastCaptureWallMsForDedup(captureWallMs);
