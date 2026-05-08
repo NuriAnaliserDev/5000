@@ -8,4 +8,6 @@ enum DiagnosticDomain {
   failure,
   sync,
   storage,
+  /// Sessiya / auth / sinxron navbatni qayta tiklash (offline, crash keyin).
+  session,
 }

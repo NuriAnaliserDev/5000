@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
@@ -73,6 +75,21 @@ abstract final class ProductionDiagnostics {
     );
   }
 
+  /// Mahalliy sessiya, splash tiklash, sinxron navbat crash recovery.
+  static Future<void> session(
+    String event, {
+    String? phase,
+    Map<String, Object?>? data,
+  }) {
+    return DiagnosticService.instance.logStructured(
+      domain: DiagnosticDomain.session,
+      event: event,
+      phase: phase,
+      data: data,
+      includeMemory: false,
+    );
+  }
+
   static Future<void> syncFailure(
     String component,
     Object error,
@@ -116,9 +133,18 @@ abstract final class ProductionDiagnostics {
 }
 
 /// [WidgetsBindingObserver] — ilova lifecycle (bitta global nuqta).
+///
+/// [onResumed] — masalan [LocationService] uchun ruxsat va GPS oqimini qayta tekshirish.
 class AppLifecycleDiagnosticsObserver with WidgetsBindingObserver {
+  AppLifecycleDiagnosticsObserver({this.onResumed});
+
+  final Future<void> Function()? onResumed;
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     ProductionDiagnostics.appLifecycle(state.name);
+    if (state == AppLifecycleState.resumed && onResumed != null) {
+      unawaited(onResumed!());
+    }
   }
 }

@@ -50,13 +50,14 @@ class StationAdapter extends TypeAdapter<Station> {
       updatedBy: fields[30] as String?,
       updatedByDeviceId: fields[31] as String?,
       isDeleted: fields[32] == null ? false : fields[32] as bool,
+      fieldTrustMetaJson: fields[33] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Station obj) {
     writer
-      ..writeByte(33)
+      ..writeByte(34)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -122,7 +123,9 @@ class StationAdapter extends TypeAdapter<Station> {
       ..writeByte(31)
       ..write(obj.updatedByDeviceId)
       ..writeByte(32)
-      ..write(obj.isDeleted);
+      ..write(obj.isDeleted)
+      ..writeByte(33)
+      ..write(obj.fieldTrustMetaJson);
   }
 
   @override

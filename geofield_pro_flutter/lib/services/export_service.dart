@@ -15,10 +15,22 @@ import 'export/shapefile_writer.dart';
 /// CSV — UTF-8 BOM (Excel).
 /// GPX — metadata (name/time/bounds) + waypoint'lar.
 class ExportService {
+  /// Yozish vaqtida ilova o‘chsa ham bo‘sh/buzuq fayl qolmasligi uchun vaqtinchalik fayl orqali almashtirish.
+  static Future<File> _atomicWriteUtf8Text(String path, String contents) async {
+    final target = File(path);
+    final tmp = File('$path.tmp.${DateTime.now().microsecondsSinceEpoch}');
+    await tmp.writeAsString(contents, flush: true);
+    if (await target.exists()) {
+      await target.delete();
+    }
+    await tmp.rename(target.path);
+    return target;
+  }
+
   static Future<File> exportToCsv(List<Station> stations) async {
     final buffer = StringBuffer();
     buffer.writeln(
-        'Name,Date,Latitude,Longitude,Altitude,Accuracy,Strike,Dip,Azimuth,RockType,MeasurementType,Structure,Color,Description');
+        'Name,Date,Latitude,Longitude,Altitude,Accuracy,Strike,Dip,Azimuth,RockType,MeasurementType,Structure,Color,Description,TrustMetaJson');
 
     for (final s in stations) {
       final dateStr = s.date.toIso8601String();
@@ -36,15 +48,15 @@ class ExportService {
         '${_escape(s.measurementType ?? "")},'
         '${_escape(s.structure ?? "")},'
         '${_escape(s.color ?? "")},'
-        '${_escape(s.description ?? "")}',
+        '${_escape(s.description ?? "")},'
+        '${_escape(s.fieldTrustMetaJson ?? "")}',
       );
     }
 
     final directory = await getTemporaryDirectory();
-    final file = File(
-        '${directory.path}/geofield_export_${DateTime.now().millisecondsSinceEpoch}.csv');
-    // UTF-8 BOM — Excel'da kirillcha/o‘zbekcha to‘g‘ri ochilishi uchun.
-    return file.writeAsString('\uFEFF${buffer.toString()}');
+    final path =
+        '${directory.path}/geofield_export_${DateTime.now().millisecondsSinceEpoch}.csv';
+    return _atomicWriteUtf8Text(path, '\uFEFF${buffer.toString()}');
   }
 
   static Future<File> exportToGeoJson(List<Station> stations) async {
@@ -68,6 +80,7 @@ class ExportService {
                 'color': s.color,
                 'description': s.description,
                 'project': s.project,
+                'trustMetaJson': s.fieldTrustMetaJson,
               }
             })
         .toList();
@@ -78,9 +91,9 @@ class ExportService {
     };
 
     final directory = await getTemporaryDirectory();
-    final file = File(
-        '${directory.path}/geofield_export_${DateTime.now().millisecondsSinceEpoch}.geojson');
-    return file.writeAsString(jsonEncode(geojson));
+    final path =
+        '${directory.path}/geofield_export_${DateTime.now().millisecondsSinceEpoch}.geojson';
+    return _atomicWriteUtf8Text(path, jsonEncode(geojson));
   }
 
   static Future<File> exportToKml(List<Station> stations) async {
@@ -106,9 +119,9 @@ class ExportService {
     buffer.writeln('</kml>');
 
     final directory = await getTemporaryDirectory();
-    final file = File(
-        '${directory.path}/geofield_export_${DateTime.now().millisecondsSinceEpoch}.kml');
-    return file.writeAsString(buffer.toString());
+    final path =
+        '${directory.path}/geofield_export_${DateTime.now().millisecondsSinceEpoch}.kml';
+    return _atomicWriteUtf8Text(path, buffer.toString());
   }
 
   static Future<File> exportTracksToKml(List<TrackData> tracks) async {
@@ -138,9 +151,9 @@ class ExportService {
     buffer.writeln('</kml>');
 
     final directory = await getTemporaryDirectory();
-    final file = File(
-        '${directory.path}/tracks_export_${DateTime.now().millisecondsSinceEpoch}.kml');
-    return file.writeAsString(buffer.toString());
+    final path =
+        '${directory.path}/tracks_export_${DateTime.now().millisecondsSinceEpoch}.kml';
+    return _atomicWriteUtf8Text(path, buffer.toString());
   }
 
   /// GPX 1.1 — `<metadata>` (name, time, bounds) + optional `<wpt>` waypoints.
@@ -185,9 +198,9 @@ class ExportService {
     buffer.writeln('</gpx>');
 
     final directory = await getTemporaryDirectory();
-    final file = File(
-        '${directory.path}/tracks_export_${DateTime.now().millisecondsSinceEpoch}.gpx');
-    return file.writeAsString(buffer.toString());
+    final path =
+        '${directory.path}/tracks_export_${DateTime.now().millisecondsSinceEpoch}.gpx';
+    return _atomicWriteUtf8Text(path, buffer.toString());
   }
 
   static void _writeGpxMetadata(

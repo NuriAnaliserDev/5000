@@ -7,3 +7,14 @@
 
 # JetBrains (ildizda .idea bo‘lsa)
 .idea/
+
+# Reliz artefaktlari (ildizdagi release/ va ikkilanmasdan binarylar)
+/release/
+*.apk
+*.aab
+*.ipa
+
+# OS / editor
+Thumbs.db
+*.swp
+*~

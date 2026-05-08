@@ -1,3 +1,4 @@
+import '../models/field_trust_meta.dart';
 import '../models/station.dart';
 import '../models/measurement.dart';
 
@@ -63,9 +64,12 @@ class GeologyValidator {
       return 'Balandlik oraliqdan tashqari (-500..9000 m).';
     }
 
-    // 7. GPS koordinatalari — 0,0 odatda xato
+    // 7. GPS koordinatalari — 0,0 odatda xato (faqat GPS yo‘qligi metadata bilan belgilangan bo‘lsa ruxsat)
     if (s.lat == 0 && s.lng == 0) {
-      return 'GPS koordinatalari (0°, 0°) bo\'lishi mumkin emas!';
+      final trust = FieldTrustMeta.decode(s.fieldTrustMetaJson);
+      if (trust?.allowsNullIslandCoordinates != true) {
+        return 'GPS koordinatalari (0°, 0°) bo\'lishi mumkin emas!';
+      }
     }
 
     // 8. Lat/Lng chegaralari

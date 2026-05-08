@@ -9,6 +9,12 @@ abstract final class AppTimeouts {
   /// `getCurrentPosition` tashqi cheklov (ichki LocationSettings dan mustaqil).
   static const Duration getCurrentPositionOuter = Duration(seconds: 14);
 
+  /// `Position.timestamp` juda eski bo‘lsa, qabul qilinmasin (OS kesh / qayta ishlatilgan fix).
+  static const Duration gpsFixMaxAge = Duration(minutes: 2);
+
+  /// `GpsBroadcaster` Geolocator oqimi xatosi keyin qayta ulanish kechikishi.
+  static const Duration gpsStreamRecoverDelay = Duration(seconds: 3);
+
   /// `HiveDb.init()` — butun bootstrapda qotib qolmaslik uchun.
   static const Duration hiveBootstrapInit = Duration(seconds: 90);
 

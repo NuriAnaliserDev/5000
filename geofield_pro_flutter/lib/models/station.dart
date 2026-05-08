@@ -105,6 +105,10 @@ class Station extends HiveObject {
   @HiveField(32, defaultValue: false)
   bool isDeleted;
 
+  /// [FieldTrustMeta.encode] — GPS manbai, mock, eskirgan fix, ishonch bayroqlari.
+  @HiveField(33)
+  String? fieldTrustMetaJson;
+
   Station({
     required this.name,
     required this.lat,
@@ -139,6 +143,7 @@ class Station extends HiveObject {
     this.updatedBy,
     this.updatedByDeviceId,
     this.isDeleted = false,
+    this.fieldTrustMetaJson,
   });
 
   Station copyWith({
@@ -175,6 +180,7 @@ class Station extends HiveObject {
     String? updatedBy,
     String? updatedByDeviceId,
     bool? isDeleted,
+    String? fieldTrustMetaJson,
   }) {
     return Station(
       name: name ?? this.name,
@@ -210,6 +216,7 @@ class Station extends HiveObject {
       updatedBy: updatedBy ?? this.updatedBy,
       updatedByDeviceId: updatedByDeviceId ?? this.updatedByDeviceId,
       isDeleted: isDeleted ?? this.isDeleted,
+      fieldTrustMetaJson: fieldTrustMetaJson ?? this.fieldTrustMetaJson,
     );
   }
 
@@ -248,6 +255,7 @@ class Station extends HiveObject {
       'updatedBy': updatedBy,
       'updatedByDeviceId': updatedByDeviceId,
       'isDeleted': isDeleted,
+      'fieldTrustMetaJson': fieldTrustMetaJson,
     };
   }
 
@@ -290,6 +298,7 @@ class Station extends HiveObject {
       updatedBy: map['updatedBy'],
       updatedByDeviceId: map['updatedByDeviceId'],
       isDeleted: map['isDeleted'] ?? false,
+      fieldTrustMetaJson: map['fieldTrustMetaJson'] as String?,
     );
   }
 }

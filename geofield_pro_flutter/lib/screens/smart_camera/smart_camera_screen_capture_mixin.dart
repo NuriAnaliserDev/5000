@@ -173,7 +173,19 @@ mixin SmartCameraCaptureMixin on SmartCameraStateFields {
       final locService = context.read<LocationService>();
       await locService.refreshLocation();
       Position? pos = locService.currentPosition;
-      pos ??= await Geolocator.getLastKnownPosition();
+      var locationSource = FieldTrustMeta.sourceLiveRefresh;
+      if (pos == null) {
+        pos = await Geolocator.getLastKnownPosition();
+        locationSource = FieldTrustMeta.sourceLastKnown;
+      }
+
+      final captureEpochMs = DateTime.now().millisecondsSinceEpoch;
+      late final double capLat;
+      late final double capLng;
+      late final double capAlt;
+      late final double? capAccuracy;
+      late final FieldTrustMeta trustMeta;
+
       if (pos == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -184,25 +196,27 @@ mixin SmartCameraCaptureMixin on SmartCameraStateFields {
             ),
           );
         }
-        pos = Position(
-          latitude: 0,
-          longitude: 0,
-          timestamp: DateTime.now(),
-          accuracy: 99999,
-          altitude: 0,
-          heading: 0,
-          speed: 0,
-          speedAccuracy: 0,
-          altitudeAccuracy: 0,
-          headingAccuracy: 0,
+        capLat = 0;
+        capLng = 0;
+        capAlt = 0;
+        capAccuracy = null;
+        trustMeta = FieldTrustMeta.absent(captureEpochMs: captureEpochMs);
+      } else {
+        capLat = pos.latitude;
+        capLng = pos.longitude;
+        capAlt = pos.altitude;
+        capAccuracy = pos.accuracy;
+        trustMeta = FieldTrustMeta.fromPosition(
+          pos,
+          locationSource: locationSource,
+          captureEpochMs: captureEpochMs,
         );
       }
 
       final now = DateTime.now();
       final datePart =
           '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
-      final seqPart =
-          (now.millisecondsSinceEpoch % 1000).toString().padLeft(3, '0');
+      final seqPart = now.millisecondsSinceEpoch.toString();
       final projectCode = (settings.currentProject.length >= 3
           ? settings.currentProject.substring(0, 3).toUpperCase()
           : settings.currentProject.toUpperCase());
@@ -210,22 +224,23 @@ mixin SmartCameraCaptureMixin on SmartCameraStateFields {
 
       final station = Station(
         name: stationName,
-        lat: pos.latitude,
-        lng: pos.longitude,
-        altitude: pos.altitude,
+        lat: capLat,
+        lng: capLng,
+        altitude: capAlt,
         strike: _strike,
         dip: _dip,
         azimuth: _azimuth,
         date: DateTime.now(),
         photoPath: file.path,
         audioPath: _audioPath,
-        accuracy: pos.accuracy,
+        accuracy: capAccuracy,
         photoPaths: [file.path],
         project: settings.currentProject,
         dipDirection: GeologyUtils.calculateDipDirection(_strike),
         confidence: 5,
         authorName: settings.currentUserName,
         authorRole: settings.expertMode ? 'Professional' : null,
+        fieldTrustMetaJson: trustMeta.encode(),
       );
       final id = await repo.addStation(station);
 

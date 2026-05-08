@@ -1,7 +1,11 @@
 import 'dart:convert';
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:synchronized/synchronized.dart';
+
+import '../../core/diagnostics/production_diagnostics.dart';
 import '../../models/sync_item.dart';
 import '../hive_db.dart';
 
@@ -110,7 +114,19 @@ class SyncQueueService extends ChangeNotifier {
         item.status = SyncStatus.pending;
         await item.save();
       }
-      if (stuckItems.isNotEmpty) notifyListeners();
+      if (stuckItems.isNotEmpty) {
+        unawaited(
+          ProductionDiagnostics.session(
+            'sync_queue_stale_processing_reset',
+            data: {
+              'count': stuckItems.length,
+              'entity_types':
+                  stuckItems.map((e) => e.entityType).toSet().join(','),
+            },
+          ),
+        );
+        notifyListeners();
+      }
     });
   }
 

@@ -35,15 +35,17 @@ class MapLegend extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () {
-                if (stations.isEmpty) return;
-                final points =
-                    stations.map((s) => LatLng(s.lat, s.lng)).toList();
-                if (points.isEmpty) return;
-                final bounds = LatLngBounds.fromPoints(points);
-                mapController.fitCamera(
-                  CameraFit.bounds(
-                      bounds: bounds, padding: const EdgeInsets.all(40)),
-                );
+                try {
+                  if (stations.isEmpty) return;
+                  final points =
+                      stations.map((s) => LatLng(s.lat, s.lng)).toList();
+                  if (points.isEmpty) return;
+                  final bounds = LatLngBounds.fromPoints(points);
+                  mapController.fitCamera(
+                    CameraFit.bounds(
+                        bounds: bounds, padding: const EdgeInsets.all(40)),
+                  );
+                } catch (_) {}
               },
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -65,12 +67,14 @@ class MapLegend extends StatelessWidget {
             const SizedBox(height: 8),
             GestureDetector(
               onTap: () {
-                final pos = currentPos;
-                if (pos == null) return;
-                mapController.move(
-                  LatLng(pos.latitude, pos.longitude),
-                  14,
-                );
+                try {
+                  final pos = currentPos;
+                  if (pos == null) return;
+                  mapController.move(
+                    LatLng(pos.latitude, pos.longitude),
+                    14,
+                  );
+                } catch (_) {}
               },
               child: Row(
                 mainAxisSize: MainAxisSize.min,

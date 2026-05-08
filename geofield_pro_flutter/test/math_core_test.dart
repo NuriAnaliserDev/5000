@@ -9,6 +9,7 @@ import 'package:geofield_pro_flutter/utils/geology_validator.dart';
 import 'package:geofield_pro_flutter/utils/wmm/wmm_model.dart';
 import 'package:geofield_pro_flutter/models/measurement.dart';
 import 'package:geofield_pro_flutter/models/station.dart';
+import 'package:geofield_pro_flutter/models/field_trust_meta.dart';
 
 void main() {
   group('GeoConstants', () {
@@ -260,9 +261,18 @@ void main() {
       expect(GeologyValidator.validateStation(s), isNotNull);
     });
 
-    test('(0,0) koordinata rad etiladi', () {
+    test('(0,0) koordinata rad etiladi (metadata yo\'q)', () {
       final s = baseStation().copyWith(lat: 0, lng: 0);
       expect(GeologyValidator.validateStation(s), isNotNull);
+    });
+
+    test('(0,0) absent GPS metadata bilan ruxsat', () {
+      final s = baseStation().copyWith(
+        lat: 0,
+        lng: 0,
+        fieldTrustMetaJson: FieldTrustMeta.absent().encode(),
+      );
+      expect(GeologyValidator.validateStation(s), isNull);
     });
 
     test('warnLowGpsAccuracy: past emas', () {

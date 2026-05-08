@@ -7,6 +7,7 @@ import '../models/track_data.dart';
 import 'hive_db.dart';
 import 'cloud_sync_service.dart';
 import 'gps/gps_broadcaster.dart';
+import '../core/diagnostics/app_timeouts.dart';
 
 class TrackService extends ChangeNotifier {
   final CloudSyncService _cloudSyncService;
@@ -99,12 +100,29 @@ class TrackService extends ChangeNotifier {
   }
 
   Future<void> startTracking(String name) async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    bool serviceEnabled;
+    try {
+      serviceEnabled = await Geolocator.isLocationServiceEnabled()
+          .timeout(AppTimeouts.locationServiceProbe);
+    } catch (_) {
+      return;
+    }
     if (!serviceEnabled) return;
 
-    LocationPermission permission = await Geolocator.checkPermission();
+    LocationPermission permission;
+    try {
+      permission =
+          await Geolocator.checkPermission().timeout(AppTimeouts.gpsPermissionProbe);
+    } catch (_) {
+      return;
+    }
     if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
+      try {
+        permission = await Geolocator.requestPermission()
+            .timeout(AppTimeouts.gpsPermissionProbe);
+      } catch (_) {
+        return;
+      }
       if (permission == LocationPermission.denied) return;
     }
     if (permission == LocationPermission.deniedForever) return;

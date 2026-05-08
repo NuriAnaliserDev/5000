@@ -18,6 +18,7 @@ import 'package:torch_light/torch_light.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../models/field_trust_meta.dart';
 import '../../models/station.dart';
 import '../../services/location_service.dart';
 import '../../services/settings_controller.dart';

@@ -215,6 +215,14 @@ class _SplashScreenState extends State<SplashScreen> {
     // bo‘lsa — foydalanuvchi allaqachon kirgan, uni dashboardga qaytaramiz.
     // Firebase keyin o‘zi tiklanadi (authStateChanges orqali).
     if (rememberedUid != null && rememberedUid.isNotEmpty) {
+      if (user == null) {
+        unawaited(
+          ProductionDiagnostics.session(
+            'remembered_uid_dashboard',
+            data: {'uid_len': rememberedUid.length},
+          ),
+        );
+      }
       final name = settings.lastAuthName;
       if (name != null && name.isNotEmpty && settings.currentUserName != name) {
         settings.setLocalDisplayName(name);

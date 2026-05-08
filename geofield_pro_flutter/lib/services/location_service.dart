@@ -165,9 +165,24 @@ class LocationService extends ChangeNotifier {
   }
 
   void _onGpsPosition(Position position) {
+    try {
+      final age = DateTime.now().difference(position.timestamp);
+      if (age > AppTimeouts.gpsFixMaxAge) {
+        unawaited(
+          ProductionDiagnostics.gps(
+            'stale_fix_ignored',
+            data: {'age_sec': age.inSeconds},
+          ),
+        );
+        unawaited(refreshLocation());
+        return;
+      }
+    } catch (_) {}
+
     _currentPosition = position;
     _lastUpdateTime = DateTime.now();
     _updateStatus(position.accuracy);
+    _logGpsTrustFlags(position, 'stream');
     if (!_loggedFirstGpsFix) {
       _loggedFirstGpsFix = true;
       unawaited(
@@ -212,6 +227,120 @@ class LocationService extends ChangeNotifier {
       _status = GpsStatus.medium; // 5–15m — Qabul qilinarli
     } else {
       _status = GpsStatus.poor; // >15m — Aniqlik past
+    }
+  }
+
+  /// Mock GPS / eskirgan sensor (fix vaqti) — diagnostika; saqlashdan mustaqil.
+  void _logGpsTrustFlags(Position position, String phase) {
+    var mock = false;
+    try {
+      mock = position.isMocked;
+    } catch (_) {}
+    final age = DateTime.now().difference(position.timestamp);
+    final stale = age > AppTimeouts.gpsFixMaxAge;
+    if (!mock && !stale) {
+      return;
+    }
+    unawaited(
+      ProductionDiagnostics.gps(
+        'trust_alert',
+        phase: phase,
+        data: {
+          'mock': mock,
+          'stale': stale,
+          'age_sec': age.inSeconds,
+          'accuracy_m': position.accuracy,
+        },
+      ),
+    );
+  }
+
+  /// Ilova fon/oldinga o‘tganda: ruxsat, servis holati, Geolocator oqimi qayta ulanadi.
+  Future<void> onApplicationResumed() async {
+    unawaited(ProductionDiagnostics.gps('app_resumed_location_recheck'));
+    try {
+      try {
+        _isServiceEnabled = await Geolocator.isLocationServiceEnabled()
+            .timeout(AppTimeouts.locationServiceProbe);
+      } catch (e) {
+        _isServiceEnabled = false;
+        unawaited(
+          ProductionDiagnostics.gps(
+            'resume_service_probe_failed',
+            data: {'error': e.toString()},
+          ),
+        );
+      }
+
+      if (!_isServiceEnabled) {
+        await _positionSubscription?.cancel();
+        _positionSubscription = null;
+        if (_gpsAcquired) {
+          GpsBroadcaster.instance.release();
+          _gpsAcquired = false;
+        }
+        _status = GpsStatus.off;
+        _currentPosition = null;
+        notifyListeners();
+        return;
+      }
+
+      LocationPermission permission;
+      try {
+        permission = await Geolocator.checkPermission()
+            .timeout(AppTimeouts.gpsPermissionProbe);
+      } catch (e) {
+        permission = LocationPermission.denied;
+        unawaited(
+          ProductionDiagnostics.gps(
+            'resume_check_permission_timeout',
+            data: {'error': e.toString()},
+          ),
+        );
+      }
+      if (permission == LocationPermission.denied) {
+        try {
+          permission = await Geolocator.requestPermission()
+              .timeout(AppTimeouts.gpsPermissionProbe);
+        } catch (e) {
+          permission = LocationPermission.denied;
+        }
+      }
+
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        await _positionSubscription?.cancel();
+        _positionSubscription = null;
+        if (_gpsAcquired) {
+          GpsBroadcaster.instance.release();
+          _gpsAcquired = false;
+        }
+        _status = GpsStatus.denied;
+        _currentPosition = null;
+        notifyListeners();
+        unawaited(
+          ProductionDiagnostics.gps(
+            'resume_permission_blocked',
+            data: {'permission': permission.name},
+          ),
+        );
+        return;
+      }
+
+      if (_status == GpsStatus.denied || _status == GpsStatus.off) {
+        _status = GpsStatus.searching;
+      }
+      _attachGpsStream();
+      await refreshLocation();
+      notifyListeners();
+    } catch (e) {
+      debugPrint('onApplicationResumed location: $e');
+      unawaited(
+        ProductionDiagnostics.gps(
+          'resume_location_failed',
+          data: {'error': e.toString()},
+        ),
+      );
     }
   }
 
@@ -265,6 +394,7 @@ class LocationService extends ChangeNotifier {
       _currentPosition = position;
       _lastUpdateTime = DateTime.now();
       _updateStatus(position.accuracy);
+      _logGpsTrustFlags(position, 'refresh');
       notifyListeners();
     } catch (e) {
       debugPrint("Refresh failed: $e");

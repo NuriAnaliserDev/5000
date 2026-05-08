@@ -1,13 +1,15 @@
 part of 'global_map_screen.dart';
 
 class _GlobalMapScreenState extends State<GlobalMapScreen>
-    with GlobalMapScreenStateFields,
+    with WidgetsBindingObserver,
+         GlobalMapScreenStateFields,
          GlobalMapLineworkMixin,
          GlobalMapPresenceCompassMixin,
          GlobalMapToolsMixin,
          GlobalMapMapUiMixin {
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
     _initMap();
     _startCompass();
@@ -29,11 +31,22 @@ class _GlobalMapScreenState extends State<GlobalMapScreen>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _locationForFollow?.removeListener(_onGpsForFollow);
     _compassSub?.cancel();
     _headingNotifier.dispose();
     _mapController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && mounted) {
+      _startCompass();
+      unawaited(
+        ProductionDiagnostics.gps('global_map_resumed_restart_compass'),
+      );
+    }
   }
 
   @override
@@ -161,6 +174,16 @@ class _GlobalMapScreenState extends State<GlobalMapScreen>
                 Consumer<BoundaryService>(
                   builder: (context, boundaryService, _) {
                     final boundaries = boundaryService.boundaries;
+                    return Selector<LocationService, Position?>(
+                      selector: (_, loc) => loc.currentPosition,
+                      shouldRebuild: (prev, next) {
+                        if (prev == null && next == null) return false;
+                        if (prev == null || next == null) return true;
+                        return prev.latitude != next.latitude ||
+                            prev.longitude != next.longitude ||
+                            prev.accuracy != next.accuracy;
+                      },
+                      builder: (context, currentGpsPosition, _) {
                     return Stack(
                       children: [
                         if (_isVertexEditMode && _editingPolygonId != null)
@@ -179,7 +202,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen>
                                 ...boundaries
                                     .where((b) => b.points.length >= 3)
                                     .map<Polygon>((b) => mapPolygonForBoundary(
-                                        b, currentPos, _gisLayerOpacity)),
+                                        b, currentGpsPosition, _gisLayerOpacity)),
                                 ...geoLines
                                     .where((l) => l.isClosed)
                                     .map((l) => mapPolygonForGeologicalLine(l)),
@@ -216,6 +239,8 @@ class _GlobalMapScreenState extends State<GlobalMapScreen>
                           ],
                         ),
                       ],
+                    );
+                      },
                     );
                   },
                 ),

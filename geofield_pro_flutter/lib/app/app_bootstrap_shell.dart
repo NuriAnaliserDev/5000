@@ -4,7 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'app_bootstrap.dart';
+import '../core/di/dependency_injection.dart';
 import '../screens/error_screen.dart';
+import '../services/location_service.dart';
 import 'global_navigator.dart';
 import '../core/diagnostics/startup_telemetry.dart';
 import '../core/diagnostics/production_diagnostics.dart';
@@ -20,7 +22,13 @@ class AppBootstrapShell extends StatefulWidget {
 
 class _AppBootstrapShellState extends State<AppBootstrapShell> {
   final AppLifecycleDiagnosticsObserver _lifecycle =
-      AppLifecycleDiagnosticsObserver();
+      AppLifecycleDiagnosticsObserver(
+    onResumed: () async {
+      try {
+        await sl<LocationService>().onApplicationResumed();
+      } catch (_) {}
+    },
+  );
 
   String? _error;
   Object? _cause;
