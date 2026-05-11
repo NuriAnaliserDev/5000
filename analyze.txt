@@ -1,0 +1,53 @@
+Analyzing 5000...                                               
+
+   info - The constant name 'manual_edit' isn't a lowerCamelCase identifier - geofield_pro_flutter\lib\models\observation_pipeline_types.dart:11:3 - constant_identifier_names
+   info - The constant name 'sync_merge' isn't a lowerCamelCase identifier - geofield_pro_flutter\lib\models\observation_pipeline_types.dart:14:3 - constant_identifier_names
+   info - The constant name 'export_repair' isn't a lowerCamelCase identifier - geofield_pro_flutter\lib\models\observation_pipeline_types.dart:17:3 - constant_identifier_names
+   info - The constant name 'byte_identical' isn't a lowerCamelCase identifier - geofield_pro_flutter\lib\models\observation_pipeline_types.dart:26:3 - constant_identifier_names
+   info - The constant name 'rapid_capture_similarity' isn't a lowerCamelCase identifier - geofield_pro_flutter\lib\models\observation_pipeline_types.dart:29:3 - constant_identifier_names
+   info - The constant name 'logical_duplicate_unknown' isn't a lowerCamelCase identifier - geofield_pro_flutter\lib\models\observation_pipeline_types.dart:32:3 - constant_identifier_names
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - geofield_pro_flutter\lib\screens\smart_camera\components\lithology_ar_overlay.dart:34:37 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - geofield_pro_flutter\lib\screens\smart_camera\components\lithology_ar_overlay.dart:58:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - geofield_pro_flutter\lib\screens\smart_camera\components\lithology_ar_overlay.dart:78:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - geofield_pro_flutter\lib\screens\smart_camera\components\lithology_ar_overlay.dart:82:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - geofield_pro_flutter\lib\screens\smart_camera\components\lithology_ar_overlay.dart:132:31 - deprecated_member_use
+   info - Statements in an if should be enclosed in a block - geofield_pro_flutter\lib\screens\smart_camera\components\lithology_ar_overlay.dart:145:9 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - geofield_pro_flutter\lib\screens\smart_camera\components\lithology_ar_overlay.dart:147:9 - curly_braces_in_flow_control_structures
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - geofield_pro_flutter\lib\screens\smart_camera\components\lithology_ar_overlay.dart:155:44 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - geofield_pro_flutter\lib\screens\smart_camera\components\lithology_ar_overlay.dart:173:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - geofield_pro_flutter\lib\screens\smart_camera\components\lithology_ar_overlay.dart:189:29 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - geofield_pro_flutter\lib\screens\smart_camera\components\lithology_ar_overlay.dart:232:29 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - geofield_pro_flutter\lib\screens\sync\sync_debug_screen.dart:101:32 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - geofield_pro_flutter\lib\screens\sync\sync_debug_screen.dart:101:62 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - geofield_pro_flutter\lib\screens\sync\sync_debug_screen.dart:106:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - geofield_pro_flutter\lib\screens\sync\sync_debug_screen.dart:113:36 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - geofield_pro_flutter\lib\screens\sync\sync_debug_screen.dart:154:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - geofield_pro_flutter\lib\screens\sync\sync_debug_screen.dart:175:26 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - geofield_pro_flutter\lib\screens\sync\sync_debug_screen.dart:180:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - geofield_pro_flutter\lib\screens\sync\sync_debug_screen.dart:181:32 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - geofield_pro_flutter\lib\screens\sync\sync_debug_screen.dart:215:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - geofield_pro_flutter\lib\screens\sync\sync_debug_screen.dart:248:36 - deprecated_member_use
+   info - Statements in an if should be enclosed in a block - geofield_pro_flutter\lib\services\ai\analysis_stabilizer.dart:57:7 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - geofield_pro_flutter\lib\services\ai\analysis_stabilizer.dart:58:31 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - geofield_pro_flutter\lib\services\ai\analysis_stabilizer.dart:63:58 - curly_braces_in_flow_control_structures
+warning - This default clause is covered by the previous cases - geofield_pro_flutter\lib\services\ai\decision_engine.dart:78:7 - unreachable_switch_default
+   info - Statements in an if should be enclosed in a block - geofield_pro_flutter\lib\services\ai\lithology_normalizer.dart:192:13 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - geofield_pro_flutter\lib\services\ai\mock_ai_client.dart:36:9 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - geofield_pro_flutter\lib\services\ai\mock_ai_client.dart:38:9 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - geofield_pro_flutter\lib\services\ai\mock_ai_client.dart:40:9 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - geofield_pro_flutter\lib\services\ai\mock_ai_client.dart:42:9 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - geofield_pro_flutter\lib\services\ai\mock_ai_client.dart:44:9 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - geofield_pro_flutter\lib\services\ai\mock_ai_client.dart:46:9 - curly_braces_in_flow_control_structures
+warning - The declaration '_currentUserId' isn't referenced - geofield_pro_flutter\lib\services\cloud_sync_service.dart:21:15 - unused_element
+warning - The declaration '_ensureLineOwnerClaim' isn't referenced - geofield_pro_flutter\lib\services\geological_line_repository.dart:179:16 - unused_element
+warning - The left operand can't be null, so the right operand is never executed - geofield_pro_flutter\lib\services\gis_export_service.dart:242:40 - dead_null_aware_expression
+warning - The declaration '_ensureAnnotationOwnerClaim' isn't referenced - geofield_pro_flutter\lib\services\map_structure_repository.dart:90:16 - unused_element
+   info - Don't invoke 'print' in production code - geofield_pro_flutter\refactor_error_handler.dart:40:7 - avoid_print
+warning - The value of the local variable 'aiService' isn't used - geofield_pro_flutter\test\ai_lithology_test.dart:16:29 - unused_local_variable
+warning - The value of the local variable 'timeBox' isn't used - geofield_pro_flutter\test\ai_lithology_test.dart:94:13 - unused_local_variable
+   info - Don't invoke 'print' in production code - geofield_pro_flutter\test\sync_simulation.dart:239:7 - avoid_print
+   info - Don't invoke 'print' in production code - geofield_pro_flutter\test\sync_simulation.dart:288:7 - avoid_print
+warning - The class 'Query' shouldn't be extended, mixed in, or implemented because it's sealed - geofield_pro_flutter\test\sync_simulation.dart:321:1 - subtype_of_sealed_class
+warning - The class 'DocumentReference' shouldn't be extended, mixed in, or implemented because it's sealed - geofield_pro_flutter\test\sync_simulation.dart:329:1 - subtype_of_sealed_class
+warning - The class 'DocumentSnapshot' shouldn't be extended, mixed in, or implemented because it's sealed - geofield_pro_flutter\test\sync_simulation.dart:342:1 - subtype_of_sealed_class
+

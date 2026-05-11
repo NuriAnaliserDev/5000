@@ -5,6 +5,7 @@ import 'package:geofield_pro_flutter/services/ai/mock_ai_client.dart';
 import 'package:geofield_pro_flutter/services/ai/ai_parser.dart';
 import 'package:geofield_pro_flutter/services/ai/lithology_normalizer.dart';
 import 'package:geofield_pro_flutter/services/ai/decision_engine.dart';
+import 'package:geofield_pro_flutter/models/user_context.dart';
 
 void main() {
   group('AI Mock System Tests', () {
@@ -14,22 +15,23 @@ void main() {
 
     test('Mock mode produces varied and realistic scenarios', () async {
       final results = <String>{};
-      
+
       // Run multiple times to see different scenarios
       for (int i = 0; i < 20; i++) {
         final rawJson = await mockClient.generateContent(dummyFile, dummyBytes);
         final parsed = AiParser.parseAndValidate(rawJson);
         results.add(parsed['rockType']);
       }
-      
+
       // Should at least have Granite and likely something else
       expect(results.contains('Granit'), isTrue);
       expect(results.length, greaterThan(1));
     });
 
-    test('System handles Hallucination (Granite + Gold) correctly in Mock Mode', () async {
-       // Manual setup to force the hallucination scenario logic
-       final hallucinationJson = {
+    test('System handles Hallucination (Granite + Gold) correctly in Mock Mode',
+        () async {
+      // Manual setup to force the hallucination scenario logic
+      final hallucinationJson = {
         "rockType": "Granit",
         "mineralogy": ["Kvars", "Oltin 80%"],
         "texture": "Kristalli",
@@ -53,7 +55,7 @@ void main() {
     });
 
     test('System handles Ambiguity penalty correctly', () async {
-       final ambiguousJson = {
+      final ambiguousJson = {
         "rockType": "Granit yoki Diorit",
         "mineralogy": ["Kvars"],
         "texture": "Porfirli",

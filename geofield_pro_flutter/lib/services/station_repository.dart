@@ -6,6 +6,7 @@ import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
 import '../core/diagnostics/production_diagnostics.dart';
+import '../core/error/app_error.dart';
 import '../models/field_trust_meta.dart';
 import '../models/station.dart';
 import '../models/audit_entry.dart';
@@ -36,7 +37,7 @@ class StationRepository extends ChangeNotifier {
   /// Versioning va meta ma'lumotlarni majburiy o'rnatish
   Future<Station> _stamp(Station station, {bool increment = false}) async {
     final deviceId = await DeviceIdHelper.getDeviceId();
-    
+
     return station.copyWith(
       version: increment ? (station.version + 1) : station.version,
       updatedAt: DateTime.now(),
@@ -55,9 +56,7 @@ class StationRepository extends ChangeNotifier {
     await _cloudSync.triggerSync();
   }
 
-  List<Station> get stations => _box.values
-      .where((s) => !s.isDeleted)
-      .toList()
+  List<Station> get stations => _box.values.where((s) => !s.isDeleted).toList()
     ..sort((a, b) => b.date.compareTo(a.date));
 
   Station? getById(dynamic id) => _box.get(id);
@@ -80,7 +79,8 @@ class StationRepository extends ChangeNotifier {
     return null;
   }
 
-  Future<int> addStation(Station station, {UpdateSource source = UpdateSource.local}) async {
+  Future<int> addStation(Station station,
+      {UpdateSource source = UpdateSource.local}) async {
     return await _lock.synchronized(() async {
       final error = GeologyValidator.validateStation(station);
       if (error != null) {
@@ -123,7 +123,9 @@ class StationRepository extends ChangeNotifier {
   }
 
   Future<void> updateStation(dynamic key, Station updated,
-      {String? author, UpdateSource source = UpdateSource.local, String? customRequestId}) async {
+      {String? author,
+      UpdateSource source = UpdateSource.local,
+      String? customRequestId}) async {
     await _lock.synchronized(() async {
       final error = GeologyValidator.validateStation(updated);
       if (error != null) {
@@ -172,7 +174,8 @@ class StationRepository extends ChangeNotifier {
     });
   }
 
-  Future<void> deleteStation(dynamic key, {UpdateSource source = UpdateSource.local}) async {
+  Future<void> deleteStation(dynamic key,
+      {UpdateSource source = UpdateSource.local}) async {
     return await _lock.synchronized(() async {
       final station = _box.get(key);
       if (station == null || station.isDeleted) return;
@@ -266,7 +269,7 @@ class StationRepository extends ChangeNotifier {
         if (s.audioPath != null) {
           await _deleteFile(s.audioPath!);
         }
-        
+
         if (clearCloud) {
           // Add to queue as delete
           final key = s.key;
