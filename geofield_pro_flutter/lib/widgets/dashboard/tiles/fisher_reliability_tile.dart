@@ -31,7 +31,7 @@ class _FisherReliabilityTileState extends State<FisherReliabilityTile> {
     }
     _cachedDataGeneration = gen;
     final strikes = repo.stations.map((s) => s.strike).toList();
-    _stats = GeologyUtils.fisherStats(strikes);
+    _stats = GeologyUtils.fisherStatsAxial(strikes);
   }
 
   @override
@@ -42,13 +42,23 @@ class _FisherReliabilityTileState extends State<FisherReliabilityTile> {
       return const SizedBox.shrink();
     }
     final stats = _stats!;
-    final reliable = stats.isReliable;
-    final pct = reliable
-        ? 95
-        : (100 - (stats.alpha95.isNaN ? 40 : math.min(stats.alpha95 * 4, 80)))
-            .round()
-            .clamp(15, 85);
-    final accent = reliable ? const Color(0xFF4A90E2) : Colors.orange;
+    final hasEnoughData = stats.n >= 5;
+    final reliable = hasEnoughData && stats.isReliable;
+    final pct = !hasEnoughData
+        ? 0
+        : reliable
+            ? 95
+            : (100 -
+                    (stats.alpha95.isNaN
+                        ? 40
+                        : math.min(stats.alpha95 * 4, 80)))
+                .round()
+                .clamp(15, 85);
+    final accent = !hasEnoughData
+        ? Theme.of(context).colorScheme.onSurfaceVariant
+        : reliable
+            ? const Color(0xFF4A90E2)
+            : Colors.orange;
     final s = GeoFieldStrings.of(context);
 
     return AppCard(
@@ -102,7 +112,7 @@ class _FisherReliabilityTileState extends State<FisherReliabilityTile> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          '$pct%',
+                          hasEnoughData ? '$pct%' : 'n=${stats.n}',
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w900,
@@ -110,9 +120,12 @@ class _FisherReliabilityTileState extends State<FisherReliabilityTile> {
                           ),
                         ),
                         Text(
-                          reliable
-                              ? (s?.fisher_gauge_high ?? 'Yuqori ishonchlilik')
-                              : context.loc('fisher_dispersion'),
+                          !hasEnoughData
+                              ? context.loc('no_data')
+                              : reliable
+                                  ? (s?.fisher_gauge_high ??
+                                      'Yuqori ishonchlilik')
+                                  : context.loc('fisher_dispersion'),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,

@@ -31,9 +31,9 @@ class MockAiClient implements AiClient {
     } else {
       final r = _random.nextInt(100);
       if (r < 10) {
-        scenario = MockScenario.networkTimeout;
+        scenario = MockScenario.lowConfidence;
       } else if (r < 15)
-        scenario = MockScenario.invalidJson;
+        scenario = MockScenario.lowConfidence;
       else if (r < 60)
         scenario = MockScenario.validGranite;
       else if (r < 75)

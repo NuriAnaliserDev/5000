@@ -35,36 +35,44 @@ class GeoFieldProApp extends StatelessWidget {
           builder: (context, child) {
             final cloudOk =
                 context.watch<FirebaseBootstrapState>().isCloudEnabled;
+            final mq = MediaQuery.of(context);
+            final clampedTextScale =
+                mq.textScaler.clamp(minScaleFactor: 1.0, maxScaleFactor: 1.15);
             return SecurityWrapper(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (!cloudOk)
-                    Material(
-                      color: const Color(0xFFE65100),
-                      child: SafeArea(
-                        bottom: false,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                          child: Text(
-                            GeoFieldStrings.of(context)
-                                    ?.firebase_local_only_banner ??
-                                'Local mode: cloud unavailable.',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              height: 1.25,
+              child: MediaQuery(
+                data: mq.copyWith(textScaler: clampedTextScale),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (!cloudOk)
+                      Material(
+                        color: const Color(0xFFE65100),
+                        child: SafeArea(
+                          bottom: false,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 7,
+                            ),
+                            child: Text(
+                              GeoFieldStrings.of(context)
+                                      ?.firebase_local_only_banner ??
+                                  'Local mode: cloud unavailable.',
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                height: 1.2,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  Expanded(child: child ?? const SizedBox.shrink()),
-                ],
+                    Expanded(child: child ?? const SizedBox.shrink()),
+                  ],
+                ),
               ),
             );
           },

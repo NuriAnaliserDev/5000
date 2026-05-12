@@ -8,6 +8,7 @@ import 'hive_db.dart';
 class SettingsController extends ChangeNotifier {
   SettingsController() : _box = Hive.box(HiveDb.settingsBox) {
     _runGeologicalArDefaultOffMigration();
+    _runTutorialDefaultOffMigration();
   }
 
   final Box _box;
@@ -26,6 +27,8 @@ class SettingsController extends ChangeNotifier {
   static const _isFirstRunKey = 'isFirstRun';
   static const _mapTutorialKey = 'hasSeenMapTutorial';
   static const _cameraTutorialKey = 'hasSeenCameraTutorial';
+  static const _tutorialDefaultOffMigratedKey =
+      'tutorialDefaultOffMigrated202605';
 
   String? get currentUserName => _box.get(_userNameKey) as String?;
 
@@ -87,6 +90,15 @@ class SettingsController extends ChangeNotifier {
   set hasSeenCameraTutorial(bool value) {
     _box.put(_cameraTutorialKey, value);
     notifyListeners();
+  }
+
+  void _runTutorialDefaultOffMigration() {
+    if (_box.get(_tutorialDefaultOffMigratedKey, defaultValue: false) as bool) {
+      return;
+    }
+    _box.put(_mapTutorialKey, true);
+    _box.put(_cameraTutorialKey, true);
+    _box.put(_tutorialDefaultOffMigratedKey, true);
   }
 
   static const _pixelsPerMmKey = 'pixelsPerMm';
@@ -352,8 +364,7 @@ class SettingsController extends ChangeNotifier {
   static const _lastCapSuccessShaKey = 'lastSuccessfulCaptureImgSha';
 
   /// Ketma-ket capture’lar orasida vaqt — `dup_clock_close` uchun.
-  int? get lastCaptureWallMsForDedup =>
-      _box.get(_lastCapWallDedupKey) as int?;
+  int? get lastCaptureWallMsForDedup => _box.get(_lastCapWallDedupKey) as int?;
 
   void setLastCaptureWallMsForDedup(int wallMs) {
     _box.put(_lastCapWallDedupKey, wallMs);

@@ -30,7 +30,7 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
     _startSensors();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkShowTutorial();
+      //_checkShowTutorial();
       _ensureCameraMatchesMode();
     });
   }
@@ -108,10 +108,9 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
             CameraTopBar(
               cameraMode: _cameraMode,
               onModeChanged: (mode) {
-                final leavingArUi =
-                    (_geologicalArActive ||
-                            _cameraMode == CameraMode.lithology) &&
-                        mode == CameraMode.document;
+                final leavingArUi = (_geologicalArActive ||
+                        _cameraMode == CameraMode.lithology) &&
+                    mode == CameraMode.document;
                 setState(() {
                   _cameraMode = mode;
                   if (mode != CameraMode.lithology) {
@@ -136,10 +135,9 @@ class SmartCameraScreenState extends State<SmartCameraScreen>
             ),
             if (_cameraMode == CameraMode.geological)
               Positioned(
-                top: MediaQuery.paddingOf(context).top + 50,
-                left: 0,
-                right: 0,
-                child: Center(child: _buildGuideChip()),
+                top: MediaQuery.paddingOf(context).top + 58,
+                left: 12,
+                child: _buildGuideChip(),
               ),
             if (_cameraMode == CameraMode.geological &&
                 _showHud &&

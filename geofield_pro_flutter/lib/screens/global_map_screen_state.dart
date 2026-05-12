@@ -1,12 +1,13 @@
 part of 'global_map_screen.dart';
 
 class _GlobalMapScreenState extends State<GlobalMapScreen>
-    with WidgetsBindingObserver,
-         GlobalMapScreenStateFields,
-         GlobalMapLineworkMixin,
-         GlobalMapPresenceCompassMixin,
-         GlobalMapToolsMixin,
-         GlobalMapMapUiMixin {
+    with
+        WidgetsBindingObserver,
+        GlobalMapScreenStateFields,
+        GlobalMapLineworkMixin,
+        GlobalMapPresenceCompassMixin,
+        GlobalMapToolsMixin,
+        GlobalMapMapUiMixin {
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
@@ -21,7 +22,7 @@ class _GlobalMapScreenState extends State<GlobalMapScreen>
       _locationForFollow = context.read<LocationService>();
       _locationForFollow!.addListener(_onGpsForFollow);
       unawaited(context.read<SosService>().syncActiveSosFromServer());
-      _checkShowTutorial();
+      //_checkShowTutorial(); vaqtinchalik debugging uchun kerak
       _startPresenceBroadcast();
       if (widget.fieldWorkshopMode) {
         setState(() => _showLayerDrawer = true);
@@ -184,62 +185,64 @@ class _GlobalMapScreenState extends State<GlobalMapScreen>
                             prev.accuracy != next.accuracy;
                       },
                       builder: (context, currentGpsPosition, _) {
-                    return Stack(
-                      children: [
-                        if (_isVertexEditMode && _editingPolygonId != null)
-                          PolylineLayer(
-                            polylines: mapVertexEditPolylines(
-                              boundaries,
-                              editingPolygonId: _editingPolygonId,
-                              selectedVertexIndex: _selectedVertexIndex,
-                            ),
-                          ),
-                        Consumer<GeologicalLineRepository>(
-                          builder: (context, geoRepo, _) {
-                            final geoLines = geoRepo.getAllLines();
-                            return PolygonLayer(
-                              polygons: [
-                                ...boundaries
-                                    .where((b) => b.points.length >= 3)
-                                    .map<Polygon>((b) => mapPolygonForBoundary(
-                                        b, currentGpsPosition, _gisLayerOpacity)),
-                                ...geoLines
-                                    .where((l) => l.isClosed)
-                                    .map((l) => mapPolygonForGeologicalLine(l)),
-                                if (_isDrawingMode &&
-                                    _selectedLineType == 'polygon' &&
-                                    _drawingPoints.length >= 3)
-                                  Polygon(
-                                    points: _drawingPoints,
-                                    color: Color(int.parse(
-                                            GeologicalLine.defaultColorHex(
-                                                _selectedLineType),
-                                            radix: 16) +
-                                        0x66000000),
-                                    borderColor: Colors.transparent,
-                                    borderStrokeWidth: 0,
-                                  ),
-                              ],
-                            );
-                          },
-                        ),
-                        PolylineLayer(
-                          polylines: [
-                            ...boundaries
-                                .where((b) => b.points.length == 2)
-                                .map(
-                                  (b) => Polyline(
-                                    points: b.points,
-                                    color: b.displayColor.withValues(
-                                        alpha:
-                                            math.max(0.75, _gisLayerOpacity)),
-                                    strokeWidth: 3,
-                                  ),
+                        return Stack(
+                          children: [
+                            if (_isVertexEditMode && _editingPolygonId != null)
+                              PolylineLayer(
+                                polylines: mapVertexEditPolylines(
+                                  boundaries,
+                                  editingPolygonId: _editingPolygonId,
+                                  selectedVertexIndex: _selectedVertexIndex,
                                 ),
+                              ),
+                            Consumer<GeologicalLineRepository>(
+                              builder: (context, geoRepo, _) {
+                                final geoLines = geoRepo.getAllLines();
+                                return PolygonLayer(
+                                  polygons: [
+                                    ...boundaries
+                                        .where((b) => b.points.length >= 3)
+                                        .map<Polygon>((b) =>
+                                            mapPolygonForBoundary(
+                                                b,
+                                                currentGpsPosition,
+                                                _gisLayerOpacity)),
+                                    ...geoLines.where((l) => l.isClosed).map(
+                                        (l) => mapPolygonForGeologicalLine(l)),
+                                    if (_isDrawingMode &&
+                                        _selectedLineType == 'polygon' &&
+                                        _drawingPoints.length >= 3)
+                                      Polygon(
+                                        points: _drawingPoints,
+                                        color: Color(int.parse(
+                                                GeologicalLine.defaultColorHex(
+                                                    _selectedLineType),
+                                                radix: 16) +
+                                            0x66000000),
+                                        borderColor: Colors.transparent,
+                                        borderStrokeWidth: 0,
+                                      ),
+                                  ],
+                                );
+                              },
+                            ),
+                            PolylineLayer(
+                              polylines: [
+                                ...boundaries
+                                    .where((b) => b.points.length == 2)
+                                    .map(
+                                      (b) => Polyline(
+                                        points: b.points,
+                                        color: b.displayColor.withValues(
+                                            alpha: math.max(
+                                                0.75, _gisLayerOpacity)),
+                                        strokeWidth: 3,
+                                      ),
+                                    ),
+                              ],
+                            ),
                           ],
-                        ),
-                      ],
-                    );
+                        );
                       },
                     );
                   },

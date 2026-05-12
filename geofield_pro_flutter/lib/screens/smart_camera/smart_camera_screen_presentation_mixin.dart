@@ -65,28 +65,27 @@ mixin SmartCameraPresentationMixin on SmartCameraStateFields {
   Widget _buildGuideChip() {
     return Material(
       color: Colors.transparent,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-          child: InkWell(
-            onTap: () => _presentCameraTutorial(onFinish: () {}),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.16),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: glassBorder),
-              ),
-              child: Text(
-                context.loc('camera_guide_button'),
-                style: TextStyle(
-                  color: textColor,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 13,
-                  shadows: const [
-                    Shadow(color: Colors.black54, blurRadius: 4),
-                  ],
+      child: Tooltip(
+        message: context.loc('camera_guide_button'),
+        child: ClipOval(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+            child: InkWell(
+              onTap: () => _presentCameraTutorial(onFinish: () {}),
+              child: SizedBox(
+                width: 44,
+                height: 44,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.16),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: glassBorder),
+                  ),
+                  child: Icon(
+                    Icons.help_outline_rounded,
+                    color: textColor,
+                    size: 22,
+                  ),
                 ),
               ),
             ),
@@ -101,6 +100,9 @@ mixin SmartCameraPresentationMixin on SmartCameraStateFields {
       return const SizedBox.shrink();
     }
     final live = _mag != null && _gravity != null;
+    if (!live) {
+      return const SizedBox.shrink();
+    }
     return IgnorePointer(
       child: FocusModeGeologyOverlay(
         pitch: live ? _pitch : _lastHudPitch,

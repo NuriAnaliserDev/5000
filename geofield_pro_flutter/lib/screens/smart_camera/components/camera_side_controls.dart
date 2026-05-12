@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:camera/camera.dart' show FlashMode;
 import 'package:flutter/material.dart';
 import 'dart:ui' show ImageFilter;
@@ -128,15 +126,10 @@ class _CameraSideControlsState extends State<CameraSideControls>
 
   Widget _miniSatellite(_CamDialItem item, int i, int n, double t) {
     final progress = t.clamp(0.0, 1.0);
-    final u = n <= 1 ? 0.5 : i / (n - 1);
-    final angle = math.pi * (0.97 - u * 0.48);
-    const double r = 92;
-    final dx = math.cos(angle) * r * progress;
-    final dy = math.sin(angle) * r * progress;
-    const double fabR = 29;
+    final dy = (i + 1) * 54.0 * progress;
     return Positioned(
-      right: fabR - dx,
-      bottom: fabR + dy,
+      right: 7,
+      bottom: 7 + dy,
       child: IgnorePointer(
         ignoring: progress < 0.1,
         child: Opacity(
@@ -243,8 +236,8 @@ class _CameraSideControlsState extends State<CameraSideControls>
     ];
 
     return SizedBox(
-      width: 210,
-      height: 268,
+      width: 72,
+      height: 288,
       child: Stack(
         clipBehavior: Clip.none,
         alignment: Alignment.bottomRight,

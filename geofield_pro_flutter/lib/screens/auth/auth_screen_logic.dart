@@ -68,10 +68,10 @@ mixin AuthScreenLogicMixin on AuthScreenFields {
         _register ? (completed != true) : (completed == false);
 
     if (showOnboarding) {
-      Navigator.of(context).pushReplacementNamed(AppRouter.onboarding);
+      context.go(AppRouter.onboarding);
     } else {
       settings.isFirstRun = false;
-      Navigator.of(context).pushReplacementNamed(AppRouter.dashboard);
+      context.go(AppRouter.dashboard);
     }
   }
 

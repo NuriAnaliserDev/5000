@@ -102,8 +102,8 @@ class CameraBottomControls extends StatelessWidget {
                     onTap: onCapture,
                     child: Container(
                       key: shutterButtonKey,
-                      width: 84,
-                      height: 84,
+                      width: 72,
+                      height: 72,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(
@@ -122,8 +122,8 @@ class CameraBottomControls extends StatelessWidget {
                       ),
                       child: Center(
                         child: Container(
-                          width: 68,
-                          height: 68,
+                          width: 56,
+                          height: 56,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: isBusy

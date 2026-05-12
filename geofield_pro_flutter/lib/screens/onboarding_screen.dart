@@ -1,12 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:provider/provider.dart';
+
 import '../app/app_router.dart';
 import '../services/settings_controller.dart';
 import '../services/user_flags_service.dart';
+import '../app/platform_gate.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
@@ -16,7 +19,7 @@ class OnboardingScreen extends StatelessWidget {
     final settings = context.read<SettingsController>();
     final colorScheme = Theme.of(context).colorScheme;
 
-    PageDecoration pageDecoration = PageDecoration(
+    final pageDecoration = PageDecoration(
       titleTextStyle: GoogleFonts.outfit(
         fontSize: 28.0,
         fontWeight: FontWeight.bold,
@@ -33,12 +36,18 @@ class OnboardingScreen extends StatelessWidget {
 
     Future<void> completeOnboarding() async {
       settings.isFirstRun = false;
+
       final u = FirebaseAuth.instance.currentUser;
+
       if (u != null) {
         await UserFlagsService.setOnboardingCompleted(u.uid, true);
       }
+
       if (!context.mounted) return;
-      if (u != null) {
+
+      if (!kIsWeb && isDesktopExe()) {
+        context.go(AppRouter.dashboard);
+      } else if (u != null) {
         context.go(AppRouter.dashboard);
       } else {
         context.go(AppRouter.auth);
@@ -51,50 +60,30 @@ class OnboardingScreen extends StatelessWidget {
         PageViewModel(
           title: "AI Lithology (Gemini)",
           body:
-              "Vertex AI yordamida tog' jinslarini real-vaqtda tahlil qiling. Textura va mineralogik tarkibni avtomatik aniqlang.",
+              "Vertex AI yordamida tog' jinslarini real-vaqtda tahlil qiling.",
           image: _buildImage(Icons.psychology_rounded, Colors.purple),
           decoration: pageDecoration,
         ),
         PageViewModel(
           title: "3D Structural Core",
           body:
-              "Geologik qatlamlarni yer ostidagi holatini 3D proeksiyada vizuallashtiring. AR orqali kelajak xaritasini ko'ring.",
+              "Geologik qatlamlarni yer ostidagi holatini 3D ko‘rinishda tahlil qiling.",
           image: _buildImage(Icons.layers_rounded, Colors.blue),
           decoration: pageDecoration,
         ),
         PageViewModel(
           title: "Professional GIS Export",
-          body:
-              "Ma'lumotlarni AutoCAD (DXF), QGIS (GeoJSON) va Google Earth (KML) formatlarida qatlamlar bilan eksport qiling.",
+          body: "DXF, GeoJSON va KML formatlarda professional eksport qiling.",
           image: _buildImage(Icons.map_rounded, Colors.green),
           decoration: pageDecoration,
         ),
-        PageViewModel(
-          title: "Team Collaboration",
-          body:
-              "Dala ma'lumotlarini real-vaqtda jamoa bilan sinxronizatsiya qiling. Offline-first texnologiyasi bilan aloqasiz qolmang.",
-          image: _buildImage(Icons.groups_rounded, Colors.orange),
-          decoration: pageDecoration,
-        ),
       ],
-      onDone: () => completeOnboarding(),
-      onSkip: () => completeOnboarding(),
+      onDone: completeOnboarding,
+      onSkip: completeOnboarding,
       showSkipButton: true,
-      skip: const Text("O'tkazib yuborish",
-          style: TextStyle(fontWeight: FontWeight.w600)),
+      skip: const Text("O'tkazib yuborish"),
       next: const Icon(Icons.arrow_forward),
-      done:
-          const Text("Boshlash", style: TextStyle(fontWeight: FontWeight.w600)),
-      curve: Curves.fastLinearToSlowEaseIn,
-      dotsDecorator: DotsDecorator(
-        size: const Size(10.0, 10.0),
-        color: const Color(0xFFBDBDBD),
-        activeSize: const Size(22.0, 10.0),
-        activeShape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(25.0)),
-        ),
-        activeColor: colorScheme.secondary,
-      ),
+      done: const Text("Boshlash"),
     );
   }
 

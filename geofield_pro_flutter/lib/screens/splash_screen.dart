@@ -57,7 +57,8 @@ class _SplashScreenState extends State<SplashScreen> {
     try {
       setState(() {
         _progress = 0.3;
-        _statusLabel = _s(_loc?.splash_status_firebase, 'Firebase tekshirilmoqda...');
+        _statusLabel =
+            _s(_loc?.splash_status_firebase, 'Firebase tekshirilmoqda...');
       });
       await Future<void>.delayed(const Duration(milliseconds: 80));
       if (!mounted) return;
@@ -65,7 +66,8 @@ class _SplashScreenState extends State<SplashScreen> {
       if (isFirebaseCoreReady) {
         try {
           setState(() {
-            _statusLabel = _s(_loc?.splash_status_session, 'Sessiya tiklanmoqda...');
+            _statusLabel =
+                _s(_loc?.splash_status_session, 'Sessiya tiklanmoqda...');
           });
           await FirebaseAuth.instance
               .authStateChanges()
@@ -86,12 +88,14 @@ class _SplashScreenState extends State<SplashScreen> {
       if (!mounted) return;
       setState(() {
         _progress = 0.5;
-        _statusLabel = _s(_loc?.splash_status_local_db, 'Mahalliy ma\'lumotlar bazasi...');
+        _statusLabel =
+            _s(_loc?.splash_status_local_db, 'Mahalliy ma\'lumotlar bazasi...');
       });
       await Future<void>.delayed(const Duration(milliseconds: 50));
       if (!mounted) return;
       if (!Hive.isBoxOpen(HiveDb.stationsBox)) {
-        throw StateError(_s(_loc?.splash_error_local_db, 'Mahalliy ma\'lumotlar bazasi ochilmadi'));
+        throw StateError(_s(_loc?.splash_error_local_db,
+            'Mahalliy ma\'lumotlar bazasi ochilmadi'));
       }
 
       if (mounted) {
@@ -330,7 +334,7 @@ class _SplashScreenState extends State<SplashScreen> {
       return;
     }
 
-    context.go(AppRouter.auth);
+    context.go(AppRouter.dashboard);
   }
 
   @override

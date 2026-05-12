@@ -24,15 +24,20 @@ class AccessControlService extends ChangeNotifier {
       _currentRole == UserRole.geologistSenior;
 
   AccessControlService() {
-    FirebaseAuth.instance.authStateChanges().listen((user) {
-      if (user == null) {
-        _currentRole = UserRole.unknown;
-        _roleSubscription?.cancel();
-        notifyListeners();
-      } else {
-        _listenToUserRole(user.uid);
-      }
-    });
+    try {
+      FirebaseAuth.instance.authStateChanges().listen((user) {
+        if (user == null) {
+          _currentRole = UserRole.unknown;
+          _roleSubscription?.cancel();
+          notifyListeners();
+        } else {
+          _listenToUserRole(user.uid);
+        }
+      });
+    } catch (e) {
+      debugPrint('AccessControlService: Firebase mavjud emas, local mode.');
+      _currentRole = UserRole.unknown;
+    }
   }
 
   void _listenToUserRole(String uid) {

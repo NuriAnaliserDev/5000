@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:latlong2/latlong.dart';
 
 import 'global_navigator.dart';
 import 'platform_gate.dart';
@@ -26,6 +27,7 @@ import '../screens/web/web_dashboard_main.dart';
 import '../screens/web/web_login_screen.dart';
 import '../screens/sync/conflict_resolution_screen.dart';
 import '../screens/sync/sync_debug_screen.dart';
+import '../screens/three_d_viewer_screen.dart';
 
 class AppRouter {
   AppRouter._();
@@ -269,6 +271,18 @@ class AppRouter {
       GoRoute(
         path: syncDebug,
         builder: (context, state) => const SyncDebugScreen(),
+      ),
+      GoRoute(
+        path: '/three_d',
+        builder: (context, state) {
+          final extra = state.extra;
+          final point = extra is LatLng ? extra : null;
+          if (point == null) return const _NotFoundScreen();
+
+          return ThreeDViewerScreen(
+            centerPoint: point,
+          );
+        },
       ),
     ],
     errorBuilder: (context, state) => const _NotFoundScreen(),

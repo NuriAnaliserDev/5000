@@ -6,11 +6,11 @@ import 'package:provider/provider.dart';
 import '../screens/auth_screen.dart';
 import '../screens/desktop/desktop_shell.dart';
 import 'main_tab_shell.dart';
-import '../screens/web/web_dashboard_main.dart';
-import '../screens/web/web_login_screen.dart';
+//import '../screens/web/web_dashboard_main.dart';
+//import '../screens/web/web_login_screen.dart';
 import '../services/auth_service.dart';
 
-bool _isDesktopExe() {
+bool isDesktopExe() {
   if (kIsWeb) return false;
   return defaultTargetPlatform == TargetPlatform.windows ||
       defaultTargetPlatform == TargetPlatform.macOS ||
@@ -24,13 +24,14 @@ class PlatformGate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (kIsWeb) {
-      final auth = context.watch<AuthService>();
-      return auth.isAuthenticated
-          ? const WebDashboardMain()
-          : const WebLoginScreen();
+      return const Scaffold(
+        body: Center(
+          child: Text('Web version vaqtincha o‘chirilgan'),
+        ),
+      );
     }
 
-    if (_isDesktopExe()) {
+    if (isDesktopExe()) {
       final auth = context.watch<AuthService>();
       return auth.isAuthenticated ? const DesktopShell() : const AuthScreen();
     }

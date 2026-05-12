@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../services/settings_controller.dart';
 import 'app_localizations.dart';
+import 'package:go_router/go_router.dart';
 
 /// Pastki navigatsiya: 5 ta slot (Dashboard, Xarita, Kamera, Arxiv, Yana).
 /// Xabarlar, admin/sozlamalar va (expert) masshtab — "Yana" ostida.
@@ -35,6 +36,7 @@ class AppBottomNavBar extends StatelessWidget {
   static bool _isMoreRoute(String route) {
     return route == '/messages' ||
         route == '/admin' ||
+        route == '/settings' ||
         route == '/scale-assistant';
   }
 
@@ -156,7 +158,7 @@ class AppBottomNavBar extends StatelessWidget {
                   onShellTabSelected(route);
                   return;
                 }
-                Navigator.of(context).pushReplacementNamed(route);
+                context.go(route);
               },
               child: SizedBox(
                 height: 64,
@@ -223,6 +225,7 @@ class AppBottomNavBar extends StatelessWidget {
               splashColor: activeColor.withValues(alpha: 0.12),
               highlightColor: activeColor.withValues(alpha: 0.06),
               onTap: () {
+                final rootContext = context;
                 showModalBottomSheet<void>(
                   context: context,
                   showDragHandle: true,
@@ -236,8 +239,7 @@ class AppBottomNavBar extends StatelessWidget {
                             title: Text(context.loc('nav_messages')),
                             onTap: () {
                               Navigator.of(ctx).pop();
-                              Navigator.of(context)
-                                  .pushReplacementNamed('/messages');
+                              rootContext.go('/messages');
                             },
                           ),
                           if (isExpert)
@@ -246,17 +248,15 @@ class AppBottomNavBar extends StatelessWidget {
                               title: Text(context.loc('scale_short')),
                               onTap: () {
                                 Navigator.of(ctx).pop();
-                                Navigator.of(context)
-                                    .pushReplacementNamed('/scale-assistant');
+                                rootContext.go('/scale-assistant');
                               },
                             ),
                           ListTile(
                             leading: const Icon(Icons.settings_rounded),
-                            title: Text(context.loc('admin')),
+                            title: Text(context.loc('settings')),
                             onTap: () {
                               Navigator.of(ctx).pop();
-                              Navigator.of(context)
-                                  .pushReplacementNamed('/admin');
+                              rootContext.go('/settings');
                             },
                           ),
                         ],

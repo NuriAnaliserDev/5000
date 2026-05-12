@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../l10n/app_strings.dart';
-import '../../three_d_viewer_screen.dart';
 
 class MapThreeDButton extends StatelessWidget {
   final LatLng centerPoint;
@@ -16,12 +16,9 @@ class MapThreeDButton extends StatelessWidget {
       child: FloatingActionButton(
         heroTag: 'three_d_btn',
         onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => ThreeDViewerScreen(
-                centerPoint: centerPoint,
-              ),
-            ),
+          context.push(
+            '/three_d',
+            extra: centerPoint,
           );
         },
         backgroundColor: const Color(0xFF1976D2),

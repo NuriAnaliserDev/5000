@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
 import '../services/station_repository.dart';
 import '../utils/app_localizations.dart';
@@ -53,7 +54,7 @@ class _AnalysisScreenState extends State<AnalysisScreen>
             if (Navigator.canPop(context)) {
               Navigator.of(context).pop();
             } else {
-              Navigator.of(context).pushReplacementNamed('/dashboard');
+              context.go('/dashboard');
             }
           },
         ),

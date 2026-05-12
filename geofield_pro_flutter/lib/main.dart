@@ -5,7 +5,7 @@ import 'app/app_bootstrap_shell.dart';
 import 'app/global_navigator.dart';
 import 'core/error/error_mapper.dart';
 import 'core/error/error_logger.dart';
-import 'core/error/error_handler.dart';
+//import 'core/error/error_handler.dart'; app qayta qayta dialog chiqarishni oldini oladi. Error handlerga bog`liq
 import 'core/error/global_error_handling.dart';
 import 'core/diagnostics/startup_telemetry.dart';
 import 'core/diagnostics/production_diagnostics.dart';
@@ -21,7 +21,7 @@ void main() {
       final mappedError = ErrorMapper.map(details.exception, details.stack);
       ErrorLogger.log(mappedError);
       if (globalNavigatorKey.currentContext != null) {
-        ErrorHandler.show(globalNavigatorKey.currentContext!, mappedError);
+        //ErrorHandler.show(globalNavigatorKey.currentContext!, mappedError);
       }
     };
 
@@ -29,7 +29,7 @@ void main() {
       final mappedError = ErrorMapper.map(error, stack);
       ErrorLogger.log(mappedError);
       if (globalNavigatorKey.currentContext != null) {
-        ErrorHandler.show(globalNavigatorKey.currentContext!, mappedError);
+        //ErrorHandler.show(globalNavigatorKey.currentContext!, mappedError);
       }
       return true;
     };

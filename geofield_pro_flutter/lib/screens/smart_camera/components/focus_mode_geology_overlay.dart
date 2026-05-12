@@ -49,7 +49,7 @@ class FocusModeGeologyOverlay extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final h = constraints.maxHeight;
-        const double instrumentY = 0.34;
+        const double instrumentY = 0.42;
 
         return Stack(
           children: [

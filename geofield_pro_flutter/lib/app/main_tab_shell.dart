@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../screens/archive_screen.dart';
@@ -113,38 +114,58 @@ class MainTabShellState extends State<MainTabShell> {
     );
   }
 
+  Future<void> _handleSystemBack() async {
+    final nav = _navigatorKeys[_index].currentState;
+    if (nav != null && await nav.maybePop()) {
+      return;
+    }
+    if (_index != 0) {
+      selectTab(0);
+      return;
+    }
+    await SystemNavigator.pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MainTabScope(
       shellState: this,
-      child: Scaffold(
-        body: IndexedStack(
-          index: _index,
-          children: [
-            _tabNavigator(0, const DashboardScreen(embedded: true)),
-            _tabNavigator(
-              1,
-              GlobalMapScreen(
-                embedded: true,
-                initLocation: _mapLocation,
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop) {
+            unawaited(_handleSystemBack());
+          }
+        },
+        child: Scaffold(
+          body: IndexedStack(
+            index: _index,
+            children: [
+              _tabNavigator(0, const DashboardScreen(embedded: true)),
+              _tabNavigator(
+                1,
+                GlobalMapScreen(
+                  embedded: true,
+                  initLocation: _mapLocation,
+                ),
               ),
-            ),
-            _tabNavigator(
-              2,
-              SmartCameraScreen(
-                key: ValueKey<int?>(_cameraStationId),
-                embedded: true,
-                tabVisible: _index == 2,
-                stationId: _cameraStationId,
+              _tabNavigator(
+                2,
+                SmartCameraScreen(
+                  key: ValueKey<int?>(_cameraStationId),
+                  embedded: true,
+                  tabVisible: _index == 2,
+                  stationId: _cameraStationId,
+                ),
               ),
-            ),
-            _tabNavigator(3, const ArchiveScreen(embedded: true)),
-          ],
-        ),
-        bottomNavigationBar: AppBottomNavBar(
-          activeRoute: _routeForIndex(_index),
-          useShellNavigation: true,
-          onShellTabSelected: _onShellTabTap,
+              _tabNavigator(3, const ArchiveScreen(embedded: true)),
+            ],
+          ),
+          bottomNavigationBar: AppBottomNavBar(
+            activeRoute: _routeForIndex(_index),
+            useShellNavigation: true,
+            onShellTabSelected: _onShellTabTap,
+          ),
         ),
       ),
     );

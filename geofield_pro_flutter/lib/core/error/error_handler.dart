@@ -42,7 +42,8 @@ class ErrorHandler {
             type: SnackbarType.error);
         break;
       case ErrorCategory.unknown:
-        _showErrorDialog(context, title: 'Xatolik', message: appError.userMessage);
+        _showErrorDialog(context,
+            title: 'Xatolik', message: appError.userMessage);
         break;
     }
   }
@@ -51,6 +52,8 @@ class ErrorHandler {
       {required String title,
       required String message,
       bool isDismissible = true}) {
+    if (!context.mounted) return;
+
     showDialog(
       context: context,
       barrierDismissible: isDismissible,

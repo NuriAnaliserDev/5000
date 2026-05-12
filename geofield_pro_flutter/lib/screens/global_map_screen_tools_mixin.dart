@@ -228,6 +228,7 @@ mixin GlobalMapToolsMixin on GlobalMapScreenStateFields {
       if (_isStructurePlaceMode) {
         _isDrawingMode = false;
         _isSliceMode = false;
+        _isEraserMode = false;
         _drawingPoints = [];
       }
     });
@@ -252,6 +253,7 @@ mixin GlobalMapToolsMixin on GlobalMapScreenStateFields {
       _isSliceMode = !_isSliceMode;
       _isDrawingMode = false;
       _isStructurePlaceMode = false;
+      _isEraserMode = false;
       _drawingPoints = [];
     });
     if (_isSliceMode) {
@@ -301,6 +303,7 @@ mixin GlobalMapToolsMixin on GlobalMapScreenStateFields {
       _mapController.move(result, math.max(_mapController.camera.zoom, 13));
     }
   }
+
   void _copyUtmCenterToClipboard() {
     final p = LatLng(_centerLat, _centerLng);
     final t = UtmWgs84.formatUtm(p);
@@ -383,7 +386,6 @@ mixin GlobalMapToolsMixin on GlobalMapScreenStateFields {
       }
     }
   }
-
 
   Future<void> _confirmDeleteStructure(MapStructureAnnotation a) async {
     final s = GeoFieldStrings.of(context);
