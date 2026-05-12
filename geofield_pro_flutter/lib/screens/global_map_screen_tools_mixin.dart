@@ -114,38 +114,20 @@ mixin GlobalMapToolsMixin on GlobalMapScreenStateFields {
   void _gisOpacityChanged(double v) => _gisLayerOpacity = v;
 
   Future<void> _importGisFromMap() async {
-    final boundary = context.read<BoundaryService>();
-    final s = GeoFieldStrings.of(context);
-    try {
-      final ok = await showGisImportPrecheckDialog(context);
-      if (!ok || !mounted) return;
-      final pos = context.read<LocationService>().currentPosition;
-      final center = _mapController.camera.center;
-      final r = await boundary.importFileFromWeb(
-        hintLatitude: pos?.latitude ?? center.latitude,
-        hintLongitude: pos?.longitude ?? center.longitude,
-      );
-      if (!mounted) return;
-      if (r == null) {
-        return;
-      }
-      if (r.fitPoints.isNotEmpty) {
-        final bounds = LatLngBounds.fromPoints(r.fitPoints);
-        _mapController.fitCamera(
-          CameraFit.bounds(
-            bounds: bounds,
-            padding: const EdgeInsets.all(48),
-          ),
-        );
-      }
-      if (s != null) {
-        showGisImportResultSnackbar(context, s, r);
-      }
-    } catch (e) {
-      if (mounted) {
-        ErrorHandler.show(context, ErrorMapper.map(e));
-      }
+    final fitPoints = await MapGisImportAction.importFromMap(
+      context,
+      fallbackCenter: _mapController.camera.center,
+    );
+    if (!mounted || fitPoints == null || fitPoints.isEmpty) {
+      return;
     }
+    final bounds = LatLngBounds.fromPoints(fitPoints);
+    _mapController.fitCamera(
+      CameraFit.bounds(
+        bounds: bounds,
+        padding: const EdgeInsets.all(48),
+      ),
+    );
   }
 
   /// Pro vositalar ekranidan so‘ng amallarni bajarish.
@@ -305,86 +287,21 @@ mixin GlobalMapToolsMixin on GlobalMapScreenStateFields {
   }
 
   void _copyUtmCenterToClipboard() {
-    final p = LatLng(_centerLat, _centerLng);
-    final t = UtmWgs84.formatUtm(p);
-    Clipboard.setData(ClipboardData(text: t));
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(t),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
+    MapCenterActions.copyUtmCenterToClipboard(
+      context,
+      LatLng(_centerLat, _centerLng),
+    );
   }
 
   Future<void> _showMapCenterElevation() async {
-    final s = GeoFieldStrings.of(context);
-    if (s == null) return;
-    final c = _mapController.camera.center;
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(s.elevation_lookup_progress),
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    }
-    final m = await ElevationService.fetchElevationMeters(c);
-    if (!mounted) return;
-    if (m == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(s.elevation_lookup_failed),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            s.elevation_meters_result(m.toStringAsFixed(1)),
-          ),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
+    await MapCenterActions.showCenterElevation(
+      context,
+      _mapController.camera.center,
+    );
   }
 
   Future<void> _exportMapGeoJson() async {
-    final s = GeoFieldStrings.of(context);
-    if (s == null) return;
-    try {
-      final lines = context.read<GeologicalLineRepository>().getAllLines();
-      final bounds = context.read<BoundaryService>().boundaries;
-      final text = GisGeoJsonExport.buildString(
-        lines: lines,
-        boundaries: bounds,
-      );
-      if (kIsWeb) {
-        await Clipboard.setData(ClipboardData(text: text));
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(s.map_export_geojson),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
-        return;
-      }
-      final dir = await getTemporaryDirectory();
-      final f = File(
-        '${dir.path}/geofield_export_${DateTime.now().millisecondsSinceEpoch}.geojson',
-      );
-      await f.writeAsString(text);
-      await Share.shareXFiles([XFile(f.path)], text: s.map_export_geojson);
-    } catch (e) {
-      if (mounted) {
-        ErrorHandler.show(context, ErrorMapper.map(e));
-      }
-    }
+    await MapCenterActions.exportGeoJson(context);
   }
 
   Future<void> _confirmDeleteStructure(MapStructureAnnotation a) async {
