@@ -2,58 +2,15 @@ part of 'global_map_screen.dart';
 
 mixin GlobalMapMapUiMixin on GlobalMapToolsMixin {
   Widget _buildFieldWorkshopToolRail() {
-    final s = GeoFieldStrings.of(context);
-    if (s == null) {
-      return const SizedBox.shrink();
-    }
-    final t = Theme.of(context);
-    return Positioned(
-      right: 4,
-      top: 118,
-      child: Material(
-        elevation: 6,
-        borderRadius: BorderRadius.circular(14),
-        color: t.colorScheme.surfaceContainerHigh.withValues(alpha: 0.95),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                tooltip: context.loc('layer_management'),
-                onPressed: () => setState(() => _showLayerDrawer = true),
-                icon: const Icon(Icons.layers, color: Color(0xFF1976D2)),
-              ),
-              IconButton(
-                tooltip: s.map_layer_import_gis,
-                onPressed: _importGisFromMap,
-                icon: const Icon(Icons.file_upload, color: Color(0xFF388E3C)),
-              ),
-              IconButton(
-                tooltip: context.loc('layer_drawings'),
-                onPressed: _workshopStartDrawing,
-                icon: Icon(
-                  Icons.draw,
-                  color: _isDrawingMode
-                      ? const Color(0xFFFF9800)
-                      : const Color(0xFF5D4037),
-                ),
-              ),
-              const Divider(height: 1),
-              IconButton(
-                tooltip: s.map_pro_tools_title,
-                onPressed: _openMapProTools,
-                icon: const Icon(
-                  Icons.workspace_premium,
-                  color: Color(0xFF0D47A1),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+    return MapWorkshopToolRail(
+      isDrawingMode: _isDrawingMode,
+      onOpenLayers: () => setState(() => _showLayerDrawer = true),
+      onImportGis: _importGisFromMap,
+      onStartDrawing: _workshopStartDrawing,
+      onOpenProTools: _openMapProTools,
     );
   }
+
   Widget _buildStitchMapChrome({required dynamic currentPos}) {
     final s = GeoFieldStrings.of(context);
     if (s == null) {
@@ -144,95 +101,17 @@ mixin GlobalMapMapUiMixin on GlobalMapToolsMixin {
       ],
     );
   }
+
   Widget _buildWorkshopInfoBanner() {
-    final s = GeoFieldStrings.of(context);
-    if (s == null) return const SizedBox.shrink();
-    final t = Theme.of(context);
-    return Positioned(
-      top: 64,
-      left: 10,
-      right: 10,
-      child: Material(
-        elevation: 2,
-        borderRadius: BorderRadius.circular(8),
-        color: t.colorScheme.primaryContainer,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 4, 4, 6),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(Icons.checklist_rtl, size: 20),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      s.field_workshop_checklist,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                        color: t.colorScheme.onPrimaryContainer,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close, size: 18),
-                    onPressed: () =>
-                        setState(() => _workshopInfoBanner = false),
-                    padding: EdgeInsets.zero,
-                    constraints:
-                        const BoxConstraints(minWidth: 32, minHeight: 32),
-                    tooltip: MaterialLocalizations.of(context).closeButtonLabel,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 2),
-              Text(
-                s.field_workshop_banner,
-                style: TextStyle(
-                  fontSize: 10,
-                  color:
-                      t.colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
-                ),
-              ),
-              CheckboxListTile(
-                value: _workshopChecklist[0],
-                onChanged: (v) =>
-                    setState(() => _workshopChecklist[0] = v ?? false),
-                title: Text(s.field_workshop_ch1,
-                    style: const TextStyle(fontSize: 11)),
-                dense: true,
-                contentPadding: EdgeInsets.zero,
-                controlAffinity: ListTileControlAffinity.leading,
-              ),
-              CheckboxListTile(
-                value: _workshopChecklist[1],
-                onChanged: (v) =>
-                    setState(() => _workshopChecklist[1] = v ?? false),
-                title: Text(s.field_workshop_ch2,
-                    style: const TextStyle(fontSize: 11)),
-                dense: true,
-                contentPadding: EdgeInsets.zero,
-                controlAffinity: ListTileControlAffinity.leading,
-              ),
-              CheckboxListTile(
-                value: _workshopChecklist[2],
-                onChanged: (v) =>
-                    setState(() => _workshopChecklist[2] = v ?? false),
-                title: Text(s.field_workshop_ch3,
-                    style: const TextStyle(fontSize: 11)),
-                dense: true,
-                contentPadding: EdgeInsets.zero,
-                controlAffinity: ListTileControlAffinity.leading,
-              ),
-            ],
-          ),
-        ),
-      ),
+    return MapWorkshopInfoBanner(
+      checklist: _workshopChecklist,
+      onClose: () => setState(() => _workshopInfoBanner = false),
+      onChecklistChanged: (index, value) {
+        setState(() => _workshopChecklist[index] = value);
+      },
     );
   }
+
   Widget _buildMeasureStatsPanel() {
     final s = GeoFieldStrings.of(context);
     final m = _measurePoints;
@@ -311,6 +190,7 @@ mixin GlobalMapMapUiMixin on GlobalMapToolsMixin {
       ),
     );
   }
+
   Widget _buildMapFloatingLayer({required dynamic currentPos}) {
     // Faqat chizim / qo‘lda struktura: chizim paneli bilan to‘qnashadigan
     // qo‘shimcha yon FABlarni yig‘amiz. Kesim va o‘lchovda to‘liq to‘plam
@@ -430,45 +310,11 @@ mixin GlobalMapMapUiMixin on GlobalMapToolsMixin {
       ],
     );
   }
+
   Widget _buildUserLocationMarker(dynamic currentPos) {
-    if (currentPos == null) return const SizedBox.shrink();
-    return MarkerLayer(
-      markers: [
-        Marker(
-          width: 64,
-          height: 64,
-          point: LatLng(currentPos.latitude, currentPos.longitude),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.lightBlueAccent.withValues(alpha: 0.18))),
-              Container(
-                  width: 14,
-                  height: 14,
-                  decoration: const BoxDecoration(
-                      shape: BoxShape.circle, color: Colors.lightBlueAccent)),
-              ValueListenableBuilder<double?>(
-                valueListenable: _headingNotifier,
-                builder: (context, heading, child) {
-                  if (heading == null) return const SizedBox.shrink();
-                  return Transform.rotate(
-                    angle: heading * math.pi / 180,
-                    child: Transform.translate(
-                        offset: const Offset(0, -18),
-                        child: const Icon(Icons.navigation,
-                            color: Colors.blueAccent, size: 22)),
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
-      ],
+    return MapUserLocationMarker(
+      currentPosition: currentPos,
+      headingListenable: _headingNotifier,
     );
   }
 
